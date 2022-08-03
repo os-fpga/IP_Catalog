@@ -266,7 +266,14 @@ i2c_inst
 .m_axil_rdata(m_axil_rdata),
 .m_axil_rresp(m_axil_rresp),
 .m_axil_rvalid(m_axil_rvalid),
-.m_axil_rready(m_axil_rready)
+.m_axil_rready(m_axil_rready),
+
+.busy(busy),
+.bus_addressed(bus_addressed),
+.bus_active(bus_active),
+
+.enable(enable),
+.device_address(device_address)
 );
 
 endmodule
