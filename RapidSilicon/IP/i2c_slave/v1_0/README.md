@@ -6,7 +6,7 @@ I2C-SLAVE is AXI4-Lite master interface based IP core.
 For more information, visit: http://alexforencich.com/wiki/en/verilog/i2c/start
 
 ## Generator Script
-This directory contains the generator script which places the RTL to `/<mod_name>/rapidsilicon/ip/i2c_slave/v1_0/src` directory and generates its wrapper in the same directory. 
+This directory contains the generator script which places the RTL to `/<build_name>/rapidsilicon/ip/i2c_slave/v1_0/src` directory and generates its wrapper in the same directory. 
 
 ## Parameters
 There are three parameters for I2C_SLAVE core. These parameters, their keywords and values are given below:
@@ -19,12 +19,13 @@ There are three parameters for I2C_SLAVE core. These parameters, their keywords 
 
 
 
-To give above parameters to RTL, write `-P<keyword>=<value>` in configure_ip command in raptor.tcl file.
-
-For example: configure_ip i2c_slave_gen -mod_name i2c_slave_wrapper `-Pdata_width=32` `-Paddr_width=16` `-Pfilter_len=4` -out_file ./i2c_slave_wrapper.v
+To generate RTL with above parameters, run the following command:
+```
+python3 i2c_slave_gen.py --data_width=16 --mod_name=wrapper --build
+```
 
 ## TCL File 
-This python script also generates a .tcl file which will be placed in `/<mod_name>/rapidsilicon/ip/i2c_slave/v1_0/synth` directory.
+This python script also generates a raptor.tcl file which will be placed in `/<build_name>/rapidsilicon/ip/i2c_slave/v1_0/synth` directory.
 
 ## Design Generation
 To generate your design, follow these steps.

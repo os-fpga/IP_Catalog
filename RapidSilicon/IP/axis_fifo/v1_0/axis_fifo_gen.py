@@ -29,7 +29,7 @@ def main():
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--depth",          default=1024,                 help="FIFO Depth")
-    core_group.add_argument("--data_width",     default=8,                   help="FIFO Data Width")
+    core_group.add_argument("--data_width",     default=8,                    help="FIFO Data Width")
     core_group.add_argument("--last_en",        default=1,                    help="FIFO Last Enable 0 or 1")
     core_group.add_argument("--id_en",          default=0,                    help="FIFO ID Enable 0 or 1")
     core_group.add_argument("--id_width",       default=8,                    help="FIFO ID Width")
@@ -45,8 +45,9 @@ def main():
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="build",                help="Build Directory")
-    build_group.add_argument("--build-name",    default="axis_fifo_wrapper",    help="Module Name and File Name of the RTL")
+    build_group.add_argument("--build_dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build_name",    default="axis_fifo",            help="Build Folder Name")
+    build_group.add_argument("--mod_name",      default="axis_fifo_wrapper",    help="Module Name and File Name of the RTL")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -76,7 +77,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(os.path.abspath(os.getcwd()), (args.build_name) + '/rapidsilicon/ip/axis_fifo/v1_0/')
+        build_path = os.path.join(args.build_dir, (args.build_name) + '/rapidsilicon/ip/axis_fifo/v1_0/')
         if not os.path.exists(build_path):
             os.makedirs(build_path)
 
@@ -95,7 +96,7 @@ def main():
         if not os.path.exists(synth_path):    
             os.makedirs(synth_path) 
         # Design Path
-        design_path = os.path.join("../src", (args.build_name + ".v")) 
+        design_path = os.path.join("../src", (args.mod_name + ".v")) 
 
         # Copy RTL from Source to Destination        
         src_files = os.listdir(rtl_path)
@@ -116,7 +117,7 @@ def main():
 #        for f, typ, lib in file_name:
         tcl.append(f"add_design_file {design_path}")
         # Set Top Module.
-        tcl.append(f"set_top_module {args.build_name}")
+        tcl.append(f"set_top_module {args.mod_name}")
         # Add Timings Constraints.
 #        tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
@@ -128,8 +129,9 @@ def main():
             f.write("\n".join(tcl))
         f.close()
 
-        # Generate RTL Wrapper
-        wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
+    # Generate RTL Wrapper
+    if args.mod_name:
+        wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
         with open(wrapper_path, "w") as f:
 
 #-------------------------------------------------------------------------------
@@ -164,7 +166,7 @@ THE SOFTWARE.
 """)
             f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
             f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-            f.write ("""module {} #(""".format(args.build_name))
+            f.write ("""module {} #(""".format(args.mod_name))
 
             f.write ("""
         // FIFO depth in words
