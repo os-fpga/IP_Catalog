@@ -6,7 +6,7 @@ AXI-GPIO is AXI4-Lite based IP core.
 
 ## Generator Script
 
-This directory contains the generator script which places the RTL to `/<mod_name>/rapidsilicon/ip/axi_gpio/v1_0/src` directory and generates its wrapper in the same directory. 
+This directory contains the generator script which places the RTL to `/<build_name>/rapidsilicon/ip/axi_gpio/v1_0/src` directory and generates its wrapper in the same directory. 
 
 ## Parameters
 There are two parameters for AXI-GPIO core. These parameters, their keywords and values are given below:
@@ -17,13 +17,13 @@ There are two parameters for AXI-GPIO core. These parameters, their keywords and
     |   2.  |   ADDRESS_WIDTH           |       addr_width          |      8,16        |
 
 
-To give above parameters to RTL, write `-P<keyword>=<value>` in configure_ip command in raptor.tcl file.
-
-For example: configure_ip axi_gpio_gen -mod_name axi_gpio_wrapper `-Pdata_width=32` `-Paddr_width=16` -out_file ./axi_gpio_wrapper.v
-
+To generate RTL with above parameters, run the following command:
+```
+python3 axi_gpio_gen.py --data_width=16 --addr_width=8 --build_name=gpio --mod_name=wrapper --build
+```
 
 ## TCL File
-This python script also generates a .tcl file which will be placed in `/<mod_name>/rapidsilicon/ip/axi_gpio/v1_0/synth` directory.
+This python script also generates a raptor.tcl file which will be placed in `/<build_name>/rapidsilicon/ip/axi_gpio/v1_0/synth` directory.
 
 ## Design Generation
 

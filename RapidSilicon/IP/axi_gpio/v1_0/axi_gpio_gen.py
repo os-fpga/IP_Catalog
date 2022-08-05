@@ -34,13 +34,14 @@ def main():
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="build",                help="Build Directory")
-    build_group.add_argument("--build-name",    default="axi_gpio_wrapper",     help="Module Name and File Name of the RTL")
+    build_group.add_argument("--build_dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build_name",    default="axi_gpio",             help="Build Folder Name")
+    build_group.add_argument("--mod_name",      default="axi_gpio_wrapper",     help="Module Name and File Name of the RTL")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
-    json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
+    json_group.add_argument("--json_template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
 
@@ -65,7 +66,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path 
-        build_path = os.path.join(os.path.abspath(os.getcwd()),(args.build_name) + '/rapidsilicon/ip/axi_gpio/v1_0/')
+        build_path = os.path.join(args.build_dir, (args.build_name) + '/rapidsilicon/ip/axi_gpio/v1_0/')
         if not os.path.exists(build_path):
             os.makedirs(build_path)
 
@@ -85,7 +86,7 @@ def main():
             os.makedirs(synth_path)
 
         # Design Path 
-        design_path = os.path.join("../src", (args.build_name + ".sv"))  
+        design_path = os.path.join("../src", (args.mod_name + ".sv"))  
 
         # Copy RTL from Source to Destination
         src_files = os.listdir(rtl_path)
@@ -108,7 +109,7 @@ def main():
 #        for f, typ, lib in file_name:
         tcl.append(f"add_design_file {design_path}")
         # Set Top Module.
-        tcl.append(f"set_top_module {args.build_name}")
+        tcl.append(f"set_top_module {args.mod_name}")
         # Add Timings Constraints.
 #        tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
@@ -120,10 +121,10 @@ def main():
             f.write("\n".join(tcl))
         f.close()
 
-        # Generate RTL Wrapper
-        wrapper_path = os.path.join(src_path, (args.build_name + ".sv"))
+    # Generate RTL Wrapper
+    if args.mod_name:
+        wrapper_path = os.path.join(src_path, (args.mod_name + ".sv"))
         with open(wrapper_path,'w') as f:
-
 
 #-------------------------------------------------------------------------------
 # ------------------------- RTL WRAPPER ----------------------------------------
@@ -155,7 +156,7 @@ THE SOFTWARE.
 """)
             f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
             f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n \n")
-            f.write ("""module {} #(""".format(args.build_name))
+            f.write ("""module {} #(""".format(args.mod_name))
 
             f.write ("""
     // Width of data bus in bits
@@ -209,20 +210,7 @@ THE SOFTWARE.
 """)
             f.write("axi4lite_gpio #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH)\n)")
             f.write("""
-
-gpio_inst
-(
-.CLK(CLK),
-.RSTN(RSTN),
-.GPIN(GPIN),
-.GPOUT(GPOUT),
-.INT(INT),
-
-.AWADDR(AWADDR),
-.AWPROT(AWPROT),
-.AWVALID(AWVALID),
-.AWREADY(AWREADY),
-
+gpio_inst(
 .WDATA(WDATA),
 .WSTRB(WSTRB),
 .WVALID(WVALID),
