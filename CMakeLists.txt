@@ -1,0 +1,46 @@
+cmake_minimum_required(VERSION 3.15)
+
+
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
+if (${CMAKE_VERSION} VERSION_GREATER "3.8")
+    #For cmake >= 3.9 INTERPROCEDURAL_OPTIMIZATION behaviour we need to explicitly
+    #set the cmake policy version number
+    cmake_policy(VERSION 3.9) 
+
+    # If we are using verison < 3.9 then setting INTERPROCEDURAL_OPTIMIZATION
+    # has no effect unless an Intel compiler is used
+endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+    message(WARNING "Build type not set, falling back to Release mode.
+        To specify build type use:
+        -DCMAKE_BUILD_TYPE=<mode> where <mode> is Debug or Release.")
+    set(CMAKE_BUILD_TYPE
+        "Release"
+        CACHE STRING "Choose the type of build, options are: Debug Release."
+        FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+
+project(IP_Catalog)
+
+message(${PROJECT_SOURCE_DIR})
+
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../build/bin/raptor)
+    message(STATUS "IP_Catalog installation will start once Raptor.exe has been created")
+else ()
+    message(STATUS "exists working")
+    message(STATUS "IP_Catalog installation started")
+    find_package(Python COMPONENTS Interpreter REQUIRED)
+    message(${PROJECT_SOURCE_DIR})
+#    execute_process(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/share)
+    execute_process(COMMAND cp -R ${PROJECT_SOURCE_DIR}/ ${CMAKE_INSTALL_PREFIX}/share)
+    message(STATUS "Copy IP_Catalog files to ${CMAKE_INSTALL_PREFIX}/share")
+#    execute_process(COMMAND python3 IP_Catalog_setup.py --dev --install WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
+    message(STATUS "IP_Catalog installation completed")
+endif ()
