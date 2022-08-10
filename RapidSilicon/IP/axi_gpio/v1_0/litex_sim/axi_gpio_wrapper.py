@@ -81,5 +81,5 @@ class AXIGPIO(Module, AutoDoc, AutoCSR):
         self.add_sources(platform)
 
     def add_sources(self, platform):
-        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "./../rtl")
+        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "./../src")
         platform.add_source_dir(path=rtl_path)
