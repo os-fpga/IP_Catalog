@@ -5,7 +5,7 @@ AXIS-FIFO is AXI4-Lite based IP core.
 
 ## Generator Script
 
-This directory contains the generator script which places the RTL to `/<build_name>/rapidsilicon/ip/axis_fifo/v1_0/src` directory and generates its wrapper in the same directory. 
+This directory contains the generator script which places the RTL to `/ip_build/rapidsilicon/ip/axis_fifo/v1_0/<mod_name>/src` directory and generates its wrapper in the same directory. 
     
 ## Parameters
 There are thirteen parameters for AXIS_FIFO core. These parameters, their keywords and values are given below:
@@ -34,7 +34,7 @@ python3 axis_fifo_gen.py --depth=2048 --data_width=32 --build_name=fifo --mod_na
 
 ## TCL File
 
-This python script also generates a raptor.tcl file which will be placed in `/<build_name>/rapidsilicon/ip/axis_fifo/v1_0/synth` directory.
+This python script also generates a raptor.tcl file which will be placed in `/ip_build/rapidsilicon/ip/axis_fifo/v1_0/<mod_name>/synth` directory.
 
 ## Design Generation
 

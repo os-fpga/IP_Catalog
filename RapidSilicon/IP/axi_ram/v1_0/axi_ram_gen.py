@@ -62,7 +62,12 @@ def main():
 
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform("", io=[], toolchain="raptor")
+
     rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")
+
+    litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")
+
+    gen_path = os.path.join("axi_ram_gen.py")
 
     # Remove build extension when specified --------------------------------------------------------
     args.build_name = os.path.splitext(args.build_name)[0]
@@ -70,9 +75,15 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, (args.build_name) + '/rapidsilicon/ip/axi_ram/v1_0/')
+        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axi_ram/v1_0/' + (args.mod_name))
         if not os.path.exists(build_path):
             os.makedirs(build_path)
+            shutil.copy(gen_path, build_path)
+
+        # Litex_sim Path
+        litex_sim_path = os.path.join(build_path, "litex_sim")
+        if not os.path.exists(litex_sim_path):    
+            os.makedirs(litex_sim_path)
 
         # Simulation Path
         sim_path = os.path.join(build_path, "sim")
@@ -88,16 +99,25 @@ def main():
         synth_path = os.path.join(build_path, "synth")
         if not os.path.exists(synth_path):    
             os.makedirs(synth_path) 
+
         # Design Path
         design_path = os.path.join("../src", (args.mod_name + ".v")) 
 
         # Copy RTL from Source to Destination        
-        src_files = os.listdir(rtl_path)
-        for file_name in src_files:
-            full_file_name = os.path.join(rtl_path, file_name)
-            if os.path.isfile(full_file_name):
-                shutil.copy(full_file_name, src_path)
+        rtl_files = os.listdir(rtl_path)
+        for file_name in rtl_files:
+            full_file_path = os.path.join(rtl_path, file_name)
+            if os.path.isfile(full_file_path):
+                shutil.copy(full_file_path, src_path)
 
+        # Copy litex_sim Data from Source to Destination        
+        litex_files = os.listdir(litex_path)
+        for file_name in litex_files:
+            full_file_path = os.path.join(litex_path, file_name)
+            if os.path.isfile(full_file_path):
+                shutil.copy(full_file_path, litex_sim_path)
+
+        
         # TCL File Content        
         tcl = []
         # Create Design.
