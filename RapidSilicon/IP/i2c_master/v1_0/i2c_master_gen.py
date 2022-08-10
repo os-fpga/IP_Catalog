@@ -20,7 +20,7 @@ from litex.soc.interconnect.axi import *
 
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="AXI GPIO CORE")
+    parser = argparse.ArgumentParser(description="I2C MASTER CORE")
     parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
         max_help_position = 10,
         width             = 120
@@ -28,15 +28,21 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--data_width",     default=32,                   help="GPIO Data Width 8,16,32")
-    core_group.add_argument("--addr_width",     default=16,                   help="GPIO Address Width 8,16")
+    core_group.add_argument("--default_prescale",   default=1,        help="I2C Default Prescale 0 or 1")
+    core_group.add_argument("--fixed_prescale",     default=0,        help="I2C Fixed Prescale 0 or 1")
+    core_group.add_argument("--cmd_fifo",           default=1,        help="I2C FIFO Command Enable 0 or 1")
+    core_group.add_argument("--cmd_addr_width",     default=5,        help="I2C FIFO Command Address Width (1-5)")
+    core_group.add_argument("--write_fifo",         default=1,        help="I2C FIFO Write Enable 0 or 1")
+    core_group.add_argument("--write_addr_width",   default=5,        help="I2C FIFO Write Address Width (1-5)")
+    core_group.add_argument("--read_fifo",          default=1,        help="I2C FIFO Read Enable 0 or 1")
+    core_group.add_argument("--read_addr_width",    default=5,        help="I2C FIFO Read Address Width (1-5)")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build_dir",     default="",                     help="Build Directory")
-    build_group.add_argument("--build_name",    default="axi_gpio",             help="Build Folder Name")
-    build_group.add_argument("--mod_name",      default="axi_gpio_wrapper",     help="Module Name and File Name of the RTL")
+    build_group.add_argument("--build_dir",     default="",                	    help="Build Directory")
+    build_group.add_argument("--build_name",    default="i2c_master",   	    help="Build Folder Name")
+    build_group.add_argument("--mod_name",      default="i2c_master_wrapper",   help="Module Name and File Name of the RTL")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -51,7 +57,7 @@ def main():
             t_args = argparse.Namespace()
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
-    
+
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
@@ -60,13 +66,13 @@ def main():
     platform   = OSFPGAPlatform("", io=[], toolchain="raptor")
     rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")
 
-    # Remove build extension when specified --------------------------------------------------------
+    # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
 
-    # Build Project Directory ----------------------------------------------------------------------
+# Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path 
-        build_path = os.path.join(args.build_dir, (args.build_name) + '/rapidsilicon/ip/axi_gpio/v1_0/')
+        build_path = os.path.join(args.build_dir, (args.build_name) + '/rapidsilicon/ip/i2c_master/v1_0/')
         if not os.path.exists(build_path):
             os.makedirs(build_path)
 
@@ -86,14 +92,14 @@ def main():
             os.makedirs(synth_path)
 
         # Design Path 
-        design_path = os.path.join("../src", (args.mod_name + ".sv"))  
+        design_path = os.path.join("../src", (args.mod_name + ".v"))  
 
         # Copy RTL from Source to Destination
         src_files = os.listdir(rtl_path)
         for file_name in src_files:
             full_file_name = os.path.join(rtl_path, file_name)
             if os.path.isfile(full_file_name):
-                shutil.copy(full_file_name, src_path)        
+                shutil.copy(full_file_name, src_path)           
 
         # TCL File Content
         tcl = []
@@ -123,16 +129,18 @@ def main():
 
     # Generate RTL Wrapper
     if args.mod_name:
-        wrapper_path = os.path.join(src_path, (args.mod_name + ".sv"))
+        wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
         with open(wrapper_path,'w') as f:
 
 #-------------------------------------------------------------------------------
 # ------------------------- RTL WRAPPER ----------------------------------------
 #-------------------------------------------------------------------------------
             f.write ("""
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
+// For Reference: https://github.com/alexforencich/verilog-i2c/blob/master/rtl/i2c_master_axil.v      
+////////////////////////////////////////////////////////////////////////////////////////////////
 /*
-Copyright (c) 2018 Alex Forencich
+Copyright (c) 2019 Alex Forencich
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -152,83 +160,129 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-////////////////////////////////////////////////////////////////////////////////\n
+////////////////////////////////////////////////////////////////////////////////////////////////\n
 """)
             f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
             f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n \n")
             f.write ("""module {} #(""".format(args.mod_name))
 
             f.write ("""
-    // Width of data bus in bits
-    localparam DATA_WIDTH = {}, """.format(args.data_width))
+    // DEFAULT_PRESCALE
+    parameter DEFAULT_PRESCALE = {}, """.format(args.default_prescale))
 
             f.write ("""
-    // Width of address bus in bits
-    localparam ADDR_WIDTH = {},""".format(args.addr_width))
+    // FIXED_PRESCALE
+    parameter FIXED_PRESCALE = {},""".format(args.fixed_prescale))
+
+            f.write ("""
+    // CMD_FIFO
+    parameter CMD_FIFO = {},""".format(args.cmd_fifo))
+
+            f.write ("""
+    // CMD_FIFO_ADDR_WIDTH
+    parameter CMD_FIFO_ADDR_WIDTH = {},""".format(args.cmd_addr_width))
+
+            f.write ("""
+    // WRITE_FIFO
+    parameter WRITE_FIFO = {},""".format(args.write_fifo))
+
+            f.write ("""
+    // WRITE_FIFO_ADDR_WIDTH
+    parameter WRITE_FIFO_ADDR_WIDTH = {},""".format(args.write_addr_width))
+
+            f.write ("""
+    // READ_FIFO
+    parameter READ_FIFO = {},""".format(args.read_fifo))
+
+            f.write ("""
+    // READ_FIFO_ADDR_WIDTH
+    parameter READ_FIFO_ADDR_WIDTH = {}\n)""".format(args.read_addr_width))
 
             f.write("""
-    // Width of wstrb (width of data bus in words)
-    localparam STRB_WIDTH = (DATA_WIDTH/8)
-)
 (
-  input  wire                           CLK, 
-  input  wire			                RSTN, 
-  input  wire  [DATA_WIDTH-1:0]    		GPIN,                 
-  output wire  [DATA_WIDTH-1:0]    		GPOUT,                 
-  output wire		                    INT,
-  
-  // write address channel
-  input  wire  [ADDR_WIDTH-1:0]    		AWADDR,
-  input  wire  [2:0]     		        AWPROT,
-  input  wire			                AWVALID,
-  output wire           		        AWREADY,
-  
-  // write data channel
-  input  wire  [DATA_WIDTH-1:0]		    WDATA,
-  input  wire  [STRB_WIDTH-1:0]		    WSTRB,
-  input  wire			                WVALID,
-  output wire 		                    WREADY,
-  
-  // write response channel
-  output wire  [1:0]		            BRESP,
-  output wire		                    BVALID,
-  input  wire			                BREADY,
+    input wire                    clk,
+    input wire                    rst,
 
-  // read address channel
-  input  wire  [ADDR_WIDTH-1:0]		    ARADDR,
-  input  wire  [2:0]		            ARPROT,
-  input  wire                    		ARVALID,
-  output wire		                    ARREADY,
+    /*
+     * I2C interface
+     */
+    input  wire                   i2c_scl_i,
+    output wire                   i2c_scl_o,
+    output wire                   i2c_scl_t,
+    input  wire                   i2c_sda_i,
+    output wire                   i2c_sda_o,
+    output wire                   i2c_sda_t,
 
-  // read data channel
-  output wire  [DATA_WIDTH-1:0]		    RDATA,
-  output wire  [1:0]		            RRESP,
-  output wire		                    RVALID,
-  input  wire                    		RREADY
+    /*
+     * Host Interface
+     */
+    input   wire [3:0]             s_axil_awaddr,
+    input   wire [2:0]             s_axil_awprot,
+    input   wire                   s_axil_awvalid,
+    output  wire                   s_axil_awready,
+
+    input   wire [31:0]            s_axil_wdata,
+    input   wire [3:0]             s_axil_wstrb,
+    input   wire                   s_axil_wvalid,
+    output  wire                   s_axil_wready,
+
+    output  wire [1:0]             s_axil_bresp,
+    output  wire                   s_axil_bvalid,
+    input   wire                   s_axil_bready,
+
+    input   wire [3:0]             s_axil_araddr,
+    input   wire [2:0]             s_axil_arprot,
+    input   wire                   s_axil_arvalid,
+    output  wire                   s_axil_arready,
+
+    output  wire [31:0]            s_axil_rdata,
+    output  wire [1:0]             s_axil_rresp,
+    output  wire                   s_axil_rvalid,
+    input   wire                   s_axil_rready
 );
 
 """)
-            f.write("axi4lite_gpio #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH)\n)")
+            f.write("i2c_master_axil #(\n.DEFAULT_PRESCALE(DEFAULT_PRESCALE),\n.FIXED_PRESCALE(FIXED_PRESCALE),\n.CMD_FIFO(CMD_FIFO),\n.CMD_FIFO_ADDR_WIDTH(CMD_FIFO_ADDR_WIDTH),\n.WRITE_FIFO(WRITE_FIFO),\n.WRITE_FIFO_ADDR_WIDTH(WRITE_FIFO_ADDR_WIDTH),\n.READ_FIFO(READ_FIFO),\n.READ_FIFO_ADDR_WIDTH(READ_FIFO_ADDR_WIDTH))")
+
             f.write("""
-gpio_inst(
-.WDATA(WDATA),
-.WSTRB(WSTRB),
-.WVALID(WVALID),
-.WREADY(WREADY),
 
-.BRESP(BRESP),
-.BVALID(BVALID),
-.BREADY(BREADY),
+i2c_master_axil_inst
+(
+.clk(clk),
+.rst(rst),
 
-.ARADDR(ARADDR),
-.ARPROT(ARPROT),
-.ARVALID(ARVALID),
-.ARREADY(ARREADY),
+// I2C Interface
+.i2c_scl_i(i2c_scl_i),
+.i2c_scl_o(i2c_scl_o),
+.i2c_scl_t(i2c_scl_t),
+.i2c_sda_i(i2c_sda_i),
+.i2c_sda_o(i2c_sda_o),
+.i2c_sda_t(i2c_sda_t),
 
-.RDATA(RDATA),
-.RRESP(RRESP),
-.RVALID(RVALID),
-.RREADY(RREADY)
+// AXI-Lite Slave Interface
+.s_axil_awaddr(s_axil_awaddr),
+.s_axil_awprot(s_axil_awprot),
+.s_axil_awvalid(s_axil_awvalid),
+.s_axil_awready(s_axil_awready),
+
+.s_axil_wdata(s_axil_wdata),
+.s_axil_wstrb(s_axil_wstrb),
+.s_axil_wvalid(s_axil_wvalid),
+.s_axil_wready(s_axil_wready),
+
+.s_axil_bresp(s_axil_bresp),
+.s_axil_bvalid(s_axil_bvalid),
+.s_axil_bready(s_axil_bready),
+
+.s_axil_araddr(s_axil_araddr),
+.s_axil_arprot(s_axil_arprot),
+.s_axil_arvalid(s_axil_arvalid),
+.s_axil_arready(s_axil_arready),
+
+.s_axil_rdata(s_axil_rdata),
+.s_axil_rresp(s_axil_rresp),
+.s_axil_rvalid(s_axil_rvalid),
+.s_axil_rready(s_axil_rready)
 );
 
 endmodule
