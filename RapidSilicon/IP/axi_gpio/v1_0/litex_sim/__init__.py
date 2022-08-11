@@ -1,1 +1,1 @@
-from litex_rs.cores.axi_gpio.python_wrapper.axi_gpio import *
+from RapidSilicon.IP.axi_ram.v1_0.litex_sim import AXIGPIO
