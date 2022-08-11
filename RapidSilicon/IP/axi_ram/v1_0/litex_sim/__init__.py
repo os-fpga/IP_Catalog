@@ -1,1 +1,1 @@
-from litex_rs.cores.axi_ram.python_wrapper.axi_ram import *
+from RapidSilicon.IP.axi_ram.v1_0.litex_sim import *
