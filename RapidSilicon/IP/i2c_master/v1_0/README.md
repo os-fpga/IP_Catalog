@@ -34,16 +34,6 @@ python3 i2c_master_gen.py --build_name=i2c --build_dir=./ --write_fifo=1 --write
 
 This python script also generates a raptor.tcl file which will be placed in `/ip_build/rapidsilicon/ip/i2c_master/v1_0/<mod_name>/synth` directory.
 
-## Design Generation
-
-To generate your design, follow these steps.
-
-1-  First, you have to source the Raptor.
-
-2-  Run the following command to generate your design.
-```
-raptor --batch --script raptor.tcl
-```
 
 ## References
 

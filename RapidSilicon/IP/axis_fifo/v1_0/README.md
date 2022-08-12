@@ -36,17 +36,6 @@ python3 axis_fifo_gen.py --depth=2048 --data_width=32 --build_name=fifo --mod_na
 
 This python script also generates a raptor.tcl file which will be placed in `/ip_build/rapidsilicon/ip/axis_fifo/v1_0/<mod_name>/synth` directory.
 
-## Design Generation
-
-To generate your design, follow these steps.
-
-1-  First, you have to source the Raptor.
-
-2-  Run the following command to generate your design.
-```
-raptor --batch --script raptor.tcl
-```
-
 ## References
 
 https://github.com/alexforencich/verilog-i2c/blob/master/rtl/axis_fifo.v
