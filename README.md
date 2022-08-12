@@ -14,9 +14,9 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── axis_fifo
 |           |
-│           ├── i2c_slave
+│           ├── i2c_slave_axil_master
 |           |
-│           ├── i2c_master
+│           ├── i2c_master_axil
 |           |
 │           └── axi_uart
 ```
