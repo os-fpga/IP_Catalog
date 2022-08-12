@@ -25,16 +25,6 @@ python3 axi_gpio_gen.py --data_width=16 --addr_width=8 --build_name=gpio --mod_n
 ## TCL File
 This python script also generates a raptor.tcl file which will be placed in `/ip_build/rapidsilicon/ip/axi_gpio/v1_0/<mod_name>/synth` directory.
 
-## Design Generation
-
-To generate your design, follow these steps.
-
-1-  First, you have to source the Raptor.
-
-2-  Run the following command to generate your design.
-```
-raptor --batch --script raptor.tcl
-```
 
 ## References
 
