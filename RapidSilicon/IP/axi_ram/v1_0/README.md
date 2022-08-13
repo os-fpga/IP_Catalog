@@ -29,16 +29,6 @@ python3 axi_ram_gen.py --data_width=32 --add _width=8 --build_name=ram --mod_nam
 
 This python script also generates a raptor.tcl file which will be placed in `/ip_build/rapidsilicon/ip/axi_ram/v1_0/<mod_name>/synth` directory.
 
-## Design Generation
-
-To generate your design, follow these steps.
-
-1- First, you have to source the Raptor.
-
-2- Run the following command to generate your design.
-```
-raptor --batch --script raptor.tcl
-```
 
 ## References
 
