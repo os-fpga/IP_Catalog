@@ -27,16 +27,6 @@ python3 i2c_slave_gen.py --data_width=16 --mod_name=wrapper --build
 ## TCL File 
 This python script also generates a raptor.tcl file which will be placed in `/ip_build/rapidsilicon/ip/i2c_slave/v1_0/<mod_name>/synth` directory.
 
-## Design Generation
-To generate your design, follow these steps.
-
-1- First, you have to source the Raptor.
-
-2- Run the following command to generate your design.
-```
-raptor --batch --script raptor.tcl
-```
-
 ## References
 
 https://github.com/alexforencich/verilog-i2c/blob/master/rtl/i2c_slave_axil_master.v
