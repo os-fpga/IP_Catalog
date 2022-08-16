@@ -10,13 +10,13 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── axi_ram
 |           |
-│           ├── axi_gpio
+│           ├── axil_gpio
 |           |
 │           ├── axis_fifo
 |           |
 │           ├── i2c_slave_axil_master
 |           |
-│           ├── i2c_master_axil
+│           ├── i2c_master_axil_slave
 |           |
-│           └── axi_uart
+│           └── axil_uart
 ```
