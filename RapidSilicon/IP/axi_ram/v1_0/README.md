@@ -1,7 +1,7 @@
 # AXI-RAM Core Generation 
 ## Introduction
 
-AXI-RAM is AXI4-Lite based IP core.
+AXI-RAM is AXI4 based IP core.
 
 For more information, visit: http://alexforencich.com/wiki/en/verilog/axi/start
 
@@ -11,12 +11,12 @@ This directory contains the generator script which places the RTL to `/ip_build/
 ## Parameters
 There are four parameters for AXI-RAM core. These parameters, their keywords and values are given below:
 
-    | Sr.No.|       Parameter           |           Keyword         |       Value      |
-    | ----- |       ---------           |           -------         |       -----      |
-    |   1.  |   DATA_WIDTH              |       data_width          |      8,16,32     |
-    |   2.  |   ADDRESS_WIDTH           |       addr_width          |      8,16        |
-    |   2.  |   ID_WIDTH                |       id_width            |      0-8         |
-    |   2.  |   PIPELINE_OUTPUT         |       pip_out             |      0/1         |
+    | Sr.No.|     Parameter       |      Keyword        |    Value    |
+    |-------|---------------------|---------------------|-------------|
+    |   1.  |   DATA_WIDTH        |     data_width      |   8,16,32   |
+    |   2.  |   ADDRESS_WIDTH     |     addr_width      |   1-16      |
+    |   3.  |   ID_WIDTH          |     id_width        |   0-8       |
+    |   4.  |   PIPELINE_OUTPUT   |     pip_out         |   0/1       |
 
 
 To generate RTL with above parameters, run the following command:

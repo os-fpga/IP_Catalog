@@ -1,7 +1,7 @@
-# AXIS-FIFO Core Generation 
+# AXI STREAM FIFO Core Generation 
 
 ## Introduction
-AXIS-FIFO is AXI4-Lite based IP core.
+AXIS-FIFO is AXI4-Stream based IP core.
 
 ## Generator Script
 
@@ -10,21 +10,21 @@ This directory contains the generator script which places the RTL to `/ip_build/
 ## Parameters
 There are thirteen parameters for AXIS_FIFO core. These parameters, their keywords and values are given below:
 
-    | Sr.No.|       Parameter           |           Keyword         |       Value      |
-    | ----- |       ---------           |           -------         |       -----      |
-    |   1.  |   DEPTH                   |       depth               |        1024      |
-    |   2.  |   DATA_WIDTH              |       data_width          |        8         |
-    |   3.  |   LAST_ENABLE             |       last_en             |        0/1       |  
-    |   4.  |   ID_ENABLE               |       id_en               |        0/1       |
-    |   5.  |   ID_WIDTH                |       id_width            |        0-8       |
-    |   6.  |   DEST_ENABLE             |       dest_en             |        0-5       |
-    |   7.  |   DEST_WIDTH              |       dest_width          |        0-8       |
-    |   8.  |   USER_ENABLE             |       user_en             |        0/1       |
-    |   9.  |   USER_WIDTH              |       user_width          |        1         |
-    |   10. |   PIPELINE_OUTPUT         |       pip_out             |        0-2       |
-    |   11. |   FRAME_FIFO              |       frame_fifo          |        0         |
-    |   12. |   DROP_BAD_FRAME          |       drop_bad_frame      |        0/1       |
-    |   13. |   DROP_WHEN_FULL          |       drop_when_full      |        0/1       |
+    | Sr.No.|      Parameter     |       Keyword      |    Value    |
+    |-------|--------------------|--------------------|-------------|
+    |   1.  |   DEPTH            |   depth            |    1024     |
+    |   2.  |   DATA_WIDTH       |   data_width       |    8,16,32  |
+    |   3.  |   LAST_ENABLE      |   last_en          |    0/1      |  
+    |   4.  |   ID_ENABLE        |   id_en            |    0/1      |
+    |   5.  |   ID_WIDTH         |   id_width         |    0-8      |
+    |   6.  |   DEST_ENABLE      |   dest_en          |    0/1      |
+    |   7.  |   DEST_WIDTH       |   dest_width       |    0-8      |
+    |   8.  |   USER_ENABLE      |   user_en          |    0/1      |
+    |   9.  |   USER_WIDTH       |   user_width       |    1        |
+    |   10. |   PIPELINE_OUTPUT  |   pip_out          |    0-2      |
+    |   11. |   FRAME_FIFO       |   frame_fifo       |    0        |
+    |   12. |   DROP_BAD_FRAME   |   drop_bad_frame   |    0/1      |
+    |   13. |   DROP_WHEN_FULL   |   drop_when_full   |    0/1      |
 
 
 To generate RTL with above parameters, run the following command:

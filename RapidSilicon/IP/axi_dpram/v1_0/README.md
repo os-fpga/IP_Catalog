@@ -11,15 +11,15 @@ This directory contains the generator script which places the RTL to `/ip_build/
 ## Parameters
 There are seven parameters for AXI-DPRAM core. These parameters, their keywords and values are given below:
 
-    | Sr.No.|       Parameter           |           Keyword         |       Value      |
-    | ----- |       ---------           |           -------         |       -----      |
-    |   1.  |   DATA_WIDTH              |       data_width          |      8,16,32     |
-    |   2.  |   ADDRESS_WIDTH           |       addr_width          |      8,16        |
-    |   3.  |   ID_WIDTH                |       id_width            |      0-8         |
-    |   4.  |   A_PIPELINE_OUTPUT       |       a_pip_out           |      0/1         |
-    |   5.  |   B_PIPELINE_OUTPUT       |       b_pip_out           |      0/1         |
-    |   6.  |   A_INTERLEAVE            |       a_interleave        |      0/1         |
-    |   7.  |   B_INTERLEAVE            |       b_interleave        |      0/1         |
+    | Sr.No.|      Parameter       |       Keyword      |    Value   |
+    |-------|----------------------|--------------------|------------|
+    |   1.  |   DATA_WIDTH         |    data_width      |   8,16,32  |
+    |   2.  |   ADDRESS_WIDTH      |    addr_width      |   8,16     |
+    |   3.  |   ID_WIDTH           |    id_width        |   0-8      |
+    |   4.  |   A_PIPELINE_OUTPUT  |    a_pip_out       |   0/1      |
+    |   5.  |   B_PIPELINE_OUTPUT  |    b_pip_out       |   0/1      |
+    |   6.  |   A_INTERLEAVE       |    a_interleave    |   0/1      |
+    |   7.  |   B_INTERLEAVE       |    b_interleave    |   0/1      |
 
 
 To generate RTL with above parameters, run the following command:

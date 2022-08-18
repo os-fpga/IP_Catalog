@@ -131,7 +131,14 @@ def main():
         # Add Timings Constraints.
 #        tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
-        tcl.append("synthesize")
+        tcl.append("synthesize")        
+        tcl.append("packing")
+        tcl.append("global_placement")
+        tcl.append("place")
+        tcl.append("route")
+        tcl.append("sta")
+        tcl.append("power")
+        tcl.append("bitstream")
         
         # Generate .tcl File
         tcl_path = os.path.join(synth_path, "raptor.tcl")
