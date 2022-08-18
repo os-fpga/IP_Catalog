@@ -11,11 +11,11 @@ This directory contains the generator script which places the RTL to `/ip_build/
 ## Parameters
 There are three parameters for I2C_SLAVE core. These parameters, their keywords and values are given below:
 
-    | Sr.No.|       Parameter           |           Keyword         |       Value      |
-    | ----- |       ---------           |           -------         |       -----      |
-    |   1.  |   DATA_WIDTH              |       data_width          |      8,16,32     |
-    |   2.  |   ADDRESS_WIDTH           |       addr_width          |      8,16        |
-    |   3.  |   FILTER_LENGTH           |       filter_len          |      0-4         |
+    | Sr.No.|     Parameter     |     Keyword      |    Value    |
+    |-------|-------------------|------------------|-------------|
+    |   1.  |   DATA_WIDTH      |   data_width     |   8,16,32   |
+    |   2.  |   ADDRESS_WIDTH   |   addr_width     |   8,16      |
+    |   3.  |   FILTER_LENGTH   |   filter_len     |   0-4       |
 
 
 
