@@ -9,15 +9,6 @@ import argparse
 import shutil
 from datetime import datetime
 
-from migen import *
-
-from litex.build.generic_platform import *
-from litex.build.osfpga import OSFPGAPlatform
-
-from litex.soc.interconnect import stream
-from litex.soc.interconnect.axi import *
-
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="I2C SLAVE CORE")
@@ -57,22 +48,11 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform("", io=[], toolchain="raptor")
-
-    rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")
-
-    litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")
-
-    gen_path = os.path.join("i2c_slave_gen.py")
-
-    # Remove build extension when specified --------------------------------------------------------
-    args.build_name = os.path.splitext(args.build_name)[0]
-
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path 
         build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/i2c_slave/v1_0/' + (args.mod_name))
+        gen_path = os.path.join("i2c_slave_gen.py")
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)
@@ -100,14 +80,16 @@ def main():
         # Design Path    
         design_path = os.path.join("../src", (args.mod_name + ".v"))
 
-        # Copy RTL from Source to Destination        
+        # Copy RTL from Source to Destination 
+        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")       
         rtl_files = os.listdir(rtl_path)
         for file_name in rtl_files:
             full_file_path = os.path.join(rtl_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, src_path)
 
-        # Copy litex_sim Data from Source to Destination        
+        # Copy litex_sim Data from Source to Destination
+        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")        
         litex_files = os.listdir(litex_path)
         for file_name in litex_files:
             full_file_path = os.path.join(litex_path, file_name)
@@ -146,15 +128,15 @@ def main():
             f.write("\n".join(tcl))
         f.close()
 
-    # Generate RTL Wrapper
-    if args.mod_name:
-        wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
-        with open(wrapper_path,'w') as f:
+        # Generate RTL Wrapper
+        if args.mod_name:
+            wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
+            with open(wrapper_path,'w') as f:
 
 #-------------------------------------------------------------------------------
 # ------------------------- RTL WRAPPER ----------------------------------------
 #-------------------------------------------------------------------------------
-            f.write ("""
+                f.write ("""
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // For Reference: https://github.com/alexforencich/verilog-i2c/blob/master/rtl/i2c_slave_axil_master.v      
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -181,23 +163,23 @@ THE SOFTWARE.
 */
 ///////////////////////////////////////////////////////////////////////////////////////////////////////\n
 """)
-            f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-            f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n \n")
-            f.write ("""module {} #(""".format(args.mod_name))
+                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
+                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n \n")
+                f.write ("""module {} #(""".format(args.mod_name))
 
-            f.write ("""
+                f.write ("""
     // Width of data bus in bits
     localparam DATA_WIDTH = {}, """.format(args.data_width))
 
-            f.write ("""
+                f.write ("""
     // Width of address bus in bits
     localparam ADDR_WIDTH = {},""".format(args.addr_width))
 
-            f.write ("""
+                f.write ("""
     // Length of filter
     localparam FILTER_LEN = {},""".format(args.filter_len))
 
-            f.write("""
+                f.write("""
     // Width of wstrb (width of data bus in words)
     localparam STRB_WIDTH = (DATA_WIDTH/8)
 )
@@ -253,9 +235,9 @@ THE SOFTWARE.
 );
 
 """)
-            f.write("i2c_slave_axil_master #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH),\n.FILTER_LEN(FILTER_LEN)\n)")
+                f.write("i2c_slave_axil_master #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH),\n.FILTER_LEN(FILTER_LEN)\n)")
 
-            f.write("""
+                f.write("""
             
 i2c_inst
 (
@@ -307,7 +289,7 @@ endmodule
 
 `resetall
         """)
-        f.close()
+            f.close()
 
 if __name__ == "__main__":
     main()

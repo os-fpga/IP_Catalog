@@ -9,15 +9,6 @@ import argparse
 import shutil
 from datetime import datetime
 
-from migen import *
-
-from litex.build.generic_platform import *
-from litex.build.osfpga import OSFPGAPlatform
-
-from litex.soc.interconnect import stream
-from litex.soc.interconnect.axi import *
-
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXIS FIFO CORE")
@@ -52,7 +43,7 @@ def main():
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
-    json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
+    json_group.add_argument("--json_template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
 
@@ -67,22 +58,11 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform("", io=[], toolchain="raptor")
-
-    rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")
-
-    litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")
-
-    gen_path = os.path.join("axis_fifo_gen.py")
-
-    # Remove build extension when specified --------------------------------------------------------
-    args.build_name = os.path.splitext(args.build_name)[0]
-
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
         build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axis_fifo/v1_0/' + (args.mod_name))
+        gen_path = os.path.join("axis_fifo_gen.py")
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)
@@ -109,14 +89,16 @@ def main():
         # Design Path
         design_path = os.path.join("../src", (args.mod_name + ".v")) 
 
-        # Copy RTL from Source to Destination        
+        # Copy RTL from Source to Destination 
+        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")       
         rtl_files = os.listdir(rtl_path)
         for file_name in rtl_files:
             full_file_path = os.path.join(rtl_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, src_path)
 
-        # Copy litex_sim Data from Source to Destination        
+        # Copy litex_sim Data from Source to Destination
+        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")        
         litex_files = os.listdir(litex_path)
         for file_name in litex_files:
             full_file_path = os.path.join(litex_path, file_name)
@@ -155,15 +137,15 @@ def main():
             f.write("\n".join(tcl))
         f.close()
 
-    # Generate RTL Wrapper
-    if args.mod_name:
-        wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
-        with open(wrapper_path, "w") as f:
+        # Generate RTL Wrapper
+        if args.mod_name:
+            wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
+            with open(wrapper_path, "w") as f:
 
 #-------------------------------------------------------------------------------
 # ------------------------- RTL WRAPPER ----------------------------------------
 #-------------------------------------------------------------------------------
-            f.write ("""
+                f.write ("""
 //////////////////////////////////////////////////////////////////////////////////////////
 // For Reference: https://github.com/alexforencich/verilog-i2c/blob/master/rtl/axis_fifo.v
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -190,77 +172,77 @@ THE SOFTWARE.
 */
 //////////////////////////////////////////////////////////////////////////////////////////\n\n
 """)
-            f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-            f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-            f.write ("""module {} #(""".format(args.mod_name))
+                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
+                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
+                f.write ("""module {} #(""".format(args.mod_name))
 
-            f.write ("""
+                f.write ("""
         // FIFO depth in words
         // KEEP_WIDTH words per cycle if KEEP_ENABLE set
         // Rounded up to nearest power of 2 cycles
         localparam DEPTH = {}, """.format(args.depth))
 
-            f.write ("""
+                f.write ("""
         // Width of AXI stream interfaces in bits
         localparam DATA_WIDTH = {}, """.format(args.data_width))
 
-            f.write ("""
+                f.write ("""
         // Propagate tkeep signal
         // If disabled, tkeep assumed to be 1'b1
         parameter KEEP_ENABLE = (DATA_WIDTH>8),
         // tkeep signal width (words per cycle)
         parameter KEEP_WIDTH = (DATA_WIDTH/8),""")                
 
-            f.write ("""
+                f.write ("""
         // Propagate tlast signal
         localparam LAST_ENABLE = {}, """.format(args.last_en))
 
-            f.write ("""
+                f.write ("""
         // Propagate tid signal
         localparam ID_ENABLE = {}, """.format(args.id_en))
 
-            f.write ("""
+                f.write ("""
         // tid signal width
         localparam ID_WIDTH = {}, """.format(args.id_width))
 
-            f.write ("""
+                f.write ("""
         // Propagate tdest signal
         localparam DEST_ENABLE = {}, """.format(args.dest_en))
 
-            f.write ("""
+                f.write ("""
         // tdest signal width
         localparam DEST_WIDTH = {}, """.format(args.dest_width))
 
-            f.write ("""
+                f.write ("""
         // Propagate tuser signal
         localparam USER_ENABLE = {}, """.format(args.user_en))
 
-            f.write ("""
+                f.write ("""
         // tuser signal width
         localparam USER_WIDTH = {}, """.format(args.user_width))
 
-            f.write ("""
+                f.write ("""
         // number of output pipeline registers
         localparam PIPELINE_OUTPUT = {}, """.format(args.pip_out))
 
-            f.write ("""
+                f.write ("""
         // Frame FIFO mode - operate on frames instead of cycles
         // When set, m_axis_tvalid will not be deasserted within a frame
         // Requires LAST_ENABLE set
         localparam FRAME_FIFO = {}, """.format(args.frame_fifo))
 
-            f.write ("""
+                f.write ("""
         // Drop frames marked bad
         // Requires FRAME_FIFO set
         localparam DROP_BAD_FRAME = {}, """.format(args.drop_bad_frame))
 
-            f.write ("""
+                f.write ("""
         // Drop incoming frames when full
         // When set, s_axis_tready is always asserted
         // Requires FRAME_FIFO set
         localparam DROP_WHEN_FULL = {}, """.format(args.drop_when_full))    
 
-            f.write("""
+                f.write("""
         // tuser value for bad frame marker
         localparam USER_BAD_FRAME_VALUE = 1'b1,
         // tuser mask for bad frame marker
@@ -305,8 +287,8 @@ THE SOFTWARE.
 );
 
 """)
-            f.write("axis_fifo #(\n.DEPTH(DEPTH),\n.DATA_WIDTH(DATA_WIDTH),\n.LAST_ENABLE(LAST_ENABLE),\n.ID_ENABLE(ID_ENABLE),\n.ID_WIDTH(ID_WIDTH),\n.DEST_ENABLE(DEST_ENABLE),\n.DEST_WIDTH(DEST_WIDTH),\n.USER_ENABLE(USER_ENABLE),\n.USER_WIDTH(USER_WIDTH),\n.PIPELINE_OUTPUT(PIPELINE_OUTPUT),\n.FRAME_FIFO(FRAME_FIFO),\n.DROP_BAD_FRAME(DROP_BAD_FRAME),\n.DROP_WHEN_FULL(DROP_WHEN_FULL)\n)")
-            f.write("""
+                f.write("axis_fifo #(\n.DEPTH(DEPTH),\n.DATA_WIDTH(DATA_WIDTH),\n.LAST_ENABLE(LAST_ENABLE),\n.ID_ENABLE(ID_ENABLE),\n.ID_WIDTH(ID_WIDTH),\n.DEST_ENABLE(DEST_ENABLE),\n.DEST_WIDTH(DEST_WIDTH),\n.USER_ENABLE(USER_ENABLE),\n.USER_WIDTH(USER_WIDTH),\n.PIPELINE_OUTPUT(PIPELINE_OUTPUT),\n.FRAME_FIFO(FRAME_FIFO),\n.DROP_BAD_FRAME(DROP_BAD_FRAME),\n.DROP_WHEN_FULL(DROP_WHEN_FULL)\n)")
+                f.write("""
 
 axis_fifo_inst
 (
@@ -353,7 +335,7 @@ endmodule
 
 `resetall
              """)
-            f.close()
+                f.close()
 
 if __name__ == "__main__":
     main()

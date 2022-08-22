@@ -9,15 +9,6 @@ import argparse
 import shutil
 from datetime import datetime
 
-from migen import *
-
-from litex.build.generic_platform import *
-from litex.build.osfpga import OSFPGAPlatform
-
-from litex.soc.interconnect import stream
-from litex.soc.interconnect.axi import *
-
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXI DPRAM CORE")
@@ -28,7 +19,7 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=32,                   help="DPRAM Data Width 8,16,32")
+    core_group.add_argument("--data_width",     default=32,                   help="DPRAM Data Width 8,16,32,64")
     core_group.add_argument("--addr_width",     default=16,                   help="DPRAM Address Width 8,16")
     core_group.add_argument("--id_width",       default=8,                    help="DPRAM ID Width from 1 - 8")
     core_group.add_argument("--a_pip_out",      default=0,                    help="DPRAM A Pipeline Output 0 or 1")
@@ -48,7 +39,7 @@ def main():
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
-    json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
+    json_group.add_argument("--json_template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
 
@@ -63,22 +54,11 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform("", io=[], toolchain="raptor")
-
-    rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")
-
-    litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")
-
-    gen_path = os.path.join("axi_dpram_gen.py")
-
-    # Remove build extension when specified --------------------------------------------------------
-    args.build_name = os.path.splitext(args.build_name)[0]
-
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
         build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axi_dpram/v1_0/' + (args.mod_name))
+        gen_path = os.path.join("axi_dpram_gen.py")
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)
@@ -106,14 +86,16 @@ def main():
         # Design Path
         design_path = os.path.join("../src", (args.mod_name + ".v")) 
 
-        # Copy RTL from Source to Destination        
+        # Copy RTL from Source to Destination
+        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")        
         rtl_files = os.listdir(rtl_path)
         for file_name in rtl_files:
             full_file_path = os.path.join(rtl_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, src_path)
 
-        # Copy litex_sim Data from Source to Destination        
+        # Copy litex_sim Data from Source to Destination  
+        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")      
         litex_files = os.listdir(litex_path)
         for file_name in litex_files:
             full_file_path = os.path.join(litex_path, file_name)
@@ -152,15 +134,15 @@ def main():
             f.write("\n".join(tcl))
         f.close()
 
-    # Generate RTL Wrapper
-    if args.mod_name:
-        wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
-        with open(wrapper_path, "w") as f:
+        # Generate RTL Wrapper
+        if args.mod_name:
+            wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
+            with open(wrapper_path, "w") as f:
 
 #-------------------------------------------------------------------------------
 # ------------------------- RTL WRAPPER ----------------------------------------
 #-------------------------------------------------------------------------------
-            f.write ("""
+                f.write ("""
 ////////////////////////////////////////////////////////////////////////////////////////////
 // For Reference: https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_dp_ram.v
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,39 +169,39 @@ THE SOFTWARE.
 */
 ////////////////////////////////////////////////////////////////////////////////////////////\n\n
 """)
-            f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-            f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-            f.write ("""module {} #(""".format(args.mod_name))
+                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
+                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
+                f.write ("""module {} #(""".format(args.mod_name))
 
-            f.write ("""
+                f.write ("""
     // Width of data bus in bits
     localparam DATA_WIDTH = {}, """.format(args.data_width))
 
-            f.write ("""
+                f.write ("""
     // Width of address bus in bits
     localparam ADDR_WIDTH = {}, """.format(args.addr_width))
 
-            f.write ("""
+                f.write ("""
     // Width of ID signal
     localparam ID_WIDTH = {}, """.format(args.id_width))
 
-            f.write ("""
+                f.write ("""
     // Extra pipeline register on output port A
     localparam A_PIPELINE_OUTPUT = {}, """.format(args.a_pip_out))
 
-            f.write ("""
+                f.write ("""
     // Extra pipeline register on output port B
     localparam B_PIPELINE_OUTPUT = {}, """.format(args.b_pip_out))
 
-            f.write ("""
+                f.write ("""
     // Interleave read and write burst cycles on port A
     localparam A_INTERLEAVE = {}, """.format(args.a_interleave))
 
-            f.write ("""
+                f.write ("""
     // Interleave read and write burst cycles on port B
     localparam B_INTERLEAVE = {}, """.format(args.b_interleave))
 
-            f.write("""
+                f.write("""
     // Width of wstrb (width of data bus in words)
     localparam STRB_WIDTH = (DATA_WIDTH/8)
 )
@@ -306,8 +288,8 @@ THE SOFTWARE.
 );
 
 """)
-            f.write("axi_dp_ram #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH),\n.ID_WIDTH(ID_WIDTH),\n.A_PIPELINE_OUTPUT(A_PIPELINE_OUTPUT),\n.B_PIPELINE_OUTPUT(B_PIPELINE_OUTPUT),\n.A_INTERLEAVE(A_INTERLEAVE),\n.B_INTERLEAVE(B_INTERLEAVE)\n)")
-            f.write("""
+                f.write("axi_dp_ram #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH),\n.ID_WIDTH(ID_WIDTH),\n.A_PIPELINE_OUTPUT(A_PIPELINE_OUTPUT),\n.B_PIPELINE_OUTPUT(B_PIPELINE_OUTPUT),\n.A_INTERLEAVE(A_INTERLEAVE),\n.B_INTERLEAVE(B_INTERLEAVE)\n)")
+                f.write("""
 
 axi_dp_ram_inst
 (
@@ -404,7 +386,7 @@ endmodule
 
 `resetall
              """)
-            f.close()
+                f.close()
 
 if __name__ == "__main__":
     main()

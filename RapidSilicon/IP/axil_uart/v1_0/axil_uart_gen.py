@@ -9,15 +9,6 @@ import argparse
 import shutil
 from datetime import datetime
 
-from migen import *
-
-from litex.build.generic_platform import *
-from litex.build.osfpga import OSFPGAPlatform
-
-from litex.soc.interconnect import stream
-from litex.soc.interconnect.axi import *
-
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXI LITE UART CORE")
@@ -28,7 +19,7 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--addr_width",          default=5,                    help="UART Address Width")
+    core_group.add_argument("--addr_width",          default=16,                   help="UART Address Width")
     core_group.add_argument("--rdata_width",         default=32,                   help="UART Read Data Width")
     core_group.add_argument("--wdata_width",         default=32,                   help="UART Write Data Width")
     core_group.add_argument("--prot_width",          default=3,                    help="UART Protection Width")
@@ -57,23 +48,12 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
-
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform("", io=[], toolchain="raptor")
-
-    rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")
-
-    litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")
-
-    gen_path = os.path.join("axil_uart_gen.py")
-
-    # Remove build extension when specified --------------------------------------------------------
-    args.build_name = os.path.splitext(args.build_name)[0]
-
+        
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
         build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axil_uart/v1_0/' + (args.mod_name))
+        gen_path = os.path.join("axil_uart_gen.py")
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)
@@ -101,14 +81,16 @@ def main():
         # Design Path
         design_path = os.path.join("../src", (args.mod_name + ".v")) 
 
-        # Copy RTL from Source to Destination        
+        # Copy RTL from Source to Destination 
+        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")       
         rtl_files = os.listdir(rtl_path)
         for file_name in rtl_files:
             full_file_path = os.path.join(rtl_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, src_path)
 
-        # Copy litex_sim Data from Source to Destination        
+        # Copy litex_sim Data from Source to Destination 
+        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")       
         litex_files = os.listdir(litex_path)
         for file_name in litex_files:
             full_file_path = os.path.join(litex_path, file_name)
@@ -149,42 +131,42 @@ def main():
             f.write("\n".join(tcl))
         f.close()
 
-    # Generate RTL Wrapper
-    if args.mod_name:
-        wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
-        with open(wrapper_path, "w") as f:
+        # Generate RTL Wrapper
+        if args.mod_name:
+            wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
+            with open(wrapper_path, "w") as f:
 
 #-------------------------------------------------------------------------------
 # ------------------------- RTL WRAPPER ----------------------------------------
 #-------------------------------------------------------------------------------
-            f.write ("""
+                f.write ("""
 //////////////////////////////////////////////////////////////////////////////////////////
 /*
 Copyright (c) 2022 Rapid Silicon
 */
 //////////////////////////////////////////////////////////////////////////////////////////\n\n
 """)
-            f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-            f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-            f.write ("""module {} #(""".format(args.mod_name))
+                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
+                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
+                f.write ("""module {} #(""".format(args.mod_name))
 
-            f.write ("""
+                f.write ("""
         // Width of Addresses in bits
         localparam AXI4_ADDRESS_WIDTH = {}, """.format(args.addr_width))
 
-            f.write ("""
+                f.write ("""
         // Width of Read Data in bits
         localparam AXI4_RDATA_WIDTH = {}, """.format(args.rdata_width))
 
-            f.write ("""
+                f.write ("""
         // Width of Write Data in bits
         localparam AXI4_WDATA_WIDTH = {}, """.format(args.wdata_width))
 
-            f.write ("""
+                f.write ("""
         // Width of Protection in bits
         localparam AXI4_PROT_WIDTH = {}""".format(args.prot_width))
 
-            f.write("""
+                f.write("""
 )
 (
     // Global signals
@@ -233,8 +215,8 @@ Copyright (c) 2022 Rapid Silicon
 );
 
 """)
-            f.write("axi4lite_uart_top #(\n.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),\n.AXI4_RDATA_WIDTH(AXI4_RDATA_WIDTH),\n.AXI4_WDATA_WIDTH(AXI4_WDATA_WIDTH),\n.AXI4_PROT_WIDTH(AXI4_PROT_WIDTH)\n)")
-            f.write("""
+                f.write("axi4lite_uart_top #(\n.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),\n.AXI4_RDATA_WIDTH(AXI4_RDATA_WIDTH),\n.AXI4_WDATA_WIDTH(AXI4_WDATA_WIDTH),\n.AXI4_PROT_WIDTH(AXI4_PROT_WIDTH)\n)")
+                f.write("""
 axi4lite_uart_top_inst
 (
 .s_axi_aclk(s_axi_aclk),
@@ -279,7 +261,7 @@ endmodule
 
 `resetall
              """)
-            f.close()
+                f.close()
 
 if __name__ == "__main__":
     main()
