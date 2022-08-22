@@ -17,11 +17,11 @@ There are eight parameters for I2C_MASTER core. These parameters, their keywords
     |   1.  |   DEFAULT_PRESCALE        |   default_prescale    |    0/1    |
     |   2.  |   FIXED_PRESCALE          |   fixed_prescale      |    0/1    |
     |   3.  |   CMD_FIFO                |   cmd_fifo            |    0/1    |  
-    |   4.  |   CMD_FIFO_ADDR_WIDTH     |   cmd_addr_width      |    0-5    |
+    |   4.  |   CMD_FIFO_ADDR_WIDTH     |   cmd_addr_width      |    1-5    |
     |   5.  |   WRITE_FIFO              |   write_fifo          |    0/1    |
-    |   6.  |   WRITE_FIFO_ADDR_WIDTH   |   write_addr_width    |    0-5    |
+    |   6.  |   WRITE_FIFO_ADDR_WIDTH   |   write_addr_width    |    1-5    |
     |   7.  |   READ_FIFO               |   read_fifo           |    0/1    |
-    |   8.  |   READ_FIFO_ADDR_WIDTH    |   read_addr_width     |    0-5    |
+    |   8.  |   READ_FIFO_ADDR_WIDTH    |   read_addr_width     |    1-5    |
 
 
 To generate RTL with above parameters, run the following command:

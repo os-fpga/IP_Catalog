@@ -12,10 +12,10 @@ There are four parameters for AXI LITE UART core. These parameters, their keywor
 
     | Sr.No.|       Parameter       |      Keyword     |     Value      |
     |-------|-----------------------|------------------|----------------|
-    |   1.  |   AXI4_ADDRESS_WIDTH  |   addr_width     |     1-16       |
-    |   2.  |   AXI4_RDATA_WIDTH    |   rdata_width    |     8,16,32    |
-    |   3.  |   AXI4_WDATA_WIDTH    |   wdata_width    |     8,16,32    |  
-    |   4.  |   AXI4_PROT_WIDTH     |   prot_width     |     3          |
+    |   1.  |   AXI4_ADDRESS_WIDTH  |   addr_width     |   8,16,32      |
+    |   2.  |   AXI4_RDATA_WIDTH    |   rdata_width    |   8,16,32,64   |
+    |   3.  |   AXI4_WDATA_WIDTH    |   wdata_width    |   8,16,32,64   |  
+    |   4.  |   AXI4_PROT_WIDTH     |   prot_width     |   3            |
 
 
 To generate RTL with above parameters, run the following command:
