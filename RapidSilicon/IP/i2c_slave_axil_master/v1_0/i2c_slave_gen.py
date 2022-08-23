@@ -52,7 +52,7 @@ def main():
     if args.build:
         # Build Path 
         build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/i2c_slave/v1_0/' + (args.mod_name))
-        gen_path = os.path.join("i2c_slave_gen.py")
+        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "i2c_slave_gen.py"))
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)

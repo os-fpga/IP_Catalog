@@ -62,7 +62,7 @@ def main():
     if args.build:
         # Build Path
         build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axis_fifo/v1_0/' + (args.mod_name))
-        gen_path = os.path.join("axis_fifo_gen.py")
+        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axis_fifo_gen.py"))
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)

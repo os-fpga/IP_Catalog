@@ -51,7 +51,7 @@ def main():
     if args.build:
         # Build Path 
         build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axil_gpio/v1_0/' + (args.mod_name))
-        gen_path = os.path.join("axil_gpio_gen.py")
+        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_gpio_gen.py"))
 
         if not os.path.exists(build_path):
             os.makedirs(build_path)
