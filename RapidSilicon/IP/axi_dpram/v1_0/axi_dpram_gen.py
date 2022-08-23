@@ -27,19 +27,16 @@ def main():
     core_group.add_argument("--a_interleave",   default=0,                    help="DPRAM A Interleave 0 or 1")
     core_group.add_argument("--b_interleave",   default=0,                    help="DPRAM B Interleave 0 or 1")
 
-
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                help="Build Core")
-    build_group.add_argument("--build_dir",     default="",                         help="Build Directory")
-    build_group.add_argument("--build_name",    default="axi_dpram",                help="Build Folder Name")
-    build_group.add_argument("--mod_name",      default="axi_dpram_wrapper",        help="Module Name and File Name of the RTL")
-
+    build_group.add_argument("--build-dir",     default="",                         help="Build Directory")
+    build_group.add_argument("--build-name",    default="axi_dpram_wrapper",        help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
-    json_group.add_argument("--json_template",  action="store_true",            help="Generate JSON Template")
+    json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
 
@@ -54,10 +51,13 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
+    # Remove build extension when specified.
+    args.build_name = os.path.splitext(args.build_name)[0]
+
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axi_dpram/v1_0/' + (args.mod_name))
+        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axi_dpram/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axi_dpram_gen.py"))
         
         if not os.path.exists(build_path):
@@ -85,7 +85,7 @@ def main():
             os.makedirs(synth_path) 
 
         # Design Path
-        design_path = os.path.join("../src", (args.mod_name + ".v")) 
+        design_path = os.path.join("../src", (args.build_name + ".v")) 
 
         # Copy RTL from Source to Destination
         rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")        
@@ -116,7 +116,7 @@ def main():
 #        for f, typ, lib in file_name:
         tcl.append(f"add_design_file {design_path}")
         # Set Top Module.
-        tcl.append(f"set_top_module {args.mod_name}")
+        tcl.append(f"set_top_module {args.build_name}")
         # Add Timings Constraints.
 #        tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
@@ -136,8 +136,8 @@ def main():
         f.close()
 
         # Generate RTL Wrapper
-        if args.mod_name:
-            wrapper_path = os.path.join(src_path, (args.mod_name + ".v"))
+        if args.build_name:
+            wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
             with open(wrapper_path, "w") as f:
 
 #-------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ THE SOFTWARE.
 """)
                 f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
                 f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-                f.write ("""module {} #(""".format(args.mod_name))
+                f.write ("""module {} #(""".format(args.build_name))
 
                 f.write ("""
     // Width of data bus in bits
