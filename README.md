@@ -22,5 +22,7 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── axi_dpram
 |           |
-│           └── axi_register
+│           ├── axi_register
+|           |
+│           └── axis_uart
 ```
