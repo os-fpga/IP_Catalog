@@ -20,7 +20,7 @@ def main():
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width",     default=32,                   help="DPRAM Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default=16,                   help="DPRAM Address Width 8,16")
+    core_group.add_argument("--addr_width",     default=16,                   help="DPRAM Address Width 8 - 16")
     core_group.add_argument("--id_width",       default=8,                    help="DPRAM ID Width from 1 - 8")
     core_group.add_argument("--a_pip_out",      default=0,                    help="DPRAM A Pipeline Output 0 or 1")
     core_group.add_argument("--b_pip_out",      default=0,                    help="DPRAM B Pipeline Output 0 or 1")
@@ -39,6 +39,62 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    # Parameter Check -------------------------------------------------------------------------------
+    # Data_Width
+    data_width_param=['8', '16', '32', '64', '128', '256']
+    if args.data_width not in data_width_param:
+        print("Enter a valid 'data_width'")
+        print(data_width_param)
+        exit()
+    
+    # Address Width
+    x = int(args.addr_width)
+    addr_range=range(8, 17)
+    if x not in addr_range:
+        print("Enter a valid 'addr_width'")
+        print("'8 to 16'")
+        exit()
+
+    # ID_Width
+    x = int(args.id_width)
+    id_range=range(0, 33)
+    if x not in id_range:
+        print("Enter a valid 'id_width'")
+        print("'0 to 32'")
+        exit()
+    
+    # A_Pipeline_Output
+    x = int(args.a_pip_out)
+    a_pip_range=range(2)
+    if x not in a_pip_range:
+        print("Enter a valid 'a_pip_out'")
+        print("'0 or 1'")
+        exit()
+
+    # B_Pipeline_Output
+    x = int(args.b_pip_out)
+    b_pip_range=range(2)
+    if x not in b_pip_range:
+        print("Enter a valid 'b_pip_out'")
+        print("'0 or 1'")
+        exit()
+
+    # A_Interleave
+    x = int(args.a_interleave)
+    a_interleave_range=range(2)
+    if x not in a_interleave_range:
+        print("Enter a valid 'a_interleave'")
+        print("'0 or 1'")
+        exit()
+
+    # B_Interleave
+    x = int(args.b_interleave)
+    b_interleave_range=range(2)
+    if x not in b_interleave_range:
+        print("Enter a valid 'b_interleave'")
+        print("'0 or 1'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
