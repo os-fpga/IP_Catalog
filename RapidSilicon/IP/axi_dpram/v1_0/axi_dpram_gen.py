@@ -19,13 +19,13 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=32,      help="DPRAM Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default=16,      help="DPRAM Address Width 8 - 16")
-    core_group.add_argument("--id_width",       default=32,      help="DPRAM ID Width from 0 - 32")
-    core_group.add_argument("--a_pip_out",      default=0,       help="DPRAM A Pipeline Output 0 or 1")
-    core_group.add_argument("--b_pip_out",      default=0,       help="DPRAM B Pipeline Output 0 or 1")
-    core_group.add_argument("--a_interleave",   default=0,       help="DPRAM A Interleave 0 or 1")
-    core_group.add_argument("--b_interleave",   default=0,       help="DPRAM B Interleave 0 or 1")
+    core_group.add_argument("--data_width",     default='32',      help="DPRAM Data Width 8,16,32,64")
+    core_group.add_argument("--addr_width",     default='16',      help="DPRAM Address Width 8 - 16")
+    core_group.add_argument("--id_width",       default='32',      help="DPRAM ID Width from 1 - 32")
+    core_group.add_argument("--a_pip_out",      default='0',       help="DPRAM A Pipeline Output 0 or 1")
+    core_group.add_argument("--b_pip_out",      default='0',       help="DPRAM B Pipeline Output 0 or 1")
+    core_group.add_argument("--a_interleave",   default='0',       help="DPRAM A Interleave 0 or 1")
+    core_group.add_argument("--b_interleave",   default='0',       help="DPRAM B Interleave 0 or 1")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -58,10 +58,10 @@ def main():
 
     # ID_Width
     x = int(args.id_width)
-    id_range=range(0, 33)
+    id_range=range(1, 33)
     if x not in id_range:
         print("Enter a valid 'id_width'")
-        print("'0 to 32'")
+        print("'1 to 32'")
         exit()
     
     # A_Pipeline_Output

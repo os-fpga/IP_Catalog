@@ -19,7 +19,7 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=5,                      help="UART Data Width 5 - 8")
+    core_group.add_argument("--data_width",     default='5',                      help="UART Data Width 5 - 8")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -33,6 +33,15 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    # Parameter Check -------------------------------------------------------------------------------
+    # Data Width
+    x = int(args.data_width)
+    data_width_range=range(5,9)
+    if x not in data_width_range:
+        print("Enter a valid 'data_width'")
+        print("'5 to 8'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
