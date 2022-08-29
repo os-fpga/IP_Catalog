@@ -9,7 +9,47 @@ import argparse
 import shutil
 from datetime import datetime
 
+from migen import *
+
+from litex.build.generic_platform import *
+from litex.build.osfpga import OSFPGAPlatform
+
+from litex.soc.interconnect.axi import AXIInterface
+
+from axi_ram_litex_wrapper import AXIRAM
+
+# IOs/Interfaces -----------------------------------------------------------------------------------
+
+def get_clkin_ios():
+    return [
+        ("axi_clk",  0, Pins(1)),
+        ("axi_rst",  0, Pins(1)),
+    ]
+
+# AXI RAM Wrapper ----------------------------------------------------------------------------------
+
+class AXIRAMWrapper(Module):
+    def __init__(self, platform, data_width, addr_width, id_width, pip_out):
+        # Clocking ---------------------------------------------------------------------------------
+        platform.add_extension(get_clkin_ios())
+        self.clock_domains.cd_sys  = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+
+        # AXI --------------------------------------------------------------------------------------
+        axi = AXIInterface(
+            data_width    = data_width,
+            address_width = addr_width,
+            id_width      = id_width,
+        )
+        platform.add_extension(axi.get_ios("axi"))
+        self.comb += axi.connect_to_pads(platform.request("axi"), mode="slave")
+
+        # AXI-RAM ----------------------------------------------------------------------------------
+        self.submodules += AXIRAM(platform, axi, size=(2**addr_width)*data_width//8)
+
 # Build --------------------------------------------------------------------------------------------
+
 def main():
     parser = argparse.ArgumentParser(description="AXI RAM CORE")
     parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
@@ -19,15 +59,15 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=32,                   help="RAM Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default=16,                   help="RAM Address Width 8,16")
-    core_group.add_argument("--id_width",       default=8,                    help="RAM ID Width from 1 to 8")
-    core_group.add_argument("--pip_out",        default=0,                    help="RAM Pipeline Output 0 or 1")
+    core_group.add_argument("--data_width",     default=32, type=int,         help="RAM Data Width 8,16,32,64")
+    core_group.add_argument("--addr_width",     default=16, type=int,         help="RAM Address Width 8,16")
+    core_group.add_argument("--id_width",       default=8,  type=int,         help="RAM ID Width from 1 to 8")
+    core_group.add_argument("--pip_out",        default=0,  type=int,         help="RAM Pipeline Output 0 or 1")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axi_ram_wrapper",      help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -61,11 +101,6 @@ def main():
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)
 
-        # Litex_sim Path
-        litex_sim_path = os.path.join(build_path, "litex_sim")
-        if not os.path.exists(litex_sim_path):    
-            os.makedirs(litex_sim_path)
-
         # Simulation Path
         sim_path = os.path.join(build_path, "sim")
         if not os.path.exists(sim_path):    
@@ -91,15 +126,6 @@ def main():
             full_file_path = os.path.join(rtl_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, src_path)
-
-        # Copy litex_sim Data from Source to Destination     
-        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")   
-        litex_files = os.listdir(litex_path)
-        for file_name in litex_files:
-            full_file_path = os.path.join(litex_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, litex_sim_path)
-
         
         # TCL File Content        
         tcl = []
@@ -132,165 +158,27 @@ def main():
             f.write("\n".join(tcl))
         f.close()
 
-        # Generate RTL Wrapper
-        if args.build_name:
-            wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
-            with open(wrapper_path, "w") as f:
+    # Create LiteX Core ----------------------------------------------------------------------------
+    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
+    module     = AXIRAMWrapper(platform,
+        data_width = args.data_width,
+        addr_width = args.addr_width,
+        id_width   = args.id_width,
+        pip_out    = args.pip_out
+    )
 
-#-------------------------------------------------------------------------------
-# ------------------------- RTL WRAPPER ----------------------------------------
-#-------------------------------------------------------------------------------
-                f.write ("""
-/////////////////////////////////////////////////////////////////////////////////////////
-// For Reference: https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_ram.v
-/////////////////////////////////////////////////////////////////////////////////////////
-/*
-Copyright (c) 2018 Alex Forencich
+    # Generate Wrapper -----------------------------------------------------------------------------
+    # Remove build extension when specified.
+    args.build_name = os.path.splitext(args.build_name)[0]
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-/////////////////////////////////////////////////////////////////////////////////////////\n\n
-""")
-                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-                f.write ("""module {} #(""".format(args.build_name))
-
-                f.write ("""
-    // Width of data bus in bits
-    localparam DATA_WIDTH = {}, """.format(args.data_width))
-
-                f.write ("""
-    // Width of address bus in bits
-    localparam ADDR_WIDTH = {}, """.format(args.addr_width))
-
-                f.write ("""
-    // Width of ID from 0 - 8
-    localparam ID_WIDTH = {}, """.format(args.id_width))
-
-                f.write ("""
-    // Extra pipeline register on output
-    localparam PIPELINE_OUTPUT = {}, """.format(args.pip_out))
-
-                f.write("""
-    // Width of wstrb (width of data bus in words)
-    localparam STRB_WIDTH = (DATA_WIDTH/8)
-)
-(
-    input  wire                   clk,
-    input  wire                   rst,
-
-    input  wire [ID_WIDTH-1:0]    s_axi_awid,
-    input  wire [ADDR_WIDTH-1:0]  s_axi_awaddr,
-    input  wire [7:0]             s_axi_awlen,
-    input  wire [2:0]             s_axi_awsize,
-    input  wire [1:0]             s_axi_awburst,
-    input  wire                   s_axi_awlock,
-    input  wire [3:0]             s_axi_awcache,
-    input  wire [2:0]             s_axi_awprot,
-    input  wire                   s_axi_awvalid,
-    output wire                   s_axi_awready,
-
-    input  wire [DATA_WIDTH-1:0]  s_axi_wdata,
-    input  wire [STRB_WIDTH-1:0]  s_axi_wstrb,
-    input  wire                   s_axi_wlast,
-    input  wire                   s_axi_wvalid,
-    output wire                   s_axi_wready,
-
-    output wire [ID_WIDTH-1:0]    s_axi_bid,
-    output wire [1:0]             s_axi_bresp,
-    output wire                   s_axi_bvalid,
-    input  wire                   s_axi_bready,
-
-    input  wire [ID_WIDTH-1:0]    s_axi_arid,
-    input  wire [ADDR_WIDTH-1:0]  s_axi_araddr,
-    input  wire [7:0]             s_axi_arlen,
-    input  wire [2:0]             s_axi_arsize,
-    input  wire [1:0]             s_axi_arburst,
-    input  wire                   s_axi_arlock,
-    input  wire [3:0]             s_axi_arcache,
-    input  wire [2:0]             s_axi_arprot,
-    input  wire                   s_axi_arvalid,
-    output wire                   s_axi_arready,
-
-    output wire [ID_WIDTH-1:0]    s_axi_rid,
-    output wire [DATA_WIDTH-1:0]  s_axi_rdata,
-    output wire [1:0]             s_axi_rresp,
-    output wire                   s_axi_rlast,
-    output wire                   s_axi_rvalid,
-    input  wire                   s_axi_rready
-);
-
-""")
-                f.write("axi_ram #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH),\n.ID_WIDTH(ID_WIDTH),\n.PIPELINE_OUTPUT(PIPELINE_OUTPUT)\n)")
-                f.write("""
-
-ram_inst
-(
-.clk(clk),
-.rst(rst),
-
-.s_axi_awid(s_axi_awid),
-.s_axi_awaddr(s_axi_awaddr),
-.s_axi_awlen(s_axi_awlen),
-.s_axi_awsize(s_axi_awsize),
-.s_axi_awburst(s_axi_awburst),
-.s_axi_awlock(s_axi_awlock),
-.s_axi_awcache(s_axi_awcache),
-.s_axi_awprot(s_axi_awprot),
-.s_axi_awvalid(s_axi_awvalid),
-.s_axi_awready(s_axi_awready),
-
-.s_axi_wdata(s_axi_wdata),
-.s_axi_wstrb(s_axi_wstrb),
-.s_axi_wlast(s_axi_wlast),
-.s_axi_wvalid(s_axi_wvalid),
-.s_axi_wready(s_axi_wready),
-
-.s_axi_bid(s_axi_bid),
-.s_axi_bresp(s_axi_bresp),
-.s_axi_bvalid(s_axi_bvalid),
-.s_axi_bready(s_axi_bready),
-
-.s_axi_arid(s_axi_arid),
-.s_axi_araddr(s_axi_araddr),
-.s_axi_arlen(s_axi_arlen),
-.s_axi_arsize(s_axi_arsize),
-.s_axi_arburst(s_axi_arburst),
-.s_axi_arlock(s_axi_arlock),
-.s_axi_arcache(s_axi_arcache),
-.s_axi_arprot(s_axi_arprot),
-.s_axi_arvalid(s_axi_arvalid),
-.s_axi_arready(s_axi_arready),
-
-.s_axi_rid(s_axi_rid),
-.s_axi_rdata(s_axi_rdata),
-.s_axi_rresp(s_axi_rresp),
-.s_axi_rlast(s_axi_rlast),
-.s_axi_rvalid(s_axi_rvalid),
-.s_axi_rready(s_axi_rready)
-);
-
-endmodule
-
-`resetall
-             """)
-                f.close()
+    # Build
+    if args.build:
+        platform.build(module,
+            build_dir    = args.build_dir,
+            build_name   = args.build_name,
+            run          = False,
+            regular_comb = False
+        )
 
 if __name__ == "__main__":
     main()
