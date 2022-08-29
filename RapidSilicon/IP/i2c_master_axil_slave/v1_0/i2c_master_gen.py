@@ -19,14 +19,14 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--default_prescale",   default=1,        help="I2C Default Prescale 0 or 1")
-    core_group.add_argument("--fixed_prescale",     default=0,        help="I2C Fixed Prescale 0 or 1")
-    core_group.add_argument("--cmd_fifo",           default=1,        help="I2C FIFO Command Enable 0 or 1")
-    core_group.add_argument("--cmd_addr_width",     default=5,        help="I2C FIFO Command Address Width (1-5)")
-    core_group.add_argument("--write_fifo",         default=1,        help="I2C FIFO Write Enable 0 or 1")
-    core_group.add_argument("--write_addr_width",   default=5,        help="I2C FIFO Write Address Width (1-5)")
-    core_group.add_argument("--read_fifo",          default=1,        help="I2C FIFO Read Enable 0 or 1")
-    core_group.add_argument("--read_addr_width",    default=5,        help="I2C FIFO Read Address Width (1-5)")
+    core_group.add_argument("--default_prescale",   default='1',        help="I2C Default Prescale 0 or 1")
+    core_group.add_argument("--fixed_prescale",     default='0',        help="I2C Fixed Prescale 0 or 1")
+    core_group.add_argument("--cmd_fifo",           default='1',        help="I2C FIFO Command Enable 0 or 1")
+    core_group.add_argument("--cmd_addr_width",     default='5',        help="I2C FIFO Command Address Width (1-5)")
+    core_group.add_argument("--write_fifo",         default='1',        help="I2C FIFO Write Enable 0 or 1")
+    core_group.add_argument("--write_addr_width",   default='5',        help="I2C FIFO Write Address Width (1-5)")
+    core_group.add_argument("--read_fifo",          default='1',        help="I2C FIFO Read Enable 0 or 1")
+    core_group.add_argument("--read_addr_width",    default='5',        help="I2C FIFO Read Address Width (1-5)")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -40,6 +40,71 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    
+    # Parameter Check -------------------------------------------------------------------------------
+    # Default Prescale
+    x = int(args.default_prescale)
+    default_prescale_range=range(2)
+    if x not in default_prescale_range:
+        print("Enter a valid 'default_prescale'")
+        print("'0 or 1'")
+        exit()
+        
+    # Fixed Prescale
+    x = int(args.fixed_prescale)
+    fixed_prescale_range=range(2)
+    if x not in fixed_prescale_range:
+        print("Enter a valid 'fixed_prescale'")
+        print("'0 or 1'")
+        exit()
+        
+    # CMD FIFO 
+    x = int(args.cmd_fifo)
+    cmd_fifo_range=range(2)
+    if x not in cmd_fifo_range:
+        print("Enter a valid 'cmd_fifo'")
+        print("'0 or 1'")
+        exit()
+
+    # CMD FIFO Address Width
+    x = int(args.cmd_addr_width)
+    cmd_addr_width_range=range(1,6)
+    if x not in cmd_addr_width_range:
+        print("Enter a valid 'cmd_addr_width'")
+        print("'1 to 5'")
+        exit()
+        
+    # Write FIFO 
+    x = int(args.write_fifo)
+    write_fifo_range=range(2)
+    if x not in write_fifo_range:
+        print("Enter a valid 'write_fifo'")
+        print("'0 or 1'")
+        exit()
+        
+    # Write FIFO Address Width
+    x = int(args.write_addr_width)
+    write_addr_width_range=range(1,6)
+    if x not in write_addr_width_range:
+        print("Enter a valid 'write_addr_width'")
+        print("'1 to 5'")
+        exit()
+        
+    # Read FIFO 
+    x = int(args.read_fifo)
+    read_fifo_range=range(2)
+    if x not in read_fifo_range:
+        print("Enter a valid 'read_fifo'")
+        print("'0 or 1'")
+        exit()
+        
+    # Read FIFO Address Width
+    x = int(args.read_addr_width)
+    read_addr_width_range=range(1,6)
+    if x not in read_addr_width_range:
+        print("Enter a valid 'read_addr_width'")
+        print("'1 to 5'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

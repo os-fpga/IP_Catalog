@@ -19,9 +19,9 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--data_width",     default=32,                   help="I2C_slave Data Width 8,16,32")
-    core_group.add_argument("--addr_width",     default=16,                   help="I2C_slave Address Width 8,16")
-    core_group.add_argument("--filter_len",     default=4,                    help="I2C_slave Filter Lenght from 0 - 4")
+    core_group.add_argument("--data_width",     default='32',                   help="I2C_slave Data Width 8,16,32,64")
+    core_group.add_argument("--addr_width",     default='16',                   help="I2C_slave Address Width 8,16,32")
+    core_group.add_argument("--filter_len",     default='4',                    help="I2C_slave Filter Lenght from 1 - 4")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -35,6 +35,29 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    
+    # Parameter Check -------------------------------------------------------------------------------
+    # Data Width
+    data_width_param=['8', '16', '32', '64']
+    if args.data_width not in data_width_param:
+        print("Enter a valid 'data_width'")
+        print(data_width_param)
+        exit()
+        
+    # Address Width
+    addr_width_param=['8', '16', '32']
+    if args.addr_width not in addr_width_param:
+        print("Enter a valid 'addr_width'")
+        print(addr_width_param)
+        exit()
+
+    # Filter Length
+    x = int(args.filter_len)
+    filter_len_range=range(1,5)
+    if x not in filter_len_range:
+        print("Enter a valid 'filter_len'")
+        print("'1 to 4'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

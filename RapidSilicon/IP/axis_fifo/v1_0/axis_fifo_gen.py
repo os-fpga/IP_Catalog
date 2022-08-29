@@ -19,19 +19,19 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--depth",          default=1024,                 help="FIFO Depth")
-    core_group.add_argument("--data_width",     default=8,                    help="FIFO Data Width")
-    core_group.add_argument("--last_en",        default=1,                    help="FIFO Last Enable 0 or 1")
-    core_group.add_argument("--id_en",          default=0,                    help="FIFO ID Enable 0 or 1")
-    core_group.add_argument("--id_width",       default=8,                    help="FIFO ID Width")
-    core_group.add_argument("--dest_en",        default=0,                    help="FIFO Destination Enable 0 or 1")
-    core_group.add_argument("--dest_width",     default=8,                    help="FIFO Destination Width")
-    core_group.add_argument("--user_en",        default=1,                    help="FIFO User Enable 0 or 1")
-    core_group.add_argument("--user_width",     default=1,                    help="FIFO User Width")
-    core_group.add_argument("--pip_out",        default=2,                    help="FIFO Pipeline Output from 0 to 2")
-    core_group.add_argument("--frame_fifo",     default=0,                    help="FIFO Frame 0 or 1")
-    core_group.add_argument("--drop_bad_frame", default=0,                    help="FIFO Drop Bad Frame 0 or 1")
-    core_group.add_argument("--drop_when_full", default=0,                    help="FIFO Drop Frame when FIFO is Full")
+    core_group.add_argument("--depth",          default='4096',                 help="FIFO Depth 8,16,32,64,...,32768")
+    core_group.add_argument("--data_width",     default='8',                    help="FIFO Data Width 1 - 4096")
+    core_group.add_argument("--last_en",        default='1',                    help="FIFO Last Enable 0 or 1")
+    core_group.add_argument("--id_en",          default='0',                    help="FIFO ID Enable 0 or 1")
+    core_group.add_argument("--id_width",       default='8',                    help="FIFO ID Width 0 - 32")
+    core_group.add_argument("--dest_en",        default='0',                    help="FIFO Destination Enable 0 or 1")
+    core_group.add_argument("--dest_width",     default='8',                    help="FIFO Destination Width 0 - 32")
+    core_group.add_argument("--user_en",        default='1',                    help="FIFO User Enable 0 or 1")
+    core_group.add_argument("--user_width",     default='1',                    help="FIFO User Width 0 - 4096")
+    core_group.add_argument("--pip_out",        default='2',                    help="FIFO Pipeline Output from 0 to 2")
+    core_group.add_argument("--frame_fifo",     default='0',                    help="FIFO Frame 0 or 1")
+    core_group.add_argument("--drop_bad_frame", default='0',                    help="FIFO Drop Bad Frame 0 or 1")
+    core_group.add_argument("--drop_when_full", default='0',                    help="FIFO Drop Frame when FIFO is Full")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -45,6 +45,110 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    # Parameter Check -------------------------------------------------------------------------------
+    # Depth
+    depth_param=['8', '16', '32', '64', '128', '256', '512', '1024', '2048', '4096', '8192', '16384', '32768']
+    if args.depth not in depth_param:
+        print("Enter a valid 'depth'")
+        print(depth_param)
+        exit()
+
+    # Data_Width
+    x = int(args.data_width)
+    data_width_range=range(1,4097)
+    if x not in data_width_range:
+        print("Enter a valid 'data_width'")
+        print("'1 to 4096'")
+        exit()
+    
+    # Last Enable
+    x = int(args.last_en)
+    last_en_range=range(2)
+    if x not in last_en_range:
+        print("Enter a valid 'last_en'")
+        print("'0 or 1'")
+        exit()
+
+    # ID Enable
+    x = int(args.id_en)
+    id_en_range=range(2)
+    if x not in id_en_range:
+        print("Enter a valid 'id_en'")
+        print("'0 or 1'")
+        exit()
+
+    # ID Width
+    x = int(args.id_width)
+    id_width_range=range(1,33)
+    if x not in id_width_range:
+        print("Enter a valid 'id_width'")
+        print("'1 to 32'")
+        exit()
+
+    # Destination Enable
+    x = int(args.dest_en)
+    dest_en_range=range(2)
+    if x not in dest_en_range:
+        print("Enter a valid 'dest_en'")
+        print("'0 or 1'")
+        exit()
+        
+    # Destination Width
+    x = int(args.dest_width)
+    dest_width_range=range(1,33)
+    if x not in dest_width_range:
+        print("Enter a valid 'dest_width'")
+        print("'1 to 32'")
+        exit()
+        
+    # User Enable
+    x = int(args.user_en)
+    user_en_range=range(2)
+    if x not in user_en_range:
+        print("Enter a valid 'user_en'")
+        print("'0 or 1'")
+        exit()
+        
+    # User Width
+    x = int(args.user_width)
+    user_width_range=range(1,4097)
+    if x not in user_width_range:
+        print("Enter a valid 'user_width'")
+        print("'1 to 4096'")
+        exit()
+        
+    # Pipeline_Output
+    x = int(args.pip_out)
+    pip_range=range(3)
+    if x not in pip_range:
+        print("Enter a valid 'pip_out'")
+        print("'0 to 2'")
+        exit()
+        
+    # Frame FIFO
+    x = int(args.frame_fifo)
+    frame_fifo_range=range(2)
+    if x not in frame_fifo_range:
+        print("Enter a valid 'frame_fifo'")
+        print("'0 or 1'")
+        exit()
+        
+    # Drop Bad Frame
+    x = int(args.drop_bad_frame)
+    drop_bad_frame_range=range(2)
+    if x not in drop_bad_frame_range:
+        print("Enter a valid 'drop_bad_frame'")
+        print("'0 or 1'")
+        exit()
+        
+    # Drop When Full
+    x = int(args.drop_when_full)
+    drop_when_full_range=range(2)
+    if x not in drop_when_full_range:
+        print("Enter a valid 'drop_when_full'")
+        print("'0 or 1'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

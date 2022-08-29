@@ -19,10 +19,10 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--addr_width",          default=16,                   help="UART Address Width")
-    core_group.add_argument("--rdata_width",         default=32,                   help="UART Read Data Width")
-    core_group.add_argument("--wdata_width",         default=32,                   help="UART Write Data Width")
-    core_group.add_argument("--prot_width",          default=3,                    help="UART Protection Width")
+    core_group.add_argument("--addr_width",          default='16',            help="UART Address Width")
+    core_group.add_argument("--rdata_width",         default='32',            help="UART Read Data Width")
+    core_group.add_argument("--wdata_width",         default='32',            help="UART Write Data Width")
+    core_group.add_argument("--prot_width",          default='3',             help="UART Protection Width")
  
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -36,6 +36,36 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    # Parameter Check -------------------------------------------------------------------------------
+    # Address Width
+    addr_width_param=['8', '16', '32']
+    if args.addr_width not in addr_width_param:
+        print("Enter a valid 'addr_width'")
+        print(addr_width_param)
+        exit()
+    
+    # Read Data_Width
+    rdata_width_param=['8', '16', '32', '64']
+    if args.rdata_width not in rdata_width_param:
+        print("Enter a valid 'rdata_width'")
+        print(rdata_width_param)
+        exit()
+
+    # Write Data_Width
+    wdata_width_param=['8', '16', '32', '64']
+    if args.wdata_width not in wdata_width_param:
+        print("Enter a valid 'wdata_width'")
+        print(wdata_width_param)
+        exit()
+    
+    # Protection_Width
+    x = int(args.prot_width)
+    prot_range=range(1,4)
+    if x not in prot_range:
+        print("Enter a valid 'prot_width'")
+        print("'1 to 3'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

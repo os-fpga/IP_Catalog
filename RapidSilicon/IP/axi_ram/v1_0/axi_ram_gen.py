@@ -19,10 +19,10 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=32,                   help="RAM Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default=16,                   help="RAM Address Width 8,16")
-    core_group.add_argument("--id_width",       default=8,                    help="RAM ID Width from 1 to 8")
-    core_group.add_argument("--pip_out",        default=0,                    help="RAM Pipeline Output 0 or 1")
+    core_group.add_argument("--data_width",     default='32',                   help="RAM Data Width 8,16,32,64")
+    core_group.add_argument("--addr_width",     default='16',                   help="RAM Address Width 8-16")
+    core_group.add_argument("--id_width",       default='8',                    help="RAM ID Width from 1 to 8")
+    core_group.add_argument("--pip_out",        default='0',                    help="RAM Pipeline Output 0 or 1")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -36,6 +36,38 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    # Parameter Check -------------------------------------------------------------------------------
+    # Data_Width
+    data_width_param=['8', '16', '32', '64']
+    if args.data_width not in data_width_param:
+        print("Enter a valid 'data_width'")
+        print(data_width_param)
+        exit()
+
+    # Address_Width
+    x = int(args.addr_width)
+    addr_range=range(8,17)
+    if x not in addr_range:
+        print("Enter a valid 'addr_width'")
+        print("'8 to 16'")
+        exit()
+
+    # ID_Width
+    x = int(args.id_width)
+    id_range=range(1, 9)
+    if x not in id_range:
+        print("Enter a valid 'id_width'")
+        print("'1 to 8'")
+        exit()
+
+    # Pipeline_Output
+    x = int(args.pip_out)
+    pip_range=range(2)
+    if x not in pip_range:
+        print("Enter a valid 'pip_out'")
+        print("'0 or 1'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

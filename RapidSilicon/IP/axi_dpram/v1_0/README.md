@@ -15,7 +15,7 @@ There are seven parameters for AXI-DPRAM core. These parameters, their keywords 
     |-------|----------------------|--------------------|-----------------------|
     |   1.  |   DATA_WIDTH         |    data_width      |   8,16,32,64,128,256  |
     |   2.  |   ADDRESS_WIDTH      |    addr_width      |   8-16                |
-    |   3.  |   ID_WIDTH           |    id_width        |   0-32                |
+    |   3.  |   ID_WIDTH           |    id_width        |   1-32                |
     |   4.  |   A_PIPELINE_OUTPUT  |    a_pip_out       |   0/1                 |
     |   5.  |   B_PIPELINE_OUTPUT  |    b_pip_out       |   0/1                 |
     |   6.  |   A_INTERLEAVE       |    a_interleave    |   0/1                 |
