@@ -174,11 +174,13 @@ def main():
     # Build
     if args.build:
         platform.build(module,
-            build_dir    = args.build_dir,
+            build_dir    = "litex_build",
             build_name   = args.build_name,
             run          = False,
             regular_comb = False
         )
+        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
+        shutil.rmtree("litex_build")
 
 if __name__ == "__main__":
     main()
