@@ -7,7 +7,59 @@ import os
 import json
 import argparse
 import shutil
-from datetime import datetime
+
+from litex_sim.axi_register_litex_wrapper import AXIREGISTER
+
+from migen import *
+
+from litex.build.generic_platform import *
+
+from litex.build.osfpga import OSFPGAPlatform
+
+from litex.soc.interconnect.axi import AXIInterface
+
+# IOs / Interface ----------------------------------------------------------------------------------
+def get_clkin_ios():
+    return [
+        ("axi_clk", 0, Pins(1)),
+        ("axi_rst", 0, Pins(1)),
+    ]
+    
+# AXI-Register Wrapper --------------------------------------------------------------------------------
+class AXIREGISTERWrapper(Module):
+    def __init__(self, platform, data_width, addr_width, id_width, aw_user_width, 
+                w_user_width, b_user_width, ar_user_width, r_user_width, 
+                aw_reg_type, w_reg_type, b_reg_type, ar_reg_type, r_reg_type):
+        
+        platform.add_extension(get_clkin_ios())
+        self.clock_domains.cd_sys = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+        
+        # AXI-------------------------------------------------------------
+        axi = AXIInterface(
+            data_width      = data_width,
+            address_width   = addr_width,
+            id_width        = id_width
+        )
+        platform.add_extension(axi.get_ios("axi"))
+        self.comb += axi.connect_to_pads(platform.request("axi"), mode="slave")
+        
+        # AXI-DPRAM -----------------------------------------------------
+        self.submodules += AXIREGISTER(platform, axi,
+                                    aw_user_width       =   aw_user_width, 
+                                    w_user_width        =   w_user_width, 
+                                    b_user_width        =   b_user_width, 
+                                    ar_user_width       =   ar_user_width,
+                                    r_user_width        =   r_user_width, 
+                                    aw_reg_type         =   aw_reg_type,
+                                    w_reg_type          =   w_reg_type,
+                                    b_reg_type          =   b_reg_type,
+                                    ar_reg_type         =   ar_reg_type,
+                                    r_reg_type          =   r_reg_type,
+                                    size                =   (2**addr_width)*(data_width/8)
+                                    )
+
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -19,26 +71,26 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",      default='32',      help="Register Data Width 8,16,32,64,128,256,512,1024")
-    core_group.add_argument("--addr_width",      default='32',      help="Register Address Width 1 - 64")
-    core_group.add_argument("--id_width",        default='32',      help="Register ID Width from 1 - 32")
+    core_group.add_argument("--data_width",      default=32,   type=int,    help="Register Data Width 8,16,32,64,128,256,512,1024")
+    core_group.add_argument("--addr_width",      default=32,   type=int,    help="Register Address Width 1 - 64")
+    core_group.add_argument("--id_width",        default=32,   type=int,   help="Register ID Width from 1 - 32")
 
-    core_group.add_argument("--aw_user_width",   default='1',       help="Register AW-User Width from 1 - 1024")
-    core_group.add_argument("--w_user_width",    default='1',       help="Register W-User Width from 1 - 1024")
-    core_group.add_argument("--b_user_width",    default='1',       help="Register B-User Width from 1 - 1024")
-    core_group.add_argument("--ar_user_width",   default='1',       help="Register AR-User Width from 1 - 1024")
-    core_group.add_argument("--r_user_width",    default='1',       help="Register R-User Width from 1 - 1024")
+    core_group.add_argument("--aw_user_width",   default=1,    type=int,   help="Register AW-User Width from 1 - 1024")
+    core_group.add_argument("--w_user_width",    default=1,    type=int,   help="Register W-User Width from 1 - 1024")
+    core_group.add_argument("--b_user_width",    default=1,    type=int,   help="Register B-User Width from 1 - 1024")
+    core_group.add_argument("--ar_user_width",   default=1,    type=int,   help="Register AR-User Width from 1 - 1024")
+    core_group.add_argument("--r_user_width",    default=1,    type=int,   help="Register R-User Width from 1 - 1024")
 
-    core_group.add_argument("--aw_reg_type",     default='1',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--w_reg_type",      default='2',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--b_reg_type",      default='1',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--ar_reg_type",     default='1',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--r_reg_type",      default='2',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--aw_reg_type",     default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--w_reg_type",      default=2,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--b_reg_type",      default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--ar_reg_type",     default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--r_reg_type",      default=2,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                         help="Build Directory")
+    build_group.add_argument("--build-dir",     default="./",                       help="Build Directory")
     build_group.add_argument("--build-name",    default="axi_register_wrapper",     help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -50,104 +102,92 @@ def main():
 
     # Parameter Check -------------------------------------------------------------------------------
     # Data_Width
-    data_width_param=['8', '16', '32', '64', '128', '256', '512', '1024']
+    data_width_param=[8, 16, 32, 64, 128, 256, 512, 1024]
     if args.data_width not in data_width_param:
         print("Enter a valid 'data_width'")
         print(data_width_param)
         exit()
 
     # Address_Width
-    x = int(args.addr_width)
     addr_range=range(1,65)
-    if x not in addr_range:
+    if args.addr_width not in addr_range:
         print("Enter a valid 'addr_width'")
         print("'1 to 64'")
         exit()
 
     # ID_Width
-    x = int(args.id_width)
     id_range=range(1, 33)
-    if x not in id_range:
+    if args.id_width not in id_range:
         print("Enter a valid 'id_width'")
         print("'1 to 32'")
         exit()
 
     # Write Address Channel User Width
-    x = int(args.aw_user_width)
     aw_user_range=range(1, 1025)
-    if x not in aw_user_range:
+    if args.aw_user_width not in aw_user_range:
         print("Enter a valid 'aw_user_width'")
         print("'1 to 1024'")
         exit()
 
     # Write Data Channel User Width
-    x = int(args.w_user_width)
     w_user_range=range(1, 1025)
-    if x not in w_user_range:
+    if args.w_user_width not in w_user_range:
         print("Enter a valid 'w_user_width'")
         print("'1 to 1024'")
         exit()
 
     # Write Response Channel User Width
-    x = int(args.b_user_width)
     b_user_range=range(1, 1025)
-    if x not in b_user_range:
+    if args.b_user_width not in b_user_range:
         print("Enter a valid 'b_user_width'")
         print("'1 to 1024'")
         exit()
 
     # Read Address Channel User Width
-    x = int(args.ar_user_width)
     ar_user_range=range(1, 1025)
-    if x not in ar_user_range:
+    if args.ar_user_width not in ar_user_range:
         print("Enter a valid 'ar_user_width'")
         print("'1 to 1024'")
         exit()
 
     # Read Data Channel User Width
-    x = int(args.r_user_width)
     r_user_range=range(1, 1025)
-    if x not in r_user_range:
+    if args.r_user_width not in r_user_range:
         print("Enter a valid 'r_user_width'")
         print("'1 to 1024'")
         exit()
 
     # Write Address Channel Register Type
-    x = int(args.aw_reg_type)
     aw_reg_range=range(3)
-    if x not in aw_reg_range:
+    if args.aw_reg_type not in aw_reg_range:
         print("Enter a valid 'aw_reg_type'")
         print("'0 to 2'")
         exit()
 
     # Write Data Channel Register Type
-    x = int(args.w_reg_type)
     w_reg_range=range(3)
-    if x not in w_reg_range:
+    if args.w_reg_type not in w_reg_range:
         print("Enter a valid 'w_reg_type'")
         print("'0 to 2'")
         exit()
 
     # Write Response Channel Register Type
-    x = int(args.b_reg_type)
     b_reg_range=range(3)
-    if x not in b_reg_range:
+    if args.b_reg_type not in b_reg_range:
         print("Enter a valid 'b_reg_type'")
         print("'0 to 2'")
         exit()
 
     # Read Address Channel Register Type
-    x = int(args.ar_reg_type)
     ar_reg_range=range(3)
-    if x not in ar_reg_range:
+    if args.ar_reg_type not in ar_reg_range:
         print("Enter a valid 'ar_reg_type'")
         print("'0 to 2'")
         exit()
 
     # Read Data Channel Register Type
-    x = int(args.r_reg_type)
     r_reg_range=range(3)
-    if x not in r_reg_range:
+    if args.r_reg_type not in r_reg_range:
         print("Enter a valid 'r_reg_type'")
         print("'0 to 2'")
         exit()
@@ -234,329 +274,40 @@ def main():
         # Run.
         tcl.append("synthesize")
 
-
         # Generate .tcl file
         tcl_path = os.path.join(synth_path, "raptor.tcl")
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
-
-        # Generate RTL Wrapper
-        if args.build_name:
-            wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
-            with open(wrapper_path, "w") as f:
-
-#-------------------------------------------------------------------------------
-# ------------------------- RTL WRAPPER ----------------------------------------
-#-------------------------------------------------------------------------------
-                f.write ("""
-//////////////////////////////////////////////////////////////////////////////////////////////
-// For Reference: https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_register.v
-//////////////////////////////////////////////////////////////////////////////////////////////
-/*
-Copyright (c) 2018 Alex Forencich
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-//////////////////////////////////////////////////////////////////////////////////////////////\n\n
-""")
-                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-                f.write ("""module {} #(""".format(args.build_name))
-
-                f.write ("""
-    // Width of data bus in bits 8, 16, 32, 64, 128, 256, 512, 1024
-    localparam DATA_WIDTH = {}, """.format(args.data_width))
-
-                f.write ("""
-    // Width of address bus in bits from 1 - 64
-    localparam ADDR_WIDTH = {}, """.format(args.addr_width))
-
-                f.write ("""
-    // Width of ID signal from 0 - 32
-    localparam ID_WIDTH = {}, """.format(args.id_width))
-
-                f.write ("""
-    // Width of awuser signal from 0 - 1024
-    localparam AWUSER_WIDTH = {}, """.format(args.aw_user_width))
-
-                f.write ("""
-    // Width of wuser signal from 0 - 1024
-    localparam WUSER_WIDTH = {}, """.format(args.w_user_width))
-
-                f.write ("""
-    // Width of buser signal from 0 - 1024
-    localparam BUSER_WIDTH = {}, """.format(args.b_user_width))
-
-                f.write ("""
-    // Width of aruser signal from 0 - 1024
-    localparam ARUSER_WIDTH = {}, """.format(args.ar_user_width))
-
-                f.write ("""
-    // Width of ruser signal from 0 - 1024
-    localparam RUSER_WIDTH = {}, """.format(args.r_user_width))
-
-                f.write ("""
-    // AW channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    localparam AW_REG_TYPE = {}, """.format(args.aw_reg_type))
-
-                f.write ("""
-    // W channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    localparam W_REG_TYPE = {}, """.format(args.w_reg_type))
-
-                f.write ("""
-    // B channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    localparam B_REG_TYPE = {}, """.format(args.b_reg_type))
-
-                f.write ("""
-    // AR channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    localparam AR_REG_TYPE = {}, """.format(args.ar_reg_type))
-
-                f.write ("""
-    // R channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    localparam R_REG_TYPE = {}, """.format(args.r_reg_type))
-
-                f.write("""
-    // Width of wstrb (width of data bus in words)
-    localparam STRB_WIDTH = (DATA_WIDTH/8)
-)
-(
-    input  wire                     clk,
-    input  wire                     rst,
-
-    /*
-     * AXI slave interface
-     */
-    input  wire [ID_WIDTH-1:0]      s_axi_awid,
-    input  wire [ADDR_WIDTH-1:0]    s_axi_awaddr,
-    input  wire [7:0]               s_axi_awlen,
-    input  wire [2:0]               s_axi_awsize,
-    input  wire [1:0]               s_axi_awburst,
-    input  wire                     s_axi_awlock,
-    input  wire [3:0]               s_axi_awcache,
-    input  wire [2:0]               s_axi_awprot,
-    input  wire [3:0]               s_axi_awqos,
-    input  wire [3:0]               s_axi_awregion,
-    input  wire [AWUSER_WIDTH-1:0]  s_axi_awuser,
-    input  wire                     s_axi_awvalid,
-    output wire                     s_axi_awready,
-    input  wire [DATA_WIDTH-1:0]    s_axi_wdata,
-    input  wire [STRB_WIDTH-1:0]    s_axi_wstrb,
-    input  wire                     s_axi_wlast,
-    input  wire [WUSER_WIDTH-1:0]   s_axi_wuser,
-    input  wire                     s_axi_wvalid,
-    output wire                     s_axi_wready,
-    output wire [ID_WIDTH-1:0]      s_axi_bid,
-    output wire [1:0]               s_axi_bresp,
-    output wire [BUSER_WIDTH-1:0]   s_axi_buser,
-    output wire                     s_axi_bvalid,
-    input  wire                     s_axi_bready,
-    input  wire [ID_WIDTH-1:0]      s_axi_arid,
-    input  wire [ADDR_WIDTH-1:0]    s_axi_araddr,
-    input  wire [7:0]               s_axi_arlen,
-    input  wire [2:0]               s_axi_arsize,
-    input  wire [1:0]               s_axi_arburst,
-    input  wire                     s_axi_arlock,
-    input  wire [3:0]               s_axi_arcache,
-    input  wire [2:0]               s_axi_arprot,
-    input  wire [3:0]               s_axi_arqos,
-    input  wire [3:0]               s_axi_arregion,
-    input  wire [ARUSER_WIDTH-1:0]  s_axi_aruser,
-    input  wire                     s_axi_arvalid,
-    output wire                     s_axi_arready,
-    output wire [ID_WIDTH-1:0]      s_axi_rid,
-    output wire [DATA_WIDTH-1:0]    s_axi_rdata,
-    output wire [1:0]               s_axi_rresp,
-    output wire                     s_axi_rlast,
-    output wire [RUSER_WIDTH-1:0]   s_axi_ruser,
-    output wire                     s_axi_rvalid,
-    input  wire                     s_axi_rready,
-
-    /*
-     * AXI master interface
-     */
-    output wire [ID_WIDTH-1:0]      m_axi_awid,
-    output wire [ADDR_WIDTH-1:0]    m_axi_awaddr,
-    output wire [7:0]               m_axi_awlen,
-    output wire [2:0]               m_axi_awsize,
-    output wire [1:0]               m_axi_awburst,
-    output wire                     m_axi_awlock,
-    output wire [3:0]               m_axi_awcache,
-    output wire [2:0]               m_axi_awprot,
-    output wire [3:0]               m_axi_awqos,
-    output wire [3:0]               m_axi_awregion,
-    output wire [AWUSER_WIDTH-1:0]  m_axi_awuser,
-    output wire                     m_axi_awvalid,
-    input  wire                     m_axi_awready,
-    output wire [DATA_WIDTH-1:0]    m_axi_wdata,
-    output wire [STRB_WIDTH-1:0]    m_axi_wstrb,
-    output wire                     m_axi_wlast,
-    output wire [WUSER_WIDTH-1:0]   m_axi_wuser,
-    output wire                     m_axi_wvalid,
-    input  wire                     m_axi_wready,
-    input  wire [ID_WIDTH-1:0]      m_axi_bid,
-    input  wire [1:0]               m_axi_bresp,
-    input  wire [BUSER_WIDTH-1:0]   m_axi_buser,
-    input  wire                     m_axi_bvalid,
-    output wire                     m_axi_bready,
-    output wire [ID_WIDTH-1:0]      m_axi_arid,
-    output wire [ADDR_WIDTH-1:0]    m_axi_araddr,
-    output wire [7:0]               m_axi_arlen,
-    output wire [2:0]               m_axi_arsize,
-    output wire [1:0]               m_axi_arburst,
-    output wire                     m_axi_arlock,
-    output wire [3:0]               m_axi_arcache,
-    output wire [2:0]               m_axi_arprot,
-    output wire [3:0]               m_axi_arqos,
-    output wire [3:0]               m_axi_arregion,
-    output wire [ARUSER_WIDTH-1:0]  m_axi_aruser,
-    output wire                     m_axi_arvalid,
-    input  wire                     m_axi_arready,
-    input  wire [ID_WIDTH-1:0]      m_axi_rid,
-    input  wire [DATA_WIDTH-1:0]    m_axi_rdata,
-    input  wire [1:0]               m_axi_rresp,
-    input  wire                     m_axi_rlast,
-    input  wire [RUSER_WIDTH-1:0]   m_axi_ruser,
-    input  wire                     m_axi_rvalid,
-    output wire                     m_axi_rready
-);
-
-""")
-                f.write("axi_register #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH),\n.ID_WIDTH(ID_WIDTH),\n.AWUSER_WIDTH(AWUSER_WIDTH),\n.WUSER_WIDTH(WUSER_WIDTH),\n.BUSER_WIDTH(BUSER_WIDTH),\n.ARUSER_WIDTH(ARUSER_WIDTH),\n.RUSER_WIDTH(RUSER_WIDTH),\n.AW_REG_TYPE(AW_REG_TYPE),\n.W_REG_TYPE(W_REG_TYPE),\n.B_REG_TYPE(B_REG_TYPE),\n.AR_REG_TYPE(AR_REG_TYPE),\n.R_REG_TYPE(R_REG_TYPE)\n)")
-                f.write("""
-
-axi_register_inst
-(
-.clk(clk),
-.rst(rst),
-
-// slave
-.s_axi_awid(s_axi_awid),
-.s_axi_awaddr(s_axi_awaddr),
-.s_axi_awlen(s_axi_awlen),
-.s_axi_awsize(s_axi_awsize),
-.s_axi_awburst(s_axi_awburst),
-.s_axi_awlock(s_axi_awlock),
-.s_axi_awcache(s_axi_awcache),
-.s_axi_awprot(s_axi_awprot),
-.s_axi_awqos(s_axi_awqos),
-.s_axi_awregion(s_axi_awregion),
-.s_axi_awuser(s_axi_awuser),
-.s_axi_awvalid(s_axi_awvalid),
-.s_axi_awready(s_axi_awready),
-
-.s_axi_wdata(s_axi_wdata),
-.s_axi_wstrb(s_axi_wstrb),
-.s_axi_wlast(s_axi_wlast),
-.s_axi_wuser(s_axi_wuser),
-.s_axi_wvalid(s_axi_wvalid),
-.s_axi_wready(s_axi_wready),
-
-.s_axi_bid(s_axi_bid),
-.s_axi_bresp(s_axi_bresp),
-.s_axi_buser(s_axi_buser),
-.s_axi_bvalid(s_axi_bvalid),
-.s_axi_bready(s_axi_bready),
-
-.s_axi_arid(s_axi_arid),
-.s_axi_araddr(s_axi_araddr),
-.s_axi_arlen(s_axi_arlen),
-.s_axi_arsize(s_axi_arsize),
-.s_axi_arburst(s_axi_arburst),
-.s_axi_arlock(s_axi_arlock),
-.s_axi_arcache(s_axi_arcache),
-.s_axi_arprot(s_axi_arprot),
-.s_axi_arqos(s_axi_arqos),
-.s_axi_arregion(s_axi_arregion),
-.s_axi_aruser(s_axi_aruser),
-.s_axi_arvalid(s_axi_arvalid),
-.s_axi_arready(s_axi_arready),
-
-.s_axi_rid(s_axi_rid),
-.s_axi_rdata(s_axi_rdata),
-.s_axi_rresp(s_axi_rresp),
-.s_axi_rlast(s_axi_rlast),
-.s_axi_ruser(s_axi_ruser),
-.s_axi_rvalid(s_axi_rvalid),
-.s_axi_rready(s_axi_rready),
-
-// master
-.m_axi_awid(m_axi_awid),
-.m_axi_awaddr(m_axi_awaddr),
-.m_axi_awlen(m_axi_awlen),
-.m_axi_awsize(m_axi_awsize),
-.m_axi_awburst(m_axi_awburst),
-.m_axi_awlock(m_axi_awlock),
-.m_axi_awcache(m_axi_awcache),
-.m_axi_awprot(m_axi_awprot),
-.m_axi_awqos(m_axi_awqos),
-.m_axi_awregion(m_axi_awregion),
-.m_axi_awuser(m_axi_awuser),
-.m_axi_awvalid(m_axi_awvalid),
-.m_axi_awready(m_axi_awready),
-
-.m_axi_wdata(m_axi_wdata),
-.m_axi_wstrb(m_axi_wstrb),
-.m_axi_wlast(m_axi_wlast),
-.m_axi_wuser(m_axi_wuser),
-.m_axi_wvalid(m_axi_wvalid),
-.m_axi_wready(m_axi_wready),
-
-.m_axi_bid(m_axi_bid),
-.m_axi_bresp(m_axi_bresp),
-.m_axi_buser(m_axi_buser),
-.m_axi_bvalid(m_axi_bvalid),
-.m_axi_bready(m_axi_bready),
-
-.m_axi_arid(m_axi_arid),
-.m_axi_araddr(m_axi_araddr),
-.m_axi_arlen(m_axi_arlen),
-.m_axi_arsize(m_axi_arsize),
-.m_axi_arburst(m_axi_arburst),
-.m_axi_arlock(m_axi_arlock),
-.m_axi_arcache(m_axi_arcache),
-.m_axi_arprot(m_axi_arprot),
-.m_axi_arqos(m_axi_arqos),
-.m_axi_arregion(m_axi_arregion),
-.m_axi_aruser(m_axi_aruser),
-.m_axi_arvalid(m_axi_arvalid),
-.m_axi_arready(m_axi_arready),
-
-.m_axi_rid(m_axi_rid),
-.m_axi_rdata(m_axi_rdata),
-.m_axi_rresp(m_axi_rresp),
-.m_axi_rlast(m_axi_rlast),
-.m_axi_ruser(m_axi_ruser),
-.m_axi_rvalid(m_axi_rvalid),
-.m_axi_rready(m_axi_rready)
-);
-
-endmodule
-
-`resetall
-             """)
-                f.close()
+        
+        # Create LiteX Core ----------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module = AXIREGISTERWrapper(platform,
+        data_width          = args.data_width,
+        addr_width          = args.addr_width,
+        id_width            = args.id_width,
+        aw_user_width       = args.aw_user_width,
+        w_user_width        = args.w_user_width,
+        b_user_width        = args.b_user_width,
+        ar_user_width       = args.ar_user_width,
+        r_user_width        = args.r_user_width,   
+        aw_reg_type         = args.aw_reg_type,
+        w_reg_type          = args.w_reg_type,
+        b_reg_type          = args.b_reg_type,
+        ar_reg_type         = args.ar_reg_type,
+        r_reg_type          = args.r_reg_type                  
+        )
+    
+    # Build
+    if args.build:
+        platform.build(module,
+            build_dir    = "litex_build",
+            build_name   = args.build_name,
+            run          = False,
+            regular_comb = False
+        )
+        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
+        shutil.rmtree("litex_build")
 
 if __name__ == "__main__":
     main()
