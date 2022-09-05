@@ -19,21 +19,21 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",      default=32,      help="Register Data Width 8,16,32,64,128,256,512,1024")
-    core_group.add_argument("--addr_width",      default=32,      help="Register Address Width 8,16,32,64")
-    core_group.add_argument("--id_width",        default=32,      help="Register ID Width from 0 - 32")
+    core_group.add_argument("--data_width",      default='32',      help="Register Data Width 8,16,32,64,128,256,512,1024")
+    core_group.add_argument("--addr_width",      default='32',      help="Register Address Width 1 - 64")
+    core_group.add_argument("--id_width",        default='32',      help="Register ID Width from 1 - 32")
 
-    core_group.add_argument("--aw_user_width",   default=0,       help="Register AW-User Width from 0 - 1024")
-    core_group.add_argument("--w_user_width",    default=0,       help="Register W-User Width from 0 - 1024")
-    core_group.add_argument("--b_user_width",    default=0,       help="Register B-User Width from 0 - 1024")
-    core_group.add_argument("--ar_user_width",   default=0,       help="Register AR-User Width from 0 - 1024")
-    core_group.add_argument("--r_user_width",    default=0,       help="Register R-User Width from 0 - 1024")
+    core_group.add_argument("--aw_user_width",   default='1',       help="Register AW-User Width from 1 - 1024")
+    core_group.add_argument("--w_user_width",    default='1',       help="Register W-User Width from 1 - 1024")
+    core_group.add_argument("--b_user_width",    default='1',       help="Register B-User Width from 1 - 1024")
+    core_group.add_argument("--ar_user_width",   default='1',       help="Register AR-User Width from 1 - 1024")
+    core_group.add_argument("--r_user_width",    default='1',       help="Register R-User Width from 1 - 1024")
 
-    core_group.add_argument("--aw_reg_type",     default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--w_reg_type",      default=2,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--b_reg_type",      default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--ar_reg_type",     default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--r_reg_type",      default=2,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--aw_reg_type",     default='1',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--w_reg_type",      default='2',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--b_reg_type",      default='1',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--ar_reg_type",     default='1',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--r_reg_type",      default='2',       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -47,6 +47,110 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    # Parameter Check -------------------------------------------------------------------------------
+    # Data_Width
+    data_width_param=['8', '16', '32', '64', '128', '256', '512', '1024']
+    if args.data_width not in data_width_param:
+        print("Enter a valid 'data_width'")
+        print(data_width_param)
+        exit()
+
+    # Address_Width
+    x = int(args.addr_width)
+    addr_range=range(1,65)
+    if x not in addr_range:
+        print("Enter a valid 'addr_width'")
+        print("'1 to 64'")
+        exit()
+
+    # ID_Width
+    x = int(args.id_width)
+    id_range=range(1, 33)
+    if x not in id_range:
+        print("Enter a valid 'id_width'")
+        print("'1 to 32'")
+        exit()
+
+    # Write Address Channel User Width
+    x = int(args.aw_user_width)
+    aw_user_range=range(1, 1025)
+    if x not in aw_user_range:
+        print("Enter a valid 'aw_user_width'")
+        print("'1 to 1024'")
+        exit()
+
+    # Write Data Channel User Width
+    x = int(args.w_user_width)
+    w_user_range=range(1, 1025)
+    if x not in w_user_range:
+        print("Enter a valid 'w_user_width'")
+        print("'1 to 1024'")
+        exit()
+
+    # Write Response Channel User Width
+    x = int(args.b_user_width)
+    b_user_range=range(1, 1025)
+    if x not in b_user_range:
+        print("Enter a valid 'b_user_width'")
+        print("'1 to 1024'")
+        exit()
+
+    # Read Address Channel User Width
+    x = int(args.ar_user_width)
+    ar_user_range=range(1, 1025)
+    if x not in ar_user_range:
+        print("Enter a valid 'ar_user_width'")
+        print("'1 to 1024'")
+        exit()
+
+    # Read Data Channel User Width
+    x = int(args.r_user_width)
+    r_user_range=range(1, 1025)
+    if x not in r_user_range:
+        print("Enter a valid 'r_user_width'")
+        print("'1 to 1024'")
+        exit()
+
+    # Write Address Channel Register Type
+    x = int(args.aw_reg_type)
+    aw_reg_range=range(3)
+    if x not in aw_reg_range:
+        print("Enter a valid 'aw_reg_type'")
+        print("'0 to 2'")
+        exit()
+
+    # Write Data Channel Register Type
+    x = int(args.w_reg_type)
+    w_reg_range=range(3)
+    if x not in w_reg_range:
+        print("Enter a valid 'w_reg_type'")
+        print("'0 to 2'")
+        exit()
+
+    # Write Response Channel Register Type
+    x = int(args.b_reg_type)
+    b_reg_range=range(3)
+    if x not in b_reg_range:
+        print("Enter a valid 'b_reg_type'")
+        print("'0 to 2'")
+        exit()
+
+    # Read Address Channel Register Type
+    x = int(args.ar_reg_type)
+    ar_reg_range=range(3)
+    if x not in ar_reg_range:
+        print("Enter a valid 'ar_reg_type'")
+        print("'0 to 2'")
+        exit()
+
+    # Read Data Channel Register Type
+    x = int(args.r_reg_type)
+    r_reg_range=range(3)
+    if x not in r_reg_range:
+        print("Enter a valid 'r_reg_type'")
+        print("'0 to 2'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
@@ -129,13 +233,7 @@ def main():
 #        tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
         tcl.append("synthesize")
-        tcl.append("packing")
-        tcl.append("global_placement")
-        tcl.append("place")
-        tcl.append("route")
-        tcl.append("sta")
-        tcl.append("power")
-        tcl.append("bitstream")
+
 
         # Generate .tcl file
         tcl_path = os.path.join(synth_path, "raptor.tcl")
