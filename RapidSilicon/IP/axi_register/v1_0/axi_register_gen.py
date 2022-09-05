@@ -81,11 +81,11 @@ def main():
     core_group.add_argument("--ar_user_width",   default=1,    type=int,   help="Register AR-User Width from 1 - 1024")
     core_group.add_argument("--r_user_width",    default=1,    type=int,   help="Register R-User Width from 1 - 1024")
 
-    core_group.add_argument("--aw_reg_type",     default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--w_reg_type",      default=2,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--b_reg_type",      default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--ar_reg_type",     default=1,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_group.add_argument("--r_reg_type",      default=2,       help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--aw_reg_type",     default=1,    type=int,   help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--w_reg_type",      default=2,    type=int,   help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--b_reg_type",      default=1,    type=int,   help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--ar_reg_type",     default=1,    type=int,   help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
+    core_group.add_argument("--r_reg_type",      default=2,    type=int,   help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
