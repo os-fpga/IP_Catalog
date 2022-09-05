@@ -52,11 +52,11 @@ class AXIDPRAMWrapper(Module):
         
         # AXI-DPRAM -----------------------------------------------------
         self.submodules += AXIDPRAM(platform, s_axi_a, s_axi_b, 
-                                    a_pipeline_output=a_pip_out, 
-                                    b_pipeline_output=b_pip_out, 
-                                    a_interleave=a_interleave, 
-                                    b_interleave=b_interleave, 
-                                    size=(2**addr_width)*(data_width/8)
+                                    a_pipeline_output   =   a_pip_out, 
+                                    b_pipeline_output   =   b_pip_out, 
+                                    a_interleave        =   a_interleave, 
+                                    b_interleave        =   b_interleave, 
+                                    size                =   (2**addr_width)*(data_width/8)
                                     )
 
 
