@@ -7,7 +7,58 @@ import os
 import json
 import argparse
 import shutil
-from datetime import datetime
+
+from litex_sim.axi_dp_ram_litex_wrapper import AXIDPRAM
+
+from migen import *
+
+from litex.build.generic_platform import *
+
+from litex.build.osfpga import OSFPGAPlatform
+
+from litex.soc.interconnect.axi import AXIInterface
+
+
+# IOs / Interface ----------------------------------------------------------------------------------
+def get_clkin_ios():
+    return [
+        ("axi_clk", 0, Pins(1)),
+        ("axi_rst", 0, Pins(1)),
+    ]
+    
+# AXI-DPRAM Wrapper --------------------------------------------------------------------------------
+class AXIDPRAMWrapper(Module):
+    def __init__(self, platform, data_width, addr_width, id_width, a_pip_out, b_pip_out, a_interleave, b_interleave):
+        platform.add_extension(get_clkin_ios())
+        self.clock_domains.cd_sys = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+        
+        # AXI-------------------------------------------------------------
+        s_axi_a = AXIInterface(
+            data_width      = data_width,
+            address_width   = addr_width,
+            id_width        = id_width,
+        )
+        s_axi_b = AXIInterface(
+            data_width      = data_width,
+            address_width   = addr_width,
+            id_width        = id_width,
+        )
+        platform.add_extension(s_axi_a.get_ios("s_axi_a"))
+        platform.add_extension(s_axi_b.get_ios("s_axi_b"))
+        self.comb += s_axi_a.connect_to_pads(platform.request("s_axi_a"), mode="slave")
+        self.comb += s_axi_b.connect_to_pads(platform.request("s_axi_b"), mode="slave")
+        
+        # AXI-DPRAM -----------------------------------------------------
+        self.submodules += AXIDPRAM(platform, s_axi_a, s_axi_b, 
+                                    a_pipeline_output=a_pip_out, 
+                                    b_pipeline_output=b_pip_out, 
+                                    a_interleave=a_interleave, 
+                                    b_interleave=b_interleave, 
+                                    size=(2**addr_width)*(data_width/8)
+                                    )
+
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -19,26 +70,76 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=32,                   help="DPRAM Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default=16,                   help="DPRAM Address Width 8,16")
-    core_group.add_argument("--id_width",       default=8,                    help="DPRAM ID Width from 1 - 8")
-    core_group.add_argument("--a_pip_out",      default=0,                    help="DPRAM A Pipeline Output 0 or 1")
-    core_group.add_argument("--b_pip_out",      default=0,                    help="DPRAM B Pipeline Output 0 or 1")
-    core_group.add_argument("--a_interleave",   default=0,                    help="DPRAM A Interleave 0 or 1")
-    core_group.add_argument("--b_interleave",   default=0,                    help="DPRAM B Interleave 0 or 1")
+    core_group.add_argument("--data_width",     default=32,  type=int,    help="DPRAM Data Width 8,16,32,64")
+    core_group.add_argument("--addr_width",     default=16,  type=int,    help="DPRAM Address Width 8 - 16")
+    core_group.add_argument("--id_width",       default=32,  type=int,    help="DPRAM ID Width from 1 - 32")
+    core_group.add_argument("--a_pip_out",      default=0,   type=int,    help="DPRAM A Pipeline Output 0 or 1")
+    core_group.add_argument("--b_pip_out",      default=0,   type=int,    help="DPRAM B Pipeline Output 0 or 1")
+    core_group.add_argument("--a_interleave",   default=0,   type=int,    help="DPRAM A Interleave 0 or 1")
+    core_group.add_argument("--b_interleave",   default=0,   type=int,    help="DPRAM B Interleave 0 or 1")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
-    build_group.add_argument("--build",         action="store_true",                help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                         help="Build Directory")
-    build_group.add_argument("--build-name",    default="axi_dpram_wrapper",        help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build",         action="store_true",            help="Build Core")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
+    build_group.add_argument("--build-name",    default="axi_dpram_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
-    json_group.add_argument("--json",                                           help="Generate Core from JSON File")
-    json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
+    json_group.add_argument("--json",                                    help="Generate Core from JSON File")
+    json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    # Parameter Check -------------------------------------------------------------------------------
+    # Data_Width
+    data_width_param=[8, 16, 32, 64, 128, 256]
+    if args.data_width not in data_width_param:
+        print("Enter a valid 'data_width'")
+        print(data_width_param)
+        exit()
+    
+    # Address Width
+    addr_range=range(8, 17)
+    if args.addr_width not in addr_range:
+        print("Enter a valid 'addr_width'")
+        print("'8 to 16'")
+        exit()
+
+    # ID_Width
+    id_range=range(1, 33)
+    if args.id_width not in id_range:
+        print("Enter a valid 'id_width'")
+        print("'1 to 32'")
+        exit()
+    
+    # A_Pipeline_Output
+    a_pip_range=range(2)
+    if args.a_pip_out not in a_pip_range:
+        print("Enter a valid 'a_pip_out'")
+        print("'0 or 1'")
+        exit()
+
+    # B_Pipeline_Output
+    b_pip_range=range(2)
+    if args.b_pip_out not in b_pip_range:
+        print("Enter a valid 'b_pip_out'")
+        print("'0 or 1'")
+        exit()
+
+    # A_Interleave
+    a_interleave_range=range(2)
+    if args.a_interleave not in a_interleave_range:
+        print("Enter a valid 'a_interleave'")
+        print("'0 or 1'")
+        exit()
+
+    # B_Interleave
+    b_interleave_range=range(2)
+    if args.b_interleave not in b_interleave_range:
+        print("Enter a valid 'b_interleave'")
+        print("'0 or 1'")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
@@ -121,273 +222,35 @@ def main():
 #        tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
         tcl.append("synthesize")
-        tcl.append("packing")
-        tcl.append("global_placement")
-        tcl.append("place")
-        tcl.append("route")
-        tcl.append("sta")
-        tcl.append("power")
-        tcl.append("bitstream")
 
         # Generate .tcl file
         tcl_path = os.path.join(synth_path, "raptor.tcl")
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
-
-        # Generate RTL Wrapper
-        if args.build_name:
-            wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
-            with open(wrapper_path, "w") as f:
-
-#-------------------------------------------------------------------------------
-# ------------------------- RTL WRAPPER ----------------------------------------
-#-------------------------------------------------------------------------------
-                f.write ("""
-////////////////////////////////////////////////////////////////////////////////////////////
-// For Reference: https://github.com/alexforencich/verilog-axi/blob/master/rtl/axi_dp_ram.v
-////////////////////////////////////////////////////////////////////////////////////////////
-/*
-Copyright (c) 2019 Alex Forencich
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-////////////////////////////////////////////////////////////////////////////////////////////\n\n
-""")
-                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-                f.write ("""module {} #(""".format(args.build_name))
-
-                f.write ("""
-    // Width of data bus in bits
-    localparam DATA_WIDTH = {}, """.format(args.data_width))
-
-                f.write ("""
-    // Width of address bus in bits
-    localparam ADDR_WIDTH = {}, """.format(args.addr_width))
-
-                f.write ("""
-    // Width of ID signal
-    localparam ID_WIDTH = {}, """.format(args.id_width))
-
-                f.write ("""
-    // Extra pipeline register on output port A
-    localparam A_PIPELINE_OUTPUT = {}, """.format(args.a_pip_out))
-
-                f.write ("""
-    // Extra pipeline register on output port B
-    localparam B_PIPELINE_OUTPUT = {}, """.format(args.b_pip_out))
-
-                f.write ("""
-    // Interleave read and write burst cycles on port A
-    localparam A_INTERLEAVE = {}, """.format(args.a_interleave))
-
-                f.write ("""
-    // Interleave read and write burst cycles on port B
-    localparam B_INTERLEAVE = {}, """.format(args.b_interleave))
-
-                f.write("""
-    // Width of wstrb (width of data bus in words)
-    localparam STRB_WIDTH = (DATA_WIDTH/8)
-)
-(
-    input  wire                   a_clk,
-    input  wire                   a_rst,
-
-    input  wire                   b_clk,
-    input  wire                   b_rst,
+        
+    # Create LiteX Core ----------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module = AXIDPRAMWrapper(platform,
+        data_width  = args.data_width,
+        addr_width  = args.addr_width,
+        id_width    = args.id_width,
+        a_pip_out   = args.a_pip_out,
+        b_pip_out   = args.b_pip_out,
+        a_interleave= args.a_interleave,
+        b_interleave= args.b_interleave                   
+            )
     
-    // Port A
-    input  wire [ID_WIDTH-1:0]    s_axi_a_awid,
-    input  wire [ADDR_WIDTH-1:0]  s_axi_a_awaddr,
-    input  wire [7:0]             s_axi_a_awlen,
-    input  wire [2:0]             s_axi_a_awsize,
-    input  wire [1:0]             s_axi_a_awburst,
-    input  wire                   s_axi_a_awlock,
-    input  wire [3:0]             s_axi_a_awcache,
-    input  wire [2:0]             s_axi_a_awprot,
-    input  wire                   s_axi_a_awvalid,
-    output wire                   s_axi_a_awready,
-    input  wire [DATA_WIDTH-1:0]  s_axi_a_wdata,
-    input  wire [STRB_WIDTH-1:0]  s_axi_a_wstrb,
-    input  wire                   s_axi_a_wlast,
-    input  wire                   s_axi_a_wvalid,
-    output wire                   s_axi_a_wready,
-    output wire [ID_WIDTH-1:0]    s_axi_a_bid,
-    output wire [1:0]             s_axi_a_bresp,
-    output wire                   s_axi_a_bvalid,
-    input  wire                   s_axi_a_bready,
-    input  wire [ID_WIDTH-1:0]    s_axi_a_arid,
-    input  wire [ADDR_WIDTH-1:0]  s_axi_a_araddr,
-    input  wire [7:0]             s_axi_a_arlen,
-    input  wire [2:0]             s_axi_a_arsize,
-    input  wire [1:0]             s_axi_a_arburst,
-    input  wire                   s_axi_a_arlock,
-    input  wire [3:0]             s_axi_a_arcache,
-    input  wire [2:0]             s_axi_a_arprot,
-    input  wire                   s_axi_a_arvalid,
-    output wire                   s_axi_a_arready,
-    output wire [ID_WIDTH-1:0]    s_axi_a_rid,
-    output wire [DATA_WIDTH-1:0]  s_axi_a_rdata,
-    output wire [1:0]             s_axi_a_rresp,
-    output wire                   s_axi_a_rlast,
-    output wire                   s_axi_a_rvalid,
-    input  wire                   s_axi_a_rready,
-
-    // Port B
-    input  wire [ID_WIDTH-1:0]    s_axi_b_awid,
-    input  wire [ADDR_WIDTH-1:0]  s_axi_b_awaddr,
-    input  wire [7:0]             s_axi_b_awlen,
-    input  wire [2:0]             s_axi_b_awsize,
-    input  wire [1:0]             s_axi_b_awburst,
-    input  wire                   s_axi_b_awlock,
-    input  wire [3:0]             s_axi_b_awcache,
-    input  wire [2:0]             s_axi_b_awprot,
-    input  wire                   s_axi_b_awvalid,
-    output wire                   s_axi_b_awready,
-    input  wire [DATA_WIDTH-1:0]  s_axi_b_wdata,
-    input  wire [STRB_WIDTH-1:0]  s_axi_b_wstrb,
-    input  wire                   s_axi_b_wlast,
-    input  wire                   s_axi_b_wvalid,
-    output wire                   s_axi_b_wready,
-    output wire [ID_WIDTH-1:0]    s_axi_b_bid,
-    output wire [1:0]             s_axi_b_bresp,
-    output wire                   s_axi_b_bvalid,
-    input  wire                   s_axi_b_bready,
-    input  wire [ID_WIDTH-1:0]    s_axi_b_arid,
-    input  wire [ADDR_WIDTH-1:0]  s_axi_b_araddr,
-    input  wire [7:0]             s_axi_b_arlen,
-    input  wire [2:0]             s_axi_b_arsize,
-    input  wire [1:0]             s_axi_b_arburst,
-    input  wire                   s_axi_b_arlock,
-    input  wire [3:0]             s_axi_b_arcache,
-    input  wire [2:0]             s_axi_b_arprot,
-    input  wire                   s_axi_b_arvalid,
-    output wire                   s_axi_b_arready,
-    output wire [ID_WIDTH-1:0]    s_axi_b_rid,
-    output wire [DATA_WIDTH-1:0]  s_axi_b_rdata,
-    output wire [1:0]             s_axi_b_rresp,
-    output wire                   s_axi_b_rlast,
-    output wire                   s_axi_b_rvalid,
-    input  wire                   s_axi_b_rready
-);
-
-""")
-                f.write("axi_dp_ram #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH),\n.ID_WIDTH(ID_WIDTH),\n.A_PIPELINE_OUTPUT(A_PIPELINE_OUTPUT),\n.B_PIPELINE_OUTPUT(B_PIPELINE_OUTPUT),\n.A_INTERLEAVE(A_INTERLEAVE),\n.B_INTERLEAVE(B_INTERLEAVE)\n)")
-                f.write("""
-
-axi_dp_ram_inst
-(
-.a_clk(a_clk),
-.a_rst(a_rst),
-
-.s_axi_a_awid(s_axi_a_awid),
-.s_axi_a_awaddr(s_axi_a_awaddr),
-.s_axi_a_awlen(s_axi_a_awlen),
-.s_axi_a_awsize(s_axi_a_awsize),
-.s_axi_a_awburst(s_axi_a_awburst),
-.s_axi_a_awlock(s_axi_a_awlock),
-.s_axi_a_awcache(s_axi_a_awcache),
-.s_axi_a_awprot(s_axi_a_awprot),
-.s_axi_a_awvalid(s_axi_a_awvalid),
-.s_axi_a_awready(s_axi_a_awready),
-
-.s_axi_a_wdata(s_axi_a_wdata),
-.s_axi_a_wstrb(s_axi_a_wstrb),
-.s_axi_a_wlast(s_axi_a_wlast),
-.s_axi_a_wvalid(s_axi_a_wvalid),
-.s_axi_a_wready(s_axi_a_wready),
-
-.s_axi_a_bid(s_axi_a_bid),  
-.s_axi_a_bresp(s_axi_a_bresp),
-.s_axi_a_bvalid(s_axi_a_bvalid),
-.s_axi_a_bready(s_axi_a_bready),
-
-.s_axi_a_arid(s_axi_a_arid),
-.s_axi_a_araddr(s_axi_a_araddr),
-.s_axi_a_arlen(s_axi_a_arlen),
-.s_axi_a_arsize(s_axi_a_arsize),
-.s_axi_a_arburst(s_axi_a_arburst),
-.s_axi_a_arlock(s_axi_a_arlock),
-.s_axi_a_arcache(s_axi_a_arcache),
-.s_axi_a_arprot(s_axi_a_arprot),
-.s_axi_a_arvalid(s_axi_a_arvalid),
-.s_axi_a_arready(s_axi_a_arready),
-
-.s_axi_a_rid(s_axi_a_rid),
-.s_axi_a_rdata(s_axi_a_rdata),
-.s_axi_a_rresp(s_axi_a_rresp),
-.s_axi_a_rlast(s_axi_a_rlast),
-.s_axi_a_rvalid(s_axi_a_rvalid),
-.s_axi_a_rready(s_axi_a_rready),
-
-
-.b_clk(b_clk),
-.b_rst(b_rst),
-
-.s_axi_b_awid(s_axi_b_awid),
-.s_axi_b_awaddr(s_axi_b_awaddr),
-.s_axi_b_awlen(s_axi_b_awlen),
-.s_axi_b_awsize(s_axi_b_awsize),
-.s_axi_b_awburst(s_axi_b_awburst),
-.s_axi_b_awlock(s_axi_b_awlock),
-.s_axi_b_awcache(s_axi_b_awcache),
-.s_axi_b_awprot(s_axi_b_awprot),
-.s_axi_b_awvalid(s_axi_b_awvalid),
-.s_axi_b_awready(s_axi_b_awready),
-
-.s_axi_b_wdata(s_axi_b_wdata),
-.s_axi_b_wstrb(s_axi_b_wstrb),
-.s_axi_b_wlast(s_axi_b_wlast),
-.s_axi_b_wvalid(s_axi_b_wvalid),
-.s_axi_b_wready(s_axi_b_wready),
-
-.s_axi_b_bid(s_axi_b_bid),  
-.s_axi_b_bresp(s_axi_b_bresp),
-.s_axi_b_bvalid(s_axi_b_bvalid),
-.s_axi_b_bready(s_axi_b_bready),
-
-.s_axi_b_arid(s_axi_b_arid),
-.s_axi_b_araddr(s_axi_b_araddr),
-.s_axi_b_arlen(s_axi_b_arlen),
-.s_axi_b_arsize(s_axi_b_arsize),
-.s_axi_b_arburst(s_axi_b_arburst),
-.s_axi_b_arlock(s_axi_b_arlock),
-.s_axi_b_arcache(s_axi_b_arcache),
-.s_axi_b_arprot(s_axi_b_arprot),
-.s_axi_b_arvalid(s_axi_b_arvalid),
-.s_axi_b_arready(s_axi_b_arready),
-
-.s_axi_b_rid(s_axi_b_rid),
-.s_axi_b_rdata(s_axi_b_rdata),
-.s_axi_b_rresp(s_axi_b_rresp),
-.s_axi_b_rlast(s_axi_b_rlast),
-.s_axi_b_rvalid(s_axi_b_rvalid),
-.s_axi_b_rready(s_axi_b_rready)
-
-);
-
-endmodule
-
-`resetall
-             """)
-                f.close()
+    # Build
+    if args.build:
+        platform.build(module,
+            build_dir    = "litex_build",
+            build_name   = args.build_name,
+            run          = False,
+            regular_comb = False
+        )
+        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
+        shutil.rmtree("litex_build")
 
 if __name__ == "__main__":
     main()
