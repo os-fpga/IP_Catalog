@@ -13,7 +13,7 @@ There are three parameters for AXI LITE UART core. These parameters, their keywo
     | Sr.No.|       Parameter       |      Keyword     |     Value      |
     |-------|-----------------------|------------------|----------------|
     |   1.  |     ADDRESS_WIDTH     |   addr_width     |   8,16,32      |
-    |   2.  |     DATA_WIDTH        |   data_width    |   8,16,32,64   |  
+    |   2.  |     DATA_WIDTH        |   data_width     |   8,16,32,64   |  
     |   3.  |     PROT_WIDTH        |   prot_width     |   1-3          |
 
 
