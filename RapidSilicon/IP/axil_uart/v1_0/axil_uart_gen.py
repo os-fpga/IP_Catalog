@@ -7,7 +7,45 @@ import os
 import json
 import argparse
 import shutil
-from datetime import datetime
+
+from litex_sim.axil_uart_litex_wrapper import AXILITEUART
+
+from migen import *
+
+from litex.build.generic_platform import *
+from litex.build.osfpga import OSFPGAPlatform
+
+from litex.soc.interconnect.axi import AXILiteInterface
+
+
+# IOs/Interfaces -----------------------------------------------------------------------------------
+
+def get_clkin_ios():
+    return [
+        ("axi_clk",  0, Pins(1)),
+        ("axi_rst",  0, Pins(1)),
+    ]
+
+# AXI RAM Wrapper ----------------------------------------------------------------------------------
+
+class AXILITEUARTWrapper(Module):
+    def __init__(self, platform, addr_width, data_width, prot_width):
+        # Clocking ---------------------------------------------------------------------------------
+        platform.add_extension(get_clkin_ios())
+        self.clock_domains.cd_sys  = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+
+        # AXI LITE --------------------------------------------------------------------------------------
+        axilite = AXILiteInterface(
+            address_width       = addr_width,
+            data_width          = data_width
+        )
+        platform.add_extension(axilite.get_ios("axil"))
+        self.comb += axilite.connect_to_pads(platform.request("axil"), mode="slave")
+
+        # AXI-LITE-UART ----------------------------------------------------------------------------------
+        self.submodules += AXILITEUART(platform, axilite, protection_width=prot_width, address_width=addr_width, data_width =data_width)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -19,15 +57,14 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--addr_width",          default='16',            help="UART Address Width")
-    core_group.add_argument("--rdata_width",         default='32',            help="UART Read Data Width")
-    core_group.add_argument("--wdata_width",         default='32',            help="UART Write Data Width")
-    core_group.add_argument("--prot_width",          default='3',             help="UART Protection Width")
+    core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width")
+    core_group.add_argument("--data_width",      default=32,       type=int,       help="UART Data Width")
+    core_group.add_argument("--prot_width",      default=3,        type=int,       help="UART Protection Width")
  
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axil_uart_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -36,36 +73,29 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
+    
     # Parameter Check -------------------------------------------------------------------------------
     # Address Width
-    addr_width_param=['8', '16', '32']
+    addr_width_param=[8, 16, 32]
     if args.addr_width not in addr_width_param:
         print("Enter a valid 'addr_width'")
         print(addr_width_param)
         exit()
     
-    # Read Data_Width
-    rdata_width_param=['8', '16', '32', '64']
-    if args.rdata_width not in rdata_width_param:
-        print("Enter a valid 'rdata_width'")
-        print(rdata_width_param)
-        exit()
-
-    # Write Data_Width
-    wdata_width_param=['8', '16', '32', '64']
-    if args.wdata_width not in wdata_width_param:
-        print("Enter a valid 'wdata_width'")
-        print(wdata_width_param)
+    # Data_Width
+    data_width_param=[8, 16, 32, 64]
+    if args.data_width not in data_width_param:
+        print("Enter a valid 'data_width'")
+        print(data_width_param)
         exit()
     
     # Protection_Width
-    x = int(args.prot_width)
     prot_range=range(1,4)
-    if x not in prot_range:
+    if args.prot_width not in prot_range:
         print("Enter a valid 'prot_width'")
         print("'1 to 3'")
         exit()
+
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
@@ -150,144 +180,31 @@ def main():
         # Run.
         tcl.append("synthesize")        
 
-
         # Generate .tcl file
         tcl_path = os.path.join(synth_path, "raptor.tcl")
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
 
-        # Generate RTL Wrapper
-        if args.build_name:
-            wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
-            with open(wrapper_path, "w") as f:
 
-#-------------------------------------------------------------------------------
-# ------------------------- RTL WRAPPER ----------------------------------------
-#-------------------------------------------------------------------------------
-                f.write ("""
-//////////////////////////////////////////////////////////////////////////////////////////
-/*
-Copyright (c) 2022 Rapid Silicon
-*/
-//////////////////////////////////////////////////////////////////////////////////////////\n\n
-""")
-                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-                f.write ("""module {} #(""".format(args.build_name))
+    # Create LiteX Core ----------------------------------------------------------------------------
+    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
+    module     = AXILITEUARTWrapper(platform,
+        addr_width      = args.addr_width,
+        data_width      = args.data_width,
+        prot_width      = args.prot_width
+    )
 
-                f.write ("""
-        // Width of Addresses in bits
-        localparam AXI4_ADDRESS_WIDTH = {}, """.format(args.addr_width))
-
-                f.write ("""
-        // Width of Read Data in bits
-        localparam AXI4_RDATA_WIDTH = {}, """.format(args.rdata_width))
-
-                f.write ("""
-        // Width of Write Data in bits
-        localparam AXI4_WDATA_WIDTH = {}, """.format(args.wdata_width))
-
-                f.write ("""
-        // Width of Protection in bits
-        localparam AXI4_PROT_WIDTH = {}""".format(args.prot_width))
-
-                f.write("""
-)
-(
-    // Global signals
-    input  wire                          s_axi_aclk,
-    input  wire                          s_axi_aresetn,
-
-    // write address channel
-    input  wire                          s_axi_awvalid,
-    input  wire [AXI4_ADDRESS_WIDTH-1:0] s_axi_awaddr,
-    input  wire [AXI4_PROT_WIDTH-1:0]    s_axi_awprot,
-    output wire                          s_axi_awready,
-
-    // write data channel
-    input  wire                          s_axi_wvalid,
-    input  wire [AXI4_WDATA_WIDTH-1:0]   s_axi_wdata,
-    input  wire [AXI4_WDATA_WIDTH/8-1:0] s_axi_wstrb,
-    output wire                          s_axi_wready,
-
-    // write response channel
-    output wire                          s_axi_bvalid,
-    output wire [1:0]                    s_axi_bresp,
-    input  wire                          s_axi_bready,
-
-    // read address channel
-    input  wire                          s_axi_arvalid,
-    input  wire [AXI4_ADDRESS_WIDTH-1:0] s_axi_araddr,
-    input  wire [AXI4_PROT_WIDTH-1:0]    s_axi_arprot,
-    output wire                          s_axi_arready,
-
-    // read data channel
-    output wire                          s_axi_rvalid,
-    output wire [AXI4_RDATA_WIDTH-1:0]   s_axi_rdata,
-    output wire [1:0]                    s_axi_rresp,
-    input  wire                          s_axi_rready,
-
-    // UART Signals
-    output  wire                         int_o,
-    input 	wire						 srx_pad_i,
-    output 	wire						 stx_pad_o,
-    output 	wire						 rts_pad_o,
-    input 	wire						 cts_pad_i,
-    output 	wire						 dtr_pad_o,
-    input 	wire						 dsr_pad_i,
-    input 	wire						 ri_pad_i,
-    input 	wire						 dcd_pad_i
-);
-
-""")
-                f.write("axi4lite_uart_top #(\n.AXI4_ADDRESS_WIDTH(AXI4_ADDRESS_WIDTH),\n.AXI4_RDATA_WIDTH(AXI4_RDATA_WIDTH),\n.AXI4_WDATA_WIDTH(AXI4_WDATA_WIDTH),\n.AXI4_PROT_WIDTH(AXI4_PROT_WIDTH)\n)")
-                f.write("""
-axi4lite_uart_top_inst
-(
-.s_axi_aclk(s_axi_aclk),
-.s_axi_aresetn(s_axi_aresetn),
-
-.s_axi_awvalid(s_axi_awvalid),
-.s_axi_awaddr(s_axi_awaddr),
-.s_axi_awprot(s_axi_awprot),
-.s_axi_awready(s_axi_awready),
-
-.s_axi_wvalid(s_axi_wvalid),
-.s_axi_wdata(s_axi_wdata),
-.s_axi_wstrb(s_axi_wstrb),
-.s_axi_wready(s_axi_wready),
-
-.s_axi_bvalid(s_axi_bvalid),
-.s_axi_bresp(s_axi_bresp),
-.s_axi_bready(s_axi_bready),
-
-.s_axi_arvalid(s_axi_arvalid),
-.s_axi_araddr(s_axi_araddr),
-.s_axi_arprot(s_axi_arprot),
-.s_axi_arready(s_axi_arready),
-
-.s_axi_rvalid(s_axi_rvalid),
-.s_axi_rdata(s_axi_rdata),
-.s_axi_rresp(s_axi_rresp),
-.s_axi_rready(s_axi_rready),
-
-.int_o(int_o),
-.srx_pad_i(srx_pad_i),
-.stx_pad_o(stx_pad_o),
-.rts_pad_o(rts_pad_o),
-.cts_pad_i(cts_pad_i),
-.dtr_pad_o(dtr_pad_o),
-.dsr_pad_i(dsr_pad_i),
-.ri_pad_i(ri_pad_i),
-.dcd_pad_i(dcd_pad_i)
-);
-
-endmodule
-
-`resetall
-             """)
-                f.close()
+    # Build
+    if args.build:
+        platform.build(module,
+            build_dir    = "litex_build",
+            build_name   = args.build_name,
+            run          = False,
+            regular_comb = False
+        )
+        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
+        shutil.rmtree("litex_build")
 
 if __name__ == "__main__":
     main()
