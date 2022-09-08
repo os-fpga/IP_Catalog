@@ -19,7 +19,7 @@ There is one parameter for AXIS-UART core. This parameter, it's keyword and valu
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axis_uart_gen.py --data_width=7 --build_name=uart --build
+python3 axis_uart_gen.py --data_width=7 --build-name=uart --build
 ```
 
 ## TCL File
