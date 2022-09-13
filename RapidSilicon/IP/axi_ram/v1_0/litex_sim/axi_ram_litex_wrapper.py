@@ -36,7 +36,7 @@ def colorer(s, color="bright"):
 
 class AXIRAM(Module):
     def __init__(self, platform, s_axi, size=1024, pipeline_output=False):
-        self.logger = logging.getLogger("AXIRAM")
+        self.logger = logging.getLogger("AXI_RAM")
 
         # Get/Check Parameters.
         # ---------------------

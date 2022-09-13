@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 
 class AXILITEUART(Module):
     def __init__(self, platform, s_axil, address_width, data_width, protection_width):
-        self.logger = logging.getLogger("AXILITEUART")
+        self.logger = logging.getLogger("AXI_LITE_UART")
         
         # Clock Domain
         clock_domain = s_axil.clock_domain
@@ -79,7 +79,7 @@ class AXILITEUART(Module):
             # -------------------------
             # AW.
             i_s_axi_awaddr   = s_axil.aw.addr,
-            i_s_axi_awprot   = 0b0, 
+            i_s_axi_awprot   = s_axil.aw.prot, 
             i_s_axi_awvalid  = s_axil.aw.valid,
             o_s_axi_awready  = s_axil.aw.ready,
 
@@ -96,7 +96,7 @@ class AXILITEUART(Module):
 
             # AR.
             i_s_axi_araddr   = s_axil.ar.addr,
-            i_s_axi_arprot   = 0b0,
+            i_s_axi_arprot   = s_axil.ar.prot,
             i_s_axi_arvalid  = s_axil.ar.valid,
             o_s_axi_arready  = s_axil.ar.ready,
 

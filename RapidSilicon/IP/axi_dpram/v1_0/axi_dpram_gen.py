@@ -7,6 +7,7 @@ import os
 import json
 import argparse
 import shutil
+import logging
 
 from litex_sim.axi_dp_ram_litex_wrapper import AXIDPRAM
 
@@ -90,55 +91,50 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
-
+    
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+    
     # Data_Width
     data_width_param=[8, 16, 32, 64, 128, 256]
     if args.data_width not in data_width_param:
-        print("Enter a valid 'data_width'")
-        print(data_width_param)
+        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
         exit()
     
     # Address Width
     addr_range=range(8, 17)
     if args.addr_width not in addr_range:
-        print("Enter a valid 'addr_width'")
-        print("'8 to 16'")
+        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
         exit()
 
     # ID_Width
     id_range=range(1, 33)
     if args.id_width not in id_range:
-        print("Enter a valid 'id_width'")
-        print("'1 to 32'")
+        logger.error("\nEnter a valid 'id_width' from 1 to 32")
         exit()
     
     # A_Pipeline_Output
     a_pip_range=range(2)
     if args.a_pip_out not in a_pip_range:
-        print("Enter a valid 'a_pip_out'")
-        print("'0 or 1'")
+        logger.error("\nEnter a valid 'a_pip_out' 0 or 1")
         exit()
 
     # B_Pipeline_Output
     b_pip_range=range(2)
     if args.b_pip_out not in b_pip_range:
-        print("Enter a valid 'b_pip_out'")
-        print("'0 or 1'")
+        logger.error("\nEnter a valid 'b_pip_out' 0 or 1")
         exit()
 
     # A_Interleave
     a_interleave_range=range(2)
     if args.a_interleave not in a_interleave_range:
-        print("Enter a valid 'a_interleave'")
-        print("'0 or 1'")
+        logger.error("\nEnter a valid 'a_interleave' 0 or 1")
         exit()
 
     # B_Interleave
     b_interleave_range=range(2)
     if args.b_interleave not in b_interleave_range:
-        print("Enter a valid 'b_interleave'")
-        print("'0 or 1'")
+        logger.error("\nEnter a valid 'b_interleave' 0 or 1")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -158,7 +154,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axi_dpram/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axi_dpram/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axi_dpram_gen.py"))
         
         if not os.path.exists(build_path):
@@ -238,8 +234,8 @@ def main():
         a_pip_out   = args.a_pip_out,
         b_pip_out   = args.b_pip_out,
         a_interleave= args.a_interleave,
-        b_interleave= args.b_interleave                   
-            )
+        b_interleave= args.b_interleave                 
+        )
     
     # Build
     if args.build:

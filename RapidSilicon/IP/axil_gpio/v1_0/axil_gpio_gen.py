@@ -7,6 +7,7 @@ import os
 import json
 import argparse
 import shutil
+import logging
 
 from litex_sim.axil_gpio_litex_wrapper import AXILITEGPIO
 
@@ -20,32 +21,34 @@ from litex.soc.interconnect.axi import AXILiteInterface
 
 
 # IOs / Interface ----------------------------------------------------------------------------------
-def get_clkin_ios():
+def get_clkin_ios ():
     return [
         ("axi_clk", 0, Pins(1)),
         ("axi_rst", 0, Pins(1)),
     ]
     
+    
 # AXI-LITE-GPIO Wrapper --------------------------------------------------------------------------------
 class AXILITEGPIOWrapper(Module):
     def __init__(self, platform, data_width, addr_width):
         platform.add_extension(get_clkin_ios())
+        
         self.clock_domains.cd_sys = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
         
         # AXI-LITE -------------------------------------------------------------
-        axilite = AXILiteInterface(
-            data_width = data_width,
-            address_width = addr_width
+        axil = AXILiteInterface(
+            data_width      = data_width,
+            address_width   = addr_width
         )
-        platform.add_extension(axilite.get_ios("axil"))
-        self.comb += axilite.connect_to_pads(platform.request("axil"), mode="slave")
+        platform.add_extension(axil.get_ios("axil"))
+        self.comb += axil.connect_to_pads(platform.request("axil"), mode="slave")
 
         # AXI-LITE-GPIO ----------------------------------------------------------------------------------
-        self.submodules += AXILITEGPIO(platform, axilite, 
-                                    address_width=addr_width, 
-                                    data_width =data_width
+        self.submodules += AXILITEGPIO(platform, axil, 
+                                    address_width   = addr_width, 
+                                    data_width      = data_width
                                     )
 
 # Build --------------------------------------------------------------------------------------------
@@ -75,18 +78,18 @@ def main():
     args = parser.parse_args()
     
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
     # Data_Width
     data_width_param=[8, 16, 32]
     if args.data_width not in data_width_param:
-        print("Enter a valid 'data_width'")
-        print(data_width_param)
+        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
         exit()
     
     # Address Width
     addr_range=range(8, 17)
     if args.addr_width not in addr_range:
-        print("Enter a valid 'addr_width'")
-        print("'8 to 16'")
+        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -106,7 +109,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path 
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axil_gpio/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axil_gpio/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_gpio_gen.py"))
 
         if not os.path.exists(build_path):
@@ -181,8 +184,8 @@ def main():
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
     module     = AXILITEGPIOWrapper(platform,
-                                addr_width  = args.addr_width,
-                                data_width  = args.data_width
+        addr_width  = args.addr_width,
+        data_width  = args.data_width
     )
 
     # Build

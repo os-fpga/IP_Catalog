@@ -1,10 +1,10 @@
 #
-# This file is part of LiteX-Verilog-AXI-Test
+# This file is part of RapidSilicon's IP_Catalog.
 #
-# Copyright (c) 2022 Florent Kermarrec <florent@enjoy-digital.fr>
-# SPDX-License-Identifier: BSD-2-Clause
+# This file is Copyright (c) 2022 RapidSilicon.
+# SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around Alex Forencich Verilog-AXI's axi_dp_ram.v.
+# LiteX wrapper around RapidSilicon axi_dp_ram
 
 import os
 import logging
@@ -26,7 +26,7 @@ class AXIDPRAM(Module):
         b_pipeline_output = False,
         b_interleave      = False,
     ):
-        self.logger = logging.getLogger("AXIDPRAM")
+        self.logger = logging.getLogger("AXI_DPRAM")
 
         # Get/Check Parameters.
         # ---------------------
