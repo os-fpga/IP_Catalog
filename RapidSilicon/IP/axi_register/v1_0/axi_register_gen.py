@@ -7,6 +7,7 @@ import os
 import json
 import argparse
 import shutil
+import logging
 
 from litex_sim.axi_register_litex_wrapper import AXIREGISTER
 
@@ -101,95 +102,85 @@ def main():
     args = parser.parse_args()
 
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value",)
+
     # Data_Width
     data_width_param=[8, 16, 32, 64, 128, 256, 512, 1024]
     if args.data_width not in data_width_param:
-        print("Enter a valid 'data_width'")
-        print(data_width_param)
+        logger.error("\nEnter a valid 'data_width'\n%s", data_width_param)
         exit()
 
     # Address_Width
     addr_range=range(1,65)
     if args.addr_width not in addr_range:
-        print("Enter a valid 'addr_width'")
-        print("'1 to 64'")
+        logger.error("\nEnter a valid 'addr_width' from 1 to 64")
         exit()
 
     # ID_Width
     id_range=range(1, 33)
     if args.id_width not in id_range:
-        print("Enter a valid 'id_width'")
-        print("'1 to 32'")
+        logger.error("\nEnter a valid 'id_width' from 1 to 32")
         exit()
 
     # Write Address Channel User Width
     aw_user_range=range(1, 1025)
     if args.aw_user_width not in aw_user_range:
-        print("Enter a valid 'aw_user_width'")
-        print("'1 to 1024'")
+        logger.error("\nEnter a valid 'aw_user_width' from 1 to 1024")
         exit()
 
     # Write Data Channel User Width
     w_user_range=range(1, 1025)
     if args.w_user_width not in w_user_range:
-        print("Enter a valid 'w_user_width'")
-        print("'1 to 1024'")
+        logger.error("\nEnter a valid 'w_user_width' from 1 to 1024")
         exit()
 
     # Write Response Channel User Width
     b_user_range=range(1, 1025)
     if args.b_user_width not in b_user_range:
-        print("Enter a valid 'b_user_width'")
-        print("'1 to 1024'")
+        logger.error("\nEnter a valid 'b_user_width' from 1 to 1024")
         exit()
 
     # Read Address Channel User Width
     ar_user_range=range(1, 1025)
     if args.ar_user_width not in ar_user_range:
-        print("Enter a valid 'ar_user_width'")
-        print("'1 to 1024'")
+        logger.error("\nEnter a valid 'ar_user_width' from 1 to 1024")
         exit()
 
     # Read Data Channel User Width
     r_user_range=range(1, 1025)
     if args.r_user_width not in r_user_range:
-        print("Enter a valid 'r_user_width'")
-        print("'1 to 1024'")
+        logger.error("\nEnter a valid 'r_user_width' from 1 to 1024")
         exit()
 
     # Write Address Channel Register Type
     aw_reg_range=range(3)
     if args.aw_reg_type not in aw_reg_range:
-        print("Enter a valid 'aw_reg_type'")
-        print("'0 to 2'")
+        logger.error("\nEnter a valid 'aw_reg_type' from 0 to 2")
         exit()
 
     # Write Data Channel Register Type
     w_reg_range=range(3)
     if args.w_reg_type not in w_reg_range:
-        print("Enter a valid 'w_reg_type'")
+        logger.error("\nEnter a valid 'w_reg_type'")
         print("'0 to 2'")
         exit()
 
     # Write Response Channel Register Type
     b_reg_range=range(3)
     if args.b_reg_type not in b_reg_range:
-        print("Enter a valid 'b_reg_type'")
-        print("'0 to 2'")
+        logger.error("\nEnter a valid 'b_reg_type' from 0 to 2")
         exit()
 
     # Read Address Channel Register Type
     ar_reg_range=range(3)
     if args.ar_reg_type not in ar_reg_range:
-        print("Enter a valid 'ar_reg_type'")
-        print("'0 to 2'")
+        logger.error("\nEnter a valid 'ar_reg_type' from 0 to 2")
         exit()
 
     # Read Data Channel Register Type
     r_reg_range=range(3)
     if args.r_reg_type not in r_reg_range:
-        print("Enter a valid 'r_reg_type'")
-        print("'0 to 2'")
+        logger.error("\nEnter a valid 'r_reg_type' from 0 to 2")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -209,7 +200,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axi_register/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axi_register/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axi_register_gen.py"))
         
         if not os.path.exists(build_path):

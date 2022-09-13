@@ -19,7 +19,7 @@
 `include "uart_defines.vh"
 
 module axi4lite_uart_top #(
-    parameter ADDRESS_WIDTH     = 5,
+    parameter ADDRESS_WIDTH     = 16,
     parameter DATA_WIDTH        = 32,
     parameter PROT_WIDTH        = 3,
     parameter STRB_WIDTH        = (DATA_WIDTH/8)

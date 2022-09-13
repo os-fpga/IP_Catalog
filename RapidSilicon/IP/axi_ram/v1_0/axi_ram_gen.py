@@ -7,6 +7,7 @@ import os
 import json
 import argparse
 import shutil
+import logging
 
 from litex_sim.axi_ram_litex_wrapper import AXIRAM
 
@@ -68,7 +69,7 @@ def main():
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axi_ram_wrapper",      help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -79,32 +80,30 @@ def main():
     args = parser.parse_args()
 
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
     # Data_Width
     data_width_param=[8, 16, 32, 64]
     if args.data_width not in data_width_param:
-        print("Enter a valid 'data_width'")
-        print(data_width_param)
+        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
         exit()
 
     # Address_Width
     addr_range=range(8,17)
     if args.addr_width not in addr_range:
-        print("Enter a valid 'addr_width'")
-        print("'8 to 16'")
+        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
         exit()
 
     # ID_Width
     id_range=range(1, 9)
     if args.id_width not in id_range:
-        print("Enter a valid 'id_width'")
-        print("'1 to 8'")
+        logger.error("\nEnter a valid 'id_width' from 1 to 8")
         exit()
 
     # Pipeline_Output
     pip_range=range(2)
     if args.pip_out not in pip_range:
-        print("Enter a valid 'pip_out'")
-        print("'0 or 1'")
+        logger.error("\nEnter a valid 'pip_out' 0 or 1")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -124,7 +123,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axi_ram/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axi_ram/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axi_ram_gen.py"))
 
         if not os.path.exists(build_path):

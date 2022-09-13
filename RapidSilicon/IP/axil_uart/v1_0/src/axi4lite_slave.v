@@ -126,7 +126,7 @@ module axi4lite_slave #(
 
 	assign  addr_in       =  we ? awaddr_ff : araddr_ff;   
     assign  rdata 		  = re_dbg ? r_data_in_dbg : {24'b0,r_data_in};
-	assign 	re_dbg		  = re &&  (araddr == `UART_REG_DBG1| araddr == `UART_REG_DBG2 );
+	assign 	re_dbg		  = re &&  (araddr == `UART_REG_DBG1) | (araddr == `UART_REG_DBG2 );
 
 	assign waddrss_cond   = (awaddr_ff == `UART_REG_TR | awaddr_ff == `UART_REG_IE | awaddr_ff == `UART_REG_LC | awaddr_ff == `UART_REG_FC |  awaddr_ff == `UART_REG_MC ) ;
 	assign raddrss_cond	  = (araddr_ff == `UART_REG_DBG1 | araddr_ff == `UART_REG_DBG2 | araddr_ff == `UART_REG_RB | araddr_ff == `UART_REG_IE | araddr_ff == `UART_REG_II | araddr_ff == `UART_REG_LC | araddr_ff == `UART_REG_LS | araddr_ff == `UART_REG_MS | araddr_ff == `UART_REG_DBG  );

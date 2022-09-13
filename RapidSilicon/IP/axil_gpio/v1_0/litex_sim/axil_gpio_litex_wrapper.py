@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 
 class AXILITEGPIO(Module):
     def __init__(self, platform, s_axil, data_width, address_width):
-        self.logger = logging.getLogger("AXILITEGPIO")
+        self.logger = logging.getLogger("AXI_LITE_GPIO")
 
         # Clock Domain.
         clock_domain = s_axil.clock_domain
@@ -59,7 +59,7 @@ class AXILITEGPIO(Module):
             # -------------------------
             # AW.
             i_AWADDR   = s_axil.aw.addr,
-            i_AWPROT   = 0b0, # CHECKME.
+            i_AWPROT   = s_axil.aw.prot,
             i_AWVALID  = s_axil.aw.valid,
             o_AWREADY  = s_axil.aw.ready,
 
@@ -76,7 +76,7 @@ class AXILITEGPIO(Module):
 
             # AR.
             i_ARADDR   = s_axil.ar.addr,
-            i_ARPROT   = 0b0, # CHECKME.
+            i_ARPROT   = s_axil.ar.prot,
             i_ARVALID  = s_axil.ar.valid,
             o_ARREADY  = s_axil.ar.ready,
 

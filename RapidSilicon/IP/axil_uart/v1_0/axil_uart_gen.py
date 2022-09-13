@@ -7,6 +7,7 @@ import os
 import json
 import argparse
 import shutil
+import logging
 
 from litex_sim.axil_uart_litex_wrapper import AXILITEUART
 
@@ -37,15 +38,19 @@ class AXILITEUARTWrapper(Module):
         self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
 
         # AXI LITE --------------------------------------------------------------------------------------
-        axilite = AXILiteInterface(
+        axil = AXILiteInterface(
             address_width       = addr_width,
             data_width          = data_width
         )
-        platform.add_extension(axilite.get_ios("axil"))
-        self.comb += axilite.connect_to_pads(platform.request("axil"), mode="slave")
+        platform.add_extension(axil.get_ios("axil"))
+        self.comb += axil.connect_to_pads(platform.request("axil"), mode="slave")
 
         # AXI-LITE-UART ----------------------------------------------------------------------------------
-        self.submodules += AXILITEUART(platform, axilite, protection_width=prot_width, address_width=addr_width, data_width =data_width)
+        self.submodules += AXILITEUART(platform, axil, 
+                                    protection_width    = prot_width, 
+                                    address_width       = addr_width, 
+                                    data_width          = data_width
+                                    )
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -60,7 +65,7 @@ def main():
     core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width")
     core_group.add_argument("--data_width",      default=32,       type=int,       help="UART Data Width")
     core_group.add_argument("--prot_width",      default=3,        type=int,       help="UART Protection Width")
- 
+
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
@@ -75,25 +80,24 @@ def main():
     args = parser.parse_args()
     
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
     # Address Width
     addr_width_param=[8, 16, 32]
     if args.addr_width not in addr_width_param:
-        print("Enter a valid 'addr_width'")
-        print(addr_width_param)
+        logger.error("\nEnter a valid 'addr_width'\n %s", addr_width_param)
         exit()
     
     # Data_Width
     data_width_param=[8, 16, 32, 64]
     if args.data_width not in data_width_param:
-        print("Enter a valid 'data_width'")
-        print(data_width_param)
+        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
         exit()
     
     # Protection_Width
     prot_range=range(1,4)
     if args.prot_width not in prot_range:
-        print("Enter a valid 'prot_width'")
-        print("'1 to 3'")
+        logger.error("\nEnter a valid 'prot_width' from 1 to 3")
         exit()
 
 
@@ -114,7 +118,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axil_uart/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axil_uart/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_uart_gen.py"))
         if not os.path.exists(build_path):
             os.makedirs(build_path)

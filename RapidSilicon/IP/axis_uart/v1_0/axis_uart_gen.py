@@ -7,6 +7,7 @@ import os
 import json
 import argparse
 import shutil
+import logging
 
 from litex_sim.axis_uart_litex_wrapper import AXISTREAMUART
 
@@ -76,11 +77,12 @@ def main():
     args = parser.parse_args()
 
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
     # Data Width
     data_width_range=range(5,9)
     if args.data_width not in data_width_range:
-        print("Enter a valid 'data_width'")
-        print("'5 to 8'")
+        logger.error("\nEnter a valid 'data_width' from 5 to 8")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -100,7 +102,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axis_uart/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axis_uart/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axis_uart_gen.py"))
         
         if not os.path.exists(build_path):
