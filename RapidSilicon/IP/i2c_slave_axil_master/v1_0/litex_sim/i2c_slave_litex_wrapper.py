@@ -47,7 +47,7 @@ class I2CSLAVE(Module):
         
         # Configuration
         self.enable         = Signal()
-        self.device_address = Signal()
+        self.device_address = Signal(7)
         
         # Module instance.
         # ----------------
@@ -68,7 +68,7 @@ class I2CSLAVE(Module):
             # -------------------------
             # AW.
             o_m_axil_awaddr   = m_axil.aw.addr,
-            o_m_axil_awprot   = 0b0,
+            o_m_axil_awprot   = m_axil.aw.prot,
             o_m_axil_awvalid  = m_axil.aw.valid,
             i_m_axil_awready  = m_axil.aw.ready,
 
@@ -85,7 +85,7 @@ class I2CSLAVE(Module):
 
             # AR.
             o_m_axil_araddr   = m_axil.ar.addr,
-            o_m_axil_arprot   = 0b0,
+            o_m_axil_arprot   = m_axil.ar.prot,
             o_m_axil_arvalid  = m_axil.ar.valid,
             i_m_axil_arready  = m_axil.ar.ready,
 

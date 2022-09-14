@@ -28,6 +28,34 @@ def get_clkin_ios():
         ("axil_rst",  0, Pins(1)),
     ]
     
+def get_i2c_ios():
+    return [
+        ("i2c", 0,
+            Subsignal("scl_i", Pins(1)),
+            Subsignal("scl_o", Pins(1)),
+            Subsignal("scl_t", Pins(1)),
+            Subsignal("sda_i", Pins(1)),
+            Subsignal("sda_o", Pins(1)),
+            Subsignal("sda_t", Pins(1)),    
+        ),
+        ("status", 0, 
+            Subsignal("busy",           Pins(1)),
+            Subsignal("bus_addressed",  Pins(1)),
+            Subsignal("bus_active",     Pins(1)),
+        ),
+        ("config", 0 ,
+            Subsignal("enable",         Pins(1)),
+            Subsignal("device_address", Pins(7)),
+            ),
+#        ("busy",            0, Pins(1)),
+#        ("bus_addressed",   0, Pins(1)),
+#        ("bus_active",      0, Pins(1)),
+#        
+#        ("enable",          0, Pins(1)),
+#        ("device_address",  0, Pins(7)),
+#        
+    ]
+    
 # I2C SLAVE Wrapper ---------------------------------------------------------------------------------
 class I2CSLAVEWrapper(Module):
     def __init__(self, platform, data_width, addr_width, filter_len):
@@ -46,12 +74,51 @@ class I2CSLAVEWrapper(Module):
         self.comb += axil.connect_to_pads(platform.request("axil"), mode="master")
 
         # I2C_SLAVE ----------------------------------------------------------------------------------
-        self.submodules += I2CSLAVE(platform, axil,
-                                data_width    = data_width,
-                                addr_width    = addr_width,
-                                filter_len    = filter_len
-                                )
+        self.submodules.i2c_slave = i2c_slave = I2CSLAVE(platform, axil,
+            data_width    = data_width,
+            addr_width    = addr_width,
+            filter_len    = filter_len
+            )
 
+        platform.add_extension(get_i2c_ios())
+        i2c_pads = platform.request("i2c")
+        self.comb += [
+            i2c_slave.i2c_scl_i.eq(i2c_pads.scl_i),
+            i2c_pads.scl_o.eq(i2c_slave.i2c_scl_o),
+            i2c_pads.scl_t.eq(i2c_slave.i2c_scl_t),
+
+            i2c_slave.i2c_sda_i.eq(i2c_pads.sda_i),
+            i2c_pads.sda_o.eq(i2c_slave.i2c_sda_o),
+            i2c_pads.sda_t.eq(i2c_slave.i2c_sda_t),
+        ]
+        
+        config_pads = platform.request("config")
+        self.comb += [
+            i2c_slave.enable.eq(config_pads.enable),
+            i2c_slave.device_address.eq(config_pads.device_address),
+        ]
+        status_pads = platform.request("status")
+        self.comb += [
+            status_pads.busy.eq(i2c_slave.busy),
+            status_pads.bus_addressed.eq(i2c_slave.bus_addressed), 
+            status_pads.bus_active.eq(i2c_slave.bus_active),
+        ]
+
+        
+        # self.comb += i2c_slave.busy.eq            (platform.request("busy"))
+        # self.comb += i2c_slave.bus_addressed.eq   (platform.request("bus_addressed"))
+        # self.comb += i2c_slave.bus_active.eq      (platform.request("bus_active"))
+        # self.comb += i2c_slave.enable.eq          (platform.request("enable"))
+        # self.comb += i2c_slave.device_address.eq  (platform.request("device_address"))
+        
+#        status_pads = platform.request("other")
+#        self.comb += [
+#            i2c_slave.busy.eq(status_pads.busy),
+#            status_pads.bus_addressed.eq(i2c_slave.other_bus_addressed),
+#            status_pads.bus_active.eq(i2c_slave.other_bus_active),
+#            status_pads.enable.eq(i2c_slave.other_enable),
+#            status_pads.device_address.eq(i2c_slave.other_device_address),
+#        ]
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="I2C SLAVE CORE")
