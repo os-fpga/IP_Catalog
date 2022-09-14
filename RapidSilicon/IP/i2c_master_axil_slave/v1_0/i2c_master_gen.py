@@ -26,6 +26,18 @@ def get_clkin_ios():
         ("axil_clk",  0, Pins(1)),
         ("axil_rst",  0, Pins(1)),
     ]
+    
+def get_i2c_ios():
+    return [
+        ("i2c", 0,
+            Subsignal("scl_i", Pins(1)),
+            Subsignal("scl_o", Pins(1)),
+            Subsignal("scl_t", Pins(1)),
+            Subsignal("sda_i", Pins(1)),
+            Subsignal("sda_o", Pins(1)),
+            Subsignal("sda_t", Pins(1)),    
+        )
+    ]
 
 # I2C Master Wrapper ----------------------------------------------------------------------------------
 class I2CMASTERWrapper(Module):
@@ -42,16 +54,28 @@ class I2CMASTERWrapper(Module):
         self.comb += axil.connect_to_pads(platform.request("axil"), mode="slave")
 
         # I2C_MASTER ----------------------------------------------------------------------------------
-        self.submodules += I2CMASTER(platform, axil,
-                                default_prescale    = default_prescale, 
-                                fixed_prescale      = fixed_prescale,
-                                cmd_fifo            = cmd_fifo,
-                                cmd_addr_width      = cmd_addr_width,
-                                write_fifo          = write_fifo,
-                                write_addr_width    = write_addr_width,
-                                read_fifo           = read_fifo,
-                                read_addr_width     = read_addr_width
-                                )
+        self.submodules.i2c_master = i2c_master = I2CMASTER(platform, axil,
+            default_prescale    = default_prescale, 
+            fixed_prescale      = fixed_prescale,
+            cmd_fifo            = cmd_fifo,
+            cmd_addr_width      = cmd_addr_width,
+            write_fifo          = write_fifo,
+            write_addr_width    = write_addr_width,
+            read_fifo           = read_fifo,
+            read_addr_width     = read_addr_width
+            )
+        
+        platform.add_extension(get_i2c_ios())
+        i2c_pads = platform.request("i2c")
+        self.comb += [
+            i2c_master.i2c_scl_i.eq(i2c_pads.scl_i),
+            i2c_pads.scl_o.eq(i2c_master.i2c_scl_o),
+            i2c_pads.scl_t.eq(i2c_master.i2c_scl_t),
+
+            i2c_master.i2c_sda_i.eq(i2c_pads.sda_i),
+            i2c_pads.sda_o.eq(i2c_master.i2c_sda_o),
+            i2c_pads.sda_t.eq(i2c_master.i2c_sda_t),
+        ]
 
 # Build --------------------------------------------------------------------------------------------
 def main():
