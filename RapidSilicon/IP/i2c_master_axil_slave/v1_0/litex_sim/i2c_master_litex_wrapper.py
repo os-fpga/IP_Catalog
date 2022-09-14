@@ -78,7 +78,7 @@ class I2CMASTER(Module):
             # -------------------------
             # AW.
             i_s_axil_awaddr   = s_axil.aw.addr,
-            i_s_axil_awprot   = 0b0,
+            i_s_axil_awprot   = s_axil.aw.prot,
             i_s_axil_awvalid  = s_axil.aw.valid,
             o_s_axil_awready  = s_axil.aw.ready,
 
@@ -95,7 +95,7 @@ class I2CMASTER(Module):
 
             # AR.
             i_s_axil_araddr   = s_axil.ar.addr,
-            i_s_axil_arprot   = 0b0,
+            i_s_axil_arprot   = s_axil.ar.prot,
             i_s_axil_arvalid  = s_axil.ar.valid,
             o_s_axil_arready  = s_axil.ar.ready,
 
