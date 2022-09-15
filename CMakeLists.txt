@@ -47,7 +47,7 @@ else ()
     execute_process(COMMAND pwd)
     execute_process(COMMAND chmod +x litex_setup.py)
 #    execute_process(COMMAND python3 IP_Catalog_setup.py --dev --install WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
-    execute_process(COMMAND python3 ./IP_Catalog/litex_setup.py --init --dev --install  --prefix ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
+    execute_process(COMMAND python3 ./IP_Catalog/litex_setup.py --init --dev --install --config minimal --prefix ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
 
     message(STATUS "IP_Catalog installation completed")
 endif ()
