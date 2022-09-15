@@ -13,7 +13,6 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 
-
 logging.basicConfig(level=logging.INFO)
 
 # AXI_FIFO ---------------------------------------------------------------------------------------
@@ -88,8 +87,8 @@ class AXIFIFO(Module):
 
             # Clk / Rst.
             # ----------
-            i_clk = ClockSignal(clock_domain),
-            i_rst = ResetSignal(clock_domain),
+            i_clk = ClockSignal(),
+            i_rst = ResetSignal(),
 
             # AXI Input
             # --------------------

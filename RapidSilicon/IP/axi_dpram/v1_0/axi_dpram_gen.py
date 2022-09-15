@@ -23,8 +23,10 @@ from litex.soc.interconnect.axi import AXIInterface
 # IOs / Interface ----------------------------------------------------------------------------------
 def get_clkin_ios():
     return [
-        ("axi_clk", 0, Pins(1)),
-        ("axi_rst", 0, Pins(1)),
+        ("a_clk", 0, Pins(1)),
+        ("a_rst", 0, Pins(1)),
+        ("b_clk", 0, Pins(1)),
+        ("b_rst", 0, Pins(1)),
     ]
     
 # AXI-DPRAM Wrapper --------------------------------------------------------------------------------
@@ -32,8 +34,10 @@ class AXIDPRAMWrapper(Module):
     def __init__(self, platform, data_width, addr_width, id_width, a_pip_out, b_pip_out, a_interleave, b_interleave):
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("a_clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("a_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("b_clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("b_rst"))
         
         # AXI-------------------------------------------------------------
         s_axi_a = AXIInterface(

@@ -23,8 +23,8 @@ from litex.soc.interconnect.axi import AXIStreamInterface
 
 def get_clkin_ios():
     return [
-        ("axis_clk",  0, Pins(1)),
-        ("axis_rst",  0, Pins(1))
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1))
     ]
     
 def get_uart_ios():
@@ -44,8 +44,8 @@ class AXISTREAMUARTWrapper(Module):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())  
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axis_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axis_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         
         # AXI STREAM -------------------------------------------------------------------------------
         axis = AXIStreamInterface(
@@ -65,7 +65,7 @@ class AXISTREAMUARTWrapper(Module):
             s_axis  = axis
             )
         
-        # UART Signals-----------------------------------------------------------
+        # UART Signals--------------------------------------------------------------------------------
         platform.add_extension(get_uart_ios())
         
         # Inputs

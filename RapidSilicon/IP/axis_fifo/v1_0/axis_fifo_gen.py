@@ -14,6 +14,7 @@ from litex_sim.axis_fifo_litex_wrapper import AXISTREAMFIFO
 from migen import *
 
 from litex.build.generic_platform import *
+
 from litex.build.osfpga import OSFPGAPlatform
 
 from litex.soc.interconnect.axi import AXIStreamInterface
@@ -22,8 +23,19 @@ from litex.soc.interconnect.axi import AXIStreamInterface
 
 def get_clkin_ios():
     return [
-        ("axi_clk",  0, Pins(1)),
-        ("axi_rst",  0, Pins(1)),
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1)),
+    ]
+
+def get_status_ios():
+    return [
+        ("status", 0,
+            Subsignal("overflow",   Pins(1)),
+            Subsignal("bad_frame",  Pins(1)),
+            Subsignal("good_frame", Pins(1)),
+            Subsignal("full",       Pins(1)),
+            Subsignal("empty",      Pins(1))    
+        )
     ]
 
 # AXI_STREAM_FIFO Wrapper ----------------------------------------------------------------------------------
@@ -34,12 +46,9 @@ class AXISTREAMFIFOWrapper(Module):
                 ):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
-        # platform.add_extension(fifo_ios())
-        
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
-        # self.comb += self.cd_sys.clk.eq(platform.request("status_overflow"))
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         
         # AXI STREAM -------------------------------------------------------------------------------
         axis = AXIStreamInterface(
@@ -57,7 +66,7 @@ class AXISTREAMFIFOWrapper(Module):
         self.comb += axis.connect_to_pads(platform.request("m_axis"), mode="master")
         
         # AXIS-FIFO ----------------------------------------------------------------------------------
-        self.submodules += AXISTREAMFIFO(platform,
+        self.submodules.fifo = fifo = AXISTREAMFIFO(platform,
                                 m_axis          = axis,
                                 s_axis          = axis,
                                 depth           = depth, 
@@ -70,6 +79,17 @@ class AXISTREAMFIFOWrapper(Module):
                                 drop_bad_frame  = drop_bad_frame,
                                 drop_when_full  = drop_when_full
                                 )
+        
+        # FIFO Status Signals ----------------------------------------------------------------------
+        platform.add_extension(get_status_ios())
+        fifo_pads = platform.request("status")
+        self.comb += [
+            fifo_pads.overflow.eq(fifo.status_overflow),
+            fifo_pads.bad_frame.eq(fifo.status_bad_frame),
+            fifo_pads.good_frame.eq(fifo.status_good_frame),
+            fifo_pads.full.eq(fifo.status_full),
+            fifo_pads.empty.eq(fifo.status_empty)
+        ]
 
 # Build --------------------------------------------------------------------------------------------
 def main():

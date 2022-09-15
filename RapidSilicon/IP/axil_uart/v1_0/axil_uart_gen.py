@@ -14,6 +14,7 @@ from litex_sim.axil_uart_litex_wrapper import AXILITEUART
 from migen import *
 
 from litex.build.generic_platform import *
+
 from litex.build.osfpga import OSFPGAPlatform
 
 from litex.soc.interconnect.axi import AXILiteInterface
@@ -23,34 +24,64 @@ from litex.soc.interconnect.axi import AXILiteInterface
 
 def get_clkin_ios():
     return [
-        ("axi_clk",  0, Pins(1)),
-        ("axi_rst",  0, Pins(1)),
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1)),
+    ]
+    
+def get_uart_ios():
+    return [
+        ("int_o",       0, Pins(1)),
+        ("srx_pad_i",   0, Pins(1)), 
+        ("stx_pad_o",   0, Pins(1)),
+        ("rts_pad_o",   0, Pins(1)),
+        ("cts_pad_i",   0, Pins(1)),
+        ("dtr_pad_o",   0, Pins(1)),
+        ("dsr_pad_i",   0, Pins(1)),   
+        ("ri_pad_i",    0, Pins(1)), 
+        ("dcd_pad_i",   0, Pins(1))  
     ]
 
-# AXI RAM Wrapper ----------------------------------------------------------------------------------
+# AXI LITE UART Wrapper ----------------------------------------------------------------------------------
 
 class AXILITEUARTWrapper(Module):
     def __init__(self, platform, addr_width, data_width, prot_width):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
         # AXI LITE --------------------------------------------------------------------------------------
         axil = AXILiteInterface(
             address_width       = addr_width,
             data_width          = data_width
         )
-        platform.add_extension(axil.get_ios("axil"))
-        self.comb += axil.connect_to_pads(platform.request("axil"), mode="slave")
+        platform.add_extension(axil.get_ios("s_axil"))
+        self.comb += axil.connect_to_pads(platform.request("s_axil"), mode="slave")
 
         # AXI-LITE-UART ----------------------------------------------------------------------------------
-        self.submodules += AXILITEUART(platform, axil, 
-                                    protection_width    = prot_width, 
-                                    address_width       = addr_width, 
-                                    data_width          = data_width
-                                    )
+        self.submodules.uart = uart = AXILITEUART(platform, axil, 
+            protection_width    = prot_width, 
+            address_width       = addr_width, 
+            data_width          = data_width
+            )
+        
+        # UART Signals--------------------------------------------------------------------------------
+        platform.add_extension(get_uart_ios())
+        
+        # Inputs
+        self.comb += uart.srx_pad_i.eq(platform.request("srx_pad_i"))
+        self.comb += uart.cts_pad_i.eq(platform.request("cts_pad_i"))
+        self.comb += uart.dsr_pad_i.eq(platform.request("dsr_pad_i"))
+        self.comb += uart.ri_pad_i.eq(platform.request("ri_pad_i"))
+        self.comb += uart.dcd_pad_i.eq(platform.request("dcd_pad_i"))
+        
+        # Outputs
+        self.comb += platform.request("int_o").eq(uart.int_o)
+        self.comb += platform.request("stx_pad_o").eq(uart.stx_pad_o)
+        self.comb += platform.request("rts_pad_o").eq(uart.rts_pad_o)
+        self.comb += platform.request("dtr_pad_o").eq(uart.dtr_pad_o)
+
 
 # Build --------------------------------------------------------------------------------------------
 def main():

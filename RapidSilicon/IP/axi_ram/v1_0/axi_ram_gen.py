@@ -14,6 +14,7 @@ from litex_sim.axi_ram_litex_wrapper import AXIRAM
 from migen import *
 
 from litex.build.generic_platform import *
+
 from litex.build.osfpga import OSFPGAPlatform
 
 from litex.soc.interconnect.axi import AXIInterface
@@ -23,8 +24,8 @@ from litex.soc.interconnect.axi import AXIInterface
 
 def get_clkin_ios():
     return [
-        ("axi_clk",  0, Pins(1)),
-        ("axi_rst",  0, Pins(1)),
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1)),
     ]
 
 # AXI RAM Wrapper ----------------------------------------------------------------------------------
@@ -33,8 +34,8 @@ class AXIRAMWrapper(Module):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
         # AXI --------------------------------------------------------------------------------------
         axi = AXIInterface(
@@ -42,8 +43,8 @@ class AXIRAMWrapper(Module):
             address_width = addr_width,
             id_width      = id_width,
         )
-        platform.add_extension(axi.get_ios("axi"))
-        self.comb += axi.connect_to_pads(platform.request("axi"), mode="slave")
+        platform.add_extension(axi.get_ios("s_axi"))
+        self.comb += axi.connect_to_pads(platform.request("s_axi"), mode="slave")
 
         # AXI-RAM ----------------------------------------------------------------------------------
         self.submodules += AXIRAM(platform, axi,
