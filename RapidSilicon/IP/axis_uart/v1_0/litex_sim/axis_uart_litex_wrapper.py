@@ -26,14 +26,14 @@ class AXISTREAMUART(Module):
         data_width = len(s_axis.data)
         self.logger.info(f"DATA_WIDTH : {data_width}")
         
-        
-        self.i_rxd              = Signal()
-        self.o_txd              = Signal()
-        self.o_tx_busy          = Signal()         
-        self.o_rx_busy          = Signal()         
-        self.o_rx_overrun_error = Signal()
-        self.o_rx_frame_error   = Signal()
-        self.i_prescale         = Signal()
+        # Uart Signals
+        self.rxd              = Signal(1)
+        self.txd              = Signal(1)
+        self.tx_busy          = Signal(1)         
+        self.rx_busy          = Signal(1)         
+        self.rx_overrun_error = Signal(1)
+        self.rx_frame_error   = Signal(1)
+        self.prescale         = Signal(16)
 
         # Module instance.
         # ----------------
@@ -60,17 +60,17 @@ class AXISTREAMUART(Module):
             i_m_axis_tready     = m_axis.ready,
             
             # UART interface
-            i_rxd               = self.i_rxd,
-            o_txd               = self.o_txd,
+            i_rxd               = self.rxd,
+            o_txd               = self.txd,
             
             # Status
-            o_tx_busy           = self.o_tx_busy,
-            o_rx_busy           = self.o_rx_busy,
-            o_rx_overrun_error  = self.o_rx_overrun_error,
-            o_rx_frame_error    = self.o_rx_frame_error,
+            o_tx_busy           = self.tx_busy,
+            o_rx_busy           = self.rx_busy,
+            o_rx_overrun_error  = self.rx_overrun_error,
+            o_rx_frame_error    = self.rx_frame_error,
             
             # Configuration
-            i_prescale          = self.i_prescale
+            i_prescale          = self.prescale
         )
 
         # Add Sources.
