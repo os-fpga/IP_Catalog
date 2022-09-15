@@ -50,8 +50,8 @@ class I2CMASTERWrapper(Module):
 
         # AXI LITE ----------------------------------------------------------------------------------
         axil = AXILiteInterface()
-        platform.add_extension(axil.get_ios("axil"))
-        self.comb += axil.connect_to_pads(platform.request("axil"), mode="slave")
+        platform.add_extension(axil.get_ios("s_axil"))
+        self.comb += axil.connect_to_pads(platform.request("s_axil"), mode="slave")
 
         # I2C_MASTER ----------------------------------------------------------------------------------
         self.submodules.i2c_master = i2c_master = I2CMASTER(platform, axil,

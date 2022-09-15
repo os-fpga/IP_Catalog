@@ -22,8 +22,8 @@ from litex.soc.interconnect.axi import AXIInterface
 # IOs / Interface ----------------------------------------------------------------------------------
 def get_clkin_ios():
     return [
-        ("axi_clk", 0, Pins(1)),
-        ("axi_rst", 0, Pins(1)),
+        ("clk", 0, Pins(1)),
+        ("rst", 0, Pins(1)),
     ]
     
 # AXI-Register Wrapper --------------------------------------------------------------------------------
@@ -34,8 +34,8 @@ class AXIREGISTERWrapper(Module):
         
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         
         # AXI-------------------------------------------------------------
         axi = AXIInterface(
@@ -43,23 +43,30 @@ class AXIREGISTERWrapper(Module):
             address_width   = addr_width,
             id_width        = id_width
         )
-        platform.add_extension(axi.get_ios("axi"))
-        self.comb += axi.connect_to_pads(platform.request("axi"), mode="slave")
+        # AXI Slave
+        platform.add_extension(axi.get_ios("s_axi"))
+        self.comb += axi.connect_to_pads(platform.request("s_axi"), mode="slave")
+        
+        # AXI Master
+        platform.add_extension(axi.get_ios("m_axi"))
+        self.comb += axi.connect_to_pads(platform.request("m_axi"), mode="master")
         
         # AXI-DPRAM -----------------------------------------------------
-        self.submodules += AXIREGISTER(platform, axi,
-                                    aw_user_width       =   aw_user_width, 
-                                    w_user_width        =   w_user_width, 
-                                    b_user_width        =   b_user_width, 
-                                    ar_user_width       =   ar_user_width,
-                                    r_user_width        =   r_user_width, 
-                                    aw_reg_type         =   aw_reg_type,
-                                    w_reg_type          =   w_reg_type,
-                                    b_reg_type          =   b_reg_type,
-                                    ar_reg_type         =   ar_reg_type,
-                                    r_reg_type          =   r_reg_type,
-                                    size                =   (2**addr_width)*(data_width/8)
-                                    )
+        self.submodules += AXIREGISTER(platform, 
+            s_axi               =   axi,
+            m_axi               =   axi,
+            aw_user_width       =   aw_user_width, 
+            w_user_width        =   w_user_width, 
+            b_user_width        =   b_user_width, 
+            ar_user_width       =   ar_user_width,
+            r_user_width        =   r_user_width, 
+            aw_reg_type         =   aw_reg_type,
+            w_reg_type          =   w_reg_type,
+            b_reg_type          =   b_reg_type,
+            ar_reg_type         =   ar_reg_type,
+            r_reg_type          =   r_reg_type,
+            size                =   (2**addr_width)*(data_width/8)
+            )
 
 
 # Build --------------------------------------------------------------------------------------------

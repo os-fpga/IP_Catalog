@@ -13,7 +13,6 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 
-
 logging.basicConfig(level=logging.INFO)
 
 # AXIS_FIFO ---------------------------------------------------------------------------------------
@@ -63,7 +62,7 @@ class AXISTREAMFIFO(Module):
         self.logger.info(f"DROP_BAD_FRAME   : {drop_bad_frame}")
         self.logger.info(f"DROP_WHEN_FULL   : {drop_when_full}")
         
-        
+        # Status Signals
         self.status_overflow    = Signal()
         self.status_bad_frame   = Signal()
         self.status_good_frame  = Signal()

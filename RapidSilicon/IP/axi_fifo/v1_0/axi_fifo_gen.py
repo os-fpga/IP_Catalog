@@ -24,8 +24,8 @@ from litex.soc.interconnect.axi import AXIInterface
 
 def get_clkin_ios():
     return [
-        ("axi_clk",  0, Pins(1)),
-        ("axi_rst",  0, Pins(1)),
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1)),
     ]
     
 # AXI FIFO Wrapper ----------------------------------------------------------------------------------
@@ -37,8 +37,8 @@ class AXIFIFOWrapper(Module):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axi_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axi_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
         # AXI ----------------------------------------------------------------------------------
         s_axi = AXIInterface(

@@ -7,8 +7,6 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_ram.v.
 
 import os
-import sys
-import math
 import logging
 
 from migen import *
@@ -70,7 +68,7 @@ class AXIRAM(Module):
             # Parameters.
             # -----------
             p_DATA_WIDTH      = data_width,
-            p_ADDR_WIDTH      = math.ceil(math.log2(size)),
+            p_ADDR_WIDTH      = address_width,
             p_ID_WIDTH        = id_width,
             p_PIPELINE_OUTPUT = pipeline_output,
 
