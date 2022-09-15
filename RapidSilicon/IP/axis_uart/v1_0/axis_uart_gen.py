@@ -12,26 +12,40 @@ import logging
 from litex_sim.axis_uart_litex_wrapper import AXISTREAMUART
 
 from migen import *
+
 from litex.build.generic_platform import *
+
 from litex.build.osfpga import OSFPGAPlatform
+
 from litex.soc.interconnect.axi import AXIStreamInterface
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
 def get_clkin_ios():
     return [
-        ("axil_clk",  0, Pins(1)),
-        ("axil_rst",  0, Pins(1))
+        ("axis_clk",  0, Pins(1)),
+        ("axis_rst",  0, Pins(1))
     ]
     
-# AXI_STREAM_FIFO Wrapper ----------------------------------------------------------------------------------
-class AXISTREAMFIFOWrapper(Module):
+def get_uart_ios():
+    return [
+        ("rxd",             0, Pins(1)),
+        ("txd",             0, Pins(1)), 
+        ("tx_busy",         0, Pins(1)),
+        ("rx_busy",         0, Pins(1)),
+        ("rx_overrun_error",0, Pins(1)),
+        ("rx_frame_error",  0, Pins(1)),
+        ("prescale",        0, Pins(16))       
+    ]
+    
+# AXI_STREAM_UART Wrapper ----------------------------------------------------------------------------------
+class AXISTREAMUARTWrapper(Module):
     def __init__(self, platform, data_width):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())  
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axil_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axil_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("axis_clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("axis_rst"))
         
         # AXI STREAM -------------------------------------------------------------------------------
         axis = AXIStreamInterface(
@@ -45,11 +59,25 @@ class AXISTREAMFIFOWrapper(Module):
         platform.add_extension(axis.get_ios("m_axis"))
         self.comb += axis.connect_to_pads(platform.request("m_axis"), mode="master")
         
-        # AXIS-FIFO ----------------------------------------------------------------------------------
-        self.submodules += AXISTREAMUART(platform, 
-                                        m_axis  = axis,
-                                        s_axis  = axis
-                                )
+        # AXIS-UART ----------------------------------------------------------------------------------
+        self.submodules.uart = uart = AXISTREAMUART(platform, 
+            m_axis  = axis,
+            s_axis  = axis
+            )
+        
+        # UART Signals-----------------------------------------------------------
+        platform.add_extension(get_uart_ios())
+        
+        # Inputs
+        self.comb += uart.rxd.eq(platform.request("rxd"))
+        self.comb += uart.prescale.eq(platform.request("prescale"))
+        
+        # Outputs
+        self.comb += platform.request("txd").eq(uart.txd)
+        self.comb += platform.request("tx_busy").eq(uart.tx_busy)
+        self.comb += platform.request("rx_busy").eq(uart.rx_busy)
+        self.comb += platform.request("rx_overrun_error").eq(uart.rx_overrun_error)
+        self.comb += platform.request("rx_frame_error").eq(uart.rx_frame_error)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -175,7 +203,7 @@ def main():
 
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = AXISTREAMFIFOWrapper(platform,
+    module     = AXISTREAMUARTWrapper(platform,
         data_width      = args.data_width
     )
 
