@@ -23,8 +23,8 @@ from litex.soc.interconnect.axi import AXILiteInterface
 
 def get_clkin_ios():
     return [
-        ("axil_clk",  0, Pins(1)),
-        ("axil_rst",  0, Pins(1)),
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1)),
     ]
     
 def get_i2c_ios():
@@ -45,8 +45,8 @@ class I2CMASTERWrapper(Module):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("axil_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("axil_rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
         # AXI LITE ----------------------------------------------------------------------------------
         axil = AXILiteInterface()
@@ -65,6 +65,7 @@ class I2CMASTERWrapper(Module):
             read_addr_width     = read_addr_width
             )
         
+        # I2C Signals --------------------------------
         platform.add_extension(get_i2c_ios())
         i2c_pads = platform.request("i2c")
         self.comb += [
