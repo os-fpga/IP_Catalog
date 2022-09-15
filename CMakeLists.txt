@@ -41,9 +41,9 @@ else ()
     execute_process(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/share)
     execute_process(COMMAND python3 --version)
     message(STATUS "python version here")
-
-#    execute_process(COMMAND cp -R ${PROJECT_SOURCE_DIR}/ ${CMAKE_INSTALL_PREFIX}/share)
-#    message(STATUS "Copy IP_Catalog files to ${CMAKE_INSTALL_PREFIX}/share")
+    execute_process(COMMAND cp -R ${PROJECT_SOURCE_DIR}/ ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
+    message(STATUS "Copy IP_Catalog files to ${CMAKE_INSTALL_PREFIX}/share")
+    execute_process(COMMAND tree -L 2)
 #    execute_process(COMMAND python3 IP_Catalog_setup.py --dev --install WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
     execute_process(COMMAND python3 litex_setup.py --init --dev --install  --prefix ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
 
