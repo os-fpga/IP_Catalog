@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 class PRIORITYENCODER(Module):
     def __init__(self, platform, width, lsb_high_priority):
         
-        en_width = math.ceil(math.log2(width))
+        encoded_width = math.ceil(math.log2(width))
         
         # Logger
         self.logger = logging.getLogger("PRIORITY_ENCODER")
@@ -29,7 +29,7 @@ class PRIORITYENCODER(Module):
         
         self.input_unencoded    = Signal(width)
         self.output_valid       = Signal()
-        self.output_encoded     = Signal(en_width)         
+        self.output_encoded     = Signal(encoded_width)         
         self.output_unencoded   = Signal(width)         
 
         # Module instance.

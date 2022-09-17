@@ -27,10 +27,10 @@ def get_clkin_ios():
 
 def get_other_ios():
         return [
-            ("input_unencoded",  0, Pins(1)),
-            ("output_valid",     0, Pins(1)),
-            ("output_encoded",   0, Pins(1)),
-            ("output_unencoded", 0, Pins(1)),
+            ("input_unencoded",  0, Pins(1)), #FIXME
+            ("output_valid",     0, Pins(1)), #FIXME
+            ("output_encoded",   0, Pins(1)), #FIXME
+            ("output_unencoded", 0, Pins(1)), #FIXME
         ]
 
 # PRIORITY_ENCODER Wrapper ----------------------------------------------------------------------------------
