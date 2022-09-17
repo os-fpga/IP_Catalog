@@ -39,7 +39,7 @@ else ()
     message(${PROJECT_SOURCE_DIR})
     message(${CMAKE_INSTALL_PREFIX})
     execute_process(COMMAND python3 ./IP_Catalog/litex_setup.py --init --dev --install --config minimal --prefix ${CMAKE_INSTALL_PREFIX}/share/raptor/)
-    execute_process(COMMAND tree -L 2)
+    execute_process(COMMAND tree ${CMAKE_INSTALL_PREFIX} -L 2)
 
     message(STATUS "IP_Catalog installation completed")
 endif ()
