@@ -41,8 +41,14 @@ class AXIREGISTERWrapper(Module):
         axi = AXIInterface(
             data_width      = data_width,
             address_width   = addr_width,
-            id_width        = id_width
+            id_width        = id_width,
+            aw_user_width   = aw_user_width,
+            w_user_width    = w_user_width,
+            b_user_width    = b_user_width,
+            ar_user_width   = ar_user_width,
+            r_user_width    = r_user_width
         )
+        
         # AXI Slave
         platform.add_extension(axi.get_ios("s_axi"))
         self.comb += axi.connect_to_pads(platform.request("s_axi"), mode="slave")
@@ -54,12 +60,7 @@ class AXIREGISTERWrapper(Module):
         # AXI-DPRAM -----------------------------------------------------
         self.submodules += AXIREGISTER(platform, 
             s_axi               =   axi,
-            m_axi               =   axi,
-            aw_user_width       =   aw_user_width, 
-            w_user_width        =   w_user_width, 
-            b_user_width        =   b_user_width, 
-            ar_user_width       =   ar_user_width,
-            r_user_width        =   r_user_width, 
+            m_axi               =   axi, 
             aw_reg_type         =   aw_reg_type,
             w_reg_type          =   w_reg_type,
             b_reg_type          =   b_reg_type,
