@@ -84,7 +84,7 @@ class AXISPIMASTER(Module):
             i_s_axi_awid        = s_axi.aw.id,
             i_s_axi_awaddr      = s_axi.aw.addr,
             i_s_axi_awlen       = s_axi.aw.len,
-            i_s_axi_awuser      = s_axi.aw.user,
+            i_s_axi_awuser      = s_axi.aw.user, #FIXME
             i_s_axi_awvalid     = s_axi.aw.valid,
             o_s_axi_awready     = s_axi.aw.ready,
             
@@ -92,14 +92,14 @@ class AXISPIMASTER(Module):
             i_s_axi_wdata       = s_axi.w.data,
             i_s_axi_wstrb       = s_axi.w.strb,
             i_s_axi_wlast       = s_axi.w.last,
-            i_s_axi_wuser       = s_axi.w.user,
+            i_s_axi_wuser       = s_axi.w.user, #FIXME
             i_s_axi_wvalid      = s_axi.w.valid,
             o_s_axi_wready      = s_axi.w.ready,
             
             # B
             o_s_axi_bid         = s_axi.b.id,
             o_s_axi_bresp       = s_axi.b.resp,
-            o_s_axi_buser       = s_axi.b.user,
+            o_s_axi_buser       = s_axi.b.user, #FIXME
             o_s_axi_bvalid      = s_axi.b.valid,
             i_s_axi_bready      = s_axi.b.ready,
             
@@ -107,7 +107,7 @@ class AXISPIMASTER(Module):
             i_s_axi_arid        = s_axi.ar.id,
             i_s_axi_araddr      = s_axi.ar.addr,
             i_s_axi_arlen       = s_axi.ar.len,
-            i_s_axi_aruser      = s_axi.ar.user,
+            i_s_axi_aruser      = s_axi.ar.user, #FIXME
             i_s_axi_arvalid     = s_axi.ar.valid,
             o_s_axi_arready     = s_axi.ar.ready,
             
@@ -116,7 +116,7 @@ class AXISPIMASTER(Module):
             o_s_axi_rdata       = s_axi.r.data,
             o_s_axi_rresp       = s_axi.r.resp,
             o_s_axi_rlast       = s_axi.r.last,
-            o_s_axi_ruser       = s_axi.r.user,
+            o_s_axi_ruser       = s_axi.r.user, #FIXME
             o_s_axi_rvalid      = s_axi.r.valid,
             i_s_axi_rready      = s_axi.r.ready,
             
