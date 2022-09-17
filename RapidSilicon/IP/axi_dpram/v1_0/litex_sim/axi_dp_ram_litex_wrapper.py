@@ -1,19 +1,17 @@
 #
-# This file is part of LiteX-Verilog-AXI-Test
+# This file is part of RapidSilicon's IP_Catalog.
 #
-# Copyright (c) 2022 Florent Kermarrec <florent@enjoy-digital.fr>
-# SPDX-License-Identifier: BSD-2-Clause
+# This file is Copyright (c) 2022 RapidSilicon.
+# SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around Alex Forencich Verilog-AXI's axi_dp_ram.v.
+# LiteX wrapper around RapidSilicon axi_dp_ram
 
 import os
 import logging
-import math
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -26,7 +24,7 @@ class AXIDPRAM(Module):
         b_pipeline_output = False,
         b_interleave      = False,
     ):
-        self.logger = logging.getLogger("AXIDPRAM")
+        self.logger = logging.getLogger("AXI_DPRAM")
 
         # Get/Check Parameters.
         # ---------------------
@@ -64,7 +62,7 @@ class AXIDPRAM(Module):
             # -----------
             # Global.
             p_DATA_WIDTH = data_width,
-            p_ADDR_WIDTH = math.ceil(math.log2(size)),
+            p_ADDR_WIDTH = address_width,
             p_ID_WIDTH   = id_width,
 
             # Pipeline/Interleave.
@@ -75,12 +73,12 @@ class AXIDPRAM(Module):
 
             # Clk / Rst.
             # ----------
-            i_a_clk = ClockSignal(s_axi_a.clock_domain),
-            i_a_rst = ResetSignal(s_axi_a.clock_domain),
-            i_b_clk = ClockSignal(s_axi_b.clock_domain),
-            i_b_rst = ResetSignal(s_axi_b.clock_domain),
+            i_a_clk = ClockSignal(),
+            i_a_rst = ResetSignal(),
+            i_b_clk = ClockSignal(),
+            i_b_rst = ResetSignal(),
 
-            # AXI A Slave Interface.
+            # AXI Slave Interface.
             # --------------------
             # AW.
             i_s_axi_a_awid     = s_axi_a.aw.id,
@@ -127,7 +125,7 @@ class AXIDPRAM(Module):
             o_s_axi_a_rvalid   = s_axi_a.r.valid,
             i_s_axi_a_rready   = s_axi_a.r.ready,
 
-            # AXI B Slave Interface.
+            # AXI Slave Interface.
             # --------------------
             # AW.
             i_s_axi_b_awid     = s_axi_b.aw.id,

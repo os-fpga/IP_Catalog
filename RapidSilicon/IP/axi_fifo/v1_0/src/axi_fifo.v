@@ -29,9 +29,9 @@ THE SOFTWARE.
 `default_nettype none
 
 /*
- * AXI4 register
+ * AXI4 FIFO
  */
-module axi_register #
+module axi_fifo #
 (
     // Width of data bus in bits
     parameter DATA_WIDTH = 32,
@@ -42,40 +42,33 @@ module axi_register #
     // Width of ID signal
     parameter ID_WIDTH = 8,
     // Propagate awuser signal
-    parameter AWUSER_ENABLE = 1,
-    // Width of awuser signal 0 - 1024
+    parameter AWUSER_ENABLE = 0,
+    // Width of awuser signal
     parameter AWUSER_WIDTH = 1,
     // Propagate wuser signal
-    parameter WUSER_ENABLE = 1,
-    // Width of wuser signal 0 - 1024
+    parameter WUSER_ENABLE = 0,
+    // Width of wuser signal
     parameter WUSER_WIDTH = 1,
     // Propagate buser signal
-    parameter BUSER_ENABLE = 1,
-    // Width of buser signal 0 - 1024
+    parameter BUSER_ENABLE = 0,
+    // Width of buser signal
     parameter BUSER_WIDTH = 1,
     // Propagate aruser signal
-    parameter ARUSER_ENABLE = 1,
-    // Width of aruser signal 0 - 1024
+    parameter ARUSER_ENABLE = 0,
+    // Width of aruser signal
     parameter ARUSER_WIDTH = 1,
     // Propagate ruser signal
-    parameter RUSER_ENABLE = 1,
-    // Width of ruser signal 0 - 1024
+    parameter RUSER_ENABLE = 0,
+    // Width of ruser signal
     parameter RUSER_WIDTH = 1,
-    // AW channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    parameter AW_REG_TYPE = 1,
-    // W channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    parameter W_REG_TYPE = 2,
-    // B channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    parameter B_REG_TYPE = 1,
-    // AR channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    parameter AR_REG_TYPE = 1,
-    // R channel register type
-    // 0 to bypass, 1 for simple buffer, 2 for skid buffer
-    parameter R_REG_TYPE = 2
+    // Write data FIFO depth (cycles)
+    parameter WRITE_FIFO_DEPTH = 32,
+    // Read data FIFO depth (cycles)
+    parameter READ_FIFO_DEPTH = 32,
+    // Hold write address until write data in FIFO, if possible
+    parameter WRITE_FIFO_DELAY = 0,
+    // Hold read address until space available in FIFO for data, if possible
+    parameter READ_FIFO_DELAY = 0
 )
 (
     input  wire                     clk,
@@ -178,7 +171,7 @@ module axi_register #
     output wire                     m_axi_rready
 );
 
-axi_register_wr #(
+axi_fifo_wr #(
     .DATA_WIDTH(DATA_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .STRB_WIDTH(STRB_WIDTH),
@@ -189,11 +182,10 @@ axi_register_wr #(
     .WUSER_WIDTH(WUSER_WIDTH),
     .BUSER_ENABLE(BUSER_ENABLE),
     .BUSER_WIDTH(BUSER_WIDTH),
-    .AW_REG_TYPE(AW_REG_TYPE),
-    .W_REG_TYPE(W_REG_TYPE),
-    .B_REG_TYPE(B_REG_TYPE)
+    .FIFO_DEPTH(WRITE_FIFO_DEPTH),
+    .FIFO_DELAY(WRITE_FIFO_DELAY)
 )
-axi_register_wr_inst (
+axi_fifo_wr_inst (
     .clk(clk),
     .rst(rst),
 
@@ -254,7 +246,7 @@ axi_register_wr_inst (
     .m_axi_bready(m_axi_bready)
 );
 
-axi_register_rd #(
+axi_fifo_rd #(
     .DATA_WIDTH(DATA_WIDTH),
     .ADDR_WIDTH(ADDR_WIDTH),
     .STRB_WIDTH(STRB_WIDTH),
@@ -263,10 +255,10 @@ axi_register_rd #(
     .ARUSER_WIDTH(ARUSER_WIDTH),
     .RUSER_ENABLE(RUSER_ENABLE),
     .RUSER_WIDTH(RUSER_WIDTH),
-    .AR_REG_TYPE(AR_REG_TYPE),
-    .R_REG_TYPE(R_REG_TYPE)
+    .FIFO_DEPTH(READ_FIFO_DEPTH),
+    .FIFO_DELAY(READ_FIFO_DELAY)
 )
-axi_register_rd_inst (
+axi_fifo_rd_inst (
     .clk(clk),
     .rst(rst),
 
