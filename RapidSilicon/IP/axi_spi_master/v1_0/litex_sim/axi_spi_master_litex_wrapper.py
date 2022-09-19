@@ -75,8 +75,8 @@ class AXISPIMASTER(Module):
 
             # Clk / Rst.
             # ----------
-            i_clk = ClockSignal(),
-            i_rst = ResetSignal(),
+            i_s_axi_aclk    = ClockSignal(),
+            i_s_axi_aresetn = ResetSignal(),
 
             # AXI Input
             # --------------------
