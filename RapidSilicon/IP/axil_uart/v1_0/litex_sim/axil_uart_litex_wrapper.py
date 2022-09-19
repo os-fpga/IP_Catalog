@@ -24,19 +24,19 @@ class AXILITEUART(Module):
         
         # Clock Domain
         clock_domain = s_axil.clock_domain
-        self.logger.info(f"Clock Domain: {clock_domain}")
+        self.logger.info(f"Clock Domain     : {clock_domain}")
         
         # Address width.
         address_width = len(s_axil.aw.addr)
-        self.logger.info(f"Address Width: {address_width}")
+        self.logger.info(f"Address Width    : {address_width}")
         
         # Read Data width.
         data_width = len(s_axil.r.data)
-        self.logger.info(f"Data Width: {data_width}")
+        self.logger.info(f"Data Width       : {data_width}")
         
         # Protection width
         #protection_width = len(s_axil.aw.prot)
-        self.logger.info(f"Protection Width: {protection_width}")
+        self.logger.info(f"Protection Width : {protection_width}")
         
         # UART Signals
         self.int_o      = Signal()

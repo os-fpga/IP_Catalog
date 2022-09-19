@@ -21,7 +21,7 @@ class AXILITEGPIO(Module):
 
         # Clock Domain.
         clock_domain = s_axil.clock_domain
-        self.logger.info(f"Clock Domain: {clock_domain}")
+        self.logger.info(f"Clock Domain     : {clock_domain}")
         
         # GPIO
         self.gpin  = Signal(data_width)
@@ -30,11 +30,11 @@ class AXILITEGPIO(Module):
         
         # Data width.
         data_width = len(s_axil.w.data)
-        self.logger.info(f"Data Width: {data_width}")
+        self.logger.info(f"Data Width       : {data_width}")
 
         # Address width.
         address_width = len(s_axil.aw.addr)
-        self.logger.info(f"Address Width: {address_width}")
+        self.logger.info(f"Address Width    : {address_width}")
         
         # Module instance.
         # ----------------
