@@ -47,9 +47,9 @@ class AXILITEGPIOWrapper(Module):
 
         # AXI-LITE-GPIO ----------------------------------------------------------------------------------
         self.submodules += AXILITEGPIO(platform, axil, 
-                                    address_width   = addr_width, 
-                                    data_width      = data_width
-                                    )
+            address_width   = addr_width, 
+            data_width      = data_width
+            )
 
 # Build --------------------------------------------------------------------------------------------
 def main():

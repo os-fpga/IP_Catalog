@@ -48,9 +48,9 @@ class AXIRAMWrapper(Module):
 
         # AXI-RAM ----------------------------------------------------------------------------------
         self.submodules += AXIRAM(platform, axi,
-                                pipeline_output   = pip_out, 
-                                size              = (2**addr_width)*data_width//8
-                                )
+            pipeline_output   = pip_out, 
+            size              = (2**addr_width)*data_width//8
+            )
 
 # Build --------------------------------------------------------------------------------------------
 def main():

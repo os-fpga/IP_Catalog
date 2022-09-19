@@ -41,25 +41,25 @@ class AXIRAM(Module):
 
         # Clock Domain.
         clock_domain = s_axi.clock_domain
-        self.logger.info(f"Clock Domain: {colorer(clock_domain)}")
+        self.logger.info(f"Clock Domain     : {colorer(clock_domain)}")
 
         # Address width.
         address_width = len(s_axi.aw.addr)
-        self.logger.info(f"Address Width: {colorer(address_width)}")
+        self.logger.info(f"Address Width    : {colorer(address_width)}")
 
         # Data width.
         data_width = len(s_axi.w.data)
-        self.logger.info(f"Data Width: {colorer(data_width)}")
+        self.logger.info(f"Data Width       : {colorer(data_width)}")
 
         # Size.
-        self.logger.info(f"Size: {colorer(size)}bytes")
+        self.logger.info(f"Size             : {colorer(size)}bytes")
 
         # ID width.
         id_width = len(s_axi.aw.id)
-        self.logger.info(f"ID Width: {colorer(id_width)}")
+        self.logger.info(f"ID Width         : {colorer(id_width)}")
         
         # Pipeline Output
-        self.logger.info(f"PIPELINE_OUTPUT: {colorer(pipeline_output)}")
+        self.logger.info(f"PIPELINE_OUTPUT  : {colorer(pipeline_output)}")
 
         # Module instance.
         # ----------------
