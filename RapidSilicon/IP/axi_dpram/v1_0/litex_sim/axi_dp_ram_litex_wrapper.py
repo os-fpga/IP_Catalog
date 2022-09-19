@@ -30,29 +30,29 @@ class AXIDPRAM(Module):
         # ---------------------
 
         # Clock Domain.
-        self.logger.info(f"Clock Domain A: {s_axi_a.clock_domain}")
-        self.logger.info(f"Clock Domain B: {s_axi_b.clock_domain}")
+        self.logger.info(f"Clock Domain A   : {s_axi_a.clock_domain}")
+        self.logger.info(f"Clock Domain B   : {s_axi_b.clock_domain}")
 
         # Address width.
         address_width = len(s_axi_a.aw.addr)
-        self.logger.info(f"Address Width: {address_width}")
+        self.logger.info(f"Address Width    : {address_width}")
 
         # Data width.
         data_width = len(s_axi_a.w.data)
-        self.logger.info(f"Data Width: {data_width}")
+        self.logger.info(f"Data Width       : {data_width}")
 
         # ID width.
         id_width = len(s_axi_a.aw.id)
-        self.logger.info(f"ID Width: {id_width}")
+        self.logger.info(f"ID Width         : {id_width}")
 
         # Size.
-        self.logger.info(f"Size: {size}bytes")
+        self.logger.info(f"Size             : {size}bytes")
 
         # Pipeline/Interleave.
         self.logger.info(f"A Pipeline Output: {a_pipeline_output}")
-        self.logger.info(f"A Interleave R/W:  {a_interleave}")
+        self.logger.info(f"A Interleave R/W :  {a_interleave}")
         self.logger.info(f"B Pipeline Output: {b_pipeline_output}")
-        self.logger.info(f"B Interleave R/W:  {b_interleave}")
+        self.logger.info(f"B Interleave R/W :  {b_interleave}")
 
         # Module instance.
         # ----------------
@@ -180,7 +180,4 @@ class AXIDPRAM(Module):
     @staticmethod
     def add_sources(platform):
         rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "axi_ram_wr_if.v"))
-        platform.add_source(os.path.join(rtl_dir, "axi_ram_rd_if.v"))
-        platform.add_source(os.path.join(rtl_dir, "axi_ram_wr_rd_if.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_dp_ram.v"))
