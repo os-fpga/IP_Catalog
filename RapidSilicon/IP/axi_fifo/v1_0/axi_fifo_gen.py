@@ -41,41 +41,37 @@ class AXIFIFOWrapper(Module):
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
         # AXI ----------------------------------------------------------------------------------
-        s_axi = AXIInterface(
+        axi = AXIInterface(
             data_width      = data_width,
             address_width   = addr_width,
             id_width        = id_width
         )
         
-        m_axi = AXIInterface(
-            data_width      = data_width,
-            address_width   = addr_width,
-            id_width        = id_width
-        )
+        platform.add_extension(axi.get_ios("s_axi"))
+        self.comb += axi.connect_to_pads(platform.request("s_axi"), mode="slave")
         
-        platform.add_extension(s_axi.get_ios("s_axi"))
-        self.comb += s_axi.connect_to_pads(platform.request("s_axi"), mode="slave")
-        
-        platform.add_extension(m_axi.get_ios("m_axi"))
-        self.comb += m_axi.connect_to_pads(platform.request("m_axi"), mode="master")
+        platform.add_extension(axi.get_ios("m_axi"))
+        self.comb += axi.connect_to_pads(platform.request("m_axi"), mode="master")
 
         # AXI FIFO ----------------------------------------------------------------------------------
-        self.submodules += AXIFIFO(platform, s_axi, m_axi,
-                                aw_user_en          = aw_user_en,
-                                aw_user_width       = aw_user_width,
-                                w_user_en           = w_user_en,
-                                w_user_width        = w_user_width,
-                                b_user_en           = b_user_en,
-                                b_user_width        = b_user_width,
-                                ar_user_en          = ar_user_en,
-                                ar_user_width       = ar_user_width,
-                                r_user_en           = r_user_en,
-                                r_user_width        = r_user_width, 
-                                write_fifo_depth    = write_fifo_depth,
-                                read_fifo_depth     = read_fifo_depth,
-                                write_fifo_delay    = write_fifo_delay,
-                                read_fifo_delay     = read_fifo_delay
-                                )
+        self.submodules += AXIFIFO(platform, 
+            s_axi               = axi,
+            m_axi               = axi,
+            aw_user_en          = aw_user_en,
+            aw_user_width       = aw_user_width,
+            w_user_en           = w_user_en,
+            w_user_width        = w_user_width,
+            b_user_en           = b_user_en,
+            b_user_width        = b_user_width,
+            ar_user_en          = ar_user_en,
+            ar_user_width       = ar_user_width,
+            r_user_en           = r_user_en,
+            r_user_width        = r_user_width, 
+            write_fifo_depth    = write_fifo_depth,
+            read_fifo_depth     = read_fifo_depth,
+            write_fifo_delay    = write_fifo_delay,
+            read_fifo_delay     = read_fifo_delay
+            )
 
 # Build --------------------------------------------------------------------------------------------
 def main():
