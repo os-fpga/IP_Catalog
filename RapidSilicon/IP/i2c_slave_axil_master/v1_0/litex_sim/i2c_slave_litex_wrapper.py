@@ -9,7 +9,6 @@
 
 import os
 import logging
-from typing_extensions import Self
 
 from migen import *
 
