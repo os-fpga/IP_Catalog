@@ -46,7 +46,7 @@ jobs:
         python3 -m site --user-site
         PYTHON_USER_SITE=$(python3 -m site --user-site)
         echo $PYTHON_USER_SITE
-        ls $PYTHON_USER_SITE
+        tree $PYTHON_USER_SITE -L 2
         echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
         echo 'CC=gcc-9' >> $GITHUB_ENV
         echo 'CXX=g++-9' >> $GITHUB_ENV
