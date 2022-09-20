@@ -42,11 +42,8 @@ jobs:
     - name: Configure shell
       shell: bash
       run: |
-        python3 --version
-        python3 -m site --user-site
         PYTHON_USER_SITE=$(python3 -m site --user-site)
         echo $PYTHON_USER_SITE
-        tree $PYTHON_USER_SITE -L 2
         echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
         echo 'CC=gcc-9' >> $GITHUB_ENV
         echo 'CXX=g++-9' >> $GITHUB_ENV
@@ -69,14 +66,19 @@ jobs:
       shell: bash
       run: |
         echo $PWD
-        tree -L 3
         mkdir build
         cd build
         cmake ./../CMakeLists.txt
 
     - name: Test Python
       run: |
-        python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram --build
-        tree ./RapidSilicon/IP/axi_dpram/ -L 4
-        python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram --build
-        tree ./RapidSilicon/IP/axi_ram/ -L 4
+        python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
+        tree ./rapidsilicon/ip//axi_dpram/ -L 4
+        python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
+        tree ./rapidsilicon/ip/axi_ram/ -L 4
+        python3 ./RapidSilicon/IP/axi_register/v1_0/axi_register_gen.py --data_width=64 --add_width=32 --build_name=register_wrapper --build
+        tree ./rapidsilicon/ip/axi_register/ -L 4
+        python3 ./RapidSilicon/IP/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8 --build_name=gpio_wrapper --build
+        tree ./rapidsilicon/ip/axil_gpio/ -L 4
+        python3 ./RapidSilicon/IP/axil_uart/v1_0/axil_uart_gen.py --addr_width=8 --rdata_width=32 --build_name=uart_wrapper --build
+        tree ./rapidsilicon/ip/axil_uart/ -L 4
