@@ -12,7 +12,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  Env:
+  IP_Catalog:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -42,10 +42,13 @@ jobs:
         cmake ./../CMakeLists.txt
 
     - name: Configure shell
+      shell: bash
       run: |
         python3 --version
         python3 -m site --user-site
-        echo 'PYTHONPATH=$(python3 -m site --user-site)':"$PYTHONPATH" >> $GITHUB_ENV
+        PYTHON_USER_SITE='python3 -m site --user-site'
+        echo PYTHON_USER_SITE
+        echo 'PYTHONPATH=$PYTHON_USER_SITE'"$PYTHONPATH" >> $GITHUB_ENV
         echo 'CC=gcc-9' >> $GITHUB_ENV
         echo 'CXX=g++-9' >> $GITHUB_ENV
         echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
@@ -67,6 +70,11 @@ jobs:
         which $CC && $CC --version
         which $CXX && $CXX --version
 
+    - name: build
+      run: 
+        mkdir build
+        cd build
+        cmake ./../CMakeLists.txt
 
     - name: Test Python
       run: |
