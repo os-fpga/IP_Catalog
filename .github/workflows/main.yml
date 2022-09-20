@@ -68,11 +68,14 @@ jobs:
         which $CC && $CC --version
         which $CXX && $CXX --version
 
-    - name: build_cmake
+    - name: build
+      shell: bash
       run:
+        echo $PWD
         tree -L 3
         mkdir build
         cd build
+
         cmake ./../CMakeLists.txt
 
     - name: Test Python
