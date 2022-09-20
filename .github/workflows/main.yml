@@ -76,9 +76,9 @@ jobs:
         tree ./rapidsilicon/ip//axi_dpram/ -L 4
         python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
         tree ./rapidsilicon/ip/axi_ram/ -L 4
-        python3 ./RapidSilicon/IP/axi_register/v1_0/axi_register_gen.py --data_width=64 --add_width=32 --build_name=register_wrapper --build
+        python3 ./RapidSilicon/IP/axi_register/v1_0/axi_register_gen.py --data_width=64 --addr_width=32 --build-name=register_wrapper --build
         tree ./rapidsilicon/ip/axi_register/ -L 4
-        python3 ./RapidSilicon/IP/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8 --build_name=gpio_wrapper --build
+        python3 ./RapidSilicon/IP/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8 --build-name=gpio_wrapper --build
         tree ./rapidsilicon/ip/axil_gpio/ -L 4
-        python3 ./RapidSilicon/IP/axil_uart/v1_0/axil_uart_gen.py --addr_width=8 --rdata_width=32 --build_name=uart_wrapper --build
+        python3 ./RapidSilicon/IP/axil_uart/v1_0/axil_uart_gen.py --addr_width=8 --rdata_width=32 --build-name=uart_wrapper --build
         tree ./rapidsilicon/ip/axil_uart/ -L 4
