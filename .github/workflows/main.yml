@@ -12,7 +12,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "greet"
-  greet:
+  Environment Setup:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -64,5 +64,5 @@ jobs:
 
     - name: Test Python
       run: |
-        python3 IP_Catalog/RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --add_width=8 --build_name=dpram --build
-        python3 IP_Catalog/RapidSilicon/IP/axi_dpram/v1_0/axi_ram_gen.py --data_width=32 --add _width=8 --build_name=ram --build
+        python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --add_width=8 --build_name=dpram --build
+        python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_ram_gen.py --data_width=32 --add _width=8 --build_name=ram --build
