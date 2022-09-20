@@ -37,10 +37,8 @@ jobs:
     - name: Install dependencies
       run: 
         bash .github/workflows/install_litex_ubuntu.sh
-        mkdir build
-        cd build
-        cmake ./../CMakeLists.txt
 
+        
     - name: Configure shell
       shell: bash
       run: |
