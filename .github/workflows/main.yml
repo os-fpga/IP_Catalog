@@ -70,7 +70,7 @@ jobs:
         cd build
         cmake ./../CMakeLists.txt
 
-    - name: Test Python
+    - name: Test IP Generation
       run: |
         python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
         tree ./rapidsilicon/ip//axi_dpram/ -L 4
