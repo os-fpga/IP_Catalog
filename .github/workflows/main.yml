@@ -1,20 +1,13 @@
 # This is a basic workflow that is manually triggered
 
-name: Manual workflow
+name: IP_Catalog Workflow
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
 on:
-  workflow_dispatch:
-    # Inputs the workflow accepts.
-    inputs:
-      name:
-        # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        default: 'World'
-        # Input has to be provided for the workflow to run
-        required: true
+  push:
+  pull_request:
+
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,6 +18,52 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
-    - name: Send greeting
-      run: echo "Hello ${{ github.event.inputs.name }}"
+
+    - name: Cancel previous
+      uses: styfle/cancel-workflow-action@0.9.1
+      with:
+        access_token: ${{ github.token }}
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Install dependencies
+      run: |
+        bash .github/workflows/install_litex_ubuntu.sh
+
+
+    - name: Configure shell
+      run: |
+#        echo 'CC=gcc-9' >> $GITHUB_ENV
+#        echo 'CXX=g++-9' >> $GITHUB_ENV
+        echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
+#        echo 'PREFIX=/tmp/foedag-install' >> $GITHUB_ENV
+#        echo "ADDITIONAL_CMAKE_OPTIONS='-DMY_CXX_WARNING_FLAGS="-W -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Werror -UNDEBUG"'" >> $GITHUB_ENV
+#        echo 'RULE_MESSAGES=off' >> $GITHUB_ENV
+#        echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
+
+
+    - name: Show shell configuration
+      run: |
+        env
+        which cmake && cmake --version
+        which make && make --version
+        which swig && swig -version
+        which python && python --version
+        which ninja && ninja --version
+        which tclsh && echo 'puts [info patchlevel];exit 0' | tclsh
+        which $CC && $CC --version
+        which $CXX && $CXX --version
+
+
+    - name: Test Python
+      run: |
+        python3 IP_Catalog/RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --add_width=8 --build_name=dpram --build
+        python3 IP_Catalog/RapidSilicon/IP/axi_dpram/v1_0/axi_ram_gen.py --data_width=32 --add _width=8 --build_name=ram --build
