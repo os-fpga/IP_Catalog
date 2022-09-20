@@ -7,6 +7,7 @@ sudo apt install -y \
   libevent-dev \
   libjson-c-dev \
   flex \
+  tree \
   bison \
   libfl-dev \
   libfl2 \
