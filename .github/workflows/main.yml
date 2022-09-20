@@ -69,7 +69,8 @@ jobs:
         which $CXX && $CXX --version
 
     - name: build_cmake
-      run: 
+      run:
+        tree -L 3
         mkdir build
         cd build
         cmake ./../CMakeLists.txt
