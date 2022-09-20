@@ -32,37 +32,37 @@ def get_clkin_ios():
 def get_axis_ios():
     return [
         ("s_axis_read_desc", 0,
-            Subsignal("addr",   Pins(1)),
-            Subsignal("len",    Pins(1)),
-            Subsignal("tag",    Pins(1)),
-            Subsignal("id",     Pins(1)),
-            Subsignal("dest",   Pins(1)),
-            Subsignal("user",   Pins(1)),
+            Subsignal("addr",   Pins(1)), #FIXME
+            Subsignal("len",    Pins(1)), #FIXME
+            Subsignal("tag",    Pins(1)), #FIXME
+            Subsignal("id",     Pins(1)), #FIXME
+            Subsignal("dest",   Pins(1)), #FIXME
+            Subsignal("user",   Pins(1)), #FIXME
             Subsignal("valid",  Pins(1)),
             Subsignal("ready",  Pins(1))
         ),
         
         ("m_axis_read_desc_status", 0,
-            Subsignal("tag",    Pins(1)),
+            Subsignal("tag",    Pins(1)), #FIXME
             Subsignal("error",  Pins(1)),
             Subsignal("valid",  Pins(1))
         ),
         
         ("s_axis_write_desc", 0,
-            Subsignal("addr",   Pins(1)),
-            Subsignal("len",    Pins(1)),
-            Subsignal("tag",    Pins(1)),
+            Subsignal("addr",   Pins(1)), #FIXME
+            Subsignal("len",    Pins(1)), #FIXME
+            Subsignal("tag",    Pins(1)), #FIXME
             Subsignal("valid",  Pins(1)),
             Subsignal("ready",  Pins(1))
         ),
         
         ("m_axis_write_desc_status", 0,
-            Subsignal("len",    Pins(1)),
-            Subsignal("tag",    Pins(1)),
-            Subsignal("id",     Pins(1)),
-            Subsignal("dest",   Pins(1)),
-            Subsignal("user",   Pins(1)),
-            Subsignal("error",  Pins(1)),
+            Subsignal("len",    Pins(1)), #FIXME
+            Subsignal("tag",    Pins(1)), #FIXME
+            Subsignal("id",     Pins(1)), #FIXME
+            Subsignal("dest",   Pins(1)), #FIXME
+            Subsignal("user",   Pins(1)), #FIXME
+            Subsignal("error",  Pins(4)),
             Subsignal("valid",  Pins(1))
         ),
         
