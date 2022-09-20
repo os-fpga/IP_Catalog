@@ -43,6 +43,8 @@ jobs:
 
     - name: Configure shell
       run: |
+        python3 --version
+        python3 -m site --user-site
         PYTHON_USER_SITE=$(python3 -m site --user-site)
         echo PYTHON_USER_SITE
         echo 'PYTHONPATH=$PYTHON_USER_SITE'"$PYTHONPATH" >> $GITHUB_ENV
