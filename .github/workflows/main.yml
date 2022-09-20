@@ -37,10 +37,14 @@ jobs:
     - name: Install dependencies
       run: 
         bash .github/workflows/install_litex_ubuntu.sh
+        mkdir build
+        cd build
+        cmake ./../CMakeLists.txt
 
     - name: Configure shell
       run: |
-        echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
+        PYTHON_USER_SITE=$(python3 -m site --user-site)
+        echo 'PYTHONPATH=$PYTHON_USER_SITE'"$PYTHONPATH" >> $GITHUB_ENV
         echo 'CC=gcc-9' >> $GITHUB_ENV
         echo 'CXX=g++-9' >> $GITHUB_ENV
         echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
@@ -66,6 +70,6 @@ jobs:
     - name: Test Python
       run: |
         python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram --build
-        tree -L 4
+        tree ./RapidSilicon/IP/axi_dpram/ -L 4
         python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram --build
-        tree -L 4
+        tree ./RapidSilicon/IP/axi_ram/ -L 4
