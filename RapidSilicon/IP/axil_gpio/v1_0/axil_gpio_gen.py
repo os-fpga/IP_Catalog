@@ -137,7 +137,7 @@ def main():
             os.makedirs(synth_path)
 
         # Design Path 
-        design_path = os.path.join("../src", (args.build_name + ".v"))  
+        design_path = os.path.join("../src", (args.build_name + ".sv"))  
 
         # Copy RTL from Source to Destination
         rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")        
@@ -198,6 +198,11 @@ def main():
         )
         shutil.copy(f"litex_build/{args.build_name}.v", src_path)
         shutil.rmtree("litex_build")
+        
+        # Changing File Extension from .v to .sv
+        old_wrapper = os.path.join(src_path, f'{args.build_name}.v')
+        new_wrapper = old_wrapper.replace('.v','.sv')
+        os.rename(old_wrapper, new_wrapper)
 
 
 if __name__ == "__main__":
