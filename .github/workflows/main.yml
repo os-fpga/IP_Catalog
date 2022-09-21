@@ -117,7 +117,7 @@ jobs:
 
       - name: Install dependencies
         run: 
-          bash .github/workflows/install_centos_dependencies_build.sh
+          bash .github/workflows/install_centos_dependencies_build.sh  
           bash .github/workflows/install_litex_centos.sh
 
 
@@ -126,9 +126,6 @@ jobs:
         run: |
           source /opt/rh/devtoolset-9/enable
           source /opt/rh/rh-python38/enable
-          gcc --version
-          echo $LD_LIBRARY_PATH
-          python3 -V
           PYTHON_USER_SITE=$(python3 -m site --user-site)
           echo $PYTHON_USER_SITE
           echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
@@ -143,16 +140,17 @@ jobs:
 
       - name: Show shell configuration
         run: |
+          source /opt/rh/rh-python38/enable
           env
           which cmake && cmake --version
           which make && make --version
-          which swig && swig -version
           which python3 && python3 --version
 
       - name: build
         shell: bash
         run: |
           source /opt/rh/devtoolset-9/enable
+          source /opt/rh/rh-python38/enable
           echo $PWD
           mkdir build
           cd build
@@ -161,6 +159,7 @@ jobs:
       - name: Test IP Generation
         run: |
           source /opt/rh/devtoolset-9/enable
+          source /opt/rh/rh-python38/enable
           python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
           tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
           python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
