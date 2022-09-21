@@ -21,7 +21,6 @@ class AXISADAPTER(Module):
     def __init__(self, platform, s_axis, m_axis,
         s_data_width    = 8,
         m_data_width    = 8,
-        s_keep_width    = 0,
         id_en           = False,
         id_width        = 8,
         dest_en         = False,
@@ -37,10 +36,6 @@ class AXISADAPTER(Module):
         
         m_data_width = len(m_axis.data)
         self.logger.info(f"M_DATA_WIDTH     : {m_data_width}")
-        
-        s_keep_width = ceil((s_data_width+7)/8)
-        s_keep_width = len(s_axis.keep)
-        self.logger.info(f"S_KEEP_WIDTH     : {s_keep_width}")
         
         # ID 
         self.logger.info(f"ID_ENABLE        : {id_en}")
@@ -65,9 +60,7 @@ class AXISADAPTER(Module):
             # -----------
             # Global.
             p_S_DATA_WIDTH      = s_data_width,
-            p_S_KEEP_WIDTH      = s_keep_width,
             p_M_DATA_WIDTH      = m_data_width,
-            # p_M_KEEP_WIDTH      = m_keep_width,
             p_ID_ENABLE         = id_en,
             p_ID_WIDTH          = id_width,
             p_DEST_ENABLE       = dest_en,
@@ -84,7 +77,7 @@ class AXISADAPTER(Module):
             # AXI Input
             # --------------------
             i_s_axis_tdata      = s_axis.data,
-            # i_s_axis_tkeep      = s_axis.keep,
+            i_s_axis_tkeep      = s_axis.keep,
             i_s_axis_tvalid     = s_axis.valid,
             o_s_axis_tready     = s_axis.ready,
             i_s_axis_tlast      = s_axis.last,
@@ -94,7 +87,7 @@ class AXISADAPTER(Module):
 
             # AXI Output
             o_m_axis_tdata      = m_axis.data,
-            # o_m_axis_tkeep      = m_axis.keep,
+            o_m_axis_tkeep      = m_axis.keep,
             o_m_axis_tvalid     = m_axis.valid,
             i_m_axis_tready     = m_axis.ready,
             o_m_axis_tlast      = m_axis.last,
