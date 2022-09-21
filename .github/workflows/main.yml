@@ -129,8 +129,8 @@ jobs:
           PYTHON_USER_SITE=$(python3 -m site --user-site)
           echo $PYTHON_USER_SITE
           echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
-          echo 'CC=gcc-9' >> $GITHUB_ENV
-          echo 'CXX=g++-9' >> $GITHUB_ENV
+          echo 'CC=/opt/rh/devtoolset-9/root/usr/bin/gcc' >> $GITHUB_ENV
+          echo 'CXX=/opt/rh/devtoolset-9/root/usr/bin/g++' >> $GITHUB_ENV
           echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
           echo 'PREFIX=/tmp/foedag-install' >> $GITHUB_ENV
           echo "ADDITIONAL_CMAKE_OPTIONS='-DMY_CXX_WARNING_FLAGS="-W -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Werror -UNDEBUG"'" >> $GITHUB_ENV
