@@ -40,7 +40,7 @@ def get_uart_ios():
     
 # AXI_STREAM_UART Wrapper ----------------------------------------------------------------------------------
 class AXISTREAMUARTWrapper(Module):
-    def __init__(self, platform, data_width):
+    def __init__(self, platform, data_width, id_width, user_width):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())  
         self.clock_domains.cd_sys  = ClockDomain()
@@ -217,6 +217,16 @@ def main():
         )
         shutil.copy(f"litex_build/{args.build_name}.v", src_path)
         shutil.rmtree("litex_build")
+        
+        # TimeScale Addition to Wrapper
+        wrapper = os.path.join(src_path, f'{args.build_name}.v')
+        f = open(wrapper, "r")
+        content = f.readlines()
+        content.insert(14, '`timescale 1ns / 1ps\n')
+        f = open(wrapper, "w")
+        content = "".join(content)
+        f.write(str(content))
+        f.close()
 
 if __name__ == "__main__":
     main()
