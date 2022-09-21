@@ -62,8 +62,6 @@ class AXISPIPELINEREGISTER(Module):
             # -----------
             # Global.
             p_DATA_WIDTH        = data_width,
-            p_KEEP_ENABLE       = (data_width>8),
-            p_KEEP_WIDTH        = int((data_width+7)/8),
             p_LAST_ENABLE       = last_en,
             p_ID_ENABLE         = id_en,
             p_ID_WIDTH          = id_width,
@@ -83,7 +81,7 @@ class AXISPIPELINEREGISTER(Module):
             # AXI Input
             # --------------------
             i_s_axis_tdata      = s_axis.data,
-            # i_s_axis_tkeep      = s_axis.keep,
+            i_s_axis_tkeep      = s_axis.keep,
             i_s_axis_tvalid     = s_axis.valid,
             o_s_axis_tready     = s_axis.ready,
             i_s_axis_tlast      = s_axis.last,
@@ -93,7 +91,7 @@ class AXISPIPELINEREGISTER(Module):
 
             # AXI Output
             o_m_axis_tdata      = m_axis.data,
-            # o_m_axis_tkeep      = m_axis.keep,
+            o_m_axis_tkeep      = m_axis.keep,
             o_m_axis_tvalid     = m_axis.valid,
             i_m_axis_tready     = m_axis.ready,
             o_m_axis_tlast      = m_axis.last,
