@@ -24,10 +24,10 @@ pip3 install \
 
 
 # Download/Install LiteX.
-wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py
-chmod +x litex_setup.py
-./litex_setup.py --init --config minimal
-sudo ./litex_setup.py --install --config minimal
+#wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py
+#chmod +x litex_setup.py
+#./litex_setup.py --init --config minimal
+#sudo ./litex_setup.py --install --config minimal
 
 # Download/Install RISC-V GCC toolchain.
 #./litex_setup.py --gcc=riscv
