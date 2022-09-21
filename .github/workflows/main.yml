@@ -90,7 +90,8 @@ jobs:
 
       - name: Install Python 3.8
         run: | 
-              yum --enablerepo=centos-sclo-rh -y install rh-python38
+              yum install centos-release-scl-rh
+              yum install rh-python38-python
               source /opt/rh/rh-python38/enable
               python3 -V
               
