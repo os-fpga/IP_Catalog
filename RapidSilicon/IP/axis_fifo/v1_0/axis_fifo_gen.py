@@ -67,18 +67,18 @@ class AXISTREAMFIFOWrapper(Module):
         
         # AXIS-FIFO ----------------------------------------------------------------------------------
         self.submodules.fifo = fifo = AXISTREAMFIFO(platform,
-                                m_axis          = axis,
-                                s_axis          = axis,
-                                depth           = depth, 
-                                last_en         = last_en,
-                                id_en           = id_en,
-                                dest_en         = dest_en,
-                                user_en         = user_en,
-                                pip_out         = pip_out,
-                                frame_fifo      = frame_fifo,
-                                drop_bad_frame  = drop_bad_frame,
-                                drop_when_full  = drop_when_full
-                                )
+            m_axis          = axis,
+            s_axis          = axis,
+            depth           = depth, 
+            last_en         = last_en,
+            id_en           = id_en,
+            dest_en         = dest_en,
+            user_en         = user_en,
+            pip_out         = pip_out,
+            frame_fifo      = frame_fifo,
+            drop_bad_frame  = drop_bad_frame,
+            drop_when_full  = drop_when_full
+            )
         
         # FIFO Status Signals ----------------------------------------------------------------------
         platform.add_extension(get_status_ios())
