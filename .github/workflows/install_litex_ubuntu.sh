@@ -27,7 +27,7 @@ pip3 install \
 wget https://raw.githubusercontent.com/bilalahmed-RS/litex/master/litex_setup.py
 chmod +x litex_setup.py
 ./litex_setup.py --init --config minimal
-sudo ./litex_setup.py --install --config minimal
+./litex_setup.py --install --config minimal
 
 # Download/Install RISC-V GCC toolchain.
 #./litex_setup.py --gcc=riscv
