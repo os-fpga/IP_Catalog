@@ -24,7 +24,7 @@ pip3 install \
 
 
 # Download/Install LiteX.
-wget https://raw.githubusercontent.com/enjoy-digital/litex/master/litex_setup.py
+wget https://raw.githubusercontent.com/bilalahmed-RS/litex/master/litex_setup.py
 chmod +x litex_setup.py
 ./litex_setup.py --init --config minimal
 sudo ./litex_setup.py --install --config minimal

@@ -1,22 +1,12 @@
-# This is a basic workflow that is manually triggered
-
 name: IP_Catalog Workflow
 
-# Controls when the action will run. Workflow runs when manually triggered using the UI
-# or API.
 on:
   push:
   pull_request:
 
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "greet"
   IP_Catalog_Ubuntu:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
     - name: Cancel previous
@@ -72,7 +62,6 @@ jobs:
 
     - name: Test IP Generation
       run: |
-        python3 ./Import_handling.py
         python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
         tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
         python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
@@ -155,6 +144,7 @@ jobs:
       - name: build
         shell: bash
         run: |
+          scl enable devtoolset-9 bash
           echo $PWD
           mkdir build
           cd build
@@ -162,7 +152,7 @@ jobs:
 
       - name: Test IP Generation
         run: |
-          python3 ./Import_handling.py
+          scl enable devtoolset-9 bash
           python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
           tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
           python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
