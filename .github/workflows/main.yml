@@ -131,6 +131,7 @@ jobs:
 
       - name: Install dependencies
         run: 
+          bash .github/workflows/install_centos_dependencies_build.sh
           bash .github/workflows/install_litex_centos.sh
 
 
