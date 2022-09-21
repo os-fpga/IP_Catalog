@@ -35,7 +35,7 @@ class AXILITEUART(Module):
         self.logger.info(f"Data Width       : {data_width}")
         
         # Protection width
-        #protection_width = len(s_axil.aw.prot)
+        protection_width = len(s_axil.ar.prot)
         self.logger.info(f"Protection Width : {protection_width}")
         
         # UART Signals
