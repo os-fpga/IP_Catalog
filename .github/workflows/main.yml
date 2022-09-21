@@ -121,6 +121,7 @@ jobs:
         shell: bash
         run: |
           scl enable devtoolset-9 bash
+          gcc --version
           PYTHON_USER_SITE=$(python3 -m site --user-site)
           echo $PYTHON_USER_SITE
           echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
