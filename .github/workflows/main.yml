@@ -16,7 +16,7 @@ jobs:
 
     - uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: 3.8
 
     - name: Checkout code
       uses: actions/checkout@v2
@@ -88,9 +88,12 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.6
+      - name: Install Python 3.8
+        run: | 
+              yum --enablerepo=centos-sclo-rh -y install rh-python38
+              source /opt/rh/rh-python38/enable
+              python3 -V
+              
 
       - name: Install GCC-9 & latest Git
         run: |
@@ -121,6 +124,7 @@ jobs:
         shell: bash
         run: |
           source /opt/rh/devtoolset-9/enable
+          source /opt/rh/rh-python38/enable
           gcc --version
           echo $LD_LIBRARY_PATH
           python3 -V
