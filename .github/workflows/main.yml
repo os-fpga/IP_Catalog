@@ -88,9 +88,9 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-#      - uses: actions/setup-python@v2
-#        with:
-#          python-version: 3.7
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
 
       - name: Install GCC-9 & latest Git
         run: |
