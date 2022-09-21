@@ -121,7 +121,8 @@ jobs:
       - name: Configure shell
         shell: bash
         run: |
-          scl enable devtoolset-9 bash
+          source /opt/rh/devtoolset-9/enable
+          gcc --version
           PYTHON_USER_SITE=$(python3 -m site --user-site)
           echo $PYTHON_USER_SITE
           echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
@@ -140,12 +141,12 @@ jobs:
           which cmake && cmake --version
           which make && make --version
           which swig && swig -version
-          which python && python --version
+          which python3 && python3 --version
 
       - name: build
         shell: bash
         run: |
-          scl enable devtoolset-9 bash
+          source /opt/rh/devtoolset-9/enable
           echo $PWD
           mkdir build
           cd build
@@ -153,7 +154,7 @@ jobs:
 
       - name: Test IP Generation
         run: |
-          scl enable devtoolset-9 bash
+          source /opt/rh/devtoolset-9/enable
           python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
           tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
           python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
