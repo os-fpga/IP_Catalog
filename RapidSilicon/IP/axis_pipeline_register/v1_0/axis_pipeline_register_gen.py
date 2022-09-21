@@ -55,15 +55,15 @@ class AXISPIPELINEREGISTERWrapper(Module):
         
         # AXIS-PIPELINE-REGISTER ----------------------------------------------------------------------------------
         self.submodules += AXISPIPELINEREGISTER(platform,
-                                m_axis          = axis,
-                                s_axis          = axis,
-                                last_en         = last_en,
-                                id_en           = id_en,
-                                dest_en         = dest_en,
-                                user_en         = user_en,
-                                reg_type        = reg_type,
-                                length          = length
-                                )
+            m_axis          = axis,
+            s_axis          = axis,
+            last_en         = last_en,
+            id_en           = id_en,
+            dest_en         = dest_en,
+            user_en         = user_en,
+            reg_type        = reg_type,
+            length          = length
+            )
         
 
 # Build --------------------------------------------------------------------------------------------
