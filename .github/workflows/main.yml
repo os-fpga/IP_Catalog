@@ -99,70 +99,69 @@ jobs:
           mode:
           - test
 
+      steps:
 
-              steps:
+      - name: Cancel previous
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
 
-    - name: Cancel previous
-      uses: styfle/cancel-workflow-action@0.9.1
-      with:
-        access_token: ${{ github.token }}
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        submodules: recursive
-        fetch-depth: 0
-
-    - name: Install dependencies
-      run: 
-        bash .github/workflows/install_litex_ubuntu.sh
-        
-        
-    - name: Configure shell
-      shell: bash
-      run: |
-        PYTHON_USER_SITE=$(python3 -m site --user-site)
-        echo $PYTHON_USER_SITE
-        echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
-        echo 'CC=gcc-9' >> $GITHUB_ENV
-        echo 'CXX=g++-9' >> $GITHUB_ENV
-        echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
-        echo 'PREFIX=/tmp/foedag-install' >> $GITHUB_ENV
-        echo "ADDITIONAL_CMAKE_OPTIONS='-DMY_CXX_WARNING_FLAGS="-W -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Werror -UNDEBUG"'" >> $GITHUB_ENV
-        echo 'RULE_MESSAGES=off' >> $GITHUB_ENV
-        echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: 
+          bash .github/workflows/install_litex_ubuntu.sh
 
 
-    - name: Show shell configuration
-      run: |
-        env
-        which cmake && cmake --version
-        which make && make --version
-        which swig && swig -version
-        which python && python --version
+      - name: Configure shell
+        shell: bash
+        run: |
+          PYTHON_USER_SITE=$(python3 -m site --user-site)
+          echo $PYTHON_USER_SITE
+          echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
+          echo 'CC=gcc-9' >> $GITHUB_ENV
+          echo 'CXX=g++-9' >> $GITHUB_ENV
+          echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
+          echo 'PREFIX=/tmp/foedag-install' >> $GITHUB_ENV
+          echo "ADDITIONAL_CMAKE_OPTIONS='-DMY_CXX_WARNING_FLAGS="-W -Wall -Wextra -Wno-unused-parameter -Wno-unused-variable -Werror -UNDEBUG"'" >> $GITHUB_ENV
+          echo 'RULE_MESSAGES=off' >> $GITHUB_ENV
+          echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
 
-    - name: build
-      shell: bash
-      run: |
-        echo $PWD
-        mkdir build
-        cd build
-        cmake ./../CMakeLists.txt
 
-    - name: Test IP Generation
-      run: |
-        python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
-        tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
-        python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
-        tree ./ip_build/rapidsilicon/ip/axi_ram/ -L 4
-        python3 ./RapidSilicon/IP/axi_register/v1_0/axi_register_gen.py --data_width=64 --addr_width=32 --build-name=register_wrapper --build
-        tree ./ip_build/rapidsilicon/ip/axi_register/ -L 4
-        python3 ./RapidSilicon/IP/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8 --build-name=gpio_wrapper --build
-        tree ./ip_build/rapidsilicon/ip/axil_gpio/ -L 4
-        python3 ./RapidSilicon/IP/axil_uart/v1_0/axil_uart_gen.py --addr_width=8 --rdata_width=32 --build-name=uart_wrapper --build
-        tree ./ip_build/rapidsilicon/ip/axil_uart/ -L 4
+      - name: Show shell configuration
+        run: |
+          env
+          which cmake && cmake --version
+          which make && make --version
+          which swig && swig -version
+          which python && python --version
+
+      - name: build
+        shell: bash
+        run: |
+          echo $PWD
+          mkdir build
+          cd build
+          cmake ./../CMakeLists.txt
+
+      - name: Test IP Generation
+        run: |
+          python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
+          tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
+          python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
+          tree ./ip_build/rapidsilicon/ip/axi_ram/ -L 4
+          python3 ./RapidSilicon/IP/axi_register/v1_0/axi_register_gen.py --data_width=64 --addr_width=32 --build-name=register_wrapper --build
+          tree ./ip_build/rapidsilicon/ip/axi_register/ -L 4
+          python3 ./RapidSilicon/IP/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8 --build-name=gpio_wrapper --build
+          tree ./ip_build/rapidsilicon/ip/axil_gpio/ -L 4
+          python3 ./RapidSilicon/IP/axil_uart/v1_0/axil_uart_gen.py --addr_width=8 --rdata_width=32 --build-name=uart_wrapper --build
+          tree ./ip_build/rapidsilicon/ip/axil_uart/ -L 4
 
