@@ -168,6 +168,7 @@ jobs:
 
       - name: Test IP Generation
         run: |
+          python3 ./Import_handling.py
           python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
           tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
           python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
