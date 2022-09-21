@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 # AXIS-UART  ---------------------------------------------------------------------------------------
 class AXISTREAMUART(Module):
-    def __init__(self, platform, s_axis, m_axis):
+    def __init__(self, platform, s_axis, m_axis, data_width=5):
         
         self.logger = logging.getLogger("AXI_STREAM_UART")
         
