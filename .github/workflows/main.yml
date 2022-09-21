@@ -130,7 +130,7 @@ jobs:
           source /opt/rh/rh-python38/enable
           PYTHON_USER_SITE=$(python3 -m site --user-site)
           echo $PYTHON_USER_SITE
-          echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
+          echo 'PYTHONPATH=$PYTHON_USER_SITE:/__w/IP_Catalog/IP_Catalog/migen:/__w/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
           echo 'CC=/opt/rh/devtoolset-9/root/usr/bin/gcc' >> $GITHUB_ENV
           echo 'CXX=/opt/rh/devtoolset-9/root/usr/bin/g++' >> $GITHUB_ENV
           echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
