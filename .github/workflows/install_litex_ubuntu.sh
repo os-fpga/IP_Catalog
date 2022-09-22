@@ -2,7 +2,7 @@
 sudo apt-get update -qq
 sudo apt install -y \
   build-essential \
-#  python3 \
+  python3 \
   ninja-build \
   libevent-dev \
   libjson-c-dev \
@@ -11,7 +11,7 @@ sudo apt install -y \
   bison \
   libfl-dev \
   libfl2 \
-#  verilator \
+  verilator \
   zlibc \
   zlib1g-dev
 
@@ -24,10 +24,10 @@ pip3 install \
 
 
 # Download/Install LiteX.
-wget https://raw.githubusercontent.com/bilalahmed-RS/litex/master/litex_setup.py
-chmod +x litex_setup.py
-./litex_setup.py --init --config minimal
-./litex_setup.py --install --config minimal
+#wget https://raw.githubusercontent.com/bilalahmed-RS/litex/master/litex_setup.py
+#chmod +x litex_setup.py
+#./litex_setup.py --init --config minimal
+#./litex_setup.py --install --config minimal
 
 # Download/Install RISC-V GCC toolchain.
 #./litex_setup.py --gcc=riscv
