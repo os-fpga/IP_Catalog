@@ -19,24 +19,21 @@ logging.basicConfig(level=logging.INFO)
 # AXI LITE UART -------------------------------------------------------------------------------------
 
 class AXILITEUART(Module):
-    def __init__(self, platform, s_axil, address_width, data_width, protection_width):
+    def __init__(self, platform, s_axil, address_width, data_width):
         self.logger = logging.getLogger("AXI_LITE_UART")
         
         # Clock Domain
         clock_domain = s_axil.clock_domain
-        self.logger.info(f"Clock Domain     : {clock_domain}")
+        self.logger.info(f"CLOCK_DOMAIN     : {clock_domain}")
         
         # Address width.
         address_width = len(s_axil.aw.addr)
-        self.logger.info(f"Address Width    : {address_width}")
+        self.logger.info(f"ADDRESS_WIDTH    : {address_width}")
         
         # Read Data width.
         data_width = len(s_axil.r.data)
-        self.logger.info(f"Data Width       : {data_width}")
+        self.logger.info(f"DATA_WIDTH       : {data_width}")
         
-        # Protection width
-        protection_width = len(s_axil.ar.prot)
-        self.logger.info(f"Protection Width : {protection_width}")
         
         # UART Signals
         self.int_o      = Signal()
@@ -57,7 +54,6 @@ class AXILITEUART(Module):
             # -----------
             p_ADDRESS_WIDTH     = address_width,
             p_DATA_WIDTH        = data_width,
-            p_PROT_WIDTH        = protection_width,
 
             # Clk / Rst.
             # ----------

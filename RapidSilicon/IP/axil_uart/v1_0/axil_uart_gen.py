@@ -44,7 +44,7 @@ def get_uart_ios():
 # AXI LITE UART Wrapper ----------------------------------------------------------------------------------
 
 class AXILITEUARTWrapper(Module):
-    def __init__(self, platform, addr_width, data_width, prot_width):
+    def __init__(self, platform, addr_width, data_width):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
@@ -60,8 +60,7 @@ class AXILITEUARTWrapper(Module):
         self.comb += axil.connect_to_pads(platform.request("s_axil"), mode="slave")
 
         # AXI-LITE-UART ----------------------------------------------------------------------------------
-        self.submodules.uart = uart = AXILITEUART(platform, axil, 
-            protection_width    = prot_width, 
+        self.submodules.uart = uart = AXILITEUART(platform, axil,  
             address_width       = addr_width, 
             data_width          = data_width
             )
@@ -95,7 +94,6 @@ def main():
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width")
     core_group.add_argument("--data_width",      default=32,       type=int,       help="UART Data Width")
-    core_group.add_argument("--prot_width",      default=3,        type=int,       help="UART Protection Width")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -123,12 +121,6 @@ def main():
     data_width_param=[8, 16, 32, 64]
     if args.data_width not in data_width_param:
         logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-    
-    # Protection_Width
-    prot_range=range(1,4)
-    if args.prot_width not in prot_range:
-        logger.error("\nEnter a valid 'prot_width' from 1 to 3")
         exit()
 
 
@@ -226,8 +218,7 @@ def main():
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
     module     = AXILITEUARTWrapper(platform,
         addr_width      = args.addr_width,
-        data_width      = args.data_width,
-        prot_width      = args.prot_width
+        data_width      = args.data_width
     )
 
     # Build
