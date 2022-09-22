@@ -43,7 +43,7 @@ message(${CMAKE_INSTALL_PREFIX})
 execute_process(COMMAND wget -P ${CMAKE_CURRENT_BINARY_DIR}/../ip_dependencies https://raw.githubusercontent.com/bilalahmed-RS/litex/master/litex_setup.py)
 execute_process(COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/../ip_dependencies/litex_setup.py --init --config minimal)
 
-execute_process(COMMAND export $PYTHONUSERBASE=(${CMAKE_CURRENT_BINARY_DIR}/../ip_dependencies
+execute_process(COMMAND export $PYTHONUSERBASE=(${CMAKE_CURRENT_BINARY_DIR}/../ip_dependencies)
                 COMMAND echo $PYTHONUSERBASE
                 COMMAND python3 ${CMAKE_CURRENT_BINARY_DIR}/../ip_dependencies/litex_setup.py --install --config minimal)
 execute_process(COMMAND tree ${CMAKE_INSTALL_PREFIX} -L 2)
