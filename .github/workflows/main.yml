@@ -92,13 +92,13 @@ jobs:
         run: | 
               yum install centos-release-scl-rh -y
               yum install rh-python38-python -y
-              yum install rh-python38-python-pip -y
+              #yum install rh-python38-python-pip -y
               source /opt/rh/rh-python38/enable
               python3 -V
               pip -V
               pip3 -V
-              pip3 install --upgrade pip
-              pip3 -V
+              #pip3 install --upgrade pip
+              #pip3 -V
 
       - name: Install GCC-9 & latest Git
         run: |
