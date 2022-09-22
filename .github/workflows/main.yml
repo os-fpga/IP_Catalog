@@ -88,18 +88,6 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-      - name: Install Python 3.8
-        run: | 
-              yum install centos-release-scl-rh -y
-              yum install rh-python38-python -y
-              #yum install rh-python38-python-pip -y
-              source /opt/rh/rh-python38/enable
-              python3 -V
-              pip -V
-              pip3 -V
-              #pip3 install --upgrade pip
-              #pip3 -V
-
       - name: Install GCC-9 & latest Git
         run: |
           yum install -y openssh-server openssh-clients
@@ -123,6 +111,19 @@ jobs:
         run: 
           bash .github/workflows/install_centos_dependencies_build.sh  
           bash .github/workflows/install_litex_centos.sh
+
+#      - name: Install Python 3.8
+#        run: |
+#              yum install python3-pip -y
+#              yum install centos-release-scl-rh -y
+#              yum install rh-python38-python -y
+#              python3 install
+#              source /opt/rh/rh-python38/enable
+#              python3 -V
+#              pip -V
+#              pip3 -V
+#              #pip3 install --upgrade pip
+#              #pip3 -V
 
 
       - name: Configure shell
