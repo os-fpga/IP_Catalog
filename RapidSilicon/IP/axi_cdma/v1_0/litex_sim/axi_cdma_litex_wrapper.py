@@ -27,26 +27,25 @@ class AXICDMA(Module):
 
         # Get/Check Parameters.
         # ---------------------
-        self.logger = logging.getLogger("AXICDMA")
+        self.logger = logging.getLogger("AXI_CDMA")
 
         # Clock Domain.
         self.logger.info(f"Clock Domain     : {m_axi.clock_domain}")
 
         # Address width.
         address_width = len(m_axi.aw.addr)
-        self.logger.info(f"Address Width    : {address_width}")
+        self.logger.info(f"AXI_ADDR_WIDTH   : {address_width}")
 
         # Data width.
         data_width = len(m_axi.w.data)
-        self.logger.info(f"Data Width       : {data_width}")
+        self.logger.info(f"AXI_DATA_WIDTH   : {data_width}")
 
         # ID width.
         id_width = len(m_axi.aw.id)
-        self.logger.info(f"ID Width         : {id_width}")
+        self.logger.info(f"AXI_ID_WIDTH     : {id_width}")
         
         # IP Parameters
         self.logger.info(f"AXI_MAX_BURST_LEN: {axi_max_burst_len}")
-        self.logger.info(f"AXI_ID_WIDTH     : {id_width}")
         self.logger.info(f"LEN_WIDTH        : {len_width}")
         self.logger.info(f"TAG_WIDTH        : {tag_width}")
         self.logger.info(f"ENABLE_UNALIGNED : {enable_unaligned}")
