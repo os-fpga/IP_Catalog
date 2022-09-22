@@ -32,8 +32,8 @@ jobs:
     - name: Configure shell
       shell: bash
       run: |
-        echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/migen:/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/litex/'"$PYTHONPATH" >> $GITHUB_ENV
-        echo 'PYTHONPATH=$GITHUB_WORKSPACE/migen:$GITHUB_WORKSPACE/litex/'"$PYTHONPATH" >> $GITHUB_ENV
+#        echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/migen:/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/litex/'"$PYTHONPATH" >> $GITHUB_ENV
+#        echo 'PYTHONPATH=$GITHUB_WORKSPACE/migen:$GITHUB_WORKSPACE/litex/'"$PYTHONPATH" >> $GITHUB_ENV
         echo $PYTHONPATH
         echo 'CC=gcc-9' >> $GITHUB_ENV
         echo 'CXX=g++-9' >> $GITHUB_ENV
@@ -62,7 +62,7 @@ jobs:
 
     - name: Test IP Generation
       run: |
-        echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/migen:/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/litex/'"$PYTHONPATH" >> $GITHUB_ENV
+        echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/build/migen:/home/runner/work/IP_Catalog/IP_Catalog/build/litex'"$PYTHONPATH" >> $GITHUB_ENV
         echo $PYTHONPATH
         python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
         tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
