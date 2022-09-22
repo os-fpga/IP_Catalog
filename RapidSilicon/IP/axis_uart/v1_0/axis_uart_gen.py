@@ -40,7 +40,7 @@ def get_uart_ios():
     
 # AXI_STREAM_UART Wrapper ----------------------------------------------------------------------------------
 class AXISTREAMUARTWrapper(Module):
-    def __init__(self, platform, data_width, id_width, user_width):
+    def __init__(self, platform, data_width):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())  
         self.clock_domains.cd_sys  = ClockDomain()
