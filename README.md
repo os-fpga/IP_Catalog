@@ -26,5 +26,19 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── axis_uart
 |           |
-│           └── axi_fifo
+│           ├── axi_fifo
+|           |
+│           ├── axi_spi_master
+|           |
+│           ├── axi_spi_slave
+|           |
+│           ├── priority_encoder
+|           |
+│           ├── axi_dma
+|           |
+│           ├── axi_cdma
+|           |
+│           ├── axis_pipeline_register
+|           |
+│           └── axis_adapter
 ```
