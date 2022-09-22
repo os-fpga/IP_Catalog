@@ -32,6 +32,7 @@ jobs:
     - name: Configure shell
       shell: bash
       run: |
+        echo 'PYTHONPATH=$PYTHON_USER_SITE:/home/runner/work/IP_Catalog/IP_Catalog/migen:/home/runner/work/IP_Catalog/IP_Catalog/litex/'"$PYTHONPATH" >> $GITHUB_ENV
         echo 'PYTHONPATH=$GITHUB_WORKSPACE/migen:$GITHUB_WORKSPACE/litex/'"$PYTHONPATH" >> $GITHUB_ENV
         echo $PYTHONPATH
         echo 'CC=gcc-9' >> $GITHUB_ENV
@@ -110,19 +111,6 @@ jobs:
         run: 
           bash .github/workflows/install_centos_dependencies_build.sh  
           bash .github/workflows/install_litex_centos.sh
-
-#      - name: Install Python 3.8
-#        run: |
-#              yum install python3-pip -y
-#              yum install centos-release-scl-rh -y
-#              yum install rh-python38-python -y
-#              python3 install
-#              source /opt/rh/rh-python38/enable
-#              python3 -V
-#              pip -V
-#              pip3 -V
-#              #pip3 install --upgrade pip
-#              #pip3 -V
 
 
       - name: Configure shell
