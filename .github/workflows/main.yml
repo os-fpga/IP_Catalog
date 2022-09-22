@@ -56,13 +56,15 @@ jobs:
         mkdir build
         cd build
         cmake ./../CMakeLists.txt  
-        echo 'PYTHONPATH=$GITHUB_WORKSPACE/build/migen:$GITHUB_WORKSPACE/build/litex'"$PYTHONPATH" >> $GITHUB_ENV
+        echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/lib:"$PYTHONPATH" >> $GITHUB_ENV
+        echo 'PATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/bin:"$PATH" >> $GITHUB_ENV
         echo $PYTHONPATH
-        
+        echo $HOME
 
 
     - name: Test IP Generation
       run: |
+        echo $HOME
         tree $GITHUB_WORKSPACE
         python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
         tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
