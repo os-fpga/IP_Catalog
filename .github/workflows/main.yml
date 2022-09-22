@@ -34,8 +34,8 @@ jobs:
       run: |
         PYTHON_USER_SITE=$(python3 -m site --user-site)
         echo $PYTHON_USER_SITE
-        echo $GITHUB_WORKSPACE   /home/runner/work/IP_Catalog/ip_dependencies
-        echo 'PYTHONPATH=$PYTHON_USER_SITE:GITHUB_WORKSPACE/../migen:/GITHUB_WORKSPACE/../litex/'"$PYTHONPATH" >> $GITHUB_ENV
+        echo $GITHUB_WORKSPACE   
+        echo 'PYTHONPATH=$PYTHON_USER_SITE:GITHUB_WORKSPACE/migen:/GITHUB_WORKSPACE/litex/'"$PYTHONPATH" >> $GITHUB_ENV
         echo 'CC=gcc-9' >> $GITHUB_ENV
         echo 'CXX=g++-9' >> $GITHUB_ENV
         echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
