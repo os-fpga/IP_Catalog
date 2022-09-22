@@ -60,8 +60,8 @@ jobs:
 
     - name: Test IP Generation
       run: |
-        echo PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/lib:"$PYTHONPATH" >> $GITHUB_ENV
-        echo PATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/bin:"$PATH" >> $GITHUB_ENV
+        export PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/lib:"$PYTHONPATH"
+        export PATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/bin:"$PATH"
         echo $HOME
         echo $PYTHONPATH
         echo $PATH
