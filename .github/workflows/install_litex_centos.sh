@@ -18,10 +18,10 @@ pip3 install \
   meson
 
 # Download/Install LiteX.
-wget https://raw.githubusercontent.com/bilalahmed-RS/litex/master/litex_setup.py
-chmod +x litex_setup.py
-./litex_setup.py --init
-./litex_setup.py --install
+#wget https://raw.githubusercontent.com/bilalahmed-RS/litex/master/litex_setup.py
+#chmod +x litex_setup.py
+#./litex_setup.py --init
+#./litex_setup.py --install
 
 ## Download/Install RISC-V GCC toolchain.
 #./litex_setup.py --gcc=riscv
