@@ -32,9 +32,6 @@ jobs:
     - name: Configure shell
       shell: bash
       run: |
-#        echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/migen:/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/litex/'"$PYTHONPATH" >> $GITHUB_ENV
-#        echo 'PYTHONPATH=$GITHUB_WORKSPACE/migen:$GITHUB_WORKSPACE/litex/'"$PYTHONPATH" >> $GITHUB_ENV
-        echo $PYTHONPATH
         echo 'CC=gcc-9' >> $GITHUB_ENV
         echo 'CXX=g++-9' >> $GITHUB_ENV
         echo 'PATH=/usr/lib/ccache:'"$PATH" >> $GITHUB_ENV
