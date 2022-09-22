@@ -62,7 +62,7 @@ jobs:
       run: |
         export PYTHONUSERBASE=$GITHUB_WORKSPACE/ip_dependencies:$PYTHONUSERBASE
         export PYTHONPATH=$GITHUB_WORKSPACE/ip_dependencies:$PYTHONPATH
-        #export PYTHONPATH=$GITHUB_WORKSPACE/build/migen:$GITHUB_WORKSPACE/build/litex:"$PYTHONPATH"
+        export PYTHONPATH=$GITHUB_WORKSPACE/build/migen:$GITHUB_WORKSPACE/build/litex:"$PYTHONPATH"
         export PATH=$GITHUB_WORKSPACE/ip_dependencies/bin:"$PATH"
         echo $HOME
         echo $PYTHONPATH
