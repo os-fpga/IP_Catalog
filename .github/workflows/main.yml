@@ -61,7 +61,7 @@ jobs:
     - name: Test IP Generation
       run: |
         export PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/lib:"$PYTHONPATH"
-        export PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/build/migen:/home/runner/work/IP_Catalog/IP_Catalog/build/migen:"$PYTHONPATH"
+        export PYTHONPATH=$GITHUB_WORKSPACE/build/migen:$GITHUB_WORKSPACE/build/litex:"$PYTHONPATH"
         export PATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/bin:"$PATH"
         echo $HOME
         echo $PYTHONPATH
