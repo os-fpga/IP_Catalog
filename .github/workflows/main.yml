@@ -60,15 +60,11 @@ jobs:
 
     - name: Test IP Generation
       run: |
-        export PYTHONUSERBASE=$GITHUB_WORKSPACE/ip_dependencies:$PYTHONUSERBASE
-        export PYTHONPATH=$GITHUB_WORKSPACE/ip_dependencies:$PYTHONPATH
+        export PYTHONPATH=$GITHUB_WORKSPACE/ip_dependencies/lib:$PYTHONPATH
         export PYTHONPATH=$GITHUB_WORKSPACE/build/migen:$GITHUB_WORKSPACE/build/litex:"$PYTHONPATH"
         export PATH=$GITHUB_WORKSPACE/ip_dependencies/bin:"$PATH"
-        echo $HOME
         echo $PYTHONPATH
-        echo $PATH
         tree $GITHUB_WORKSPACE
-        litex_sim --help
         python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
         tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
         python3 ./RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
