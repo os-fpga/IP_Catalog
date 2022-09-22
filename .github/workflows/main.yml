@@ -32,9 +32,6 @@ jobs:
     - name: Configure shell
       shell: bash
       run: |
-        PYTHON_USER_SITE=$(python3 -m site --user-site)
-        echo $PYTHON_USER_SITE
-        echo $GITHUB_WORKSPACE   
         echo 'PYTHONPATH=GITHUB_WORKSPACE/migen:/GITHUB_WORKSPACE/litex/'"$PYTHONPATH" >> $GITHUB_ENV
         echo $PYTHONPATH
         echo 'PYTHONPATH=$GITHUB_WORKSPACE/migen:$GITHUB_WORKSPACE/litex/'"$PYTHONPATH" >> $GITHUB_ENV
