@@ -97,6 +97,8 @@ jobs:
               python3 -V
               pip -V
               pip3 -V
+              pip3 install --upgrade pip
+              pip3 -V
 
       - name: Install GCC-9 & latest Git
         run: |
