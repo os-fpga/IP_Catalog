@@ -119,7 +119,7 @@ class AXIREGISTER(Module):
             i_s_axi_awprot   = s_axi.aw.prot,
             i_s_axi_awqos    = s_axi.aw.qos,
             i_s_axi_awregion = s_axi.aw.region,
-            i_s_axi_awuser   = s_axi.aw.user, #FIXME
+            i_s_axi_awuser   = s_axi.aw.user,
             i_s_axi_awvalid  = s_axi.aw.valid,
             o_s_axi_awready  = s_axi.aw.ready,
 
@@ -127,14 +127,14 @@ class AXIREGISTER(Module):
             i_s_axi_wdata    = s_axi.w.data,
             i_s_axi_wstrb    = s_axi.w.strb,
             i_s_axi_wlast    = s_axi.w.last,
-            i_s_axi_wuser    = s_axi.w.user, #FIXME
+            i_s_axi_wuser    = s_axi.w.user,
             i_s_axi_wvalid   = s_axi.w.valid,
             o_s_axi_wready   = s_axi.w.ready,
 
             # B.
             o_s_axi_bid      = s_axi.b.id,
             o_s_axi_bresp    = s_axi.b.resp,
-            o_s_axi_buser    = s_axi.b.user, #FIXME
+            o_s_axi_buser    = s_axi.b.user,
             o_s_axi_bvalid   = s_axi.b.valid,
             i_s_axi_bready   = s_axi.b.ready,
 
@@ -149,7 +149,7 @@ class AXIREGISTER(Module):
             i_s_axi_arprot   = s_axi.ar.prot,
             i_s_axi_arqos    = s_axi.ar.qos,
             i_s_axi_arregion = s_axi.ar.region,
-            i_s_axi_aruser   = s_axi.ar.user, #FIXME
+            i_s_axi_aruser   = s_axi.ar.user,
             i_s_axi_arvalid  = s_axi.ar.valid,
             o_s_axi_arready  = s_axi.ar.ready,
 
@@ -158,7 +158,7 @@ class AXIREGISTER(Module):
             o_s_axi_rdata    = s_axi.r.data,
             o_s_axi_rresp    = s_axi.r.resp,
             o_s_axi_rlast    = s_axi.r.last,
-            o_s_axi_ruser    = s_axi.r.user, #FIXME
+            o_s_axi_ruser    = s_axi.r.user,
             o_s_axi_rvalid   = s_axi.r.valid,
             i_s_axi_rready   = s_axi.r.ready,
             
@@ -176,7 +176,7 @@ class AXIREGISTER(Module):
             o_m_axi_awprot   = m_axi.aw.prot,
             o_m_axi_awqos     = m_axi.aw.qos,
             o_m_axi_awregion  = m_axi.aw.region,
-            o_m_axi_awuser    = m_axi.aw.user, #FIXME
+            o_m_axi_awuser    = m_axi.aw.user,
             o_m_axi_awvalid  = m_axi.aw.valid,
             i_m_axi_awready  = m_axi.aw.ready,
 
@@ -184,14 +184,14 @@ class AXIREGISTER(Module):
             o_m_axi_wdata    = m_axi.w.data,
             o_m_axi_wstrb    = m_axi.w.strb,
             o_m_axi_wlast    = m_axi.w.last,
-            o_m_axi_wuser    = m_axi.w.user, #FIXME
+            o_m_axi_wuser    = m_axi.w.user,
             o_m_axi_wvalid   = m_axi.w.valid,
             i_m_axi_wready   = m_axi.w.ready,
 
             # B.
             i_m_axi_bid      = m_axi.b.id,
             i_m_axi_bresp    = m_axi.b.resp,
-            i_m_axi_buser    = m_axi.b.user, #FIXME
+            i_m_axi_buser    = m_axi.b.user,
             i_m_axi_bvalid   = m_axi.b.valid,
             o_m_axi_bready   = m_axi.b.ready,
 
@@ -206,7 +206,7 @@ class AXIREGISTER(Module):
             o_m_axi_arprot   = m_axi.ar.prot,
             o_m_axi_arqos    = m_axi.ar.qos,
             o_m_axi_arregion = m_axi.ar.region,
-            o_m_axi_aruser   = m_axi.ar.user, #FIXME
+            o_m_axi_aruser   = m_axi.ar.user,
             o_m_axi_arvalid  = m_axi.ar.valid,
             i_m_axi_arready  = m_axi.ar.ready,
 
@@ -215,7 +215,7 @@ class AXIREGISTER(Module):
             i_m_axi_rdata    = m_axi.r.data,
             i_m_axi_rresp    = m_axi.r.resp,
             i_m_axi_rlast    = m_axi.r.last,
-            i_m_axi_ruser    = m_axi.r.user, #FIXME
+            i_m_axi_ruser    = m_axi.r.user,
             i_m_axi_rvalid   = m_axi.r.valid,
             o_m_axi_rready   = m_axi.r.ready,
 
