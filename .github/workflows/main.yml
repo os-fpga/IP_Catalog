@@ -60,11 +60,11 @@ jobs:
 
     - name: Test IP Generation
       run: |
-        echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/lib:"$PYTHONPATH" >> $GITHUB_ENV
-        echo 'PATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/bin:"$PATH" >> $GITHUB_ENV
+        echo PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/lib:"$PYTHONPATH" >> $GITHUB_ENV
+        echo PATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/bin:"$PATH" >> $GITHUB_ENV
         echo $HOME
         echo $PYTHONPATH
-        echo $HOME
+        echo $PATH
         tree $GITHUB_WORKSPACE
         python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
         tree ./ip_build/rapidsilicon/ip/axi_dpram/ -L 4
