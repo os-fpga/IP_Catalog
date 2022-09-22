@@ -58,8 +58,8 @@ jobs:
         cmake ./../CMakeLists.txt  
         echo 'PYTHONPATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/lib:"$PYTHONPATH" >> $GITHUB_ENV
         echo 'PATH=/home/runner/work/IP_Catalog/IP_Catalog/ip_dependencies/bin:"$PATH" >> $GITHUB_ENV
-        echo $PYTHONPATH
         echo $HOME
+        echo $PYTHONPATH
 
 
     - name: Test IP Generation
