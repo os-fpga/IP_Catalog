@@ -63,7 +63,7 @@ jobs:
         #export PYTHONPATH=$GITHUB_WORKSPACE/build/migen:$GITHUB_WORKSPACE/build/litex:"$PYTHONPATH"
         ls $GITHUB_WORKSPACE/build/ip_dependencies/*
         export PATH=$GITHUB_WORKSPACE/build/ip_dependencies/bin:"$PATH"
-        echo ”Python path hee"
+        echo "Python path here"
         echo $PYTHONPATH
         tree $GITHUB_WORKSPACE
         python3 ./RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
