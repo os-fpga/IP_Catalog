@@ -61,7 +61,7 @@ jobs:
       run: |
         export PYTHONPATH=$GITHUB_WORKSPACE/build/ip_dependencies:$PYTHONPATH
         #export PYTHONPATH=$GITHUB_WORKSPACE/build/migen:$GITHUB_WORKSPACE/build/litex:"$PYTHONPATH"
-        export PYTHONPATH=$GITHUB_WORKSPACE/build/litex:"$PYTHONPATH"
+        export PYTHONPATH=$GITHUB_WORKSPACE/litex:"$PYTHONPATH"
         export PATH=$GITHUB_WORKSPACE/build/ip_dependencies/bin:"$PATH"
         echo Python path here
         echo $PYTHONPATH
