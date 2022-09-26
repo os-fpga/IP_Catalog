@@ -31,15 +31,22 @@ project(IP_Catalog)
 
 message(${PROJECT_SOURCE_DIR})
 
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../build/bin/raptor)
-    message(STATUS "IP_Catalog installation will start once Raptor.exe has been created")
-else ()
-    message(STATUS "IP_Catalog installation started")
-    find_package(Python COMPONENTS Interpreter REQUIRED)
-    message(${PROJECT_SOURCE_DIR})
-#    execute_process(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/share)
-#    execute_process(COMMAND cp -R ${PROJECT_SOURCE_DIR}/ ${CMAKE_INSTALL_PREFIX}/share)
-#    message(STATUS "Copy IP_Catalog files to ${CMAKE_INSTALL_PREFIX}/share")
-#    execute_process(COMMAND python3 IP_Catalog_setup.py --dev --install WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
-    message(STATUS "IP_Catalog installation completed")
-endif ()
+message(STATUS "IP_Catalog installation started")
+find_package(Python COMPONENTS Interpreter REQUIRED)
+    
+execute_process(COMMAND bash ${PROJECT_SOURCE_DIR}/gen_venv.sh -w ${CMAKE_CURRENT_BINARY_DIR} -s build) 
+message(STATUS "IP_Catalog installation completed")
+
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/share/envs
+                        DESTINATION share
+                        )
+#TODO
+set(install_path ${CMAKE_INSTALL_PREFIX})                     
+
+install( CODE 
+                "
+message(STATUS \"${install_path} Ruuning at installtion time\")
+execute_process(COMMAND  bash ${PROJECT_SOURCE_DIR}/gen_venv.sh -w ${CMAKE_INSTALL_PREFIX} -s install)
+
+        "
+)
