@@ -84,7 +84,7 @@ jobs:
           yum remove -y git*
           yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
           yum install -y git
-          yum install -y python3
+          yum install -y python3 which
           python3 -m pip install --upgrade pip
           python3 -m pip install pipenv
           curl -C - -O https://cmake.org/files/v3.15/cmake-3.15.7-Linux-x86_64.tar.gz
