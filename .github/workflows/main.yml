@@ -23,9 +23,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        submodules: recursive
         fetch-depth: 0
-
+    - name: Clone Raptor_Tools
+      run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git submodule update --init Raptor_Tools
+          ls Raptor_Tools
+          exit 1
+          
     - name: Install dependencies
       run: 
         sudo apt-get update
