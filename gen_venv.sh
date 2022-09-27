@@ -58,7 +58,7 @@ fi
 # stage is install
 if [ $point == "install" ]
 then
-echo "directory is $w_dir"
-cd $w_dir/../share/envs/litex && echo "$(pwd)" > .venv
+echo "Install directory is $w_dir"
+cd $w_dir/share/envs/litex && echo "$(pwd)" > .venv
 fi
 
