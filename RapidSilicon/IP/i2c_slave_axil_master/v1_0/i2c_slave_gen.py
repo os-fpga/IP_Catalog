@@ -63,9 +63,8 @@ class I2CSLAVEWrapper(Module):
         self.comb += axil.connect_to_pads(platform.request("m_axil"), mode="master")
 
         # I2C_SLAVE ----------------------------------------------------------------------------------
-        self.submodules.i2c_slave = i2c_slave = I2CSLAVE(platform, axil,
-            data_width    = data_width,
-            addr_width    = addr_width,
+        self.submodules.i2c_slave = i2c_slave = I2CSLAVE(platform, 
+            m_axil        = axil,
             filter_len    = filter_len
             )
         
