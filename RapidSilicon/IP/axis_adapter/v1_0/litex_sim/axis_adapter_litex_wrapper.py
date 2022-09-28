@@ -4,7 +4,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axis_adapter
+# LiteX wrapper around RapidSilicon axis_adapter.v
 
 from math import ceil
 import os
@@ -19,35 +19,30 @@ logging.basicConfig(level=logging.INFO)
 # AXIS_ADAPTER ---------------------------------------------------------------------------------------
 class AXISADAPTER(Module):
     def __init__(self, platform, s_axis, m_axis,
-        s_data_width    = 8,
-        m_data_width    = 8,
-        id_en           = False,
-        id_width        = 8,
-        dest_en         = False,
-        dest_width      = 8,
-        user_en         = True,
-        user_width      = 1       
+        id_en           = 0,
+        dest_en         = 0,
+        user_en         = 1,
     ):
         self.logger = logging.getLogger("AXIS_ADAPTER")
 
-        # Data
+        # Data Width
         s_data_width = len(s_axis.data)
         self.logger.info(f"S_DATA_WIDTH     : {s_data_width}")
         
         m_data_width = len(m_axis.data)
         self.logger.info(f"M_DATA_WIDTH     : {m_data_width}")
         
-        # ID 
+        # ID Width
         self.logger.info(f"ID_ENABLE        : {id_en}")
         id_width = len(s_axis.id)
         self.logger.info(f"ID Width         : {id_width}")
         
-        # Destination
+        # Destination Width
         self.logger.info(f"DEST_ENABLE      : {dest_en}")
         dest_width = len(s_axis.dest)
         self.logger.info(f"DEST_WIDTH       : {dest_width}")
         
-        # User
+        # User Width
         self.logger.info(f"USER_ENABLE      : {user_en}")
         user_width = len(s_axis.user)
         self.logger.info(f"USER_WIDTH       : {user_width}")
@@ -68,11 +63,10 @@ class AXISADAPTER(Module):
             p_USER_ENABLE       = user_en, 
             p_USER_WIDTH        = user_width,
 
-
             # Clk / Rst.
             # ----------
-            i_clk = ClockSignal(),
-            i_rst = ResetSignal(),
+            i_clk               = ClockSignal(),
+            i_rst               = ResetSignal(),
 
             # AXI Input
             # --------------------
