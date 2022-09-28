@@ -34,13 +34,14 @@ class AXIFIFOWrapper(Module):
                 w_user_en, w_user_width, b_user_en, b_user_width, ar_user_en, ar_user_width,
                 r_user_en, r_user_width, write_fifo_depth, read_fifo_depth, write_fifo_delay, 
                 read_fifo_delay):
-        # Clocking ---------------------------------------------------------------------------------
+        
+        # Clocking 
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
-        # AXI ----------------------------------------------------------------------------------
+        # AXI 
         axi = AXIInterface(
             data_width      = data_width,
             address_width   = addr_width,
@@ -58,7 +59,7 @@ class AXIFIFOWrapper(Module):
         platform.add_extension(axi.get_ios("m_axi"))
         self.comb += axi.connect_to_pads(platform.request("m_axi"), mode="master")
 
-        # AXI FIFO ----------------------------------------------------------------------------------
+        # AXI FIFO 
         self.submodules += AXIFIFO(platform, 
             s_axi               = axi,
             m_axi               = axi,
