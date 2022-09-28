@@ -32,6 +32,7 @@ def get_clkin_ios():
 # AXI-DPRAM Wrapper --------------------------------------------------------------------------------
 class AXIDPRAMWrapper(Module):
     def __init__(self, platform, data_width, addr_width, id_width, a_pip_out, b_pip_out, a_interleave, b_interleave):
+        
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("a_clk"))
@@ -39,31 +40,33 @@ class AXIDPRAMWrapper(Module):
         self.comb += self.cd_sys.clk.eq(platform.request("b_clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("b_rst"))
         
-        # AXI-------------------------------------------------------------
+        # AXI
         s_axi_a = AXIInterface(
             data_width      = data_width,
             address_width   = addr_width,
             id_width        = id_width,
         )
+        
         s_axi_b = AXIInterface(
             data_width      = data_width,
             address_width   = addr_width,
             id_width        = id_width,
         )
+        
         platform.add_extension(s_axi_a.get_ios("s_axi_a"))
-        platform.add_extension(s_axi_b.get_ios("s_axi_b"))
         self.comb += s_axi_a.connect_to_pads(platform.request("s_axi_a"), mode="slave")
+        
+        platform.add_extension(s_axi_b.get_ios("s_axi_b"))
         self.comb += s_axi_b.connect_to_pads(platform.request("s_axi_b"), mode="slave")
         
-        # AXI-DPRAM -----------------------------------------------------
+        # AXI-DPRAM -------------------------------------------------------------------------------
         self.submodules += AXIDPRAM(platform, s_axi_a, s_axi_b, 
-                                    a_pipeline_output   =   a_pip_out, 
-                                    b_pipeline_output   =   b_pip_out, 
-                                    a_interleave        =   a_interleave, 
-                                    b_interleave        =   b_interleave, 
-                                    size                =   (2**addr_width)*(data_width/8)
-                                    )
-
+            a_pipeline_output   =   a_pip_out, 
+            b_pipeline_output   =   b_pip_out, 
+            a_interleave        =   a_interleave, 
+            b_interleave        =   b_interleave, 
+            size                =   (2**addr_width)*(data_width/8)
+            )
 
 # Build --------------------------------------------------------------------------------------------
 def main():

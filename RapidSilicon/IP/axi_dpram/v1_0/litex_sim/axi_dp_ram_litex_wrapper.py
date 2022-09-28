@@ -4,7 +4,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axi_dp_ram
+# LiteX wrapper around RapidSilicon axi_dp_ram.v
 
 import os
 import logging
@@ -19,16 +19,15 @@ logging.basicConfig(level=logging.INFO)
 
 class AXIDPRAM(Module):
     def __init__(self, platform, s_axi_a, s_axi_b, size=0x1000,
-        a_pipeline_output = False,
-        a_interleave      = False,
-        b_pipeline_output = False,
-        b_interleave      = False,
+        a_pipeline_output = 0,
+        a_interleave      = 0,
+        b_pipeline_output = 0,
+        b_interleave      = 0,
     ):
         self.logger = logging.getLogger("AXI_DPRAM")
 
-        # Get/Check Parameters.
+        # Get Parameters.
         # ---------------------
-
         # Clock Domain.
         self.logger.info(f"Clock Domain A   : {s_axi_a.clock_domain}")
         self.logger.info(f"Clock Domain B   : {s_axi_b.clock_domain}")
@@ -56,14 +55,13 @@ class AXIDPRAM(Module):
 
         # Module instance.
         # ----------------
-
         self.specials += Instance("axi_dp_ram",
             # Parameters.
             # -----------
             # Global.
-            p_DATA_WIDTH = data_width,
-            p_ADDR_WIDTH = address_width,
-            p_ID_WIDTH   = id_width,
+            p_DATA_WIDTH        = data_width,
+            p_ADDR_WIDTH        = address_width,
+            p_ID_WIDTH          = id_width,
 
             # Pipeline/Interleave.
             p_A_PIPELINE_OUTPUT = a_pipeline_output,
@@ -72,11 +70,10 @@ class AXIDPRAM(Module):
             p_B_INTERLEAVE      = b_interleave,
 
             # Clk / Rst.
-            # ----------
-            i_a_clk = ClockSignal(),
-            i_a_rst = ResetSignal(),
-            i_b_clk = ClockSignal(),
-            i_b_rst = ResetSignal(),
+            i_a_clk            = ClockSignal(),
+            i_a_rst            = ResetSignal(),
+            i_b_clk            = ClockSignal(),
+            i_b_rst            = ResetSignal(),
 
             # AXI Slave Interface.
             # --------------------
