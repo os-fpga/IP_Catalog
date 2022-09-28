@@ -5,7 +5,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon i2c_slave
+# LiteX wrapper around RapidSilicon i2c_slave_axil_master.v
 
 import os
 import logging
@@ -19,13 +19,15 @@ logging.basicConfig(level=logging.INFO)
 # I2C_SLAVE  -------------------------------------------------------------------------------------
 
 class I2CSLAVE(Module):
-    def __init__(self, platform, m_axil, data_width, addr_width, filter_len):
+    def __init__(self, platform, m_axil, filter_len):
         self.logger = logging.getLogger("I2C_SLAVE")
         
         # DATA_WIDTH
+        data_width = len(m_axil.w.data)
         self.logger.info(f"DATA_WIDTH     : {data_width}")
         
         # ADDRESS_WIDTH
+        addr_width = len(m_axil.aw.addr)
         self.logger.info(f"ADDRESS_WIDTH  : {addr_width}")
         
         # FILTER_LENGTH
