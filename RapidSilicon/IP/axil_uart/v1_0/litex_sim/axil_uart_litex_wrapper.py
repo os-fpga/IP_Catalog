@@ -5,7 +5,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axil_uart
+# LiteX wrapper around RapidSilicon axi4lite_uart_top.v
 
 import os
 import logging
