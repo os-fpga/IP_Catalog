@@ -29,39 +29,39 @@ def get_clkin_ios():
         ("rst", 0, Pins(1))
     ]
 
-def get_axis_ios():
+def get_axis_ios(axi_addr_width, len_width, axi_id_width, tag_width, axis_dest_width, axis_user_width):
     return [
         ("s_axis_read_desc", 0,
-            Subsignal("addr",   Pins(1)), #FIXME
-            Subsignal("len",    Pins(1)), #FIXME
-            Subsignal("tag",    Pins(1)), #FIXME
-            Subsignal("id",     Pins(1)), #FIXME
-            Subsignal("dest",   Pins(1)), #FIXME
-            Subsignal("user",   Pins(1)), #FIXME
+            Subsignal("addr",   Pins(axi_addr_width)), 
+            Subsignal("len",    Pins(len_width)),
+            Subsignal("tag",    Pins(tag_width)), 
+            Subsignal("id",     Pins(axi_id_width)), 
+            Subsignal("dest",   Pins(axis_dest_width)), 
+            Subsignal("user",   Pins(axis_user_width)),
             Subsignal("valid",  Pins(1)),
             Subsignal("ready",  Pins(1))
         ),
         
         ("m_axis_read_desc_status", 0,
-            Subsignal("tag",    Pins(1)), #FIXME
-            Subsignal("error",  Pins(1)),
+            Subsignal("tag",    Pins(tag_width)), 
+            Subsignal("error",  Pins(4)),
             Subsignal("valid",  Pins(1))
         ),
         
         ("s_axis_write_desc", 0,
-            Subsignal("addr",   Pins(1)), #FIXME
-            Subsignal("len",    Pins(1)), #FIXME
-            Subsignal("tag",    Pins(1)), #FIXME
+            Subsignal("addr",   Pins(axi_addr_width)), 
+            Subsignal("len",    Pins(len_width)), 
+            Subsignal("tag",    Pins(tag_width)), 
             Subsignal("valid",  Pins(1)),
             Subsignal("ready",  Pins(1))
         ),
         
         ("m_axis_write_desc_status", 0,
-            Subsignal("len",    Pins(1)), #FIXME
-            Subsignal("tag",    Pins(1)), #FIXME
-            Subsignal("id",     Pins(1)), #FIXME
-            Subsignal("dest",   Pins(1)), #FIXME
-            Subsignal("user",   Pins(1)), #FIXME
+            Subsignal("len",    Pins(len_width)), 
+            Subsignal("tag",    Pins(tag_width)), 
+            Subsignal("id",     Pins(axi_id_width)), 
+            Subsignal("dest",   Pins(axis_dest_width)), 
+            Subsignal("user",   Pins(axis_user_width)), 
             Subsignal("error",  Pins(4)),
             Subsignal("valid",  Pins(1))
         ),
@@ -82,7 +82,7 @@ class AXIDMAWrapper(Module):
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         
-        # AXI-------------------------------------------------------------
+        # AXI
         axi = AXIInterface(
             data_width      = axi_data_width,
             address_width   = axi_addr_width,
@@ -94,15 +94,16 @@ class AXIDMAWrapper(Module):
             dest_width      = axis_dest_width,
             id_width        = axis_id_width
         )
-
-        platform.add_extension(axi.get_ios("m_axi"))
-        platform.add_extension(axis.get_ios("m_axis"))
-        platform.add_extension(axis.get_ios("s_axis"))
         
+        platform.add_extension(axi.get_ios("m_axi"))
         self.comb += axi.connect_to_pads(platform.request("m_axi"), mode="master")
+        
+        platform.add_extension(axis.get_ios("m_axis"))
         self.comb += axis.connect_to_pads(platform.request("m_axis"), mode="master")
+        
+        platform.add_extension(axis.get_ios("s_axis"))
         self.comb += axis.connect_to_pads(platform.request("s_axis"), mode="slave")
-
+        
         # AXI_DMA
         self.submodules.dma = dma = AXIDMA(platform, 
             m_axi               = axi, 
@@ -119,7 +120,8 @@ class AXIDMAWrapper(Module):
             enable_unaligned    = enable_unaligned
             )
         
-        platform.add_extension(get_axis_ios())
+        # Non-Stnadard IOs
+        platform.add_extension(get_axis_ios(axi_addr_width, len_width, axi_id_width, tag_width, axis_dest_width, axis_user_width))
         s_desc_pads = platform.request("s_axis_read_desc")
         self.comb += [
             dma.s_axis_read_desc_addr.eq(s_desc_pads.addr),
