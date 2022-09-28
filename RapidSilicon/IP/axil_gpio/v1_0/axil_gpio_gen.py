@@ -26,7 +26,13 @@ def get_clkin_ios ():
         ("clk", 0, Pins(1)),
         ("rst", 0, Pins(1)),
     ]
-    
+
+def get_gpio_ios(data_width):
+    return [
+        ("gpin",    0, Pins(data_width)),
+        ("gpout",   0, Pins(data_width)),
+        ("int",     0, Pins(1)),
+    ]
     
 # AXI-LITE-GPIO Wrapper --------------------------------------------------------------------------------
 class AXILITEGPIOWrapper(Module):
@@ -37,7 +43,7 @@ class AXILITEGPIOWrapper(Module):
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         
-        # AXI-LITE -------------------------------------------------------------
+        # AXI-LITE 
         axil = AXILiteInterface(
             data_width      = data_width,
             address_width   = addr_width
@@ -45,11 +51,17 @@ class AXILITEGPIOWrapper(Module):
         platform.add_extension(axil.get_ios("axil"))
         self.comb += axil.connect_to_pads(platform.request("axil"), mode="slave")
 
-        # AXI-LITE-GPIO ----------------------------------------------------------------------------------
-        self.submodules += AXILITEGPIO(platform, axil, 
+        # AXI-LITE-GPIO 
+        self.submodules.gpio = gpio = AXILITEGPIO(platform, axil, 
             address_width   = addr_width, 
             data_width      = data_width
             )
+        
+        # Non Standard IOs
+        platform.add_extension(get_gpio_ios(data_width))
+        self.comb += gpio.gpin.eq(platform.request("gpin"))
+        self.comb += platform.request("gpout").eq(gpio.gpout)
+        self.comb += platform.request("int").eq(gpio.int)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
