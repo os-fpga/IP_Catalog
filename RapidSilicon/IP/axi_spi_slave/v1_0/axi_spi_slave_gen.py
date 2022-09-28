@@ -59,18 +59,20 @@ class AXISPISLAVEWrapper(Module):
         axi = AXIInterface(
             data_width      = data_width,
             address_width   = addr_width,
-            id_width        = id_width
+            id_width        = id_width,
+            aw_user_width   = user_width,
+            w_user_width    = user_width,
+            b_user_width    = user_width,
+            ar_user_width   = user_width,
+            r_user_width    = user_width,
         )
         
         platform.add_extension(axi.get_ios("axi_master"))
         self.comb += axi.connect_to_pads(platform.request("axi_master"), mode="master")
 
         # AXI SPI SLAVE -----------------------------------------------------------------------
-        self.submodules.spi_slave = spi_slave = AXISPISLAVE(platform, axi,
-            data_width      = data_width,
-            addr_width      = addr_width,
-            user_width      = user_width,
-            id_width        = id_width,
+        self.submodules.spi_slave = spi_slave = AXISPISLAVE(platform, 
+            m_axi           = axi,
             dummy_cycles    = dummy_cycles
             )
         
