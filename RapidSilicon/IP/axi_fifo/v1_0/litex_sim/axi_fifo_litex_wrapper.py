@@ -4,7 +4,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axi_fifo
+# LiteX wrapper around RapidSilicon axi_fifo.v
 
 import os
 import logging
@@ -18,28 +18,23 @@ logging.basicConfig(level=logging.INFO)
 # AXI_FIFO ---------------------------------------------------------------------------------------
 class AXIFIFO(Module):
     def __init__(self, platform, s_axi, m_axi, 
-        aw_user_en          = False,
-        aw_user_width       = False,
-        w_user_en           = False,
-        w_user_width        = False,
-        b_user_en           = False,
-        b_user_width        = False,
-        ar_user_en          = False,
-        ar_user_width       = False,
-        r_user_en           = False, 
-        r_user_width        = False,
-        write_fifo_depth    = False,
-        read_fifo_depth     = False,
-        write_fifo_delay    = False,
-        read_fifo_delay     = False  
+        aw_user_en          = 0,
+        w_user_en           = 0,
+        b_user_en           = 0,
+        ar_user_en          = 0,
+        r_user_en           = 0, 
+        write_fifo_depth    = 0,
+        read_fifo_depth     = 0,
+        write_fifo_delay    = 0,
+        read_fifo_delay     = 0  
     ):
         self.logger = logging.getLogger("AXI_FIFO")
         
-        # Clock Domain.
+        # Get Parameters.
+        # --------------
         clock_domain = s_axi.clock_domain
         self.logger.info(f"Clock Domain     : {clock_domain}")
 
-        # Parameters
         data_width = len(s_axi.w.data)
         self.logger.info(f"DATA_WIDTH       : {data_width}")
         
@@ -99,9 +94,8 @@ class AXIFIFO(Module):
             p_READ_FIFO_DELAY   = read_fifo_delay,
 
             # Clk / Rst.
-            # ----------
-            i_clk = ClockSignal(),
-            i_rst = ResetSignal(),
+            i_clk               = ClockSignal(),
+            i_rst               = ResetSignal(),
 
             # AXI Input
             # --------------------
