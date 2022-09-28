@@ -32,7 +32,7 @@ jobs:
           
     - name: Install dependencies
       run: 
-        bash .github/ubuntu_install_dep.sh
+        bash .github/install_ubuntu_dependencies_build.sh
 
     - name: Show shell configuration
       run: |
@@ -102,7 +102,7 @@ jobs:
 
       - name: Install GCC & CMake
         run:
-            bash .github/cnetos_install_dep.sh 
+            bash .github/install_centos_dependencies_build.sh 
 
       - name: Show shell configuration
         run: |
