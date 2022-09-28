@@ -4,7 +4,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axi_register
+# LiteX wrapper around RapidSilicon axi_register.v
 
 import os
 import logging
@@ -18,23 +18,16 @@ logging.basicConfig(level=logging.INFO)
 # AXI DP RAM ---------------------------------------------------------------------------------------
 class AXIREGISTER(Module):
     def __init__(self, platform, s_axi, m_axi, size=1024,
-        aw_user_width       = False,
-        w_user_width        = False,
-        b_user_width        = False,
-        ar_user_width       = False,
-        r_user_width        = False,
-        
-        aw_reg_type         = False,
-        w_reg_type          = False,
-        b_reg_type          = False,
-        ar_reg_type         = False,
-        r_reg_type          = False
+        aw_reg_type         = 1,
+        w_reg_type          = 2,
+        b_reg_type          = 1,
+        ar_reg_type         = 1,
+        r_reg_type          = 2
     ):
         self.logger = logging.getLogger("AXI_REGISTER")
 
-        # Get/Check Parameters.
+        # Get Parameters.
         # ---------------------
-
         # Clock Domain.
         self.logger.info(f"Clock Domain   : {s_axi.clock_domain}")
 
@@ -53,7 +46,7 @@ class AXIREGISTER(Module):
         id_width = len(s_axi.aw.id)
         self.logger.info(f"ID Width       : {id_width}")
 
-        # Channels User Width
+        # AXI Channels User Width
         aw_user_width = len(s_axi.aw.user)
         self.logger.info(f"AWUSER_WIDTH   : {aw_user_width}")
         
@@ -78,7 +71,6 @@ class AXIREGISTER(Module):
 
         # Module instance.
         # ----------------
-
         self.specials += Instance("axi_register",
             # Parameters.
             # -----------
@@ -87,7 +79,7 @@ class AXIREGISTER(Module):
             p_ADDR_WIDTH        = address_width,
             p_ID_WIDTH          = id_width,
 
-            # Channels Width
+            # AXI Channels User Width
             p_AWUSER_WIDTH      = aw_user_width,
             p_WUSER_WIDTH       = w_user_width,
             p_BUSER_WIDTH       = b_user_width,
@@ -103,8 +95,8 @@ class AXIREGISTER(Module):
 
             # Clk / Rst.
             # ----------
-            i_clk = ClockSignal(),
-            i_rst = ResetSignal(),
+            i_clk            = ClockSignal(),
+            i_rst            = ResetSignal(),
 
             # AXI Slave Interface.
             # --------------------
@@ -174,9 +166,9 @@ class AXIREGISTER(Module):
             o_m_axi_awlock   = m_axi.aw.lock,
             o_m_axi_awcache  = m_axi.aw.cache,
             o_m_axi_awprot   = m_axi.aw.prot,
-            o_m_axi_awqos     = m_axi.aw.qos,
-            o_m_axi_awregion  = m_axi.aw.region,
-            o_m_axi_awuser    = m_axi.aw.user,
+            o_m_axi_awqos    = m_axi.aw.qos,
+            o_m_axi_awregion = m_axi.aw.region,
+            o_m_axi_awuser   = m_axi.aw.user,
             o_m_axi_awvalid  = m_axi.aw.valid,
             i_m_axi_awready  = m_axi.aw.ready,
 
