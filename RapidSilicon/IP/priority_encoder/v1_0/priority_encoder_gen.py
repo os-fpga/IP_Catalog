@@ -8,6 +8,7 @@ import json
 import argparse
 import shutil
 import logging
+import math
 
 from litex_sim.priority_encoder_litex_wrapper import PRIORITYENCODER
 
@@ -25,17 +26,18 @@ def get_clkin_ios():
         ("rst",  0, Pins(1))
     ]
 
-def get_other_ios():
+def get_other_ios(width):
         return [
-            ("input_unencoded",  0, Pins(1)), #FIXME
-            ("output_valid",     0, Pins(1)), #FIXME
-            ("output_encoded",   0, Pins(1)), #FIXME
-            ("output_unencoded", 0, Pins(1)), #FIXME
+            ("input_unencoded",  0, Pins(width)), 
+            ("output_valid",     0, Pins(1)), 
+            ("output_encoded",   0, Pins(math.ceil(math.log2(width)))), 
+            ("output_unencoded", 0, Pins(width)), 
         ]
 
 # PRIORITY_ENCODER Wrapper ----------------------------------------------------------------------------------
 class PRIORITYENCODERWrapper(Module):
     def __init__(self, platform, width, lsb_high_priority):
+        
         self.clock_domains.cd_sys  = ClockDomain()
         
         # PRIORITY_ENCODER ----------------------------------------------------------------------------------
@@ -45,12 +47,11 @@ class PRIORITYENCODERWrapper(Module):
             )
         
         # IOS 
-        platform.add_extension(get_other_ios())
+        platform.add_extension(get_other_ios(width))
         self.comb += priority_encoder.input_unencoded.eq(platform.request("input_unencoded"))
         self.comb += platform.request("output_valid").eq(priority_encoder.output_valid)
         self.comb += platform.request("output_encoded").eq(priority_encoder.output_encoded)
         self.comb += platform.request("output_unencoded").eq(priority_encoder.output_unencoded)
-        
         
 
 # Build --------------------------------------------------------------------------------------------
