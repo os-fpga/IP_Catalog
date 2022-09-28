@@ -26,21 +26,23 @@ def get_clkin_ios():
         ("clk", 0, Pins(1)),
         ("rst", 0, Pins(1))]
 
-def get_axis_ios():
+def get_axis_ios(addr_width, len_width, tag_width):
     return [
         ("s_axis_desc", 0,
-            Subsignal("read_addr",  Pins(1)), #FIXME
-            Subsignal("write_addr", Pins(1)), #FIXME
-            Subsignal("len",        Pins(1)), #FIXME
-            Subsignal("tag",        Pins(1)), #FIXME
+            Subsignal("read_addr",  Pins(addr_width)),
+            Subsignal("write_addr", Pins(addr_width)),
+            Subsignal("len",        Pins(len_width)),
+            Subsignal("tag",        Pins(tag_width)),
             Subsignal("valid",      Pins(1)),
             Subsignal("ready",      Pins(1))
         ),
+        
         ("m_axis_desc_status", 0,
-            Subsignal("tag",        Pins(1)), #FIXME
+            Subsignal("tag",        Pins(tag_width)),
             Subsignal("error",      Pins(4)),
             Subsignal("valid",      Pins(1))
         ),
+        
         ("enable",  0, Pins(1))
     ]
 
@@ -53,7 +55,7 @@ class AXICDMAWrapper(Module):
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
-        # AXI-------------------------------------------------------------
+        # AXI
         axi = AXIInterface(
             data_width      = data_width,
             address_width   = addr_width,
@@ -71,7 +73,8 @@ class AXICDMAWrapper(Module):
             enable_unaligned    =  enable_unaligned
             )
 
-        platform.add_extension(get_axis_ios())
+        # Non-Stnadard IOs
+        platform.add_extension(get_axis_ios(addr_width, len_width, tag_width))
         s_desc_pads = platform.request("s_axis_desc")
         self.comb += [
             cdma.s_axis_desc_read_addr.eq(s_desc_pads.read_addr),
