@@ -4,7 +4,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axis_pipeline_register
+# LiteX wrapper around RapidSilicon axis_pipeline_register.v
 
 import os
 import logging
@@ -18,15 +18,12 @@ logging.basicConfig(level=logging.INFO)
 # AXIS_PIPELINE_REGISTER ---------------------------------------------------------------------------------------
 class AXISPIPELINEREGISTER(Module):
     def __init__(self, platform, s_axis, m_axis,
-        last_en         = False,
-        id_en           = False,
-        id_width        = False,
-        dest_en         = False,
-        dest_width      = False,
-        user_en         = False,
-        user_width      = False,
-        reg_type        = False,
-        length          = False        
+        last_en         = 1,
+        id_en           = 0,
+        dest_en         = 0,
+        user_en         = 1,
+        reg_type        = 2,
+        length          = 2        
     ):
         self.logger = logging.getLogger("AXIS_PIPELINE_REGISTER")
 
@@ -75,8 +72,8 @@ class AXISPIPELINEREGISTER(Module):
 
             # Clk / Rst.
             # ----------
-            i_clk = ClockSignal(),
-            i_rst = ResetSignal(),
+            i_clk               = ClockSignal(),
+            i_rst               = ResetSignal(),
 
             # AXI Input
             # --------------------
