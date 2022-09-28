@@ -4,7 +4,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axil_gpio
+# LiteX wrapper around RapidSilicon axi4lite_gpio.sv
 
 import os
 import logging
@@ -19,14 +19,11 @@ class AXILITEGPIO(Module):
     def __init__(self, platform, s_axil, data_width, address_width):
         self.logger = logging.getLogger("AXI_LITE_GPIO")
 
+        # Get Parameters
+        # --------------
         # Clock Domain.
         clock_domain = s_axil.clock_domain
         self.logger.info(f"Clock Domain     : {clock_domain}")
-        
-        # GPIO
-        self.gpin  = Signal(data_width)
-        self.gpout = Signal(data_width)
-        self.int   = Signal()
         
         # Data width.
         data_width = len(s_axil.w.data)
@@ -36,9 +33,13 @@ class AXILITEGPIO(Module):
         address_width = len(s_axil.aw.addr)
         self.logger.info(f"Address Width    : {address_width}")
         
+        # GPIO
+        self.gpin  = Signal(data_width)
+        self.gpout = Signal(data_width)
+        self.int   = Signal()
+        
         # Module instance.
         # ----------------
-
         self.specials += Instance("axi4lite_gpio",
             # Parameters.
             # -----------
@@ -50,7 +51,7 @@ class AXILITEGPIO(Module):
             i_CLK      = ClockSignal(clock_domain),
             i_RSTN     = ResetSignal(clock_domain),
             
-            # GPIOS
+            # GPIO
             i_GPIN     = self.gpin,
             o_GPOUT    = self.gpout,
             o_INT      = self.int,
