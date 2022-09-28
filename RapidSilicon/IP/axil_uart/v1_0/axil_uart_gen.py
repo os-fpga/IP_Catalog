@@ -24,8 +24,8 @@ from litex.soc.interconnect.axi import AXILiteInterface
 
 def get_clkin_ios():
     return [
-        ("clk",  0, Pins(1)),
-        ("rst",  0, Pins(1)),
+        ("s_axi_aclk",      0, Pins(1)),
+        ("s_axi_aresetn",   0, Pins(1)),
     ]
     
 def get_uart_ios():
@@ -48,8 +48,8 @@ class AXILITEUARTWrapper(Module):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("s_axi_aclk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("s_axi_aresetn"))
 
         # AXI LITE --------------------------------------------------------------------------------------
         axil = AXILiteInterface(
