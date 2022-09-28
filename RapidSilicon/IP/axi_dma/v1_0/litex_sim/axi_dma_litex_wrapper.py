@@ -16,25 +16,22 @@ from litex.soc.interconnect.axi import *
 logging.basicConfig(level=logging.INFO)
 
 # AXI DMA ---------------------------------------------------------------------------------------
-
 class AXIDMA(Module):
     def __init__(self, platform, m_axi, m_axis, s_axis,
-        axi_max_burst_len   = False,
-        axis_last_enable    = False,
-        axis_id_enable      = False,
-        axis_dest_enable    = False,
-        axis_user_enable    = False,
-        len_width           = False,
-        tag_width           = False,
-        enable_sg           = False,
-        enable_unaligned    = False,
+        axi_max_burst_len   = 16,
+        axis_last_enable    = 1,
+        axis_id_enable      = 0,
+        axis_dest_enable    = 0,
+        axis_user_enable    = 1,
+        len_width           = 20,
+        tag_width           = 8,
+        enable_sg           = 0,
+        enable_unaligned    = 0,
     ):
         self.logger = logging.getLogger("AXI_DMA")
 
-        # Get/Check Parameters.
+        # Get Parameters.
         # ---------------------
-
-        # Clock Domain.
         self.logger.info(f"Clock Domain         : {m_axi.clock_domain}")
 
         address_width = len(m_axi.aw.addr)
@@ -68,7 +65,7 @@ class AXIDMA(Module):
         self.logger.info(f"ENABLE_SG            : {enable_sg}")
         self.logger.info(f"ENABLE_UNALIGNED     : {enable_unaligned}")
 
-
+        # Non-Stnadard IOs
         self.s_axis_read_desc_addr          = Signal(address_width)
         self.s_axis_read_desc_len           = Signal(len_width)
         self.s_axis_read_desc_tag           = Signal(tag_width)
@@ -92,7 +89,6 @@ class AXIDMA(Module):
         self.write_enable                   = Signal()
         self.write_abort                    = Signal()
 
-
         self.m_axis_write_desc_status_len   = Signal(len_width)
         self.m_axis_write_desc_status_tag   = Signal(tag_width)
         self.m_axis_write_desc_status_id    = Signal(axis_id_width)
@@ -104,15 +100,14 @@ class AXIDMA(Module):
 
         # Module instance.
         # ----------------
-
         self.specials += Instance("axi_dma",
             # Parameters.
             # -----------
             # Global AXI
-            p_AXI_DATA_WIDTH         = axi_data_width,
-            p_AXI_ADDR_WIDTH         = address_width,
-            p_AXI_ID_WIDTH           = axi_id_width,
-            p_AXIS_DATA_WIDTH        = axi_data_width,    
+            p_AXI_DATA_WIDTH      = axi_data_width,
+            p_AXI_ADDR_WIDTH      = address_width,
+            p_AXI_ID_WIDTH        = axi_id_width,
+            p_AXIS_DATA_WIDTH     = axi_data_width,    
 
             # IP Params.
             p_AXI_MAX_BURST_LEN   = axi_max_burst_len,    
@@ -129,9 +124,8 @@ class AXIDMA(Module):
             p_ENABLE_UNALIGNED    = enable_unaligned,    
 
             # Clk / Rst.
-            # ----------
-            i_clk = ClockSignal(m_axi.clock_domain),
-            i_rst = ResetSignal(m_axi.clock_domain),
+            i_clk                               = ClockSignal(m_axi.clock_domain),
+            i_rst                               = ResetSignal(m_axi.clock_domain),
 
             # AXI read descriptor input
             i_s_axis_read_desc_addr             = self.s_axis_read_desc_addr, 
