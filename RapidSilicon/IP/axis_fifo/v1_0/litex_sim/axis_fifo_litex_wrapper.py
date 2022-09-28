@@ -4,7 +4,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axis_fifo
+# LiteX wrapper around RapidSilicon axis_fifo.v
 
 import os
 import logging
@@ -18,40 +18,37 @@ logging.basicConfig(level=logging.INFO)
 # AXIS_FIFO ---------------------------------------------------------------------------------------
 class AXISTREAMFIFO(Module):
     def __init__(self, platform, s_axis, m_axis, 
-        depth           = False,
-        last_en         = False,
-        id_en           = False,
-        id_width        = False,
-        dest_en         = False,
-        dest_width      = False,
-        user_en         = False,
-        user_width      = False,
-        pip_out         = False,
-        frame_fifo      = False,
-        drop_bad_frame  = False,
-        drop_when_full  = False        
+        depth           = 4096,
+        last_en         = 1,
+        id_en           = 0,
+        dest_en         = 0,
+        user_en         = 1,
+        pip_out         = 2,
+        frame_fifo      = 0,
+        drop_bad_frame  = 0,
+        drop_when_full  = 0        
     ):
         self.logger = logging.getLogger("AXI_STREAM_FIFO")
 
         # Depth
         self.logger.info(f"DEPTH            : {depth}")
 
-        # Data
+        # Data Width
         data_width = len(s_axis.data)
         self.logger.info(f"DATA_WIDTH       : {data_width}")
         self.logger.info(f"LAST_ENABLE      : {last_en}")
         
-        # ID 
+        # ID Width
         self.logger.info(f"ID_ENABLE        : {id_en}")
         id_width = len(s_axis.id)
         self.logger.info(f"ID Width         : {id_width}")
         
-        # Destination
+        # Destination Width
         self.logger.info(f"DEST_ENABLE      : {dest_en}")
         dest_width = len(s_axis.dest)
         self.logger.info(f"DEST_WIDTH       : {dest_width}")
         
-        # User
+        # User Width
         self.logger.info(f"USER_ENABLE      : {user_en}")
         user_width = len(s_axis.user)
         self.logger.info(f"USER_WIDTH       : {user_width}")
@@ -91,8 +88,8 @@ class AXISTREAMFIFO(Module):
 
             # Clk / Rst.
             # ----------
-            i_clk = ClockSignal(),
-            i_rst = ResetSignal(),
+            i_clk               = ClockSignal(),
+            i_rst               = ResetSignal(),
 
             # AXI Input
             # --------------------
