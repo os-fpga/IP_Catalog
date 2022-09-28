@@ -4,7 +4,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 # SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around RapidSilicon axi_spi_slave
+# LiteX wrapper around RapidSilicon axi_spi_slave.sv
 
 import os
 import logging
@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 
 # AXI_SPI_SLAVE ---------------------------------------------------------------------------------------
 class AXISPISLAVE(Module):
-    def __init__(self, platform, m_axi, addr_width, data_width, user_width, id_width, dummy_cycles ):
+    def __init__(self, platform, m_axi, dummy_cycles = 32 ):
         
         self.logger = logging.getLogger("AXI_SPI_SLAVE")
         
@@ -32,7 +32,7 @@ class AXISPISLAVE(Module):
         data_width = len(m_axi.r.data)
         self.logger.info(f"AXI_DATA_WIDTH   : {data_width}")
         
-        # user_width = len(m_axi.aw.user)
+        user_width = len(m_axi.aw.user)
         self.logger.info(f"AXI_USER_WIDTH   : {user_width}")
         
         id_width = len(m_axi.b.id)
@@ -85,14 +85,14 @@ class AXISPISLAVE(Module):
             o_axi_master_aw_cache     = m_axi.aw.cache,
             o_axi_master_aw_qos       = m_axi.aw.qos,
             o_axi_master_aw_id        = m_axi.aw.id,
-            o_axi_master_aw_user      = m_axi.aw.user, #FIXME
+            o_axi_master_aw_user      = m_axi.aw.user,
             i_axi_master_aw_ready     = m_axi.aw.ready,
             
             # W    
             o_axi_master_w_valid      = m_axi.w.valid,
             o_axi_master_w_data       = m_axi.w.data,
             o_axi_master_w_strb       = m_axi.w.strb,
-            o_axi_master_w_user       = m_axi.w.user, #FIXME
+            o_axi_master_w_user       = m_axi.w.user,
             o_axi_master_w_last       = m_axi.w.last,
             i_axi_master_w_ready      = m_axi.w.ready,
             
@@ -100,7 +100,7 @@ class AXISPISLAVE(Module):
             i_axi_master_b_valid      = m_axi.b.valid,
             i_axi_master_b_resp       = m_axi.b.resp,
             i_axi_master_b_id         = m_axi.b.id, 
-            i_axi_master_b_user       = m_axi.b.user, #FIXME
+            i_axi_master_b_user       = m_axi.b.user,
             o_axi_master_b_ready      = m_axi.b.ready,
             
             # AR
@@ -115,7 +115,7 @@ class AXISPISLAVE(Module):
             o_axi_master_ar_cache     = m_axi.ar.cache,
             o_axi_master_ar_qos       = m_axi.ar.qos,
             o_axi_master_ar_id        = m_axi.ar.id,
-            o_axi_master_ar_user      = m_axi.ar.user, #FIXME
+            o_axi_master_ar_user      = m_axi.ar.user,
             i_axi_master_ar_ready     = m_axi.ar.ready,
             
             # R
@@ -124,7 +124,7 @@ class AXISPISLAVE(Module):
             i_axi_master_r_resp       = m_axi.r.resp,
             i_axi_master_r_last       = m_axi.r.last,
             i_axi_master_r_id         = m_axi.r.id, 
-            i_axi_master_r_user       = m_axi.r.user, #FIXME
+            i_axi_master_r_user       = m_axi.r.user,
             o_axi_master_r_ready      = m_axi.r.ready,
             
             # SPI Interface
