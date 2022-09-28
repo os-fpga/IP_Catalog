@@ -1,0 +1,138 @@
+name: IP_Catalog Workflow
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  IP_Catalog_Ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Cancel previous
+      uses: styfle/cancel-workflow-action@0.9.1
+      with:
+        access_token: ${{ github.token }}
+        
+    - name: ssh-agent
+      uses: webfactory/ssh-agent@v0.5.4
+      with: 
+        ssh-private-key: |
+          ${{ secrets.SSH_PRIVATE_KEY_RAPTOR_TOOLS }}
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+        
+    - name: Clone Raptor_Tools
+      run: |
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+          git submodule update --init Raptor_Tools
+          
+    - name: Install dependencies
+      run: 
+        bash .github/install_ubuntu_dependencies_build.sh
+
+    - name: Show shell configuration
+      run: |
+        env
+        which cmake && cmake --version
+        which make && make --version
+        which python3 && python3 --version
+        pipenv --version
+
+    - name: Create Virtual ENV
+      shell: bash
+      run: |
+        cd Raptor_Tools/python_tools
+        make build  
+
+    - name: Test IP Generation
+      run: |
+        cd Raptor_Tools/python_tools/build/share/envs/litex/bin
+        ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
+        tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axi_dpram/ -L 4
+        ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
+        tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axi_ram/ -L 4
+        ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axi_register/v1_0/axi_register_gen.py --data_width=64 --addr_width=32 --build-name=register_wrapper --build
+        tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axi_register/ -L 4
+        ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8 --build-name=gpio_wrapper --build
+        tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axil_gpio/ -L 4
+        ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axil_uart/v1_0/axil_uart_gen.py --addr_width=8 --rdata_width=32 --build-name=uart_wrapper --build
+        tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axil_uart/ -L 4
+
+#--------------------------CentOS------------------------------------
+  centos7-gcc:
+      name:  IP_Catalog_centos
+      runs-on: ubuntu-latest
+      container:
+        image: centos:7
+      defaults:
+        run:
+          shell: bash
+      steps:
+      - name: Cancel previous
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Install latest Git
+        run: |
+          yum install -y openssh-server openssh-clients
+          yum remove -y git*
+          yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
+          yum install -y git
+
+      - name: ssh-agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with: 
+          ssh-private-key: |
+            ${{ secrets.SSH_PRIVATE_KEY_RAPTOR_TOOLS }}
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Clone Raptor_Tools
+        run: |
+            git config --global --add safe.directory $GITHUB_WORKSPACE
+            git submodule update --init Raptor_Tools
+
+      - name: Install GCC & CMake
+        run:
+            bash .github/install_centos_dependencies_build.sh 
+
+      - name: Show shell configuration
+        run: |
+          export LC_ALL=en_US.utf-8
+          export LANG=en_US.utf-8
+          which cmake && cmake --version
+          which make && make --version
+          which python3 && python3 --version
+          pipenv --version
+
+      - name: Create Virtual ENV
+        shell: bash
+        run: |
+          export LC_ALL=en_US.utf-8
+          export LANG=en_US.utf-8
+          cd Raptor_Tools/python_tools
+          make build 
+
+      - name: Test IP Generation
+        run: |
+           export LC_ALL=en_US.utf-8
+           export LANG=en_US.utf-8
+           cd Raptor_Tools/python_tools/build/share/envs/litex/bin
+           ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
+           tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axi_dpram/ -L 4
+           ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
+           tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axi_ram/ -L 4
+           ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axi_register/v1_0/axi_register_gen.py --data_width=64 --addr_width=32 --build-name=register_wrapper --build
+           tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axi_register/ -L 4
+           ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8 --build-name=gpio_wrapper --build
+           tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axil_gpio/ -L 4
+           ./python3 $GITHUB_WORKSPACE/RapidSilicon/IP/axil_uart/v1_0/axil_uart_gen.py --addr_width=8 --rdata_width=32 --build-name=uart_wrapper --build
+           tree $GITHUB_WORKSPACE/ip_build/rapidsilicon/ip/axil_uart/ -L 4
