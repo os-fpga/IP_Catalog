@@ -67,18 +67,16 @@ class AXISPIMASTERWrapper(Module):
             b_user_width    = user_width,
             ar_user_width   = user_width,
             r_user_width    = user_width,
+            id_width        = id_width
         )
         
         platform.add_extension(axil.get_ios("s_axi"))
         self.comb += axil.connect_to_pads(platform.request("s_axi"), mode="slave")
 
         # AXI SPI MASTER -----------------------------------------------------------------------
-        self.submodules.spi_master = spi_master = AXISPIMASTER(platform, axil,
-            data_width      = data_width,
-            addr_width      = addr_width,
-            buffer_depth    = buffer_depth,
-            user_width      = user_width,
-            id_width        = id_width
+        self.submodules.spi_master = spi_master = AXISPIMASTER(platform, 
+            s_axi           = axil,
+            buffer_depth    = buffer_depth
             )
         
         # SPI IOS
