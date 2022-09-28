@@ -16,7 +16,6 @@ from litex.soc.interconnect.axi import *
 logging.basicConfig(level=logging.INFO)
 
 # AXI CDMA ---------------------------------------------------------------------------------------
-
 class AXICDMA(Module):
     def __init__(self, platform, m_axi, 
         axi_max_burst_len   = False,
@@ -25,7 +24,7 @@ class AXICDMA(Module):
         enable_unaligned    = False
         ):
 
-        # Get/Check Parameters.
+        # Get Parameters.
         # ---------------------
         self.logger = logging.getLogger("AXI_CDMA")
 
@@ -44,12 +43,13 @@ class AXICDMA(Module):
         id_width = len(m_axi.aw.id)
         self.logger.info(f"AXI_ID_WIDTH     : {id_width}")
         
-        # IP Parameters
+        # Other Parameters
         self.logger.info(f"AXI_MAX_BURST_LEN: {axi_max_burst_len}")
         self.logger.info(f"LEN_WIDTH        : {len_width}")
         self.logger.info(f"TAG_WIDTH        : {tag_width}")
         self.logger.info(f"ENABLE_UNALIGNED : {enable_unaligned}")
 
+        # Non-Stnadard IOs
         self.s_axis_desc_read_addr      = Signal(address_width)
         self.s_axis_desc_write_addr     = Signal(address_width)
         self.s_axis_desc_tag            = Signal(tag_width)
@@ -63,16 +63,16 @@ class AXICDMA(Module):
         
         self.enable                     = Signal()
 
+
         # Module instance.
         # ----------------
-
         self.specials += Instance("axi_cdma",
             # Parameters.
             # -----------
             # Global AXI
-            p_AXI_DATA_WIDTH = data_width,
-            p_AXI_ADDR_WIDTH = address_width,
-            p_AXI_ID_WIDTH   = id_width,
+            p_AXI_DATA_WIDTH      = data_width,
+            p_AXI_ADDR_WIDTH      = address_width,
+            p_AXI_ID_WIDTH        = id_width,
 
             # IP Params.
             p_AXI_MAX_BURST_LEN   = axi_max_burst_len,    
@@ -82,12 +82,11 @@ class AXICDMA(Module):
 
 
             # Clk / Rst.
-            # ----------
-            i_clk = ClockSignal(m_axi.clock_domain),
-            i_rst = ResetSignal(m_axi.clock_domain),
+            i_clk                       = ClockSignal(m_axi.clock_domain),
+            i_rst                       = ResetSignal(m_axi.clock_domain),
 
             # Configuration
-            i_enable    = self.enable,
+            i_enable                    = self.enable,
             
             # AXI read descriptor input
             i_s_axis_desc_read_addr     = self.s_axis_desc_read_addr,
