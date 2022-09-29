@@ -18,19 +18,19 @@ There are seventeen parameters for AXI_FIFO core. These parameters, their keywor
     |   2.  |   ADDR_WIDTH       |   addr_width       |  1-64                   |
     |   3.  |   ID_WIDTH         |   id_width         |  1-32                   |
     |   4.  |   AWUSER_ENABLE    |   aw_user_en       |  0/1                    |
-    |   5.  |   AWUSER_WIDTH     |   aw_user_width    |  0-1024                 |
+    |   5.  |   AWUSER_WIDTH     |   aw_user_width    |  1-1024                 |
     |   6.  |   WUSER_ENABLE     |   w_user_en        |  0/1                    |
-    |   7.  |   WUSER_WIDTH      |   w_user_width     |  0-1024                 |
+    |   7.  |   WUSER_WIDTH      |   w_user_width     |  1-1024                 |
     |   8.  |   BUSER_ENABLE     |   b_user_en        |  0/1                    |
-    |   9.  |   BUSER_WIDTH      |   b_user_width     |  0-1024                 |
+    |   9.  |   BUSER_WIDTH      |   b_user_width     |  1-1024                 |
     |   10. |   ARUSER_ENABLE    |   ar_user_en       |  0/1                    |
-    |   11. |   ARUSER_WIDTH     |   ar_user_width    |  0-1024                 |
+    |   11. |   ARUSER_WIDTH     |   ar_user_width    |  1-1024                 |
     |   12. |   RUSER_ENABLE     |   r_user_en        |  0/1                    |
-    |   13. |   RUSER_WIDTH      |   r_user_width     |  0-1024                 |
+    |   13. |   RUSER_WIDTH      |   r_user_width     |  1-1024                 |
     |   14. |   WRITE_FIFO_DEPTH |   write_fifo_depth |  0,32,512               |
     |   15. |   READ_FIFO_DEPTH  |   read_fifo_depth  |  0,32,512               |
     |   16. |   WRITE_FIFO_DELAY |   write_fifo_delay |  0/1                    |
-    |   17. |   READ_FIFO_DELAY  |   read_fifo_delay  |  0-4096                 |
+    |   17. |   READ_FIFO_DELAY  |   read_fifo_delay  |  0/1                    |
 
 
 
