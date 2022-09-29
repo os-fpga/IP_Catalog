@@ -7,7 +7,88 @@ import os
 import json
 import argparse
 import shutil
-from datetime import datetime
+import logging
+
+from litex_sim.i2c_slave_litex_wrapper import I2CSLAVE
+
+from migen import *
+
+from litex.build.generic_platform import *
+
+from litex.build.osfpga import OSFPGAPlatform
+
+from litex.soc.interconnect.axi import AXILiteInterface
+
+
+# IOs/Interfaces -----------------------------------------------------------------------------------
+def get_clkin_ios():
+    return [
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1)),
+    ]
+    
+def get_i2c_ios():
+    return [
+        ("i2c", 0,
+            Subsignal("scl_i", Pins(1)),
+            Subsignal("scl_o", Pins(1)),
+            Subsignal("scl_t", Pins(1)),
+            Subsignal("sda_i", Pins(1)),
+            Subsignal("sda_o", Pins(1)),
+            Subsignal("sda_t", Pins(1)),    
+        ),
+        ("busy",             0, Pins(1)),
+        ("bus_addressed",    0, Pins(1)), 
+        ("bus_active",       0, Pins(1)),
+        ("enable",           0, Pins(1)),
+        ("device_address",   0, Pins(7))   
+    ]
+    
+# I2C SLAVE Wrapper ---------------------------------------------------------------------------------
+class I2CSLAVEWrapper(Module):
+    def __init__(self, platform, data_width, addr_width, filter_len):
+        
+        # Clocking ---------------------------------------------------------------------------------
+        platform.add_extension(get_clkin_ios())
+        self.clock_domains.cd_sys  = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+
+        # AXI LITE ----------------------------------------------------------------------------------
+        axil = AXILiteInterface(
+            data_width      = data_width,
+            address_width   = addr_width
+        )
+        platform.add_extension(axil.get_ios("m_axil"))
+        self.comb += axil.connect_to_pads(platform.request("m_axil"), mode="master")
+
+        # I2C_SLAVE ----------------------------------------------------------------------------------
+        self.submodules.i2c_slave = i2c_slave = I2CSLAVE(platform, 
+            m_axil        = axil,
+            filter_len    = filter_len
+            )
+        
+        # I2C Signals---------------------------------------------------------------------------------
+        platform.add_extension(get_i2c_ios())
+        i2c_pads = platform.request("i2c")
+        self.comb += [
+            i2c_slave.i2c_scl_i.eq(i2c_pads.scl_i),
+            i2c_pads.scl_o.eq(i2c_slave.i2c_scl_o),
+            i2c_pads.scl_t.eq(i2c_slave.i2c_scl_t),
+
+            i2c_slave.i2c_sda_i.eq(i2c_pads.sda_i),
+            i2c_pads.sda_o.eq(i2c_slave.i2c_sda_o),
+            i2c_pads.sda_t.eq(i2c_slave.i2c_sda_t),
+        ]
+        
+        # Configuration
+        self.comb += i2c_slave.enable.eq(platform.request("enable"))
+        self.comb += i2c_slave.device_address.eq(platform.request("device_address"))
+        
+        # Status
+        self.comb += platform.request("busy").eq(i2c_slave.busy)
+        self.comb += platform.request("bus_addressed").eq(i2c_slave.bus_addressed)
+        self.comb += platform.request("bus_active").eq(i2c_slave.bus_active)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -19,14 +100,14 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--data_width",     default='32',                   help="I2C_slave Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default='16',                   help="I2C_slave Address Width 8,16,32")
-    core_group.add_argument("--filter_len",     default='4',                    help="I2C_slave Filter Lenght from 1 - 4")
+    core_group.add_argument("--data_width",     default=32,       type=int,            help="I2C_slave Data Width 8,16,32,64")
+    core_group.add_argument("--addr_width",     default=16,       type=int,            help="I2C_slave Address Width 8,16,32")
+    core_group.add_argument("--filter_len",     default=4,        type=int,            help="I2C_slave Filter Lenght from 1 to 4")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="i2c_slave_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -37,26 +118,24 @@ def main():
     args = parser.parse_args()
     
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
     # Data Width
-    data_width_param=['8', '16', '32', '64']
+    data_width_param=[8, 16, 32, 64]
     if args.data_width not in data_width_param:
-        print("Enter a valid 'data_width'")
-        print(data_width_param)
+        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
         exit()
         
     # Address Width
-    addr_width_param=['8', '16', '32']
+    addr_width_param=[8, 16, 32]
     if args.addr_width not in addr_width_param:
-        print("Enter a valid 'addr_width'")
-        print(addr_width_param)
+        logger.error("\nEnter a valid 'addr_width'\n %s", addr_width_param)
         exit()
 
     # Filter Length
-    x = int(args.filter_len)
     filter_len_range=range(1,5)
-    if x not in filter_len_range:
-        print("Enter a valid 'filter_len'")
-        print("'1 to 4'")
+    if args.filter_len not in filter_len_range:
+        logger.error("\nEnter a valid 'filter_len' from 1 to 4")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -67,8 +146,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
@@ -76,7 +156,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path 
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/i2c_slave/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/i2c_slave/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "i2c_slave_gen.py"))
         if not os.path.exists(build_path):
             os.makedirs(build_path)
@@ -120,7 +200,7 @@ def main():
             full_file_path = os.path.join(litex_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, litex_sim_path)
-                           
+
 
         # TCL File Content
         tcl = []
@@ -140,175 +220,40 @@ def main():
         # Run.
         tcl.append("synthesize")        
 
-        
         # Generate .tcl File
         tcl_path = os.path.join(synth_path, "raptor.tcl")
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
 
-        # Generate RTL Wrapper
-        if args.build_name:
-            wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
-            with open(wrapper_path,'w') as f:
+    # Create LiteX Core ----------------------------------------------------------------------------
+    platform   = OSFPGAPlatform(io=[], device="gemini", toolchain="raptor")
+    module     = I2CSLAVEWrapper(platform,
+        data_width    = args.data_width,
+        addr_width    = args.addr_width,
+        filter_len    = args.filter_len
+    )
 
-#-------------------------------------------------------------------------------
-# ------------------------- RTL WRAPPER ----------------------------------------
-#-------------------------------------------------------------------------------
-                f.write ("""
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-// For Reference: https://github.com/alexforencich/verilog-i2c/blob/master/rtl/i2c_slave_axil_master.v      
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-Copyright (c) 2019 Alex Forencich
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-///////////////////////////////////////////////////////////////////////////////////////////////////////\n
-""")
-                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n \n")
-                f.write ("""module {} #(""".format(args.build_name))
-
-                f.write ("""
-    // Width of data bus in bits
-    localparam DATA_WIDTH = {}, """.format(args.data_width))
-
-                f.write ("""
-    // Width of address bus in bits
-    localparam ADDR_WIDTH = {},""".format(args.addr_width))
-
-                f.write ("""
-    // Length of filter
-    localparam FILTER_LEN = {},""".format(args.filter_len))
-
-                f.write("""
-    // Width of wstrb (width of data bus in words)
-    localparam STRB_WIDTH = (DATA_WIDTH/8)
-)
-(
-    input wire                    clk,
-    input wire                    rst,
-
-    /*
-     * I2C interface
-     */
-    input  wire                   i2c_scl_i,
-    output wire                   i2c_scl_o,
-    output wire                   i2c_scl_t,
-    input  wire                   i2c_sda_i,
-    output wire                   i2c_sda_o,
-    output wire                   i2c_sda_t,
-
-    /*
-     * AXI lite master interface
-     */
-    output wire [ADDR_WIDTH-1:0]  m_axil_awaddr,
-    output wire [2:0]             m_axil_awprot,
-    output wire                   m_axil_awvalid,
-    input  wire                   m_axil_awready,
-    output wire [DATA_WIDTH-1:0]  m_axil_wdata,
-    output wire [STRB_WIDTH-1:0]  m_axil_wstrb,
-    output wire                   m_axil_wvalid,
-    input  wire                   m_axil_wready,
-    input  wire [1:0]             m_axil_bresp,
-    input  wire                   m_axil_bvalid,
-    output wire                   m_axil_bready,
-    output wire [ADDR_WIDTH-1:0]  m_axil_araddr,
-    output wire [2:0]             m_axil_arprot,
-    output wire                   m_axil_arvalid,
-    input  wire                   m_axil_arready,
-    input  wire [DATA_WIDTH-1:0]  m_axil_rdata,
-    input  wire [1:0]             m_axil_rresp,
-    input  wire                   m_axil_rvalid,
-    output wire                   m_axil_rready,
-
-    /*
-     * Status
-     */
-    output wire                   busy,
-    output wire                   bus_addressed,
-    output wire                   bus_active,
-
-    /*
-     * Configuration
-     */
-    input  wire                   enable,
-    input  wire [6:0]             device_address
-);
-
-""")
-                f.write("i2c_slave_axil_master #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH),\n.FILTER_LEN(FILTER_LEN)\n)")
-
-                f.write("""
-            
-i2c_inst
-(
-.clk(clk),
-.rst(rst),
-
-// I2C Interface
-.i2c_scl_i(i2c_scl_i),
-.i2c_scl_o(i2c_scl_o),
-.i2c_scl_t(i2c_scl_t),
-.i2c_sda_i(i2c_sda_i),
-.i2c_sda_o(i2c_sda_o),
-.i2c_sda_t(i2c_sda_t),
-
-// AXI-Lite Master Interface
-.m_axil_awaddr(m_axil_awaddr),
-.m_axil_awprot(m_axil_awprot),
-.m_axil_awvalid(m_axil_awvalid),
-.m_axil_awready(m_axil_awready),
-
-.m_axil_wdata(m_axil_wdata),
-.m_axil_wstrb(m_axil_wstrb),
-.m_axil_wvalid(m_axil_wvalid),
-.m_axil_wready(m_axil_wready),
-
-.m_axil_bresp(m_axil_bresp),
-.m_axil_bvalid(m_axil_bvalid),
-.m_axil_bready(m_axil_bready),
-
-.m_axil_araddr(m_axil_araddr),
-.m_axil_arprot(m_axil_arprot),
-.m_axil_arvalid(m_axil_arvalid),
-.m_axil_arready(m_axil_arready),
-
-.m_axil_rdata(m_axil_rdata),
-.m_axil_rresp(m_axil_rresp),
-.m_axil_rvalid(m_axil_rvalid),
-.m_axil_rready(m_axil_rready),
-
-.busy(busy),
-.bus_addressed(bus_addressed),
-.bus_active(bus_active),
-
-.enable(enable),
-.device_address(device_address)
-);
-
-endmodule
-
-`resetall
-        """)
-            f.close()
+    # Build
+    if args.build:
+        platform.build(module,
+            build_dir    = "litex_build",
+            build_name   = args.build_name,
+            run          = False,
+            regular_comb = False
+        )
+        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
+        shutil.rmtree("litex_build")
+        
+        # TimeScale Addition to Wrapper
+        wrapper = os.path.join(src_path, f'{args.build_name}.v')
+        f = open(wrapper, "r")
+        content = f.readlines()
+        content.insert(14, '`timescale 1ns / 1ps\n')
+        f = open(wrapper, "w")
+        content = "".join(content)
+        f.write(str(content))
+        f.close()
 
 if __name__ == "__main__":
     main()

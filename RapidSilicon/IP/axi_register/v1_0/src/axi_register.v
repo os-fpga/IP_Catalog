@@ -40,7 +40,7 @@ module axi_register #
     // Width of wstrb (width of data bus in words)
     parameter STRB_WIDTH = (DATA_WIDTH/8),
     // Width of ID signal
-    parameter ID_WIDTH = 32,
+    parameter ID_WIDTH = 8,
     // Propagate awuser signal
     parameter AWUSER_ENABLE = 1,
     // Width of awuser signal 0 - 1024

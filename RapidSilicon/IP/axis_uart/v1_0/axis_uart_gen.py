@@ -7,7 +7,77 @@ import os
 import json
 import argparse
 import shutil
-from datetime import datetime
+import logging
+
+from litex_sim.axis_uart_litex_wrapper import AXISTREAMUART
+
+from migen import *
+
+from litex.build.generic_platform import *
+
+from litex.build.osfpga import OSFPGAPlatform
+
+from litex.soc.interconnect.axi import AXIStreamInterface
+
+# IOs/Interfaces -----------------------------------------------------------------------------------
+def get_clkin_ios():
+    return [
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1))
+    ]
+    
+def get_uart_ios():
+    return [
+        ("rxd",             0, Pins(1)),
+        ("txd",             0, Pins(1)), 
+        ("tx_busy",         0, Pins(1)),
+        ("rx_busy",         0, Pins(1)),
+        ("rx_overrun_error",0, Pins(1)),
+        ("rx_frame_error",  0, Pins(1)),
+        ("prescale",        0, Pins(16))       
+    ]
+    
+# AXI_STREAM_UART Wrapper ----------------------------------------------------------------------------------
+class AXISTREAMUARTWrapper(Module):
+    def __init__(self, platform, data_width):
+        
+        # Clocking ---------------------------------------------------------------------------------
+        platform.add_extension(get_clkin_ios())  
+        self.clock_domains.cd_sys  = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+        
+        # AXI STREAM -------------------------------------------------------------------------------
+        axis = AXIStreamInterface(
+            data_width = data_width
+        )
+        # Input AXI
+        platform.add_extension(axis.get_ios("s_axis"))
+        self.comb += axis.connect_to_pads(platform.request("s_axis"), mode="slave")
+        
+        # Output AXI
+        platform.add_extension(axis.get_ios("m_axis"))
+        self.comb += axis.connect_to_pads(platform.request("m_axis"), mode="master")
+        
+        # AXIS-UART ----------------------------------------------------------------------------------
+        self.submodules.uart = uart = AXISTREAMUART(platform, 
+            m_axis  = axis,
+            s_axis  = axis
+            )
+        
+        # UART Signals--------------------------------------------------------------------------------
+        platform.add_extension(get_uart_ios())
+        
+        # Inputs
+        self.comb += uart.rxd.eq(platform.request("rxd"))
+        self.comb += uart.prescale.eq(platform.request("prescale"))
+        
+        # Outputs
+        self.comb += platform.request("txd").eq(uart.txd)
+        self.comb += platform.request("tx_busy").eq(uart.tx_busy)
+        self.comb += platform.request("rx_busy").eq(uart.rx_busy)
+        self.comb += platform.request("rx_overrun_error").eq(uart.rx_overrun_error)
+        self.comb += platform.request("rx_frame_error").eq(uart.rx_frame_error)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -19,12 +89,12 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default='5',                      help="UART Data Width 5 - 8")
+    core_group.add_argument("--data_width",     default=5,     type=int,        help="UART Data Width from 5 to 8")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axis_uart_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -35,12 +105,12 @@ def main():
     args = parser.parse_args()
 
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
     # Data Width
-    x = int(args.data_width)
     data_width_range=range(5,9)
-    if x not in data_width_range:
-        print("Enter a valid 'data_width'")
-        print("'5 to 8'")
+    if args.data_width not in data_width_range:
+        logger.error("\nEnter a valid 'data_width' from 5 to 8")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -51,8 +121,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
@@ -60,7 +131,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axis_uart/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axis_uart/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axis_uart_gen.py"))
         
         if not os.path.exists(build_path):
@@ -125,119 +196,38 @@ def main():
         # Run.
         tcl.append("synthesize")
 
-
         # Generate .tcl file
         tcl_path = os.path.join(synth_path, "raptor.tcl")
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
 
-        # Generate RTL Wrapper
-        if args.build_name:
-            wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
-            with open(wrapper_path, "w") as f:
+    # Create LiteX Core ----------------------------------------------------------------------------
+    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
+    module     = AXISTREAMUARTWrapper(platform,
+        data_width      = args.data_width
+    )
 
-#-------------------------------------------------------------------------------
-# ------------------------- RTL WRAPPER ----------------------------------------
-#-------------------------------------------------------------------------------
-                f.write ("""
-///////////////////////////////////////////////////////////////////////////////////////
-// For Reference: https://github.com/alexforencich/verilog-uart/blob/master/rtl/uart.v
-///////////////////////////////////////////////////////////////////////////////////////
-/*
-Copyright (c) 2014-2017 Alex Forencich
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-///////////////////////////////////////////////////////////////////////////////////////\n\n
-""")
-                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-                f.write ("""module {} #(""".format(args.build_name))
-
-                f.write ("""
-    // Width of data bus in bits
-    localparam DATA_WIDTH = {} """.format(args.data_width))
-
-                f.write("""
-)
-(
-    input  wire                   clk,
-    input  wire                   rst,
-
-    // AXI input
-    input  wire [DATA_WIDTH-1:0]  s_axis_tdata,
-    input  wire                   s_axis_tvalid,
-    output wire                   s_axis_tready,
-
-    // AXI output
-    output wire [DATA_WIDTH-1:0]  m_axis_tdata,
-    output wire                   m_axis_tvalid,
-    input  wire                   m_axis_tready,
-
-    // UART interface
-    input  wire                   rxd,
-    output wire                   txd,
-
-    // Status
-    output wire                   tx_busy,
-    output wire                   rx_busy,
-    output wire                   rx_overrun_error,
-    output wire                   rx_frame_error,
-
-    // Configuration
-    input  wire [15:0]            prescale
-);
-
-""")
-                f.write("uart #(\n.DATA_WIDTH(DATA_WIDTH)\n)")
-                f.write("""
-
-uart_inst
-(
-.clk(clk),
-.rst(rst),
-
-.s_axis_tdata(s_axis_tdata),
-.s_axis_tvalid(s_axis_tvalid),
-.s_axis_tready(s_axis_tready),
-
-.m_axis_tdata(m_axis_tdata),
-.m_axis_tvalid(m_axis_tvalid),
-.m_axis_tready(m_axis_tready),
-
-.rxd(rxd),
-.txd(txd),
-
-.tx_busy(tx_busy),
-.rx_busy(rx_busy),
-.rx_overrun_error(rx_overrun_error),
-.rx_frame_error(rx_frame_error),
-
-.prescale(prescale)
-);
-
-endmodule
-
-`resetall
-             """)
-                f.close()
+    # Build
+    if args.build:
+        platform.build(module,
+            build_dir    = "litex_build",
+            build_name   = args.build_name,
+            run          = False,
+            regular_comb = False
+        )
+        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
+        shutil.rmtree("litex_build")
+        
+        # TimeScale Addition to Wrapper
+        wrapper = os.path.join(src_path, f'{args.build_name}.v')
+        f = open(wrapper, "r")
+        content = f.readlines()
+        content.insert(14, '`timescale 1ns / 1ps\n')
+        f = open(wrapper, "w")
+        content = "".join(content)
+        f.write(str(content))
+        f.close()
 
 if __name__ == "__main__":
     main()

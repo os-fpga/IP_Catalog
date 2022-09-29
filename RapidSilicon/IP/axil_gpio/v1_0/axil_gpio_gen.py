@@ -7,7 +7,61 @@ import os
 import json
 import argparse
 import shutil
-from datetime import datetime
+import logging
+
+from litex_sim.axil_gpio_litex_wrapper import AXILITEGPIO
+
+from migen import *
+
+from litex.build.generic_platform import *
+
+from litex.build.osfpga import OSFPGAPlatform
+
+from litex.soc.interconnect.axi import AXILiteInterface
+
+
+# IOs / Interface ----------------------------------------------------------------------------------
+def get_clkin_ios ():
+    return [
+        ("clk", 0, Pins(1)),
+        ("rst", 0, Pins(1)),
+    ]
+
+def get_gpio_ios(data_width):
+    return [
+        ("gpin",    0, Pins(data_width)),
+        ("gpout",   0, Pins(data_width)),
+        ("int",     0, Pins(1)),
+    ]
+    
+# AXI-LITE-GPIO Wrapper --------------------------------------------------------------------------------
+class AXILITEGPIOWrapper(Module):
+    def __init__(self, platform, data_width, addr_width):
+        platform.add_extension(get_clkin_ios())
+        
+        self.clock_domains.cd_sys = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+        
+        # AXI-LITE 
+        axil = AXILiteInterface(
+            data_width      = data_width,
+            address_width   = addr_width
+        )
+        platform.add_extension(axil.get_ios("axil"))
+        self.comb += axil.connect_to_pads(platform.request("axil"), mode="slave")
+
+        # AXI-LITE-GPIO 
+        self.submodules.gpio = gpio = AXILITEGPIO(platform, axil, 
+            address_width   = addr_width, 
+            data_width      = data_width
+            )
+        
+        # GPIO 
+        platform.add_extension(get_gpio_ios(data_width))
+        self.comb += gpio.gpin.eq(platform.request("gpin"))
+        self.comb += platform.request("gpout").eq(gpio.gpout)
+        self.comb += platform.request("int").eq(gpio.int)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -19,13 +73,13 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--data_width",     default='32',                   help="GPIO Data Width 8,16,32")
-    core_group.add_argument("--addr_width",     default='16',                   help="GPIO Address Width 8,16")
+    core_group.add_argument("--data_width",     default=32,     type=int,       help="GPIO Data Width 8,16,32")
+    core_group.add_argument("--addr_width",     default=16,     type=int,       help="GPIO Address Width from 8 to 16")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axil_gpio_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -34,21 +88,20 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
+    
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
     # Data_Width
-    data_width_param=['8', '16', '32']
+    data_width_param=[8, 16, 32]
     if args.data_width not in data_width_param:
-        print("Enter a valid 'data_width'")
-        print(data_width_param)
+        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
         exit()
     
     # Address Width
-    x = int(args.addr_width)
     addr_range=range(8, 17)
-    if x not in addr_range:
-        print("Enter a valid 'addr_width'")
-        print("'8 to 16'")
+    if args.addr_width not in addr_range:
+        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -59,8 +112,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
     
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
@@ -68,7 +122,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path 
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axil_gpio/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axil_gpio/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_gpio_gen.py"))
 
         if not os.path.exists(build_path):
@@ -133,129 +187,45 @@ def main():
 #       tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
         tcl.append("synthesize")
-
         
         # Generate .tcl File
         tcl_path = os.path.join(synth_path, "raptor.tcl")
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
+        
+    # Create LiteX Core ----------------------------------------------------------------------------
+    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
+    module     = AXILITEGPIOWrapper(platform,
+        addr_width  = args.addr_width,
+        data_width  = args.data_width
+    )
 
-        # Generate RTL Wrapper
-        if args.build_name:
-            wrapper_path = os.path.join(src_path, (args.build_name + ".sv"))
-            with open(wrapper_path,'w') as f:
+    # Build
+    if args.build:
+        platform.build(module,
+            build_dir    = "litex_build",
+            build_name   = args.build_name,
+            run          = False,
+            regular_comb = False
+        )
+        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
+        shutil.rmtree("litex_build")
+        
+        # Changing File Extension from .v to .sv
+        old_wrapper = os.path.join(src_path, f'{args.build_name}.v')
+        new_wrapper = old_wrapper.replace('.v','.sv')
+        os.rename(old_wrapper, new_wrapper)
+        
+        # TimeScale Addition to Wrapper
+        f = open(new_wrapper, "r")
+        content = f.readlines()
+        content.insert(14, '`timescale 1ns / 1ps\n')
+        f = open(new_wrapper, "w")
+        content = "".join(content)
+        f.write(str(content))
+        f.close()
 
-#-------------------------------------------------------------------------------
-# ------------------------- RTL WRAPPER ----------------------------------------
-#-------------------------------------------------------------------------------
-                f.write ("""
-////////////////////////////////////////////////////////////////////////////////
-/*
-Copyright (c) 2018 Alex Forencich
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-////////////////////////////////////////////////////////////////////////////////\n
-""")
-                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n \n")
-                f.write ("""module {} #(""".format(args.build_name))
-
-                f.write ("""
-    // Width of data bus in bits
-    localparam DATA_WIDTH = {}, """.format(args.data_width))
-
-                f.write ("""
-    // Width of address bus in bits
-    localparam ADDR_WIDTH = {},""".format(args.addr_width))
-
-                f.write("""
-    // Width of wstrb (width of data bus in words)
-    localparam STRB_WIDTH = (DATA_WIDTH/8)
-)
-(
-  input  wire                           CLK, 
-  input  wire			                RSTN, 
-  input  wire  [DATA_WIDTH-1:0]    		GPIN,                 
-  output wire  [DATA_WIDTH-1:0]    		GPOUT,                 
-  output wire		                    INT,
-  
-  // write address channel
-  input  wire  [ADDR_WIDTH-1:0]    		AWADDR,
-  input  wire  [2:0]     		        AWPROT,
-  input  wire			                AWVALID,
-  output wire           		        AWREADY,
-  
-  // write data channel
-  input  wire  [DATA_WIDTH-1:0]		    WDATA,
-  input  wire  [STRB_WIDTH-1:0]		    WSTRB,
-  input  wire			                WVALID,
-  output wire 		                    WREADY,
-  
-  // write response channel
-  output wire  [1:0]		            BRESP,
-  output wire		                    BVALID,
-  input  wire			                BREADY,
-
-  // read address channel
-  input  wire  [ADDR_WIDTH-1:0]		    ARADDR,
-  input  wire  [2:0]		            ARPROT,
-  input  wire                    		ARVALID,
-  output wire		                    ARREADY,
-
-  // read data channel
-  output wire  [DATA_WIDTH-1:0]		    RDATA,
-  output wire  [1:0]		            RRESP,
-  output wire		                    RVALID,
-  input  wire                    		RREADY
-);
-
-""")
-                f.write("axi4lite_gpio #(\n.DATA_WIDTH(DATA_WIDTH),\n.ADDR_WIDTH(ADDR_WIDTH)\n)")
-                f.write("""
-gpio_inst(
-.WDATA(WDATA),
-.WSTRB(WSTRB),
-.WVALID(WVALID),
-.WREADY(WREADY),
-
-.BRESP(BRESP),
-.BVALID(BVALID),
-.BREADY(BREADY),
-
-.ARADDR(ARADDR),
-.ARPROT(ARPROT),
-.ARVALID(ARVALID),
-.ARREADY(ARREADY),
-
-.RDATA(RDATA),
-.RRESP(RRESP),
-.RVALID(RVALID),
-.RREADY(RREADY)
-);
-
-endmodule
-
-`resetall
-        """)
-            f.close()
 
 if __name__ == "__main__":
     main()
