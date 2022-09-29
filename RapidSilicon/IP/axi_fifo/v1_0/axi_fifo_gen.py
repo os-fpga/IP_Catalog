@@ -21,7 +21,6 @@ from litex.soc.interconnect.axi import AXIInterface
 
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
-
 def get_clkin_ios():
     return [
         ("clk",  0, Pins(1)),
@@ -84,23 +83,23 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",             default=32,    type=int,       help="FIFO Data Width 8,16,32")
-    core_group.add_argument("--addr_width",             default=32,    type=int,       help="FIFO Address Width 8,16")
-    core_group.add_argument("--id_width",               default=1,     type=int,       help="FIFO ID Width 1 - 8")
+    core_group.add_argument("--data_width",             default=32,    type=int,       help="FIFO Data Width 32,64,128,256,512,1024")
+    core_group.add_argument("--addr_width",             default=32,    type=int,       help="FIFO Address Width from 1 to 64")
+    core_group.add_argument("--id_width",               default=1,     type=int,       help="FIFO ID Width from 1 to 32")
     core_group.add_argument("--aw_user_en",             default=0,     type=int,       help="FIFO AW-Channel User Enable 0 or 1")
-    core_group.add_argument("--aw_user_width",          default=1,     type=int,       help="FIFO AW-Channel User Width")
+    core_group.add_argument("--aw_user_width",          default=1,     type=int,       help="FIFO AW-Channel User Width from 1 to 1024")
     core_group.add_argument("--w_user_en",              default=0,     type=int,       help="FIFO W-Channel User Enable 0 or 1")
-    core_group.add_argument("--w_user_width",           default=1,     type=int,       help="FIFO W-Channel User Width")
+    core_group.add_argument("--w_user_width",           default=1,     type=int,       help="FIFO W-Channel User Width from 1 to 1024")
     core_group.add_argument("--b_user_en",              default=0,     type=int,       help="FIFO B-Channel User Enable 0 or 1")
-    core_group.add_argument("--b_user_width",           default=1,     type=int,       help="FIFO B-Channel User Width")
+    core_group.add_argument("--b_user_width",           default=1,     type=int,       help="FIFO B-Channel User Width from 1 to 1024")
     core_group.add_argument("--ar_user_en",             default=0,     type=int,       help="FIFO AR-Channel User Enable 0 or 1")
-    core_group.add_argument("--ar_user_width",          default=1,     type=int,       help="FIFO AR-Channel User Width")
+    core_group.add_argument("--ar_user_width",          default=1,     type=int,       help="FIFO AR-Channel User Width from 1 to 1024")
     core_group.add_argument("--r_user_en",              default=0,     type=int,       help="FIFO R-Channel User Enable 0 or 1")
-    core_group.add_argument("--r_user_width",           default=1,     type=int,       help="FIFO R-Channel User Width")
-    core_group.add_argument("--write_fifo_depth",       default=0,     type=int,       help="FIFO Write Depth")
-    core_group.add_argument("--read_fifo_depth",        default=0,     type=int,       help="FIFO Read Depth")
-    core_group.add_argument("--write_fifo_delay",       default=0,     type=int,       help="FIFO Write Delay")
-    core_group.add_argument("--read_fifo_delay",        default=0,     type=int,       help="FIFO Read Delay")
+    core_group.add_argument("--r_user_width",           default=1,     type=int,       help="FIFO R-Channel User Width from 1 to 1024")
+    core_group.add_argument("--write_fifo_depth",       default=0,     type=int,       help="FIFO Write Depth 0,32,512")
+    core_group.add_argument("--read_fifo_depth",        default=0,     type=int,       help="FIFO Read Depth 0,32,512")
+    core_group.add_argument("--write_fifo_delay",       default=0,     type=int,       help="FIFO Write Delay 0 or 1")
+    core_group.add_argument("--read_fifo_delay",        default=0,     type=int,       help="FIFO Read Delay 0 or 1")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -167,33 +166,33 @@ def main():
         exit()
         
     # AW_USER_Width
-    aw_user_width_range=range(1025)
+    aw_user_width_range=range(1,1025)
     if args.aw_user_width not in aw_user_width_range:
-        logger.error("\nEnter a valid 'aw_user_width' from 0 to 1024")
+        logger.error("\nEnter a valid 'aw_user_width' from 1 to 1024")
         exit()
         
     # W_USER_Width
-    w_user_width_range=range(1025)
+    w_user_width_range=range(1,1025)
     if args.w_user_width not in w_user_width_range:
-        logger.error("\nEnter a valid 'w_user_width' from 0 to 1024")
+        logger.error("\nEnter a valid 'w_user_width' from 1 to 1024")
         exit()
         
     # B_USER_Width
-    b_user_width_range=range(1025)
+    b_user_width_range=range(1,1025)
     if args.b_user_width not in b_user_width_range:
-        logger.error("Enter a valid 'b_user_width' from 0 to 1024")
+        logger.error("Enter a valid 'b_user_width' from 1 to 1024")
         exit()
         
     # AR_USER_Width
-    ar_user_width_range=range(1025)
+    ar_user_width_range=range(1,1025)
     if args.ar_user_width not in ar_user_width_range:
-        logger.error("\nEnter a valid 'ar_user_width' from 0 to 1024")
+        logger.error("\nEnter a valid 'ar_user_width' from 1 to 1024")
         exit()
         
     # R_USER_Width
-    r_user_width_range=range(1025)
+    r_user_width_range=range(1,1025)
     if args.r_user_width not in r_user_width_range:
-        logger.error("\nEnter a valid 'r_user_width' from 0 to 1024")
+        logger.error("\nEnter a valid 'r_user_width' from 1 to 1024")
         exit()
         
     # WRITE_FIFO_DEPTH
@@ -229,8 +228,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
