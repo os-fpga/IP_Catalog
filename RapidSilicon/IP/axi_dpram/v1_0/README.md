@@ -24,7 +24,7 @@ There are seven parameters for AXI-DPRAM core. These parameters, their keywords 
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axi_dpram_gen.py --data_width=32 --add_width=8 --build-name=dpram --build
+python3 axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram --build
 ```
 
 ## TCL File
