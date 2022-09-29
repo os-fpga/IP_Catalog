@@ -76,16 +76,16 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=8,        type=int,         help="Data Width 1 - 4096")
+    core_group.add_argument("--data_width",     default=8,        type=int,         help="Data Width from 1 to 4096")
     core_group.add_argument("--last_en",        default=1,        type=int,         help="Last Enable 0 or 1")
     core_group.add_argument("--id_en",          default=0,        type=int,         help="ID Enable 0 or 1")
-    core_group.add_argument("--id_width",       default=8,        type=int,         help="ID Width 1 - 32")
+    core_group.add_argument("--id_width",       default=8,        type=int,         help="ID Width from 1 to 32")
     core_group.add_argument("--dest_en",        default=0,        type=int,         help="Destination Enable 0 or 1")
-    core_group.add_argument("--dest_width",     default=8,        type=int,         help="Destination Width 1 - 32")
+    core_group.add_argument("--dest_width",     default=8,        type=int,         help="Destination Width from 1 to 32")
     core_group.add_argument("--user_en",        default=1,        type=int,         help="User Enable 0 or 1")
-    core_group.add_argument("--user_width",     default=1,        type=int,         help="User Width 1 - 4096")
-    core_group.add_argument("--reg_type",       default=2,        type=int,         help="Register Type")
-    core_group.add_argument("--length",         default=2,        type=int,         help="Number of registers in pipeline")
+    core_group.add_argument("--user_width",     default=1,        type=int,         help="User Width from 1 to 4096")
+    core_group.add_argument("--reg_type",       default=2,        type=int,         help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
+    core_group.add_argument("--length",         default=2,        type=int,         help="Number of registers in pipeline from 0 to 5")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -171,8 +171,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
