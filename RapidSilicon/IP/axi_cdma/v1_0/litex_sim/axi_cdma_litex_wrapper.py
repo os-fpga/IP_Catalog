@@ -18,10 +18,10 @@ logging.basicConfig(level=logging.INFO)
 # AXI CDMA ---------------------------------------------------------------------------------------
 class AXICDMA(Module):
     def __init__(self, platform, m_axi, 
-        axi_max_burst_len   = False,
-        len_width           = False,
-        tag_width           = False,
-        enable_unaligned    = False
+        axi_max_burst_len   = 16,
+        len_width           = 20,
+        tag_width           = 8,
+        enable_unaligned    = 0
         ):
 
         # Get Parameters.
