@@ -20,7 +20,6 @@ from litex.build.osfpga import OSFPGAPlatform
 from litex.soc.interconnect.axi import AXILiteInterface
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
-
 def get_clkin_ios():
     return [
         ("clk",  0, Pins(1)),
@@ -42,6 +41,7 @@ def get_i2c_ios():
 # I2C Master Wrapper ----------------------------------------------------------------------------------
 class I2CMASTERWrapper(Module):
     def __init__(self, platform, default_prescale, fixed_prescale, cmd_fifo, cmd_addr_width, write_fifo, write_addr_width, read_fifo, read_addr_width):
+        
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
@@ -91,11 +91,11 @@ def main():
     core_group.add_argument("--default_prescale",   default=1,   type=int,     help="I2C Default Prescale 0 or 1")
     core_group.add_argument("--fixed_prescale",     default=0,   type=int,     help="I2C Fixed Prescale 0 or 1")
     core_group.add_argument("--cmd_fifo",           default=1,   type=int,     help="I2C FIFO Command Enable 0 or 1")
-    core_group.add_argument("--cmd_addr_width",     default=5,   type=int,     help="I2C FIFO Command Address Width (1-5)")
+    core_group.add_argument("--cmd_addr_width",     default=5,   type=int,     help="I2C FIFO Command Address Width from 1 to 5)")
     core_group.add_argument("--write_fifo",         default=1,   type=int,     help="I2C FIFO Write Enable 0 or 1")
-    core_group.add_argument("--write_addr_width",   default=5,   type=int,     help="I2C FIFO Write Address Width (1-5)")
+    core_group.add_argument("--write_addr_width",   default=5,   type=int,     help="I2C FIFO Write Address Width from 1 to 5)")
     core_group.add_argument("--read_fifo",          default=1,   type=int,     help="I2C FIFO Read Enable 0 or 1")
-    core_group.add_argument("--read_addr_width",    default=5,   type=int,     help="I2C FIFO Read Address Width (1-5)")
+    core_group.add_argument("--read_addr_width",    default=5,   type=int,     help="I2C FIFO Read Address Width from 1 to 5)")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -169,8 +169,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
