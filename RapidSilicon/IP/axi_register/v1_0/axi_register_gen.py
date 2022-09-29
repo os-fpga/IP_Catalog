@@ -57,7 +57,7 @@ class AXIREGISTERWrapper(Module):
         platform.add_extension(axi.get_ios("m_axi"))
         self.comb += axi.connect_to_pads(platform.request("m_axi"), mode="master")
         
-        # AXI-DPRAM -----------------------------------------------------
+        # AXI-REGISTER -----------------------------------------------------
         self.submodules += AXIREGISTER(platform, 
             s_axi               =   axi,
             m_axi               =   axi, 
@@ -169,8 +169,7 @@ def main():
     # Write Data Channel Register Type
     w_reg_range=range(3)
     if args.w_reg_type not in w_reg_range:
-        logger.error("\nEnter a valid 'w_reg_type'")
-        print("'0 to 2'")
+        logger.error("\nEnter a valid 'w_reg_type' from 0 to 2")
         exit()
 
     # Write Response Channel Register Type
