@@ -21,7 +21,7 @@ There are four parameters for AXI-RAM core. These parameters, their keywords and
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axi_ram_gen.py --data_width=32 --add _width=8 --build-name=ram --build
+python3 axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram --build
 ```
 
 
