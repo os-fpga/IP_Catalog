@@ -63,7 +63,7 @@ def main():
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width",     default=32,     type=int,       help="RAM Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default=16,     type=int,       help="RAM Address Width 8-16")
+    core_group.add_argument("--addr_width",     default=16,     type=int,       help="RAM Address Width from 8 to 16")
     core_group.add_argument("--id_width",       default=8,      type=int,       help="RAM ID Width from 1 to 8")
     core_group.add_argument("--pip_out",        default=0,      type=int,       help="RAM Pipeline Output 0 or 1")
 
@@ -115,8 +115,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
