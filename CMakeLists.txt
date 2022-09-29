@@ -28,7 +28,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 
 project(IP_Catalog)
-message(STATUS "Installing IP Catalog")
+
+message(STATUS "Installing ${PROJECT_NAME}")
 find_package(Python COMPONENTS Interpreter REQUIRED)
-message(STATUS "IP_Catalog installation completed")
-endif ()
+message(STATUS "${PROJECT_NAME} installation completed")
