@@ -21,7 +21,6 @@ from litex.soc.interconnect.axi import AXIInterface
 
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
-
 def get_clkin_ios():
     return [
         ("axi_aclk",     0,    Pins(1)),
@@ -49,6 +48,7 @@ def get_spi_ios():
 # AXI SPI SLAVE Wrapper ----------------------------------------------------------------------------------
 class AXISPISLAVEWrapper(Module):
     def __init__(self, platform, data_width, addr_width, id_width, user_width, dummy_cycles):
+        
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
@@ -108,9 +108,9 @@ def main():
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--addr_width",        default=32,    type=int,       help="Address Width 8,16,32")
     core_group.add_argument("--data_width",        default=64,    type=int,       help="Data Width 8,16,32,64")
-    core_group.add_argument("--user_width",        default=6,     type=int,       help="User Width 1 - 8")
-    core_group.add_argument("--id_width",          default=3,     type=int,       help="ID Width 1 - 16")
-    core_group.add_argument("--dummy_cycles",      default=32,    type=int,       help="Dummy Cycles")
+    core_group.add_argument("--user_width",        default=6,     type=int,       help="User Width from 1 to 8")
+    core_group.add_argument("--id_width",          default=3,     type=int,       help="ID Width from 1 to 16")
+    core_group.add_argument("--dummy_cycles",      default=32,    type=int,       help="Dummy Cycles 16,32")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -167,8 +167,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
