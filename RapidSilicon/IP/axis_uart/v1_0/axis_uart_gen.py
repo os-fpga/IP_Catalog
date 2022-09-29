@@ -20,7 +20,6 @@ from litex.build.osfpga import OSFPGAPlatform
 from litex.soc.interconnect.axi import AXIStreamInterface
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
-
 def get_clkin_ios():
     return [
         ("clk",  0, Pins(1)),
@@ -41,6 +40,7 @@ def get_uart_ios():
 # AXI_STREAM_UART Wrapper ----------------------------------------------------------------------------------
 class AXISTREAMUARTWrapper(Module):
     def __init__(self, platform, data_width):
+        
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())  
         self.clock_domains.cd_sys  = ClockDomain()
@@ -89,7 +89,7 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=5,     type=int,        help="UART Data Width 5 - 8")
+    core_group.add_argument("--data_width",     default=5,     type=int,        help="UART Data Width from 5 to 8")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -121,8 +121,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
