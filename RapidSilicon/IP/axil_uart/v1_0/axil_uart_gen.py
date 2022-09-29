@@ -21,7 +21,6 @@ from litex.soc.interconnect.axi import AXILiteInterface
 
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
-
 def get_clkin_ios():
     return [
         ("s_axi_aclk",      0, Pins(1)),
@@ -42,7 +41,6 @@ def get_uart_ios():
     ]
 
 # AXI LITE UART Wrapper ----------------------------------------------------------------------------------
-
 class AXILITEUARTWrapper(Module):
     def __init__(self, platform, addr_width, data_width):
         # Clocking ---------------------------------------------------------------------------------
@@ -65,7 +63,7 @@ class AXILITEUARTWrapper(Module):
             data_width          = data_width
             )
         
-        # UART Signals--------------------------------------------------------------------------------
+        # UART Signals --------------------------------------------------------------------------------
         platform.add_extension(get_uart_ios())
         
         # Inputs
@@ -92,8 +90,8 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width")
-    core_group.add_argument("--data_width",      default=32,       type=int,       help="UART Data Width")
+    core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width 8,16,32")
+    core_group.add_argument("--data_width",      default=32,       type=int,       help="UART Data Width 8,16,32,64")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -132,8 +130,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
