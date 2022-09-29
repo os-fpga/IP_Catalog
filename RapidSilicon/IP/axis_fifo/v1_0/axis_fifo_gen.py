@@ -7,7 +7,88 @@ import os
 import json
 import argparse
 import shutil
-from datetime import datetime
+import logging
+
+from litex_sim.axis_fifo_litex_wrapper import AXISTREAMFIFO
+
+from migen import *
+
+from litex.build.generic_platform import *
+
+from litex.build.osfpga import OSFPGAPlatform
+
+from litex.soc.interconnect.axi import AXIStreamInterface
+
+# IOs/Interfaces -----------------------------------------------------------------------------------
+def get_clkin_ios():
+    return [
+        ("clk",  0, Pins(1)),
+        ("rst",  0, Pins(1)),
+    ]
+
+def get_status_ios():
+    return [
+        ("status", 0,
+            Subsignal("overflow",   Pins(1)),
+            Subsignal("bad_frame",  Pins(1)),
+            Subsignal("good_frame", Pins(1)),
+            Subsignal("full",       Pins(1)),
+            Subsignal("empty",      Pins(1))    
+        )
+    ]
+
+# AXI_STREAM_FIFO Wrapper ----------------------------------------------------------------------------------
+class AXISTREAMFIFOWrapper(Module):
+    def __init__(self, platform, depth, data_width, last_en, id_en, id_width, 
+                dest_en, dest_width, user_en, user_width, pip_out, frame_fifo,
+                drop_bad_frame, drop_when_full
+                ):
+        # Clocking ---------------------------------------------------------------------------------
+        platform.add_extension(get_clkin_ios())
+        self.clock_domains.cd_sys  = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+        
+        # AXI STREAM -------------------------------------------------------------------------------
+        axis = AXIStreamInterface(
+            data_width = data_width,
+            user_width = user_width,
+            dest_width = dest_width,
+            id_width   = id_width
+        )
+        # Input AXI
+        platform.add_extension(axis.get_ios("s_axis"))
+        self.comb += axis.connect_to_pads(platform.request("s_axis"), mode="slave")
+        
+        # Output AXI
+        platform.add_extension(axis.get_ios("m_axis"))
+        self.comb += axis.connect_to_pads(platform.request("m_axis"), mode="master")
+        
+        # AXIS-FIFO ----------------------------------------------------------------------------------
+        self.submodules.fifo = fifo = AXISTREAMFIFO(platform,
+            m_axis          = axis,
+            s_axis          = axis,
+            depth           = depth, 
+            last_en         = last_en,
+            id_en           = id_en,
+            dest_en         = dest_en,
+            user_en         = user_en,
+            pip_out         = pip_out,
+            frame_fifo      = frame_fifo,
+            drop_bad_frame  = drop_bad_frame,
+            drop_when_full  = drop_when_full
+            )
+        
+        # FIFO Status Signals ----------------------------------------------------------------------
+        platform.add_extension(get_status_ios())
+        fifo_pads = platform.request("status")
+        self.comb += [
+            fifo_pads.overflow.eq(fifo.status_overflow),
+            fifo_pads.bad_frame.eq(fifo.status_bad_frame),
+            fifo_pads.good_frame.eq(fifo.status_good_frame),
+            fifo_pads.full.eq(fifo.status_full),
+            fifo_pads.empty.eq(fifo.status_empty)
+        ]
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -19,24 +100,24 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--depth",          default='4096',                 help="FIFO Depth 8,16,32,64,...,32768")
-    core_group.add_argument("--data_width",     default='8',                    help="FIFO Data Width 1 - 4096")
-    core_group.add_argument("--last_en",        default='1',                    help="FIFO Last Enable 0 or 1")
-    core_group.add_argument("--id_en",          default='0',                    help="FIFO ID Enable 0 or 1")
-    core_group.add_argument("--id_width",       default='8',                    help="FIFO ID Width 0 - 32")
-    core_group.add_argument("--dest_en",        default='0',                    help="FIFO Destination Enable 0 or 1")
-    core_group.add_argument("--dest_width",     default='8',                    help="FIFO Destination Width 0 - 32")
-    core_group.add_argument("--user_en",        default='1',                    help="FIFO User Enable 0 or 1")
-    core_group.add_argument("--user_width",     default='1',                    help="FIFO User Width 0 - 4096")
-    core_group.add_argument("--pip_out",        default='2',                    help="FIFO Pipeline Output from 0 to 2")
-    core_group.add_argument("--frame_fifo",     default='0',                    help="FIFO Frame 0 or 1")
-    core_group.add_argument("--drop_bad_frame", default='0',                    help="FIFO Drop Bad Frame 0 or 1")
-    core_group.add_argument("--drop_when_full", default='0',                    help="FIFO Drop Frame when FIFO is Full")
+    core_group.add_argument("--depth",          default=4096,     type=int,         help="FIFO Depth 8,16,32,64,...,32768")
+    core_group.add_argument("--data_width",     default=8,        type=int,         help="FIFO Data Width from 1 to 4096")
+    core_group.add_argument("--last_en",        default=1,        type=int,         help="FIFO Last Enable 0 or 1")
+    core_group.add_argument("--id_en",          default=0,        type=int,         help="FIFO ID Enable 0 or 1")
+    core_group.add_argument("--id_width",       default=8,        type=int,         help="FIFO ID Width from 1 to 32")
+    core_group.add_argument("--dest_en",        default=0,        type=int,         help="FIFO Destination Enable 0 or 1")
+    core_group.add_argument("--dest_width",     default=8,        type=int,         help="FIFO Destination Width from 1 to 32")
+    core_group.add_argument("--user_en",        default=1,        type=int,         help="FIFO User Enable 0 or 1")
+    core_group.add_argument("--user_width",     default=1,        type=int,         help="FIFO User Width from 1 to 4096")
+    core_group.add_argument("--pip_out",        default=2,        type=int,         help="FIFO Pipeline Output from 0 to 2")
+    core_group.add_argument("--frame_fifo",     default=0,        type=int,         help="FIFO Frame 0 or 1")
+    core_group.add_argument("--drop_bad_frame", default=0,        type=int,         help="FIFO Drop Bad Frame 0 or 1")
+    core_group.add_argument("--drop_when_full", default=0,        type=int,         help="FIFO Drop Frame When Full 0 or 1")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="",                     help="Build Directory")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axis_fifo_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -47,107 +128,84 @@ def main():
     args = parser.parse_args()
 
     # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
     # Depth
-    depth_param=['8', '16', '32', '64', '128', '256', '512', '1024', '2048', '4096', '8192', '16384', '32768']
+    depth_param=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768]
     if args.depth not in depth_param:
-        print("Enter a valid 'depth'")
-        print(depth_param)
+        logger.error("\nEnter a valid 'depth'\n %s", depth_param)
         exit()
 
     # Data_Width
-    x = int(args.data_width)
     data_width_range=range(1,4097)
-    if x not in data_width_range:
-        print("Enter a valid 'data_width'")
-        print("'1 to 4096'")
+    if args.data_width not in data_width_range:
+        logger.error("\nEnter a valid 'data_width' from 1 to 4096")
         exit()
     
     # Last Enable
-    x = int(args.last_en)
     last_en_range=range(2)
-    if x not in last_en_range:
-        print("Enter a valid 'last_en'")
-        print("'0 or 1'")
+    if args.last_en not in last_en_range:
+        logger.error("\nEnter a valid 'last_en' 0 or 1")
         exit()
 
     # ID Enable
-    x = int(args.id_en)
     id_en_range=range(2)
-    if x not in id_en_range:
-        print("Enter a valid 'id_en'")
-        print("'0 or 1'")
+    if args.id_en not in id_en_range:
+        logger.error("\nEnter a valid 'id_en' 0 or 1")
         exit()
 
     # ID Width
-    x = int(args.id_width)
     id_width_range=range(1,33)
-    if x not in id_width_range:
-        print("Enter a valid 'id_width'")
-        print("'1 to 32'")
+    if args.id_width not in id_width_range:
+        logger.error("\nEnter a valid 'id_width' from 1 to 32")
         exit()
 
     # Destination Enable
-    x = int(args.dest_en)
     dest_en_range=range(2)
-    if x not in dest_en_range:
-        print("Enter a valid 'dest_en'")
-        print("'0 or 1'")
+    if args.dest_en not in dest_en_range:
+        logger.error("\nEnter a valid 'dest_en' 0 or 1")
         exit()
         
     # Destination Width
-    x = int(args.dest_width)
     dest_width_range=range(1,33)
-    if x not in dest_width_range:
-        print("Enter a valid 'dest_width'")
-        print("'1 to 32'")
+    if args.dest_width not in dest_width_range:
+        logger.error("\nEnter a valid 'dest_width' from 1 to 32")
         exit()
         
     # User Enable
-    x = int(args.user_en)
     user_en_range=range(2)
-    if x not in user_en_range:
-        print("Enter a valid 'user_en'")
-        print("'0 or 1'")
+    if args.user_en not in user_en_range:
+        logger.error("\nEnter a valid 'user_en' 0 or 1")
         exit()
         
     # User Width
-    x = int(args.user_width)
     user_width_range=range(1,4097)
-    if x not in user_width_range:
-        print("Enter a valid 'user_width'")
-        print("'1 to 4096'")
+    if args.user_width not in user_width_range:
+        logger.error("\nEnter a valid 'user_width' from 1 to 4096")
         exit()
         
     # Pipeline_Output
-    x = int(args.pip_out)
     pip_range=range(3)
-    if x not in pip_range:
-        print("Enter a valid 'pip_out'")
-        print("'0 to 2'")
+    if args.pip_out not in pip_range:
+        logger.error("\nEnter a valid 'pip_out' from 0 to 2")
         exit()
         
     # Frame FIFO
-    x = int(args.frame_fifo)
     frame_fifo_range=range(2)
-    if x not in frame_fifo_range:
-        print("Enter a valid 'frame_fifo'")
-        print("'0 or 1'")
+    if args.frame_fifo not in frame_fifo_range:
+        logger.error("\nEnter a valid 'frame_fifo' 0 or 1")
         exit()
         
     # Drop Bad Frame
-    x = int(args.drop_bad_frame)
     drop_bad_frame_range=range(2)
-    if x not in drop_bad_frame_range:
-        print("Enter a valid 'drop_bad_frame'")
-        print("'0 or 1'")
+    if args.drop_bad_frame not in drop_bad_frame_range:
+        logger.error("\nEnter a valid 'drop_bad_frame' 0 or 1")
         exit()
         
     # Drop When Full
-    x = int(args.drop_when_full)
     drop_when_full_range=range(2)
-    if x not in drop_when_full_range:
-        print("Enter a valid 'drop_when_full'")
-        print("'0 or 1'")
+    if args.drop_when_full not in drop_when_full_range:
+        logger.error("\nEnter a valid 'drop_when_full' 0 or 1")
         exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -158,8 +216,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
@@ -167,7 +226,7 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'ip_build/rapidsilicon/ip/axis_fifo/v1_0/' + (args.build_name))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axis_fifo/v1_0/' + (args.build_name))
         gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axis_fifo_gen.py"))
         if not os.path.exists(build_path):
             os.makedirs(build_path)
@@ -236,206 +295,45 @@ def main():
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
+        
+    # Create LiteX Core ----------------------------------------------------------------------------
+    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
+    module     = AXISTREAMFIFOWrapper(platform,
+        depth           = args.depth,
+        data_width      = args.data_width,
+        last_en         = args.last_en,
+        id_en           = args.id_en,
+        id_width        = args.id_width,
+        dest_en         = args.dest_en,
+        dest_width      = args.dest_width,
+        user_en         = args.user_en,
+        user_width      = args.user_width,
+        pip_out         = args.pip_out,
+        frame_fifo      = args.frame_fifo,
+        drop_bad_frame  = args.drop_bad_frame,
+        drop_when_full  = args.drop_when_full
+    )
 
-        # Generate RTL Wrapper
-        if args.build_name:
-            wrapper_path = os.path.join(src_path, (args.build_name + ".v"))
-            with open(wrapper_path, "w") as f:
-
-#-------------------------------------------------------------------------------
-# ------------------------- RTL WRAPPER ----------------------------------------
-#-------------------------------------------------------------------------------
-                f.write ("""
-//////////////////////////////////////////////////////////////////////////////////////////
-// For Reference: https://github.com/alexforencich/verilog-i2c/blob/master/rtl/axis_fifo.v
-//////////////////////////////////////////////////////////////////////////////////////////
-/*
-Copyright (c) 2013 - 2018 Alex Forencich
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-//////////////////////////////////////////////////////////////////////////////////////////\n\n
-""")
-                f.write ("// Created on: {}\n// Language: Verilog 2001\n\n".format(datetime.now()))
-                f.write ("`resetall \n`timescale 1ns/ 1ps \n`default_nettype none \n\n")
-                f.write ("""module {} #(""".format(args.build_name))
-
-                f.write ("""
-        // FIFO depth in words
-        // KEEP_WIDTH words per cycle if KEEP_ENABLE set
-        // Rounded up to nearest power of 2 cycles
-        localparam DEPTH = {}, """.format(args.depth))
-
-                f.write ("""
-        // Width of AXI stream interfaces in bits
-        localparam DATA_WIDTH = {}, """.format(args.data_width))
-
-                f.write ("""
-        // Propagate tkeep signal
-        // If disabled, tkeep assumed to be 1'b1
-        parameter KEEP_ENABLE = (DATA_WIDTH>8),
-        // tkeep signal width (words per cycle)
-        parameter KEEP_WIDTH = (DATA_WIDTH/8),""")                
-
-                f.write ("""
-        // Propagate tlast signal
-        localparam LAST_ENABLE = {}, """.format(args.last_en))
-
-                f.write ("""
-        // Propagate tid signal
-        localparam ID_ENABLE = {}, """.format(args.id_en))
-
-                f.write ("""
-        // tid signal width
-        localparam ID_WIDTH = {}, """.format(args.id_width))
-
-                f.write ("""
-        // Propagate tdest signal
-        localparam DEST_ENABLE = {}, """.format(args.dest_en))
-
-                f.write ("""
-        // tdest signal width
-        localparam DEST_WIDTH = {}, """.format(args.dest_width))
-
-                f.write ("""
-        // Propagate tuser signal
-        localparam USER_ENABLE = {}, """.format(args.user_en))
-
-                f.write ("""
-        // tuser signal width
-        localparam USER_WIDTH = {}, """.format(args.user_width))
-
-                f.write ("""
-        // number of output pipeline registers
-        localparam PIPELINE_OUTPUT = {}, """.format(args.pip_out))
-
-                f.write ("""
-        // Frame FIFO mode - operate on frames instead of cycles
-        // When set, m_axis_tvalid will not be deasserted within a frame
-        // Requires LAST_ENABLE set
-        localparam FRAME_FIFO = {}, """.format(args.frame_fifo))
-
-                f.write ("""
-        // Drop frames marked bad
-        // Requires FRAME_FIFO set
-        localparam DROP_BAD_FRAME = {}, """.format(args.drop_bad_frame))
-
-                f.write ("""
-        // Drop incoming frames when full
-        // When set, s_axis_tready is always asserted
-        // Requires FRAME_FIFO set
-        localparam DROP_WHEN_FULL = {}, """.format(args.drop_when_full))    
-
-                f.write("""
-        // tuser value for bad frame marker
-        localparam USER_BAD_FRAME_VALUE = 1'b1,
-        // tuser mask for bad frame marker
-        parameter USER_BAD_FRAME_MASK = 1'b1
-)
-(
-    input  wire                   clk,
-    input  wire                   rst,
-
-    /*
-     * AXI input
-     */
-    input  wire [DATA_WIDTH-1:0]  s_axis_tdata,
-    input  wire [KEEP_WIDTH-1:0]  s_axis_tkeep,
-    input  wire                   s_axis_tvalid,
-    output wire                   s_axis_tready,
-    input  wire                   s_axis_tlast,
-    input  wire [ID_WIDTH-1:0]    s_axis_tid,
-    input  wire [DEST_WIDTH-1:0]  s_axis_tdest,
-    input  wire [USER_WIDTH-1:0]  s_axis_tuser,
-
-    /*
-     * AXI output
-     */
-    output wire [DATA_WIDTH-1:0]  m_axis_tdata,
-    output wire [KEEP_WIDTH-1:0]  m_axis_tkeep,
-    output wire                   m_axis_tvalid,
-    input  wire                   m_axis_tready,
-    output wire                   m_axis_tlast,
-    output wire [ID_WIDTH-1:0]    m_axis_tid,
-    output wire [DEST_WIDTH-1:0]  m_axis_tdest,
-    output wire [USER_WIDTH-1:0]  m_axis_tuser,
-
-    /*
-     * Status
-     */
-    output wire                   status_overflow,
-    output wire                   status_bad_frame,
-    output wire                   status_good_frame,
-    output wire                   status_full,
-    output wire                   status_empty
-);
-
-""")
-                f.write("axis_fifo #(\n.DEPTH(DEPTH),\n.DATA_WIDTH(DATA_WIDTH),\n.LAST_ENABLE(LAST_ENABLE),\n.ID_ENABLE(ID_ENABLE),\n.ID_WIDTH(ID_WIDTH),\n.DEST_ENABLE(DEST_ENABLE),\n.DEST_WIDTH(DEST_WIDTH),\n.USER_ENABLE(USER_ENABLE),\n.USER_WIDTH(USER_WIDTH),\n.PIPELINE_OUTPUT(PIPELINE_OUTPUT),\n.FRAME_FIFO(FRAME_FIFO),\n.DROP_BAD_FRAME(DROP_BAD_FRAME),\n.DROP_WHEN_FULL(DROP_WHEN_FULL)\n)")
-                f.write("""
-
-axis_fifo_inst
-(
-.clk(clk),
-.rst(rst),
-
-/*
- * AXI input
- */
-.s_axis_tdata(s_axis_tdata),
-.s_axis_tkeep(s_axis_tkeep),
-.s_axis_tvalid(s_axis_tvalid),
-.s_axis_tready(s_axis_tready),
-.s_axis_tlast(s_axis_tlast),
-.s_axis_tid(s_axis_tid),
-.s_axis_tdest(s_axis_tdest),
-.s_axis_tuser(s_axis_tuser),
-
-
-/*
- * AXI output
- */
-.m_axis_tdata(m_axis_tdata),
-.m_axis_tkeep(m_axis_tkeep),
-.m_axis_tvalid(m_axis_tvalid),
-.m_axis_tready(m_axis_tready),
-.m_axis_tlast(m_axis_tlast),
-.m_axis_tid(m_axis_tid),
-.m_axis_tdest(m_axis_tdest),
-.m_axis_tuser(m_axis_tuser),
-
-
-/*
- * Status
- */
-.status_overflow(status_overflow),
-.status_bad_frame(status_bad_frame),
-.status_good_frame(status_good_frame),
-.status_full(status_full),
-.status_empty(status_empty)
-);
-
-endmodule
-
-`resetall
-             """)
-                f.close()
+    # Build
+    if args.build:
+        platform.build(module,
+            build_dir    = "litex_build",
+            build_name   = args.build_name,
+            run          = False,
+            regular_comb = False
+        )
+        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
+        shutil.rmtree("litex_build")
+        
+        # TimeScale Addition to Wrapper
+        wrapper = os.path.join(src_path, f'{args.build_name}.v')
+        f = open(wrapper, "r")
+        content = f.readlines()
+        content.insert(14, '`timescale 1ns / 1ps\n')
+        f = open(wrapper, "w")
+        content = "".join(content)
+        f.write(str(content))
+        f.close()
 
 if __name__ == "__main__":
     main()

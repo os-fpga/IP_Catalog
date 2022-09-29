@@ -7,7 +7,7 @@ For more information, visit: http://alexforencich.com/wiki/en/verilog/i2c/start
 
 ## Generator Script
 
-This directory contains the generator script which places the RTL to `/ip_build/rapidsilicon/ip/i2c_master/v1_0/<build_name>/src` directory and generates its wrapper in the same directory. 
+This directory contains the generator script which places the RTL to `rapidsilicon/ip/i2c_master/v1_0/<build-name>/src/` directory and generates its wrapper in the same directory. 
     
 ## Parameters
 There are eight parameters for I2C_MASTER core. These parameters, their keywords and values are given below:
@@ -26,13 +26,13 @@ There are eight parameters for I2C_MASTER core. These parameters, their keywords
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 i2c_master_gen.py --build_name=i2c --build_dir=./ --write_fifo=1 --write_addr_width=5 --build
+python3 i2c_master_gen.py --build-name=i2c --build-dir=./test_dir --write_fifo=1 --write_addr_width=5 --build
 ```
 
 
 ## TCL File
 
-This python script also generates a raptor.tcl file which will be placed in `/ip_build/rapidsilicon/ip/i2c_master/v1_0/<build_name>/synth` directory.
+This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/i2c_master/v1_0/<build-name>/synth/` directory.
 
 
 ## References

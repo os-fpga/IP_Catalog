@@ -6,7 +6,7 @@ AXI-REGISTER is AXI4 based IP core.
 For more information, visit: http://alexforencich.com/wiki/en/verilog/axi/start
 
 ## Generator Script
-This directory contains the generator script which places the RTL to `/ip_build/rapidsilicon/ip/axi_register/v1_0/<build_name>/src` directory and generates its wrapper in the same directory. 
+This directory contains the generator script which places the RTL to `rapidsilicon/ip/axi_register/v1_0/<build-name>/src/` directory and generates its wrapper in the same directory. 
 
 ## Parameters
 There are thirteen parameters for AXI-REGISTER core. These parameters, their keywords and values are given below:
@@ -31,12 +31,12 @@ There are thirteen parameters for AXI-REGISTER core. These parameters, their key
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axi_register_gen.py --data_width=64 --add_width=32 --build_name=register --build
+python3 axi_register_gen.py --data_width=64 --add_width=32 --build-name=register --build
 ```
 
 ## TCL File
 
-This python script also generates a raptor.tcl file which will be placed in `/ip_build/rapidsilicon/ip/axi_register/v1_0/<build_name>/synth` directory.
+This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/axi_register/v1_0/<build-name>/synth/` directory.
 
 
 ## References
