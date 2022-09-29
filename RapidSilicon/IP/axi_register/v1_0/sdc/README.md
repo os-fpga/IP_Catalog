@@ -1,1 +1,1 @@
-Directory for constaints file
+Directory for Constraints 
