@@ -120,7 +120,7 @@ class AXIDMAWrapper(Module):
             enable_unaligned    = enable_unaligned
             )
         
-        # Non-Stnadard IOs
+        # Descriptor IOs
         platform.add_extension(get_axis_ios(axi_addr_width, len_width, axi_id_width, tag_width, axis_dest_width, axis_user_width))
         s_desc_pads = platform.request("s_axis_read_desc")
         self.comb += [
@@ -176,21 +176,21 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--axi_data_width",         default=32,     type=int,    help="DMA Data Width 8,16,32,64")
-    core_group.add_argument("--axi_addr_width",         default=16,     type=int,    help="DMA Address Width 8 - 16")
-    core_group.add_argument("--axi_id_width",           default=8,      type=int,    help="DMA ID Width from 1 - 32")
-    core_group.add_argument("--axi_max_burst_len",      default=16,     type=int,    help="DMA AXI burst length to generate ")
-    core_group.add_argument("--axis_last_enable",       default=1,      type=int,    help="DMA AXI stream tlast signal 0 or 1")    
-    core_group.add_argument("--axis_id_enable",         default=0,      type=int,    help="DMA AXI stream tid signal 0 or 1")    
-    core_group.add_argument("--axis_id_width",          default=8,      type=int,    help="DMA AXI stream tid signal width 1 - 32")    
-    core_group.add_argument("--axis_dest_enable",       default=0,      type=int,    help="DMA AXI stream tdest signal 0 or 1")
-    core_group.add_argument("--axis_dest_width",        default=8,      type=int,    help="DMA AXI stream tdest signal width")
-    core_group.add_argument("--axis_user_enable",       default=1,      type=int,    help="DMA AXI stream tuser signal 0 or 1")
-    core_group.add_argument("--axis_user_width",        default=1,      type=int,    help="DMA AXIS interface User Width from 1 - 32")    
-    core_group.add_argument("--len_width",              default=20,     type=int,    help="DMA AXI Width of length field")
-    core_group.add_argument("--tag_width",              default=8,      type=int,    help="DMA Width of tag field")
-    core_group.add_argument("--enable_sg",              default=0,      type=int,    help="Enable support for scatter/gather DMA 0 or 1")    
-    core_group.add_argument("--enable_unaligned",       default=0,      type=int,    help="Enable support for unaligned transfers 0 or 1")
+    core_group.add_argument("--axi_data_width",         default=32,     type=int,    help="DMA Data Width 8,16,32,64,128,256")
+    core_group.add_argument("--axi_addr_width",         default=16,     type=int,    help="DMA Address Width from 8 to 16")
+    core_group.add_argument("--axi_id_width",           default=8,      type=int,    help="DMA ID Width from 1 to 32")
+    core_group.add_argument("--axi_max_burst_len",      default=16,     type=int,    help="DMA AXI burst length from 1 to 256")
+    core_group.add_argument("--axis_last_enable",       default=1,      type=int,    help="DMA AXI stream tlast 0 or 1")    
+    core_group.add_argument("--axis_id_enable",         default=0,      type=int,    help="DMA AXI stream tid 0 or 1")    
+    core_group.add_argument("--axis_id_width",          default=8,      type=int,    help="DMA AXI stream tid width from 1 to 32")    
+    core_group.add_argument("--axis_dest_enable",       default=0,      type=int,    help="DMA AXI stream tdest 0 or 1")
+    core_group.add_argument("--axis_dest_width",        default=8,      type=int,    help="DMA AXI stream tdest width  from 1 to 8")
+    core_group.add_argument("--axis_user_enable",       default=1,      type=int,    help="DMA AXI stream tuser 0 or 1")
+    core_group.add_argument("--axis_user_width",        default=1,      type=int,    help="DMA AXIS User Width from 1 to 8")    
+    core_group.add_argument("--len_width",              default=20,     type=int,    help="DMA AXI Width of length field from 1 to 20")
+    core_group.add_argument("--tag_width",              default=8,      type=int,    help="DMA Width of tag field from 1 to 8")
+    core_group.add_argument("--enable_sg",              default=0,      type=int,    help="Support for scatter/gather DMA 0 or 1")    
+    core_group.add_argument("--enable_unaligned",       default=0,      type=int,    help="Support for unaligned transfers 0 or 1")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -306,9 +306,10 @@ def main():
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
 
+    jsonlogger = logging.getLogger("JSON")
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
