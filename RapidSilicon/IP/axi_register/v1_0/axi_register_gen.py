@@ -26,7 +26,7 @@ def get_clkin_ios():
         ("rst", 0, Pins(1)),
     ]
     
-# AXI-Register Wrapper --------------------------------------------------------------------------------
+# AXI-REGISTER Wrapper --------------------------------------------------------------------------------
 class AXIREGISTERWrapper(Module):
     def __init__(self, platform, data_width, addr_width, id_width, aw_user_width, 
                 w_user_width, b_user_width, ar_user_width, r_user_width, 
@@ -110,7 +110,7 @@ def main():
     args = parser.parse_args()
 
     # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value",)
+    logger = logging.getLogger("Invalid Parameter Value")
 
     # Data_Width
     data_width_param=[8, 16, 32, 64, 128, 256, 512, 1024]
@@ -197,9 +197,10 @@ def main():
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
 
+    jsonlogger = logging.getLogger("JSON")
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
@@ -278,7 +279,7 @@ def main():
             f.write("\n".join(tcl))
         f.close()
         
-        # Create LiteX Core ----------------------------------------------------------------------------
+    # Create LiteX Core ----------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module = AXIREGISTERWrapper(platform,
         data_width          = args.data_width,
