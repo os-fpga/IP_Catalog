@@ -57,7 +57,7 @@ class AXILITEGPIOWrapper(Module):
             data_width      = data_width
             )
         
-        # Non Standard IOs
+        # GPIO 
         platform.add_extension(get_gpio_ios(data_width))
         self.comb += gpio.gpin.eq(platform.request("gpin"))
         self.comb += platform.request("gpout").eq(gpio.gpout)
@@ -74,7 +74,7 @@ def main():
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
     core_group.add_argument("--data_width",     default=32,     type=int,       help="GPIO Data Width 8,16,32")
-    core_group.add_argument("--addr_width",     default=16,     type=int,       help="GPIO Address Width 8-16")
+    core_group.add_argument("--addr_width",     default=16,     type=int,       help="GPIO Address Width from 8 to 16")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -112,8 +112,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
     
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
