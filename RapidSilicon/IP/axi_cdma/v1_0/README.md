@@ -24,7 +24,7 @@ There are seven parameters for AXI-CDMA core. These parameters, their keywords a
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axi_cdma_gen.py --data_width=256 --add_width=8 --build-name=cdma --build
+python3 axi_cdma_gen.py --data_width=256 --addr_width=8 --build-name=cdma --build
 ```
 
 ## TCL File
