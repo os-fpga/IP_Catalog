@@ -64,8 +64,8 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--width",                  default=4,     type=int,        help="Width")
-    core_group.add_argument("--lsb_high_priority",      default=0,     type=int,        help="LSB High Priority")
+    core_group.add_argument("--width",                  default=4,     type=int,        help="Width from 2 to 8")
+    core_group.add_argument("--lsb_high_priority",      default=0,     type=int,        help="LSB High Priority 0 or 1")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -103,8 +103,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
