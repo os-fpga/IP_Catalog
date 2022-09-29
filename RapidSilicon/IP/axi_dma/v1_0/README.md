@@ -32,7 +32,7 @@ There are fifteen parameters for AXI-DMA core. These parameters, their keywords 
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axi_dma_gen.py --axi_data_width=32 --axi_add_width=8 --build_name=dma --build
+python3 axi_dma_gen.py --axi_data_width=32 --axi_addr_width=8 --build-name=dma --build
 ```
 
 ## TCL File
