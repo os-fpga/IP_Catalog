@@ -21,7 +21,6 @@ from litex.soc.interconnect.axi import AXILiteInterface
 
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
-
 def get_clkin_ios():
     return [
         ("clk",  0, Pins(1)),
@@ -48,6 +47,7 @@ def get_i2c_ios():
 # I2C SLAVE Wrapper ---------------------------------------------------------------------------------
 class I2CSLAVEWrapper(Module):
     def __init__(self, platform, data_width, addr_width, filter_len):
+        
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
@@ -102,7 +102,7 @@ def main():
     core_group = parser.add_argument_group(title="Core Parameters")
     core_group.add_argument("--data_width",     default=32,       type=int,            help="I2C_slave Data Width 8,16,32,64")
     core_group.add_argument("--addr_width",     default=16,       type=int,            help="I2C_slave Address Width 8,16,32")
-    core_group.add_argument("--filter_len",     default=4,        type=int,            help="I2C_slave Filter Lenght from 1 - 4")
+    core_group.add_argument("--filter_len",     default=4,        type=int,            help="I2C_slave Filter Lenght from 1 to 4")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -146,8 +146,9 @@ def main():
             args = parser.parse_args(namespace=t_args)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
+    jsonlogger = logging.getLogger("JSON")
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        jsonlogger.info(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
