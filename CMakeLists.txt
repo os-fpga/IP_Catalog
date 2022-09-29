@@ -28,18 +28,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 
 project(IP_Catalog)
-
-message(${PROJECT_SOURCE_DIR})
-
-if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../build/bin/raptor)
-    message(STATUS "IP_Catalog installation will start once Raptor.exe has been created")
-else ()
-    message(STATUS "IP_Catalog installation started")
-    find_package(Python COMPONENTS Interpreter REQUIRED)
-    message(${PROJECT_SOURCE_DIR})
-#    execute_process(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/share)
-#    execute_process(COMMAND cp -R ${PROJECT_SOURCE_DIR}/ ${CMAKE_INSTALL_PREFIX}/share)
-#    message(STATUS "Copy IP_Catalog files to ${CMAKE_INSTALL_PREFIX}/share")
-#    execute_process(COMMAND python3 IP_Catalog_setup.py --dev --install WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/share/IP_Catalog)
-    message(STATUS "IP_Catalog installation completed")
+message(STATUS "Installing IP Catalog")
+find_package(Python COMPONENTS Interpreter REQUIRED)
+message(STATUS "IP_Catalog installation completed")
 endif ()
