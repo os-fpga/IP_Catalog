@@ -1,1 +1,1 @@
-directory for python wrapper
+Directory for Python Wrapper
