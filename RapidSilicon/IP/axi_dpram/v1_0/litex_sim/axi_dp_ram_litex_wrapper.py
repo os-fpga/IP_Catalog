@@ -1,19 +1,17 @@
 #
-# This file is part of LiteX-Verilog-AXI-Test
+# This file is part of RapidSilicon's IP_Catalog.
 #
-# Copyright (c) 2022 Florent Kermarrec <florent@enjoy-digital.fr>
-# SPDX-License-Identifier: BSD-2-Clause
+# This file is Copyright (c) 2022 RapidSilicon.
+# SPDX-License-Identifier: TBD.
 
-# LiteX wrapper around Alex Forencich Verilog-AXI's axi_dp_ram.v.
+# LiteX wrapper around RapidSilicon axi_dp_ram.v
 
 import os
 import logging
-import math
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
-
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,51 +19,52 @@ logging.basicConfig(level=logging.INFO)
 
 class AXIDPRAM(Module):
     def __init__(self, platform, s_axi_a, s_axi_b, size=0x1000,
-        a_pipeline_output = False,
-        a_interleave      = False,
-        b_pipeline_output = False,
-        b_interleave      = False,
+        a_pipeline_output = 0,
+        a_interleave      = 0,
+        b_pipeline_output = 0,
+        b_interleave      = 0,
     ):
-        self.logger = logging.getLogger("AXIDPRAM")
 
-        # Get/Check Parameters.
+        # Get Parameters.
         # ---------------------
-
+        self.logger = logging.getLogger("AXI_DPRAM")
+        
+        self.logger.propagate = False
+        
         # Clock Domain.
-        self.logger.info(f"Clock Domain A: {s_axi_a.clock_domain}")
-        self.logger.info(f"Clock Domain B: {s_axi_b.clock_domain}")
+        self.logger.info(f"Clock Domain A   : {s_axi_a.clock_domain}")
+        self.logger.info(f"Clock Domain B   : {s_axi_b.clock_domain}")
 
         # Address width.
         address_width = len(s_axi_a.aw.addr)
-        self.logger.info(f"Address Width: {address_width}")
+        self.logger.info(f"Address Width    : {address_width}")
 
         # Data width.
         data_width = len(s_axi_a.w.data)
-        self.logger.info(f"Data Width: {data_width}")
+        self.logger.info(f"Data Width       : {data_width}")
 
         # ID width.
         id_width = len(s_axi_a.aw.id)
-        self.logger.info(f"ID Width: {id_width}")
+        self.logger.info(f"ID Width         : {id_width}")
 
         # Size.
-        self.logger.info(f"Size: {size}bytes")
+        self.logger.info(f"Size             : {size}bytes")
 
         # Pipeline/Interleave.
         self.logger.info(f"A Pipeline Output: {a_pipeline_output}")
-        self.logger.info(f"A Interleave R/W:  {a_interleave}")
+        self.logger.info(f"A Interleave R/W : {a_interleave}")
         self.logger.info(f"B Pipeline Output: {b_pipeline_output}")
-        self.logger.info(f"B Interleave R/W:  {b_interleave}")
+        self.logger.info(f"B Interleave R/W : {b_interleave}")
 
         # Module instance.
         # ----------------
-
         self.specials += Instance("axi_dp_ram",
             # Parameters.
             # -----------
             # Global.
-            p_DATA_WIDTH = data_width,
-            p_ADDR_WIDTH = math.ceil(math.log2(size)),
-            p_ID_WIDTH   = id_width,
+            p_DATA_WIDTH        = data_width,
+            p_ADDR_WIDTH        = address_width,
+            p_ID_WIDTH          = id_width,
 
             # Pipeline/Interleave.
             p_A_PIPELINE_OUTPUT = a_pipeline_output,
@@ -74,13 +73,12 @@ class AXIDPRAM(Module):
             p_B_INTERLEAVE      = b_interleave,
 
             # Clk / Rst.
-            # ----------
-            i_a_clk = ClockSignal(s_axi_a.clock_domain),
-            i_a_rst = ResetSignal(s_axi_a.clock_domain),
-            i_b_clk = ClockSignal(s_axi_b.clock_domain),
-            i_b_rst = ResetSignal(s_axi_b.clock_domain),
+            i_a_clk            = ClockSignal(),
+            i_a_rst            = ResetSignal(),
+            i_b_clk            = ClockSignal(),
+            i_b_rst            = ResetSignal(),
 
-            # AXI A Slave Interface.
+            # AXI Slave Interface.
             # --------------------
             # AW.
             i_s_axi_a_awid     = s_axi_a.aw.id,
@@ -127,7 +125,7 @@ class AXIDPRAM(Module):
             o_s_axi_a_rvalid   = s_axi_a.r.valid,
             i_s_axi_a_rready   = s_axi_a.r.ready,
 
-            # AXI B Slave Interface.
+            # AXI Slave Interface.
             # --------------------
             # AW.
             i_s_axi_b_awid     = s_axi_b.aw.id,
@@ -182,7 +180,4 @@ class AXIDPRAM(Module):
     @staticmethod
     def add_sources(platform):
         rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "axi_ram_wr_if.v"))
-        platform.add_source(os.path.join(rtl_dir, "axi_ram_rd_if.v"))
-        platform.add_source(os.path.join(rtl_dir, "axi_ram_wr_rd_if.v"))
         platform.add_source(os.path.join(rtl_dir, "axi_dp_ram.v"))
