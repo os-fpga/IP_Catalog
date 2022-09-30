@@ -24,10 +24,14 @@ class AXIREGISTER(Module):
         ar_reg_type         = 1,
         r_reg_type          = 2
     ):
-        self.logger = logging.getLogger("AXI_REGISTER")
 
         # Get Parameters.
         # ---------------------
+        self.logger = logging.getLogger("AXI_REGISTER")
+
+        self.logger.propagate = False
+
+        
         # Clock Domain.
         self.logger.info(f"Clock Domain   : {s_axi.clock_domain}")
 

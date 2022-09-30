@@ -26,6 +26,8 @@ class AXISPIPELINEREGISTER(Module):
         length          = 2        
     ):
         self.logger = logging.getLogger("AXIS_PIPELINE_REGISTER")
+        
+        self.logger.propagate = False
 
         # Data
         data_width = len(s_axis.data)

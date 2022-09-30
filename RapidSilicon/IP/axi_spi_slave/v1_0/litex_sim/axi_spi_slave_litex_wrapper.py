@@ -21,6 +21,8 @@ class AXISPISLAVE(Module):
         
         self.logger = logging.getLogger("AXI_SPI_SLAVE")
         
+        self.logger.propagate = False
+        
         # Clock Domain.
         clock_domain = m_axi.clock_domain
         self.logger.info(f"Clock Domain     : {clock_domain}")

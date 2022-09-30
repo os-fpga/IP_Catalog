@@ -20,7 +20,10 @@ logging.basicConfig(level=logging.INFO)
 
 class I2CMASTER(Module):
     def __init__(self, platform, s_axil, default_prescale, fixed_prescale, cmd_fifo, cmd_addr_width, write_fifo, write_addr_width, read_fifo, read_addr_width):
+        
         self.logger = logging.getLogger("I2C_MASTER")
+        
+        self.logger.propagate = False
         
         # DEFAULT_PRESCALE
         self.logger.info(f"DEFAULT_PRESCALE     : {default_prescale}")

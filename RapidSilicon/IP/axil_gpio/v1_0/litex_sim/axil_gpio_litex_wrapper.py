@@ -17,10 +17,13 @@ logging.basicConfig(level=logging.INFO)
 
 class AXILITEGPIO(Module):
     def __init__(self, platform, s_axil, data_width, address_width):
-        self.logger = logging.getLogger("AXI_LITE_GPIO")
 
         # Get Parameters
         # --------------
+        self.logger = logging.getLogger("AXI_LITE_GPIO")
+        
+        self.logger.propagate = False
+        
         # Clock Domain.
         clock_domain = s_axil.clock_domain
         self.logger.info(f"Clock Domain     : {clock_domain}")

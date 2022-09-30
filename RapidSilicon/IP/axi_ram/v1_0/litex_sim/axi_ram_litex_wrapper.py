@@ -34,10 +34,12 @@ def colorer(s, color="bright"):
 
 class AXIRAM(Module):
     def __init__(self, platform, s_axi, size=1024, pipeline_output=False):
-        self.logger = logging.getLogger("AXI_RAM")
 
         # Get/Check Parameters.
         # ---------------------
+        self.logger = logging.getLogger("AXI_RAM")
+
+        self.logger.propagate = False
 
         # Clock Domain.
         clock_domain = s_axi.clock_domain

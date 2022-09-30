@@ -19,10 +19,14 @@ logging.basicConfig(level=logging.INFO)
 # PRIORITY_ENCODER  ---------------------------------------------------------------------------------------
 class PRIORITYENCODER(Module):
     def __init__(self, platform, width, lsb_high_priority):
-                
+        
         # Logger
         self.logger = logging.getLogger("PRIORITY_ENCODER")
+        
+        self.logger.propagate = False
+        
         self.logger.info(f"WIDTH             : {width}")
+        
         self.logger.info(f"LSB_HIGH_PRIORITY : {lsb_high_priority}")
         
         self.input_unencoded    = Signal(width)

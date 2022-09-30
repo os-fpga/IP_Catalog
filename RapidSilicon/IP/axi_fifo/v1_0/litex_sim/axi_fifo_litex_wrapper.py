@@ -28,10 +28,13 @@ class AXIFIFO(Module):
         write_fifo_delay    = 0,
         read_fifo_delay     = 0  
     ):
-        self.logger = logging.getLogger("AXI_FIFO")
         
         # Get Parameters.
         # --------------
+        self.logger = logging.getLogger("AXI_FIFO")
+        
+        self.logger.propagate = False
+        
         clock_domain = s_axi.clock_domain
         self.logger.info(f"Clock Domain     : {clock_domain}")
 
