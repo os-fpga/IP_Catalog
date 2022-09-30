@@ -28,10 +28,13 @@ class AXIDMA(Module):
         enable_sg           = 0,
         enable_unaligned    = 0,
     ):
-        self.logger = logging.getLogger("AXI_DMA")
 
         # Get Parameters.
         # ---------------------
+        self.logger = logging.getLogger("AXI_DMA")
+        
+        self.logger.propagate = False
+        
         self.logger.info(f"Clock Domain         : {m_axi.clock_domain}")
 
         address_width = len(m_axi.aw.addr)

@@ -22,6 +22,8 @@ class AXISTREAMUART(Module):
         
         self.logger = logging.getLogger("AXI_STREAM_UART")
         
+        self.logger.propagate = False
+        
         # Data width.
         data_width = len(s_axis.data)
         self.logger.info(f"DATA_WIDTH : {data_width}")

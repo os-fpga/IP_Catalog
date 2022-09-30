@@ -24,10 +24,13 @@ class AXIDPRAM(Module):
         b_pipeline_output = 0,
         b_interleave      = 0,
     ):
-        self.logger = logging.getLogger("AXI_DPRAM")
 
         # Get Parameters.
         # ---------------------
+        self.logger = logging.getLogger("AXI_DPRAM")
+        
+        self.logger.propagate = False
+        
         # Clock Domain.
         self.logger.info(f"Clock Domain A   : {s_axi_a.clock_domain}")
         self.logger.info(f"Clock Domain B   : {s_axi_b.clock_domain}")

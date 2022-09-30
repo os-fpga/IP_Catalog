@@ -24,6 +24,8 @@ class AXISADAPTER(Module):
         user_en         = 1,
     ):
         self.logger = logging.getLogger("AXIS_ADAPTER")
+        
+        self.logger.propagate = False
 
         # Data Width
         s_data_width = len(s_axis.data)

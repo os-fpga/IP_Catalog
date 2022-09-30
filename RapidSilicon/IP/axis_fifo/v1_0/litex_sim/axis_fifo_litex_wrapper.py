@@ -29,6 +29,8 @@ class AXISTREAMFIFO(Module):
         drop_when_full  = 0        
     ):
         self.logger = logging.getLogger("AXI_STREAM_FIFO")
+        
+        self.logger.propagate = False
 
         # Depth
         self.logger.info(f"DEPTH            : {depth}")

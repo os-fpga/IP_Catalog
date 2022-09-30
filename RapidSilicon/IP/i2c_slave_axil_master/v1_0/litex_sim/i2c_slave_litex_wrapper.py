@@ -20,7 +20,10 @@ logging.basicConfig(level=logging.INFO)
 
 class I2CSLAVE(Module):
     def __init__(self, platform, m_axil, filter_len):
+        
         self.logger = logging.getLogger("I2C_SLAVE")
+        
+        self.logger.propagate = False
         
         # DATA_WIDTH
         data_width = len(m_axil.w.data)
