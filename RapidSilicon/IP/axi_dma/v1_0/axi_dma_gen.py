@@ -306,10 +306,9 @@ def main():
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
 
-    jsonlogger = logging.getLogger("JSON")
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        jsonlogger.info(json.dumps(vars(args), indent=4))
+        print(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
