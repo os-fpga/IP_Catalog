@@ -48,21 +48,26 @@ class AXISTREAMUARTWrapper(Module):
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         
         # AXI STREAM -------------------------------------------------------------------------------
-        axis = AXIStreamInterface(
+        s_axis = AXIStreamInterface(
             data_width = data_width
         )
+        
+        m_axis = AXIStreamInterface(
+            data_width = data_width
+        )
+        
         # Input AXI
-        platform.add_extension(axis.get_ios("s_axis"))
-        self.comb += axis.connect_to_pads(platform.request("s_axis"), mode="slave")
+        platform.add_extension(s_axis.get_ios("s_axis"))
+        self.comb += s_axis.connect_to_pads(platform.request("s_axis"), mode="slave")
         
         # Output AXI
-        platform.add_extension(axis.get_ios("m_axis"))
-        self.comb += axis.connect_to_pads(platform.request("m_axis"), mode="master")
+        platform.add_extension(m_axis.get_ios("m_axis"))
+        self.comb += m_axis.connect_to_pads(platform.request("m_axis"), mode="master")
         
         # AXIS-UART ----------------------------------------------------------------------------------
         self.submodules.uart = uart = AXISTREAMUART(platform, 
-            m_axis  = axis,
-            s_axis  = axis
+            m_axis  = m_axis,
+            s_axis  = s_axis
             )
         
         # UART Signals--------------------------------------------------------------------------------
