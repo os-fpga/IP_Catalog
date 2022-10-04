@@ -1,4 +1,4 @@
-# AXI_LITE-INTERCONNECT Core Generation 
+# AXI-LITE-INTERCONNECT Core Generation 
 ## Introduction
 AXI-LITE-INTERCONNECT is AXI4-Lite based IP core.
 
