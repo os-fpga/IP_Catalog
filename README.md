@@ -44,5 +44,7 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── axil_interconnect
 |           |
-│           └── axi_interconnect
+│           ├── axi_interconnect
+|           |
+│           └── axis_broadcast
 ```
