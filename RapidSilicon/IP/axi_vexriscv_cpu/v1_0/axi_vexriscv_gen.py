@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-
+#
 # This file is Copyright (c) 2022 RapidSilicon.
+#
 # SPDX-License-Identifier: MIT.
 
 import os
@@ -32,7 +33,8 @@ def get_jtag_ios():
             ("jtag_tms",    0,  Pins(1)),
             ("jtag_tdi",    0,  Pins(1)),
             ("jtag_tdo",    0,  Pins(1)),
-            ("jtag_tck",    0,  Pins(1)),    ]
+            ("jtag_tck",    0,  Pins(1)),    
+            ]
 
 
 def get_other_ios():
@@ -42,42 +44,31 @@ def get_other_ios():
             ("softwareInterrupt",   0,  Pins(1)),    
             ("debugReset",          0,  Pins(1)),
             ("debug_resetOut",      0,  Pins(1)),
-    ]
+        ]
 
-
-# AXI-Vexriscv Wrapper --------------------------------------------------------------------------------
+# AXI-VEXRISCV Wrapper --------------------------------------------------------------------------------
 class VexriscvWrapper(Module):
-    def __init__(self, platform, data_width, addr_width, id_width):
+    def __init__(self, platform):
     
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
-        # AXI
-        ibus_axi = AXIInterface(
-            data_width      = data_width,
-            address_width   = addr_width,
-            id_width        = id_width
-        )
-
-        dbus_axi = AXIInterface(
-            data_width      = data_width,
-            address_width   = addr_width,
-            id_width        = id_width
-        )
         #IBUS
+        ibus_axi = AXIInterface(data_width = 32, address_width = 32, id_width = 8)
         platform.add_extension(ibus_axi.get_ios("ibus_axi"))
         self.comb += ibus_axi.connect_to_pads(platform.request("ibus_axi"), mode="master")
 
         #IBUS
+        dbus_axi = AXIInterface(data_width = 32, address_width = 32, id_width = 8)
         platform.add_extension(dbus_axi.get_ios("dbus_axi"))
         self.comb += dbus_axi.connect_to_pads(platform.request("dbus_axi"), mode="master")
 
         # VEXRISCV
         self.submodules.vexriscv = vexriscv = VexRiscv(platform,
-            ibus        =   ibus_axi,
-            dbus        =   dbus_axi
+            ibus        = ibus_axi,
+            dbus        = dbus_axi
             )
 
         platform.add_extension(get_jtag_ios())
@@ -99,7 +90,6 @@ class VexriscvWrapper(Module):
         # Outputs
         self.comb += platform.request("debug_resetOut").eq(vexriscv.debug_resetOut)
 
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="Vexriscv CORE")
@@ -107,12 +97,6 @@ def main():
         max_help_position = 10,
         width             = 120
     )
-
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",         default=32,     type=int,    help="DMA Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",         default=16,     type=int,    help="DMA Address Width 8 - 16")
-    core_group.add_argument("--id_width",           default=8,      type=int,    help="DMA ID Width from 1 - 32")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -126,18 +110,13 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-   
+    
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:
             t_args = argparse.Namespace()
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
-
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -150,7 +129,7 @@ def main():
     if args.build:
         # Build Path
         build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/vexriscv/v1_0/' + (args.build_name))
-        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "vexriscv_gen.py"))
+        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axi_vexriscv_gen.py"))
         
         if not os.path.exists(build_path):
             os.makedirs(build_path)
@@ -222,11 +201,11 @@ def main():
         
     # Create LiteX Core ----------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module = VexriscvWrapper(platform,
-        data_width          = args.data_width,
-        addr_width          = args.addr_width,
-        id_width            = args.id_width,
-        )
+    module = VexriscvWrapper(platform)
+    #    data_width          = args.data_width,
+    #    addr_width          = args.addr_width,
+    #    id_width            = args.id_width,
+    #    )
     
     # Build
     if args.build:
