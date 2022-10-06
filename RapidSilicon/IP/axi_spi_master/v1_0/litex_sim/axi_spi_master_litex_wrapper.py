@@ -1,10 +1,11 @@
-
+#
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
-# SPDX-License-Identifier: TBD.
-
-# LiteX wrapper around RapidSilicon axi_spi_master.sv
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Pulp Platform axi_spi_master's axi_spi_master.sv
 
 import os
 import logging

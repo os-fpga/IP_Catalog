@@ -2,9 +2,10 @@
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
+#
 # SPDX-License-Identifier: MIT
-
-# LiteX wrapper around Alex Forencich Verilog-AXI's axi_crossbar.v
+#
+# LiteX wrapper around Alex Forencich Verilog-AXI's axi_cdma.v
 
 import os
 import logging

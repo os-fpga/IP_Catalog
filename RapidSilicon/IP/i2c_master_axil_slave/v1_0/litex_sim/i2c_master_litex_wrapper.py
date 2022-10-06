@@ -1,11 +1,11 @@
-
 #
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
-# SPDX-License-Identifier: TBD.
-
-# LiteX wrapper around RapidSilicon i2c_master
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Alex Forencich verilog-i2c's i2c_master_axil.v
 
 import os
 import logging
@@ -17,7 +17,6 @@ from litex.soc.interconnect.axi import *
 logging.basicConfig(level=logging.INFO)
 
 # I2C_MASTER -------------------------------------------------------------------------------------
-
 class I2CMASTER(Module):
     def __init__(self, platform, s_axil, default_prescale, fixed_prescale, cmd_fifo, cmd_addr_width, write_fifo, write_addr_width, read_fifo, read_addr_width):
         

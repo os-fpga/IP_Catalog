@@ -1,10 +1,11 @@
-
+#
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
-# SPDX-License-Identifier: TBD.
-
-# LiteX wrapper around RapidSilicon axi_spi_slave.sv
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Pupl Platform axi_spi_slave's axi_spi_slave.sv
 
 import os
 import logging
@@ -42,6 +43,7 @@ class AXISPISLAVE(Module):
         
         self.logger.info(f"DUMMY_CYCLES     : {dummy_cycles}")
         
+        # SPI 
         self.test_mode     = Signal()
         self.spi_sclk      = Signal()
         self.spi_cs        = Signal()

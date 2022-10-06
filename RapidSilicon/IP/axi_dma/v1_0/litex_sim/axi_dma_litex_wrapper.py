@@ -1,10 +1,11 @@
 #
-# This file is part of LiteX-Verilog-AXI-Test
+# This file is part of RapidSilicon's IP_Catalog.
 #
-# Copyright (c) 2022 Florent Kermarrec <florent@enjoy-digital.fr>
-# SPDX-License-Identifier: BSD-2-Clause
-
-# LiteX wrapper around Alex Forencich Verilog-AXI's axi_dma.v.
+# This file is Copyright (c) 2022 RapidSilicon.
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Alex Forencich Verilog-AXI's axi_dma.v
 
 import os
 import logging

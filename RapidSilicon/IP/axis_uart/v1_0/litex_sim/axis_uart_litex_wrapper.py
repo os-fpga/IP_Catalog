@@ -1,10 +1,11 @@
-
+#
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
-# SPDX-License-Identifier: TBD.
-
-# LiteX wrapper around RapidSilicon axis_uart
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Alex Forencich verilog-uart's uart.v
 
 import os
 import logging

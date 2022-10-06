@@ -1,11 +1,11 @@
-
 #
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
-# SPDX-License-Identifier: TBD.
-
-# LiteX wrapper around RapidSilicon i2c_slave_axil_master.v
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Alex Forencich verilog-i2c's i2c_slave_axil_master.v
 
 import os
 import logging
@@ -17,7 +17,6 @@ from litex.soc.interconnect.axi import *
 logging.basicConfig(level=logging.INFO)
 
 # I2C_SLAVE  -------------------------------------------------------------------------------------
-
 class I2CSLAVE(Module):
     def __init__(self, platform, m_axil, filter_len):
         
