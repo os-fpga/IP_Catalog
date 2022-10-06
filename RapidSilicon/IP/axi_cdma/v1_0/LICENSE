@@ -1,9 +1,6 @@
 ﻿
----
-
 COPYRIGHT TEXT:
-
----
+--------------
 
 Copyright (c) 2022 RapidSilicon
 
@@ -24,16 +21,14 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-
 RapidSilicon/IP/axi_cdma/v1_0/axi_cdma_gen.py
-
 RapidSilicon/IP/axi_cdma/v1_0/litex_sim/axi_cdma_litex_wrapper.py
 
--------------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------------
 
 
 COPYRIGHT TEXT:
-
 --------------
 
 Copyright (c) 2018 Alex Forencich
@@ -57,14 +52,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-
 RapidSilicon/IP/axi_cdma/v1_0/src/axi_cdma.v
-
 RapidSilicon/IP/axi_cdma/v1_0/src/axi_cdma_desc_mux.v
-
 RapidSilicon/IP/axi_cdma/v1_0/src/arbiter.v
-
 RapidSilicon/IP/axi_cdma/v1_0/src/priority_encoder.v
-
-
-
