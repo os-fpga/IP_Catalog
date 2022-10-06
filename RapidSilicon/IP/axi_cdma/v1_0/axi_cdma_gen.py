@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-
+#
 # This file is Copyright (c) 2022 RapidSilicon.
+#
 # SPDX-License-Identifier: MIT
 
 import os

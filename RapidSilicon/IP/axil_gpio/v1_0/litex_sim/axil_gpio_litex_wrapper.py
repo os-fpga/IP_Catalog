@@ -1,10 +1,11 @@
-
+#
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
-# SPDX-License-Identifier: TBD.
-
-# LiteX wrapper around RapidSilicon axi4lite_gpio.sv
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Smartfox Data Solutions Inc. axi4lite_gpio's axi4lite_gpio.sv
 
 import os
 import logging

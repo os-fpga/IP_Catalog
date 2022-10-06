@@ -1,11 +1,11 @@
-
 #
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
-# SPDX-License-Identifier: TBD.
-
-# LiteX wrapper around RapidSilicon axi4lite_uart_top.v
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Freecores uart16650's axi4lite_uart_top.v
 
 import os
 import logging
@@ -17,7 +17,6 @@ from litex.soc.interconnect.axi import *
 logging.basicConfig(level=logging.INFO)
 
 # AXI LITE UART -------------------------------------------------------------------------------------
-
 class AXILITEUART(Module):
     def __init__(self, platform, s_axil, address_width, data_width):
         

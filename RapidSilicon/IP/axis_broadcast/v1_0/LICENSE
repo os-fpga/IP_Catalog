@@ -1,10 +1,8 @@
 ﻿
-
 COPYRIGHT TEXT:
----------------
+--------------
 
-
-Copyright (c) [2022] [Rapid silicon] 
+Copyright (c) 2022 RapidSilicon
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -23,14 +21,13 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axi_cdma/v1_0/axi_cdma_gen.py
-RapidSilicon/IP/axi_cdma/v1_0/litex_sim/axi_cdma_litex_wrapper.py
---------------------------------------------------------------------------------
+RapidSilicon/IP/axis_broadcast/v1_0/axis_broadcast_gen.py
+RapidSilicon/IP/axis_broadcast/v1_0/litex_sim/axis_broadcast_litex_wrapper.py
 
-
+---------------------------------------------------------------------------------------
 
 COPYRIGHT TEXT:
----------------
+--------------
 
 Copyright (c) 2018 Alex Forencich
 
@@ -53,10 +50,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axi_cdma/v1_0/src/arbiter.v
-RapidSilicon/IP/axi_cdma/v1_0/src/axi_cdma_desc_mux.v
-RapidSilicon/IP/axi_cdma/v1_0/src/axi_Cdma.v
-RapidSilicon/IP/axi_cdma/v1_0/src/priority_encoder.v
---------------------------------------------------------------------------------
+RapidSilicon/IP/axis_broadcast/v1_0/src/axis_broadcast.v
 
-
+---------------------------------------------------------------------------------------

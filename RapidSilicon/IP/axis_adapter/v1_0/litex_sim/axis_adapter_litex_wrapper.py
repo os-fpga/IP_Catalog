@@ -1,12 +1,12 @@
-
+#
 # This file is part of RapidSilicon's IP_Catalog.
 #
 # This file is Copyright (c) 2022 RapidSilicon.
-# SPDX-License-Identifier: TBD.
+#
+# SPDX-License-Identifier: MIT
+#
+# LiteX wrapper around Alex Forencich Verilog-AXIS's axis_adapter.v
 
-# LiteX wrapper around RapidSilicon axis_adapter.v
-
-from math import ceil
 import os
 import logging
 
