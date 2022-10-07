@@ -8,7 +8,6 @@ import os
 import json
 import argparse
 import shutil
-import logging
 
 from litex_sim.axi_vexriscv_litex_wrapper import VexRiscv
 
@@ -36,7 +35,6 @@ def get_jtag_ios():
             ("jtag_tck",    0,  Pins(1)),    
             ]
 
-
 def get_other_ios():
     return [
             ("timerInterrupt",      0,  Pins(1)),
@@ -49,7 +47,8 @@ def get_other_ios():
 # AXI-VEXRISCV Wrapper --------------------------------------------------------------------------------
 class VexriscvWrapper(Module):
     def __init__(self, platform):
-    
+        
+        # Clocking
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
@@ -173,7 +172,6 @@ def main():
             full_file_path = os.path.join(litex_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, litex_sim_path)
-
         
         # TCL File Content        
         tcl = []
@@ -202,10 +200,6 @@ def main():
     # Create LiteX Core ----------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module = VexriscvWrapper(platform)
-    #    data_width          = args.data_width,
-    #    addr_width          = args.addr_width,
-    #    id_width            = args.id_width,
-    #    )
     
     # Build
     if args.build:
