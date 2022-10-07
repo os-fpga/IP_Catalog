@@ -10,7 +10,7 @@ This directory contains the generator script which places the RTL to `rapidsilic
 
 To generate RTL wrapper, run the following command:
 ```
-python3 vexriscv_gen.py --build-name=vexriscv_wrap --build-dir=./ --build
+python3 axi_vexriscv_gen.py --build-name=vexriscv_wrap --build-dir=./ --build
 ```
 
 ## TCL File
