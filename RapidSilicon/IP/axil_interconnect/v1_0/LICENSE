@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axil_interconnect/v1_0/axil_interconnect_gen.py
-RapidSilicon/IP/axil_interconnect/v1_0/litex_sim/axil_interconnect_litex_wrapper.py
+rapidsilicon/ip/axil_interconnect/v1_0/axil_interconnect_gen.py
+rapidsilicon/ip/axil_interconnect/v1_0/litex_sim/axil_interconnect_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -50,8 +50,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axil_interconnect/v1_0/src/axil_interconnect.v
-RapidSilicon/IP/axil_interconnect/v1_0/src/arbiter.v
-RapidSilicon/IP/axil_interconnect/v1_0/src/priority_encoder.v
+rapidsilicon/ip/axil_interconnect/v1_0/src/axil_interconnect.v
+rapidsilicon/ip/axil_interconnect/v1_0/src/arbiter.v
+rapidsilicon/ip/axil_interconnect/v1_0/src/priority_encoder.v
 
 ---------------------------------------------------------------------------------------

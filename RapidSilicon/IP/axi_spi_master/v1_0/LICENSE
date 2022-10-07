@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axi_spi_master/v1_0/axi_spi_master_gen.py
-RapidSilicon/IP/axi_spi_master/v1_0/litex_sim/axi_spi_master_litex_wrapper.py
+rapidsilicon/ip/axi_spi_master/v1_0/axi_spi_master_gen.py
+rapidsilicon/ip/axi_spi_master/v1_0/litex_sim/axi_spi_master_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -41,12 +41,12 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
 FILES:
-RapidSilicon/IP/axi_spi_master/v1_0/src/axi_spi_master.sv
-RapidSilicon/IP/axi_spi_master/v1_0/src/spi_master_axi_if.sv
-RapidSilicon/IP/axi_spi_master/v1_0/src/spi_master_clkgen.sv
-RapidSilicon/IP/axi_spi_master/v1_0/src/spi_master_controller.sv
-RapidSilicon/IP/axi_spi_master/v1_0/src/spi_master_fifo.sv
-RapidSilicon/IP/axi_spi_master/v1_0/src/spi_master_rx.sv
-RapidSilicon/IP/axi_spi_master/v1_0/src/spi_master_tx.sv
+rapidsilicon/ip/axi_spi_master/v1_0/src/axi_spi_master.sv
+rapidsilicon/ip/axi_spi_master/v1_0/src/spi_master_axi_if.sv
+rapidsilicon/ip/axi_spi_master/v1_0/src/spi_master_clkgen.sv
+rapidsilicon/ip/axi_spi_master/v1_0/src/spi_master_controller.sv
+rapidsilicon/ip/axi_spi_master/v1_0/src/spi_master_fifo.sv
+rapidsilicon/ip/axi_spi_master/v1_0/src/spi_master_rx.sv
+rapidsilicon/ip/axi_spi_master/v1_0/src/spi_master_tx.sv
 
 ---------------------------------------------------------------------------------------

@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/priority_encoder/v1_0/priority_encoder_gen.py
-RapidSilicon/IP/priority_encoder/v1_0/litex_sim/priority_encoder_litex_wrapper.py
+rapidsilicon/ip/priority_encoder/v1_0/priority_encoder_gen.py
+rapidsilicon/ip/priority_encoder/v1_0/litex_sim/priority_encoder_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -50,6 +50,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/priority_encoder/v1_0/src/priority_encoder.v
+rapidsilicon/ip/priority_encoder/v1_0/src/priority_encoder.v
 
 ---------------------------------------------------------------------------------------
