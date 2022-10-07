@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axil_crossbar/v1_0/axil_crossbar_gen.py
-RapidSilicon/IP/axil_crossbar/v1_0/litex_sim/axil_crossbar_litex_wrapper.py
+rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_gen.py
+rapidsilicon/ip/axil_crossbar/v1_0/litex_sim/axil_crossbar_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -50,13 +50,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axil_crossbar/v1_0/src/axil_crossbar.v
-RapidSilicon/IP/axil_crossbar/v1_0/src/axil_crossbar_rd.v
-RapidSilicon/IP/axil_crossbar/v1_0/src/axil_crossbar_wr.v
-RapidSilicon/IP/axil_crossbar/v1_0/src/axil_crossbar_addr.v
-RapidSilicon/IP/axil_crossbar/v1_0/src/axil_register_rd.v
-RapidSilicon/IP/axil_crossbar/v1_0/src/axil_register_wr.v
-RapidSilicon/IP/axil_crossbar/v1_0/src/arbiter.v
-RapidSilicon/IP/axil_crossbar/v1_0/src/priority_encoder.v
+rapidsilicon/ip/axil_crossbar/v1_0/src/axil_crossbar.v
+rapidsilicon/ip/axil_crossbar/v1_0/src/axil_crossbar_rd.v
+rapidsilicon/ip/axil_crossbar/v1_0/src/axil_crossbar_wr.v
+rapidsilicon/ip/axil_crossbar/v1_0/src/axil_crossbar_addr.v
+rapidsilicon/ip/axil_crossbar/v1_0/src/axil_register_rd.v
+rapidsilicon/ip/axil_crossbar/v1_0/src/axil_register_wr.v
+rapidsilicon/ip/axil_crossbar/v1_0/src/arbiter.v
+rapidsilicon/ip/axil_crossbar/v1_0/src/priority_encoder.v
 
 ---------------------------------------------------------------------------------------
