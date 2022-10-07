@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axil_gpio/v1_0/axil_gpio_gen.py
-RapidSilicon/IP/axil_gpio/v1_0/litex_sim/axil_gpio_litex_wrapper.py
+rapidsilicon/ip/axil_gpio/v1_0/axil_gpio_gen.py
+rapidsilicon/ip/axil_gpio/v1_0/litex_sim/axil_gpio_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -49,11 +49,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axil_gpio/v1_0/src/axi4lite_gpio.sv
-RapidSilicon/IP/axil_gpio/v1_0/src/axi4liteif.sv
-RapidSilicon/IP/axil_gpio/v1_0/src/axrdch.sv
-RapidSilicon/IP/axil_gpio/v1_0/src/axwrch.sv
-RapidSilicon/IP/axil_gpio/v1_0/src/axadrchsm.sv
-RapidSilicon/IP/axil_gpio/v1_0/src/gpcore.sv
+rapidsilicon/ip/axil_gpio/v1_0/src/axi4lite_gpio.sv
+rapidsilicon/ip/axil_gpio/v1_0/src/axi4liteif.sv
+rapidsilicon/ip/axil_gpio/v1_0/src/axrdch.sv
+rapidsilicon/ip/axil_gpio/v1_0/src/axwrch.sv
+rapidsilicon/ip/axil_gpio/v1_0/src/axadrchsm.sv
+rapidsilicon/ip/axil_gpio/v1_0/src/gpcore.sv
 
 ---------------------------------------------------------------------------------------
