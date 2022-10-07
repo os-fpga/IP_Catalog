@@ -88,7 +88,8 @@ wire  [DATA_WIDTH-1:0]              r_data_in_dbg;
 wire  [ADDRESS_WIDTH-1:0]           addr_in;
 wire  [7:0]                         w_data_in;
 wire                                re;
-wire                                we;  
+wire                                we; 
+wire                                tf_overrun; 
 
 axi4lite_slave #(
 .ADDRESS_WIDTH(ADDRESS_WIDTH ),
