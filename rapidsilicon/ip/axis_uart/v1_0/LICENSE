@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axis_uart/v1_0/axis_uart_gen.py
-RapidSilicon/IP/axis_uart/v1_0/litex_sim/axis_uart_litex_wrapper.py
+rapidsilicon/ip/axis_uart/v1_0/axis_uart_gen.py
+rapidsilicon/ip/axis_uart/v1_0/litex_sim/axis_uart_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -50,8 +50,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axis_uart/v1_0/src/uart.v
-RapidSilicon/IP/axis_uart/v1_0/src/uart_rx.v
-RapidSilicon/IP/axis_uart/v1_0/src/uart_tx.v
+rapidsilicon/ip/axis_uart/v1_0/src/uart.v
+rapidsilicon/ip/axis_uart/v1_0/src/uart_rx.v
+rapidsilicon/ip/axis_uart/v1_0/src/uart_tx.v
 
 ---------------------------------------------------------------------------------------

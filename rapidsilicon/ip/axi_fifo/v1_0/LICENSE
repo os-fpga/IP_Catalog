@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axi_fifo/v1_0/axi_fifo_gen.py
-RapidSilicon/IP/axi_fifo/v1_0/litex_sim/axi_fifo_litex_wrapper.py
+rapidsilicon/ip/axi_fifo/v1_0/axi_fifo_gen.py
+rapidsilicon/ip/axi_fifo/v1_0/litex_sim/axi_fifo_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -50,8 +50,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axi_fifo/v1_0/src/axi_fifo.v
-RapidSilicon/IP/axi_fifo/v1_0/src/axi_fifo_rd.v
-RapidSilicon/IP/axi_fifo/v1_0/src/axi_fifo_wr.v
+rapidsilicon/ip/axi_fifo/v1_0/src/axi_fifo.v
+rapidsilicon/ip/axi_fifo/v1_0/src/axi_fifo_rd.v
+rapidsilicon/ip/axi_fifo/v1_0/src/axi_fifo_wr.v
 
 ---------------------------------------------------------------------------------------

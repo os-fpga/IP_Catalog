@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axi_dpram/v1_0/axi_dpram_gen.py
-RapidSilicon/IP/axi_dpram/v1_0/litex_sim/axi_dpram_litex_wrapper.py
+rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_gen.py
+rapidsilicon/ip/axi_dpram/v1_0/litex_sim/axi_dpram_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -50,9 +50,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axi_dpram/v1_0/src/axi_dp_ram.v
-RapidSilicon/IP/axi_dpram/v1_0/src/axi_ram_rd_if.v
-RapidSilicon/IP/axi_dpram/v1_0/src/axi_ram_wr_if.v
-RapidSilicon/IP/axi_dpram/v1_0/src/axi_ram_wr_rd_if.v
+rapidsilicon/ip/axi_dpram/v1_0/src/axi_dp_ram.v
+rapidsilicon/ip/axi_dpram/v1_0/src/axi_ram_rd_if.v
+rapidsilicon/ip/axi_dpram/v1_0/src/axi_ram_wr_if.v
+rapidsilicon/ip/axi_dpram/v1_0/src/axi_ram_wr_rd_if.v
 
 ---------------------------------------------------------------------------------------

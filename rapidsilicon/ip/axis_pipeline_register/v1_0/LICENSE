@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axis_pipeline_register/v1_0/axis_pipeline_register_gen.py
-RapidSilicon/IP/axis_pipeline_register/v1_0/litex_sim/axis_pipeline_register_litex_wrapper.py
+rapidsilicon/ip/axis_pipeline_register/v1_0/axis_pipeline_register_gen.py
+rapidsilicon/ip/axis_pipeline_register/v1_0/litex_sim/axis_pipeline_register_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-RapidSilicon/IP/axis_pipeline_register/v1_0/src/axis_pipeline_register.v
-RapidSilicon/IP/axis_pipeline_register/v1_0/src/axis_register.v
+rapidsilicon/ip/axis_pipeline_register/v1_0/src/axis_pipeline_register.v
+rapidsilicon/ip/axis_pipeline_register/v1_0/src/axis_register.v
 
 ---------------------------------------------------------------------------------------
