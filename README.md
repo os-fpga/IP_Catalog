@@ -40,5 +40,19 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── axis_pipeline_register
 |           |
-│           └── axis_adapter
+│           ├── axis_adapter
+|           |
+│           ├── axil_interconnect
+|           |
+│           ├── axi_interconnect
+|           |
+│           ├── axis_broadcast
+|           |
+│           ├── axil_crossbar
+|           |
+│           ├── axi_crossbar
+|           |
+│           ├── axi_vexriscv
+|           |
+│           └── axis_width_converter
 ```
