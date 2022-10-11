@@ -54,5 +54,7 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── vexriscv_cpu
 |           |
-│           └── axis_width_converter
+│           ├── axis_width_converter
+|           |
+│           └── axi2axilite_bridge
 ```
