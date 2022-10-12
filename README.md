@@ -18,7 +18,7 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── i2c_master_axil_slave
 |           |
-│           ├── axil_uart
+│           ├── axil_uart16550
 |           |
 │           ├── axi_dpram
 |           |
