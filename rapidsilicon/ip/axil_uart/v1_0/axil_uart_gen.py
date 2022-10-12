@@ -10,7 +10,7 @@ import argparse
 import shutil
 import logging
 
-from litex_sim.axil_uart_litex_wrapper import AXILITEUART
+from litex_sim.axil_uart16550_litex_wrapper import AXILITEUART
 
 from migen import *
 
@@ -98,7 +98,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="axil_uart_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="axil_uart16550_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -140,8 +140,8 @@ def main():
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axil_uart/v1_0/' + (args.build_name))
-        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_uart_gen.py"))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axil_uart16550/v1_0/' + (args.build_name))
+        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_uart16550_gen.py"))
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)
