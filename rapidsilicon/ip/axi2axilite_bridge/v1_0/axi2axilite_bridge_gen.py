@@ -24,8 +24,8 @@ from litex.soc.interconnect.axi import AXIInterface, AXILiteInterface
 # IOs / Interface ----------------------------------------------------------------------------------
 def get_clkin_ios():
     return [
-        ("S_AXI_ACLK",      0, Pins(1)),
-        ("S_AXI_ARESETN",   0, Pins(1))]
+        ("s_axi_aclk",      0, Pins(1)),
+        ("s_axi_aresetn",   0, Pins(1))]
 
 # AXI-2-AXILITE Wrapper --------------------------------------------------------------------------------
 class AXI2AXILITEWrapper(Module):
@@ -34,8 +34,8 @@ class AXI2AXILITEWrapper(Module):
         # Clocking
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("S_AXI_ACLK"))
-        self.comb += self.cd_sys.rst.eq(platform.request("S_AXI_ARESETN"))
+        self.comb += self.cd_sys.clk.eq(platform.request("s_axi_aclk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("s_axi_aresetn"))
 
         # AXI SLAVE PORT
         s_axi = AXIInterface(
