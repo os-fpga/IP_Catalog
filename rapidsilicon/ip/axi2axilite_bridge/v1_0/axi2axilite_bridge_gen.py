@@ -70,7 +70,7 @@ def main():
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width",         default=32,     type=int,    help="Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",         default=6,      type=int,    help="Address Width 8 - 16")
+    core_group.add_argument("--addr_width",         default=6,      type=int,    help="Address Width 6 - 16")
     core_group.add_argument("--id_width",           default=2,      type=int,    help="ID Width from 1 - 32")
 
     # Build Parameters.
