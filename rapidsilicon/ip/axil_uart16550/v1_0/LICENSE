@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-rapidsilicon/ip/axil_uart/v1_0/axil_uart_gen.py
-rapidsilicon/ip/axil_uart/v1_0/litex_sim/axil_uart_litex_wrapper.py
+rapidsilicon/ip/axil_uart16550/v1_0/axil_uart16550_gen.py
+rapidsilicon/ip/axil_uart16550/v1_0/litex_sim/axil_uart16550_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -53,17 +53,17 @@ Public License along with this source; if not, download it
 from http://www.opencores.org/lgpl.shtml
 
 FILES:
-rapidsilicon/ip/axil_uart/v1_0/src/axi4lite_uart_top.v
-rapidsilicon/ip/axil_uart/v1_0/src/axi4lite_slave.v
-rapidsilicon/ip/axil_uart/v1_0/src/raminfr.v
-rapidsilicon/ip/axil_uart/v1_0/src/timescale.v
-rapidsilicon/ip/axil_uart/v1_0/src/uart_debug_if.v
-rapidsilicon/ip/axil_uart/v1_0/src/uart_defines.vh
-rapidsilicon/ip/axil_uart/v1_0/src/uart_receiver.v
-rapidsilicon/ip/axil_uart/v1_0/src/uart_regs.v
-rapidsilicon/ip/axil_uart/v1_0/src/uart_rfifo.v
-rapidsilicon/ip/axil_uart/v1_0/src/uart_sync_flops.v
-rapidsilicon/ip/axil_uart/v1_0/src/uart_tfifo.v
-rapidsilicon/ip/axil_uart/v1_0/src/uart_transmitter.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/axi4lite_uart_top.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/axi4lite_slave.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/raminfr.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/timescale.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/uart_debug_if.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/uart_defines.vh
+rapidsilicon/ip/axil_uart16550/v1_0/src/uart_receiver.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/uart_regs.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/uart_rfifo.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/uart_sync_flops.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/uart_tfifo.v
+rapidsilicon/ip/axil_uart16550/v1_0/src/uart_transmitter.v
 
 ---------------------------------------------------------------------------------------

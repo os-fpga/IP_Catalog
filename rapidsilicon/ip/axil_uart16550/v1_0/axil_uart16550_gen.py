@@ -2,14 +2,15 @@
 #
 # This file is Copyright (c) 2022 RapidSilicon.
 #
-# SPDX-License-Identifier: MIT.
+# SPDX-License-Identifier: MIT
 
 import os
 import json
 import argparse
 import shutil
+import logging
 
-from litex_sim.axi_vexriscv_litex_wrapper import VexRiscv
+from litex_sim.axil_uart16550_litex_wrapper import AXILITEUART
 
 from migen import *
 
@@ -17,99 +18,111 @@ from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
 
-from litex.soc.interconnect.axi import AXIInterface
+from litex.soc.interconnect.axi import AXILiteInterface
 
 
-# IOs / Interface ----------------------------------------------------------------------------------
+# IOs/Interfaces -----------------------------------------------------------------------------------
 def get_clkin_ios():
     return [
-        ("clk", 0, Pins(1)),
-        ("rst", 0, Pins(1))]
-
-def get_jtag_ios():
+        ("s_axi_aclk",      0, Pins(1)),
+        ("s_axi_aresetn",   0, Pins(1)),
+    ]
+    
+def get_uart_ios():
     return [
-                
-            ("jtag_tms",    0,  Pins(1)),
-            ("jtag_tdi",    0,  Pins(1)),
-            ("jtag_tdo",    0,  Pins(1)),
-            ("jtag_tck",    0,  Pins(1)),    
-            ]
+        ("int_o",       0, Pins(1)),
+        ("srx_pad_i",   0, Pins(1)), 
+        ("stx_pad_o",   0, Pins(1)),
+        ("rts_pad_o",   0, Pins(1)),
+        ("cts_pad_i",   0, Pins(1)),
+        ("dtr_pad_o",   0, Pins(1)),
+        ("dsr_pad_i",   0, Pins(1)),   
+        ("ri_pad_i",    0, Pins(1)), 
+        ("dcd_pad_i",   0, Pins(1))  
+    ]
 
-def get_other_ios():
-    return [
-            ("timerInterrupt",      0,  Pins(1)),
-            ("externalInterrupt",   0,  Pins(1)),    
-            ("softwareInterrupt",   0,  Pins(1)),    
-            ("debugReset",          0,  Pins(1)),
-            ("debug_resetOut",      0,  Pins(1)),
-        ]
-
-# AXI-VEXRISCV Wrapper --------------------------------------------------------------------------------
-class VexriscvWrapper(Module):
-    def __init__(self, platform):
-        
-        # Clocking
+# AXI LITE UART Wrapper ----------------------------------------------------------------------------------
+class AXILITEUARTWrapper(Module):
+    def __init__(self, platform, addr_width, data_width):
+        # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
-        self.clock_domains.cd_sys = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+        self.clock_domains.cd_sys  = ClockDomain()
+        self.comb += self.cd_sys.clk.eq(platform.request("s_axi_aclk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("s_axi_aresetn"))
 
-        #IBUS
-        ibus_axi = AXIInterface(data_width = 32, address_width = 32, id_width = 8)
-        platform.add_extension(ibus_axi.get_ios("ibus_axi"))
-        self.comb += ibus_axi.connect_to_pads(platform.request("ibus_axi"), mode="master")
+        # AXI LITE --------------------------------------------------------------------------------------
+        axil = AXILiteInterface(
+            address_width       = addr_width,
+            data_width          = data_width
+        )
+        platform.add_extension(axil.get_ios("s_axil"))
+        self.comb += axil.connect_to_pads(platform.request("s_axil"), mode="slave")
 
-        #IBUS
-        dbus_axi = AXIInterface(data_width = 32, address_width = 32, id_width = 8)
-        platform.add_extension(dbus_axi.get_ios("dbus_axi"))
-        self.comb += dbus_axi.connect_to_pads(platform.request("dbus_axi"), mode="master")
-
-        # VEXRISCV
-        self.submodules.vexriscv = vexriscv = VexRiscv(platform,
-            ibus        = ibus_axi,
-            dbus        = dbus_axi
+        # AXI-LITE-UART ----------------------------------------------------------------------------------
+        self.submodules.uart = uart = AXILITEUART(platform, axil,  
+            address_width       = addr_width, 
+            data_width          = data_width
             )
-
-        platform.add_extension(get_jtag_ios())
+        
+        # UART Signals --------------------------------------------------------------------------------
+        platform.add_extension(get_uart_ios())
+        
         # Inputs
-        self.comb += vexriscv.jtag_tms.eq(platform.request("jtag_tms"))
-        self.comb += vexriscv.jtag_tdi.eq(platform.request("jtag_tdi"))
-        self.comb += vexriscv.jtag_tck.eq(platform.request("jtag_tck"))
-
+        self.comb += uart.srx_pad_i.eq(platform.request("srx_pad_i"))
+        self.comb += uart.cts_pad_i.eq(platform.request("cts_pad_i"))
+        self.comb += uart.dsr_pad_i.eq(platform.request("dsr_pad_i"))
+        self.comb += uart.ri_pad_i.eq(platform.request("ri_pad_i"))
+        self.comb += uart.dcd_pad_i.eq(platform.request("dcd_pad_i"))
+        
         # Outputs
-        self.comb += platform.request("jtag_tdo").eq(vexriscv.jtag_tdo)
+        self.comb += platform.request("int_o").eq(uart.int_o)
+        self.comb += platform.request("stx_pad_o").eq(uart.stx_pad_o)
+        self.comb += platform.request("rts_pad_o").eq(uart.rts_pad_o)
+        self.comb += platform.request("dtr_pad_o").eq(uart.dtr_pad_o)
 
-        platform.add_extension(get_other_ios())
-        # Inputs
-        self.comb += vexriscv.timerInterrupt.eq(platform.request("timerInterrupt"))
-        self.comb += vexriscv.externalInterrupt.eq(platform.request("externalInterrupt"))
-        self.comb += vexriscv.softwareInterrupt.eq(platform.request("softwareInterrupt"))
-        self.comb += vexriscv.debugReset.eq(platform.request("debugReset"))
-
-        # Outputs
-        self.comb += platform.request("debug_resetOut").eq(vexriscv.debug_resetOut)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="Vexriscv CORE")
+    parser = argparse.ArgumentParser(description="AXI LITE UART CORE")
     parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
         max_help_position = 10,
         width             = 120
     )
 
+    # Core Parameters.
+    core_group = parser.add_argument_group(title="Core parameters")
+    core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width 8,16,32")
+    core_group.add_argument("--data_width",      default=32,       type=int,       help="UART Data Width 8,16,32,64")
+
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="vexriscv_wrapper",     help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="axil_uart16550_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
-    json_group.add_argument("--json",                                    help="Generate Core from JSON File")
-    json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
+    json_group.add_argument("--json",                                           help="Generate Core from JSON File")
+    json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
     
+    # Parameter Check -------------------------------------------------------------------------------
+    logger = logging.getLogger("Invalid Parameter Value")
+
+    # Address Width
+    addr_width_param=[8, 16, 32]
+    if args.addr_width not in addr_width_param:
+        logger.error("\nEnter a valid 'addr_width'\n %s", addr_width_param)
+        exit()
+    
+    # Data_Width
+    data_width_param=[8, 16, 32, 64]
+    if args.data_width not in data_width_param:
+        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
+        exit()
+
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:
@@ -123,13 +136,12 @@ def main():
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
-
+        
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/vexriscv/v1_0/' + (args.build_name))
-        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axi_vexriscv_gen.py"))
-        
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axil_uart16550/v1_0/' + (args.build_name))
+        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_uart16550_gen.py"))
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)
@@ -157,28 +169,31 @@ def main():
         # Design Path
         design_path = os.path.join("../src", (args.build_name + ".v")) 
 
-        # Copy RTL from Source to Destination
-        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")        
+        # Copy RTL from Source to Destination 
+        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")       
         rtl_files = os.listdir(rtl_path)
         for file_name in rtl_files:
             full_file_path = os.path.join(rtl_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, src_path)
 
-        # Copy litex_sim Data from Source to Destination  
-        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")      
+        # Copy litex_sim Data from Source to Destination 
+        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")       
         litex_files = os.listdir(litex_path)
         for file_name in litex_files:
             full_file_path = os.path.join(litex_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, litex_sim_path)
-        
+                
+
         # TCL File Content        
         tcl = []
         # Create Design.
         tcl.append(f"create_design {args.build_name}")
         # Set Device.
         tcl.append(f"target_device {'GEMINI'}")
+        # Add Include Path
+        tcl.append(f"add_include_path {'../src'}")
         # Add Include Path.
         tcl.append(f"add_library_path {'../src'}")
         # Add Sources.
@@ -189,18 +204,22 @@ def main():
         # Add Timings Constraints.
 #        tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
-        tcl.append("synthesize")
+        tcl.append("synthesize")        
 
         # Generate .tcl file
         tcl_path = os.path.join(synth_path, "raptor.tcl")
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
-        
+
+
     # Create LiteX Core ----------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module = VexriscvWrapper(platform)
-    
+    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
+    module     = AXILITEUARTWrapper(platform,
+        addr_width      = args.addr_width,
+        data_width      = args.data_width
+    )
+
     # Build
     if args.build:
         platform.build(module,

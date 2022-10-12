@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-# LiteX wrapper around SPinalHDL VexRiscvAxi4.v
+# LiteX wrapper around SPinalHDL Vexriscv.v
 
 import os
 
@@ -140,7 +140,7 @@ class VexRiscv(Module):
     @staticmethod
     def add_sources(platform, variant="standard"):
         rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "VexRiscvAxi4.v"))
+        platform.add_source(os.path.join(rtl_dir, "vexriscv.v"))
 
     def do_finalize(self):
-        self.specials += Instance("VexRiscvAxi4", **self.cpu_params)
+        self.specials += Instance("vexriscv", **self.cpu_params)
