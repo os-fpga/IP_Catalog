@@ -251,7 +251,7 @@ module axi4lite_slave #(
 				wstrb_ff   <= #1 wstrb;
 			end
 			else if (s_axi_bready) begin
-				wdata_ff   <= #1 'b0;	
+//				wdata_ff   <= #1 'b0;	
 				wstrb_ff   <= #1 'b0;
 
 			end

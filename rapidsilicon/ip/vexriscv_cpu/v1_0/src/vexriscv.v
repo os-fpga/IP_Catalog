@@ -4,7 +4,7 @@
 
 `timescale 1ns/1ps 
 
-module VexRiscvAxi4 (
+module vexriscv (
   output              debug_resetOut,
   input               timerInterrupt,
   input               externalInterrupt,

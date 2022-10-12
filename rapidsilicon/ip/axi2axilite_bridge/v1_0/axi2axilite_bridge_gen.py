@@ -10,7 +10,7 @@ import argparse
 import shutil
 import logging
 
-from litex_sim.axil_uart_litex_wrapper import AXILITEUART
+from litex_sim.axi2axilite_bridge_litex_wrapper import AXI2AXILITE
 
 from migen import *
 
@@ -18,72 +18,50 @@ from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
 
-from litex.soc.interconnect.axi import AXILiteInterface
+from litex.soc.interconnect.axi import AXIInterface, AXILiteInterface
 
 
-# IOs/Interfaces -----------------------------------------------------------------------------------
+# IOs / Interface ----------------------------------------------------------------------------------
 def get_clkin_ios():
     return [
         ("s_axi_aclk",      0, Pins(1)),
-        ("s_axi_aresetn",   0, Pins(1)),
-    ]
-    
-def get_uart_ios():
-    return [
-        ("int_o",       0, Pins(1)),
-        ("srx_pad_i",   0, Pins(1)), 
-        ("stx_pad_o",   0, Pins(1)),
-        ("rts_pad_o",   0, Pins(1)),
-        ("cts_pad_i",   0, Pins(1)),
-        ("dtr_pad_o",   0, Pins(1)),
-        ("dsr_pad_i",   0, Pins(1)),   
-        ("ri_pad_i",    0, Pins(1)), 
-        ("dcd_pad_i",   0, Pins(1))  
-    ]
+        ("s_axi_aresetn",   0, Pins(1))]
 
-# AXI LITE UART Wrapper ----------------------------------------------------------------------------------
-class AXILITEUARTWrapper(Module):
-    def __init__(self, platform, addr_width, data_width):
-        # Clocking ---------------------------------------------------------------------------------
+# AXI-2-AXILITE Wrapper --------------------------------------------------------------------------------
+class AXI2AXILITEWrapper(Module):
+    def __init__(self, platform, data_width, addr_width, id_width):
+        
+        # Clocking
         platform.add_extension(get_clkin_ios())
-        self.clock_domains.cd_sys  = ClockDomain()
+        self.clock_domains.cd_sys = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("s_axi_aclk"))
         self.comb += self.cd_sys.rst.eq(platform.request("s_axi_aresetn"))
 
-        # AXI LITE --------------------------------------------------------------------------------------
-        axil = AXILiteInterface(
-            address_width       = addr_width,
-            data_width          = data_width
+        # AXI SLAVE PORT
+        s_axi = AXIInterface(
+            data_width      = data_width,
+            address_width   = addr_width,
+            id_width        = id_width
         )
-        platform.add_extension(axil.get_ios("s_axil"))
-        self.comb += axil.connect_to_pads(platform.request("s_axil"), mode="slave")
+        
+        # AXI MASTER PORT
+        m_axi = AXILiteInterface(
+            data_width      = data_width,
+            address_width   = addr_width
+        )
 
-        # AXI-LITE-UART ----------------------------------------------------------------------------------
-        self.submodules.uart = uart = AXILITEUART(platform, axil,  
-            address_width       = addr_width, 
-            data_width          = data_width
-            )
+        platform.add_extension(s_axi.get_ios("s_axi"))
+        self.comb += s_axi.connect_to_pads(platform.request("s_axi"), mode="slave")
         
-        # UART Signals --------------------------------------------------------------------------------
-        platform.add_extension(get_uart_ios())
-        
-        # Inputs
-        self.comb += uart.srx_pad_i.eq(platform.request("srx_pad_i"))
-        self.comb += uart.cts_pad_i.eq(platform.request("cts_pad_i"))
-        self.comb += uart.dsr_pad_i.eq(platform.request("dsr_pad_i"))
-        self.comb += uart.ri_pad_i.eq(platform.request("ri_pad_i"))
-        self.comb += uart.dcd_pad_i.eq(platform.request("dcd_pad_i"))
-        
-        # Outputs
-        self.comb += platform.request("int_o").eq(uart.int_o)
-        self.comb += platform.request("stx_pad_o").eq(uart.stx_pad_o)
-        self.comb += platform.request("rts_pad_o").eq(uart.rts_pad_o)
-        self.comb += platform.request("dtr_pad_o").eq(uart.dtr_pad_o)
+        platform.add_extension(m_axi.get_ios("m_axi"))
+        self.comb += m_axi.connect_to_pads(platform.request("m_axi"), mode="master")
 
+        # AXI_2_AXILITE
+        self.submodules.axi2axilite = AXI2AXILITE(platform, s_axi, m_axi)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="AXI LITE UART CORE")
+    parser = argparse.ArgumentParser(description="AXI_2_AXILITE CORE")
     parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
         max_help_position = 10,
         width             = 120
@@ -91,37 +69,43 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width 8,16,32")
-    core_group.add_argument("--data_width",      default=32,       type=int,       help="UART Data Width 8,16,32,64")
+    core_group.add_argument("--data_width",         default=32,     type=int,    help="Data Width 8,16,32,64,128,256")
+    core_group.add_argument("--addr_width",         default=6,      type=int,    help="Address Width 6 - 16")
+    core_group.add_argument("--id_width",           default=2,      type=int,    help="ID Width from 1 - 32")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="axil_uart_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="axi2axilite_wrapper",  help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
-    json_group.add_argument("--json",                                           help="Generate Core from JSON File")
-    json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
+    json_group.add_argument("--json",                                    help="Generate Core from JSON File")
+    json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
-    
+
     # Parameter Check -------------------------------------------------------------------------------
     logger = logging.getLogger("Invalid Parameter Value")
 
-    # Address Width
-    addr_width_param=[8, 16, 32]
-    if args.addr_width not in addr_width_param:
-        logger.error("\nEnter a valid 'addr_width'\n %s", addr_width_param)
-        exit()
-    
     # Data_Width
-    data_width_param=[8, 16, 32, 64]
+    data_width_param=[8, 16, 32, 64, 128, 256]
     if args.data_width not in data_width_param:
         logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
         exit()
+    
+    # Address Width
+    addr_range=range(6, 17)
+    if args.addr_width not in addr_range:
+        logger.error("\nEnter a valid 'addr_width' from 6 to 16")
+        exit()
 
+    # ID_Width
+    id_range=range(1, 33)
+    if args.id_width not in id_range:
+        logger.error("\nEnter a valid 'id_width' from 1 to 32")
+        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
@@ -130,18 +114,20 @@ def main():
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
 
+
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
     # Remove build extension when specified.
     args.build_name = os.path.splitext(args.build_name)[0]
-        
+
     # Build Project Directory ----------------------------------------------------------------------
     if args.build:
         # Build Path
-        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axil_uart/v1_0/' + (args.build_name))
-        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_uart_gen.py"))
+        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axi2axilite_bridge/v1_0/' + (args.build_name))
+        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axi2axilite_bridge_gen.py"))
+        
         if not os.path.exists(build_path):
             os.makedirs(build_path)
             shutil.copy(gen_path, build_path)
@@ -169,31 +155,28 @@ def main():
         # Design Path
         design_path = os.path.join("../src", (args.build_name + ".v")) 
 
-        # Copy RTL from Source to Destination 
-        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")       
+        # Copy RTL from Source to Destination
+        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")        
         rtl_files = os.listdir(rtl_path)
         for file_name in rtl_files:
             full_file_path = os.path.join(rtl_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, src_path)
 
-        # Copy litex_sim Data from Source to Destination 
-        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")       
+        # Copy litex_sim Data from Source to Destination  
+        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")      
         litex_files = os.listdir(litex_path)
         for file_name in litex_files:
             full_file_path = os.path.join(litex_path, file_name)
             if os.path.isfile(full_file_path):
                 shutil.copy(full_file_path, litex_sim_path)
-                
-
+        
         # TCL File Content        
         tcl = []
         # Create Design.
         tcl.append(f"create_design {args.build_name}")
         # Set Device.
         tcl.append(f"target_device {'GEMINI'}")
-        # Add Include Path
-        tcl.append(f"add_include_path {'../src'}")
         # Add Include Path.
         tcl.append(f"add_library_path {'../src'}")
         # Add Sources.
@@ -204,22 +187,22 @@ def main():
         # Add Timings Constraints.
 #        tcl.append(f"add_constraint_file {args.build_name}.sdc")
         # Run.
-        tcl.append("synthesize")        
+        tcl.append("synthesize")
 
         # Generate .tcl file
         tcl_path = os.path.join(synth_path, "raptor.tcl")
         with open(tcl_path, "w") as f:
             f.write("\n".join(tcl))
         f.close()
-
-
+        
     # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = AXILITEUARTWrapper(platform,
-        addr_width      = args.addr_width,
-        data_width      = args.data_width
-    )
-
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module = AXI2AXILITEWrapper(platform,
+        data_width          = args.data_width,
+        addr_width          = args.addr_width,
+        id_width            = args.id_width
+        )
+    
     # Build
     if args.build:
         platform.build(module,
@@ -236,7 +219,7 @@ def main():
         f = open(wrapper, "r")
         content = f.readlines()
         content.insert(13, '// This file is Copyright (c) 2022 RapidSilicon\n//------------------------------------------------------------------------------')
-        content.insert(15, '\n`timescale 1ns / 1ps\n')
+        content.insert(15, '\n// `timescale 1ns / 1ps\n')
         f = open(wrapper, "w")
         content = "".join(content)
         f.write(str(content))

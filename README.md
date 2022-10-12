@@ -4,9 +4,9 @@ IP Catalog is an IP library for Raptor toolchain.
 
 ├── IP_Catalog
 |   |
-|   └── RapidSilicon
+|   └── rapidsilicon
 |       |
-│       └── IP
+│       └── ip
 |           |
 │           ├── axi_ram
 |           |
@@ -18,7 +18,7 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── i2c_master_axil_slave
 |           |
-│           ├── axil_uart
+│           ├── axil_uart16550
 |           |
 │           ├── axi_dpram
 |           |
@@ -52,7 +52,9 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── axi_crossbar
 |           |
-│           ├── axi_vexriscv
+│           ├── vexriscv_cpu
 |           |
-│           └── axis_width_converter
+│           ├── axis_width_converter
+|           |
+│           └── axi2axilite_bridge
 ```
