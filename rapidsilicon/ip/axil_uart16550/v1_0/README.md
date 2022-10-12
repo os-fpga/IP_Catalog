@@ -1,7 +1,7 @@
-# AXI LITE UART Core Generation 
+# AXI LITE UART16550 Core Generation 
 
 ## Introduction
-AXI LITE UART is AXI4-Lite based IP core.
+AXI LITE UART16550 is AXI4-Lite based IP core.
 
 ## Generator Script
 
