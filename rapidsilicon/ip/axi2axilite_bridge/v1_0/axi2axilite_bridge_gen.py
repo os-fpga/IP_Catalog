@@ -24,8 +24,8 @@ from litex.soc.interconnect.axi import AXIInterface, AXILiteInterface
 # IOs / Interface ----------------------------------------------------------------------------------
 def get_clkin_ios():
     return [
-        ("S_AXI_ACLK",      0, Pins(1)),
-        ("S_AXI_ARESETN",   0, Pins(1))]
+        ("s_axi_aclk",      0, Pins(1)),
+        ("s_axi_aresetn",   0, Pins(1))]
 
 # AXI-2-AXILITE Wrapper --------------------------------------------------------------------------------
 class AXI2AXILITEWrapper(Module):
@@ -34,8 +34,8 @@ class AXI2AXILITEWrapper(Module):
         # Clocking
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("S_AXI_ACLK"))
-        self.comb += self.cd_sys.rst.eq(platform.request("S_AXI_ARESETN"))
+        self.comb += self.cd_sys.clk.eq(platform.request("s_axi_aclk"))
+        self.comb += self.cd_sys.rst.eq(platform.request("s_axi_aresetn"))
 
         # AXI SLAVE PORT
         s_axi = AXIInterface(
@@ -70,7 +70,7 @@ def main():
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width",         default=32,     type=int,    help="Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",         default=6,      type=int,    help="Address Width 8 - 16")
+    core_group.add_argument("--addr_width",         default=6,      type=int,    help="Address Width 6 - 16")
     core_group.add_argument("--id_width",           default=2,      type=int,    help="ID Width from 1 - 32")
 
     # Build Parameters.

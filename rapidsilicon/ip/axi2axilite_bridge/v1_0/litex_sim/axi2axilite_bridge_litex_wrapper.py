@@ -24,7 +24,7 @@ class AXI2AXILITE(Module):
         # ---------------------        
         self.logger = logging.getLogger("AXI_2_AXILITE")
         
-        self.logger.propagate = True
+        self.logger.propagate = False
 
         # Clock Domain.
         self.logger.info(f"CLOCK_DOMAIN     : {s_axi.clock_domain}")

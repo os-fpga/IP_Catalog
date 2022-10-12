@@ -1,6 +1,6 @@
-# AXI to AXI-LITE Core Generation 
+# AXI4 to AXI-LITE Brigde IP
 ## Introduction
-AXI-to-AXILITE is AXI4 based IP core.
+AXI4-to-AXILITE Bridge IP
 
 For more information, visit: https://github.com/ZipCPU/wb2axip#wb2axip-bus-interconnects-bridges-and-other-components
 
