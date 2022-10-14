@@ -278,7 +278,6 @@ def main():
         f = open(new_wrapper, "r")
         content = f.readlines()
         content.insert(13, '// This file is Copyright (c) 2022 RapidSilicon\n//------------------------------------------------------------------------------')
-        content.insert(15, '\n`timescale 1ns / 1ps\n')
         f = open(new_wrapper, "w")
         content = "".join(content)
         f.write(str(content))

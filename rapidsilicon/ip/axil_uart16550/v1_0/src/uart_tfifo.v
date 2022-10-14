@@ -143,7 +143,7 @@
 `include "timescale.v"
 // synopsys translate_on
 
-//`include "uart_defines.v"
+`include "uart_defines.vh"
 
 module uart_tfifo (clk, 
 	wb_rst_i, data_in, data_out,
