@@ -54,9 +54,13 @@ class AXICROSSBARWrapper(Module):
                 
             s_axis.append(s_axi)
         
-        # Master Interfaces
-        m_axis = []    
-        m_id_width = (s_id_width+(math.ceil(math.log2(s_count))))
+        # Master Interfaces 
+        if s_count<2:
+            m_id_width = s_id_width
+        else:
+            m_id_width = (s_id_width+(math.ceil(math.log2(s_count)))) 
+            
+        m_axis = []  
         for m_count in range(m_count):
             m_axi = AXIInterface(data_width = data_width , address_width = addr_width, id_width = m_id_width, aw_user_width = aw_user_width,
             w_user_width = w_user_width, b_user_width = b_user_width, ar_user_width = ar_user_width, r_user_width = r_user_width)
