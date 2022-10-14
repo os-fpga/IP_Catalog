@@ -153,7 +153,7 @@
 `include "timescale.v"
 // synopsys translate_on
 
-//`include "uart_defines.v"
+`include "uart_defines.vh"
 
 module uart_transmitter (clk, wb_rst_i, lcr, tf_push, wb_dat_i, enable,	stx_pad_o, tstate, tf_count, tx_reset, lsr_mask, tf_overrun);
 

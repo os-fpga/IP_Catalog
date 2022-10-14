@@ -87,7 +87,7 @@
 `include "timescale.v"
 // synopsys translate_on
 
-//`include "uart_defines.v"
+`include "uart_defines.vh"
 
 module uart_debug_if (/*AUTOARG*/
 // Outputs
