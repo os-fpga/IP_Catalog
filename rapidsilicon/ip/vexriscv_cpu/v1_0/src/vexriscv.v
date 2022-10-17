@@ -5186,11 +5186,12 @@ module JtagBridge (
     .clk                           (clk                                          ), //i
     .debugReset                    (debugReset                                   )  //i
   );
-  initial begin
-  `ifndef SYNTHESIS
-    jtag_tap_fsm_state = {1{$urandom}};
-  `endif
-  end
+
+//  initial begin
+//  `ifndef SYNTHESIS
+//    jtag_tap_fsm_state = {1{$urandom}};
+//  `endif
+//  end
 
   `ifndef SYNTHESIS
   always @(*) begin
@@ -5686,11 +5687,12 @@ module FlowCCByToggle (
     .clk           (clk                                   ), //i
     .debugReset    (debugReset                            )  //i
   );
-  initial begin
-  `ifndef SYNTHESIS
-    inputArea_target = $urandom;
-  `endif
-  end
+
+//  initial begin
+//  `ifndef SYNTHESIS
+//    inputArea_target = $urandom;
+//  `endif
+//  end
 
   assign outputArea_target = inputArea_target_buffercc_io_dataOut;
   assign outputArea_flow_valid = (outputArea_target != outputArea_hit);
