@@ -89,7 +89,14 @@ class AXIDMAWrapper(Module):
             address_width   = axi_addr_width,
             id_width        = axi_id_width,
         )
-        axis = AXIStreamInterface(
+        m_axis = AXIStreamInterface(
+            data_width      = axi_data_width,
+            user_width      = axis_user_width,
+            dest_width      = axis_dest_width,
+            id_width        = axis_id_width
+        )
+        
+        s_axis = AXIStreamInterface(
             data_width      = axi_data_width,
             user_width      = axis_user_width,
             dest_width      = axis_dest_width,
@@ -99,17 +106,17 @@ class AXIDMAWrapper(Module):
         platform.add_extension(axi.get_ios("m_axi"))
         self.comb += axi.connect_to_pads(platform.request("m_axi"), mode="master")
         
-        platform.add_extension(axis.get_ios("m_axis"))
-        self.comb += axis.connect_to_pads(platform.request("m_axis"), mode="master")
+        platform.add_extension(m_axis.get_ios("m_axis"))
+        self.comb += m_axis.connect_to_pads(platform.request("m_axis"), mode="master")
         
-        platform.add_extension(axis.get_ios("s_axis"))
-        self.comb += axis.connect_to_pads(platform.request("s_axis"), mode="slave")
+        platform.add_extension(s_axis.get_ios("s_axis"))
+        self.comb += s_axis.connect_to_pads(platform.request("s_axis"), mode="slave")
         
         # AXI_DMA
         self.submodules.dma = dma = AXIDMA(platform, 
             m_axi               = axi, 
-            m_axis              = axis,
-            s_axis              = axis, 
+            m_axis              = m_axis,
+            s_axis              = s_axis, 
             axi_max_burst_len   = axi_max_burst_len,
             axis_last_enable    = axis_last_enable,
             axis_id_enable      = axis_id_enable,
