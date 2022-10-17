@@ -76,7 +76,7 @@ class AXISPIMASTERWrapper(Module):
 
         # AXI SPI MASTER -----------------------------------------------------------------------
         self.submodules.spi_master = spi_master = AXISPIMASTER(platform, 
-            s_axi           = axil,
+            s_axi           = axi,
             buffer_depth    = buffer_depth
             )
         
