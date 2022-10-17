@@ -84,22 +84,24 @@ class AXISPIMASTERWrapper(Module):
         platform.add_extension(get_spi_ios())
         spi_pads = platform.request("spi")
         self.comb += [
+            
             # Inputs
-            spi_master.spi_clk.eq(spi_pads.clk),
-            spi_master.spi_csn0.eq(spi_pads.csn0),
-            spi_master.spi_csn1.eq(spi_pads.csn1),
-            spi_master.spi_csn2.eq(spi_pads.csn2),
-            spi_master.spi_csn3.eq(spi_pads.csn3),
-            spi_master.spi_mode.eq(spi_pads.mode),
-            spi_master.spi_sdo0.eq(spi_pads.sdo0),
-            spi_master.spi_sdo1.eq(spi_pads.sdo1),
-            spi_master.spi_sdo2.eq(spi_pads.sdo2),
-            spi_master.spi_sdo3.eq(spi_pads.sdo3),
+            spi_master.spi_sdi0.eq(spi_pads.sdi0),
+            spi_master.spi_sdi1.eq(spi_pads.sdi1),
+            spi_master.spi_sdi2.eq(spi_pads.sdi2),
+            spi_master.spi_sdi3.eq(spi_pads.sdi3),
+            
             # Outputs
-            spi_pads.sdi0.eq(spi_master.spi_sdi0),
-            spi_pads.sdi1.eq(spi_master.spi_sdi1),
-            spi_pads.sdi2.eq(spi_master.spi_sdi2),
-            spi_pads.sdi3.eq(spi_master.spi_sdi3),
+            spi_pads.clk.eq(spi_master.spi_clk),
+            spi_pads.csn0.eq(spi_master.spi_csn0),
+            spi_pads.csn1.eq(spi_master.spi_csn1),
+            spi_pads.csn2.eq(spi_master.spi_csn2),
+            spi_pads.csn3.eq(spi_master.spi_csn3),
+            spi_pads.mode.eq(spi_master.spi_mode),
+            spi_pads.sdo0.eq(spi_master.spi_sdo0),
+            spi_pads.sdo1.eq(spi_master.spi_sdo1),
+            spi_pads.sdo2.eq(spi_master.spi_sdo2),
+            spi_pads.sdo3.eq(spi_master.spi_sdo3),
         ]
         self.comb += platform.request("events_o").eq(spi_master.events_o)
 
