@@ -49,14 +49,11 @@ class AXILITEGPIOWrapper(Module):
             data_width      = data_width,
             address_width   = addr_width
         )
-        platform.add_extension(axil.get_ios("axil"))
-        self.comb += axil.connect_to_pads(platform.request("axil"), mode="slave")
+        platform.add_extension(axil.get_ios("s_axil"))
+        self.comb += axil.connect_to_pads(platform.request("s_axil"), mode="slave")
 
         # AXI-LITE-GPIO 
-        self.submodules.gpio = gpio = AXILITEGPIO(platform, axil, 
-            address_width   = addr_width, 
-            data_width      = data_width
-            )
+        self.submodules.gpio = gpio = AXILITEGPIO(platform, s_axil=axil)
         
         # GPIO 
         platform.add_extension(get_gpio_ios(data_width))

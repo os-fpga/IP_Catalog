@@ -17,7 +17,7 @@ from litex.soc.interconnect.axi import *
 logging.basicConfig(level=logging.INFO)
 
 class AXILITEGPIO(Module):
-    def __init__(self, platform, s_axil, data_width, address_width):
+    def __init__(self, platform, s_axil):
 
         # Get Parameters
         # --------------
@@ -99,6 +99,6 @@ class AXILITEGPIO(Module):
     @staticmethod
     def add_sources(platform):
         rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "axi4lite_gpio.sv"))
+        platform.add_source_dir(rtl_dir)
 
 
