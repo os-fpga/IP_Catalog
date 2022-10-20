@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT.
 
 import os
+import sys
 import json
 import argparse
 import shutil
@@ -97,6 +98,12 @@ def main():
         width             = 120
     )
 
+    # Import Common Modules.
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    sys.path.append(common_path)
+
+    from common import RapidSiliconIPCatalogBuilder
+
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
@@ -126,10 +133,6 @@ def main():
 
     # Build Project Directory ----------------------------------------------------------------------
 
-    import sys
-    common_path = os.path.join(os.path.dirname(__file__), "..", "..")  # FIXME
-    sys.path.append(common_path)                                       # FIXME
-    from common import RapidSiliconIPCatalogBuilder
     rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="vexriscv_cpu")
 
     if args.build:
