@@ -283,18 +283,13 @@ def main():
         )
         shutil.copy(f"litex_build/{args.build_name}.v", src_path)
         shutil.rmtree("litex_build")
-        
-        # TimeScale Addition to Wrapper
-        wrapper = os.path.join(src_path, f'{args.build_name}.v')
-        f = open(wrapper, "r")
-        content = f.readlines()
-        content.insert(13, '// This file is Copyright (c) 2022 RapidSilicon\n//------------------------------------------------------------------------------')
-        content.insert(15, '\n`timescale 1ns / 1ps\n')
-        f = open(wrapper, "w")
-        content = "".join(content)
-        f.write(str(content))
-        f.close()
 
+        import sys
+        sys.path.append("../../") # FIXME
+        from common import RapidSiliconIPCatalogBuilder
+        filename   = os.path.join(src_path, f'{args.build_name}.v')
+        rs_builder = RapidSiliconIPCatalogBuilder()
+        rs_builder.add_verilog_header(filename)
 
 if __name__ == "__main__":
     main()
