@@ -226,9 +226,6 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Remove build extension when specified.
-    args.build_name = os.path.splitext(args.build_name)[0]
-
     # Build Project Directory ----------------------------------------------------------------------
 
     rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_interconnect")
