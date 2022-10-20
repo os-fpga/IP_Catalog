@@ -83,10 +83,6 @@ class I2CMASTERWrapper(Module):
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="I2C MASTER CORE")
-    parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
-        max_help_position = 10,
-        width             = 120
-    )
 
     # Import Common Modules.
     common_path = os.path.join(os.path.dirname(__file__), "..", "..")
