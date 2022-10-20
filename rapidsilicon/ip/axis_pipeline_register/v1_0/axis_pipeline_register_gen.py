@@ -88,16 +88,16 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=8,        type=int,         help="Data Width from 1 to 4096")
-    core_group.add_argument("--last_en",        default=1,        type=int,         help="Last Enable 0 or 1")
-    core_group.add_argument("--id_en",          default=0,        type=int,         help="ID Enable 0 or 1")
-    core_group.add_argument("--id_width",       default=8,        type=int,         help="ID Width from 1 to 32")
-    core_group.add_argument("--dest_en",        default=0,        type=int,         help="Destination Enable 0 or 1")
-    core_group.add_argument("--dest_width",     default=8,        type=int,         help="Destination Width from 1 to 32")
-    core_group.add_argument("--user_en",        default=1,        type=int,         help="User Enable 0 or 1")
-    core_group.add_argument("--user_width",     default=1,        type=int,         help="User Width from 1 to 4096")
-    core_group.add_argument("--reg_type",       default=2,        type=int,         help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
-    core_group.add_argument("--length",         default=2,        type=int,         help="Number of registers in pipeline from 0 to 5")
+    core_group.add_argument("--data_width", type=int, default=8, choices=range(1,4097),  help="Data Width.")
+    core_group.add_argument("--last_en",    type=int, default=1, choices=range(2),       help="Last Enable.")
+    core_group.add_argument("--id_en",      type=int, default=0, choices=range(2),       help="ID Enable.")
+    core_group.add_argument("--id_width",   type=int, default=8, choices=range(1, 33),   help="ID Width.")
+    core_group.add_argument("--dest_en",    type=int, default=0, choices=range(2),       help="Destination Enable.")
+    core_group.add_argument("--dest_width", type=int, default=8, choices=range(1, 33),   help="Destination Width.")
+    core_group.add_argument("--user_en",    type=int, default=1, choices=range(2),       help="User Enable.")
+    core_group.add_argument("--user_width", type=int, default=1, choices=range(1, 4097), help="User Width.")
+    core_group.add_argument("--reg_type",   type=int, default=2, choices=range(3),       help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
+    core_group.add_argument("--length",     type=int, default=2, choices=range(6),       help="Number of registers in pipeline.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -111,69 +111,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data_Width
-    data_width_range=range(1,4097)
-    if args.data_width not in data_width_range:
-        logger.error("\nEnter a valid 'data_width' from 1 to 4096")
-        exit()
-    
-    # Last Enable
-    last_en_range=range(2)
-    if args.last_en not in last_en_range:
-        logger.error("\nEnter a valid 'last_en' 0 or 1")
-        exit()
-
-    # ID Enable
-    id_en_range=range(2)
-    if args.id_en not in id_en_range:
-        logger.error("\nEnter a valid 'id_en' 0 or 1")
-        exit()
-
-    # ID Width
-    id_width_range=range(1,33)
-    if args.id_width not in id_width_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 32")
-        exit()
-
-    # Destination Enable
-    dest_en_range=range(2)
-    if args.dest_en not in dest_en_range:
-        logger.error("\nEnter a valid 'dest_en' 0 or 1")
-        exit()
-        
-    # Destination Width
-    dest_width_range=range(1,33)
-    if args.dest_width not in dest_width_range:
-        logger.error("\nEnter a valid 'dest_width' from 1 to 32")
-        exit()
-        
-    # User Enable
-    user_en_range=range(2)
-    if args.user_en not in user_en_range:
-        logger.error("\nEnter a valid 'user_en' 0 or 1")
-        exit()
-        
-    # User Width
-    user_width_range=range(1,4097)
-    if args.user_width not in user_width_range:
-        logger.error("\nEnter a valid 'user_width' from 1 to 4096")
-        exit()
-        
-    # Register Type
-    reg_type_range = range(3)
-    if args.reg_type not in reg_type_range:
-        logger.error("\nEnter a valid 'reg_type' from 0 to 2")
-        exit()
-        
-    # Length
-    length_range = range(6)
-    if args.length not in length_range:
-        logger.error("\nEnter a valid 'length' from 0 to 5")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

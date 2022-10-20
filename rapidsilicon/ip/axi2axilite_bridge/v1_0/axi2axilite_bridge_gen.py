@@ -72,9 +72,9 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",         default=32,     type=int,    help="Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",         default=6,      type=int,    help="Address Width 6 - 16")
-    core_group.add_argument("--id_width",           default=2,      type=int,    help="ID Width from 1 - 32")
+    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Data Width")
+    core_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width.")
+    core_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width from.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -88,27 +88,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data_Width
-    data_width_param=[8, 16, 32, 64, 128, 256]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-    
-    # Address Width
-    addr_range=range(6, 17)
-    if args.addr_width not in addr_range:
-        logger.error("\nEnter a valid 'addr_width' from 6 to 16")
-        exit()
-
-    # ID_Width
-    id_range=range(1, 33)
-    if args.id_width not in id_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 32")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

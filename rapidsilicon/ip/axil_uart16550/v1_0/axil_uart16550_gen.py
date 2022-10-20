@@ -94,8 +94,8 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width 8,16,32")
-    core_group.add_argument("--data_width",      default=32,       type=int,       help="UART Data Width 8,16,32,64")
+    core_group.add_argument("--addr_width", type=int, default=16, choices=[8, 16, 32],     help="UART Address Width.")
+    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="UART Data Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -110,22 +110,6 @@ def main():
 
     args = parser.parse_args()
     
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Address Width
-    addr_width_param=[8, 16, 32]
-    if args.addr_width not in addr_width_param:
-        logger.error("\nEnter a valid 'addr_width'\n %s", addr_width_param)
-        exit()
-    
-    # Data_Width
-    data_width_param=[8, 16, 32, 64]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-
-
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:

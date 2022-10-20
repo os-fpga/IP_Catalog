@@ -66,10 +66,10 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=32,     type=int,       help="RAM Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default=16,     type=int,       help="RAM Address Width from 8 to 16")
-    core_group.add_argument("--id_width",       default=8,      type=int,       help="RAM ID Width from 1 to 8")
-    core_group.add_argument("--pip_out",        default=0,      type=int,       help="RAM Pipeline Output 0 or 1")
+    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="RAM Data Width.")
+    core_group.add_argument("--addr_width", type=int, default=16, choices=range(8,17),     help="RAM Address Width.")
+    core_group.add_argument("--id_width",   type=int, default=8,  choices=range(1, 9),     help="RAM ID Width.")
+    core_group.add_argument("--pip_out",    type=int, default=0,  choices=range(2),        help="RAM Pipeline Output.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -83,33 +83,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data_Width
-    data_width_param=[8, 16, 32, 64]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-
-    # Address_Width
-    addr_range=range(8,17)
-    if args.addr_width not in addr_range:
-        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
-        exit()
-
-    # ID_Width
-    id_range=range(1, 9)
-    if args.id_width not in id_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 8")
-        exit()
-
-    # Pipeline_Output
-    pip_range=range(2)
-    if args.pip_out not in pip_range:
-        logger.error("\nEnter a valid 'pip_out' 0 or 1")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

@@ -77,8 +77,8 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--data_width",     default=32,     type=int,       help="GPIO Data Width 8,16,32")
-    core_group.add_argument("--addr_width",     default=16,     type=int,       help="GPIO Address Width from 8 to 16")
+    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32],   help="GPIO Data Width.")
+    core_group.add_argument("--addr_width", type=int, default=16, choices=range(8, 17),  help="GPIO Address Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -92,21 +92,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-    
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data_Width
-    data_width_param=[8, 16, 32]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-    
-    # Address Width
-    addr_range=range(8, 17)
-    if args.addr_width not in addr_range:
-        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

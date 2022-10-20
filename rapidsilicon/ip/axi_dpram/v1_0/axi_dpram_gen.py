@@ -82,13 +82,13 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",     default=32,  type=int,    help="DPRAM Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",     default=16,  type=int,    help="DPRAM Address Width from 8 to 16")
-    core_group.add_argument("--id_width",       default=32,  type=int,    help="DPRAM ID Width from 1 to 32")
-    core_group.add_argument("--a_pip_out",      default=0,   type=int,    help="DPRAM A Pipeline Output 0 or 1")
-    core_group.add_argument("--b_pip_out",      default=0,   type=int,    help="DPRAM B Pipeline Output 0 or 1")
-    core_group.add_argument("--a_interleave",   default=0,   type=int,    help="DPRAM A Interleave 0 or 1")
-    core_group.add_argument("--b_interleave",   default=0,   type=int,    help="DPRAM B Interleave 0 or 1")
+    core_group.add_argument("--data_width",   type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DPRAM Data Width.")
+    core_group.add_argument("--addr_width",   type=int, default=16, choices=range(8, 17),              help="DPRAM Address Width.")
+    core_group.add_argument("--id_width",     type=int, default=32, choices=range(1, 33),              help="DPRAM ID Width.")
+    core_group.add_argument("--a_pip_out",    type=int, default=0,  choices=range(2),                  help="DPRAM A Pipeline Output.")
+    core_group.add_argument("--b_pip_out",    type=int, default=0,  choices=range(2),                  help="DPRAM B Pipeline Output.")
+    core_group.add_argument("--a_interleave", type=int, default=0,  choices=range(2),                  help="DPRAM A Interleave.")
+    core_group.add_argument("--b_interleave", type=int, default=0,  choices=range(2),                  help="DPRAM B Interleave.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -102,51 +102,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
-    
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-    
-    # Data_Width
-    data_width_param=[8, 16, 32, 64, 128, 256]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-    
-    # Address Width
-    addr_range=range(8, 17)
-    if args.addr_width not in addr_range:
-        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
-        exit()
-
-    # ID_Width
-    id_range=range(1, 33)
-    if args.id_width not in id_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 32")
-        exit()
-    
-    # A_Pipeline_Output
-    a_pip_range=range(2)
-    if args.a_pip_out not in a_pip_range:
-        logger.error("\nEnter a valid 'a_pip_out' 0 or 1")
-        exit()
-
-    # B_Pipeline_Output
-    b_pip_range=range(2)
-    if args.b_pip_out not in b_pip_range:
-        logger.error("\nEnter a valid 'b_pip_out' 0 or 1")
-        exit()
-
-    # A_Interleave
-    a_interleave_range=range(2)
-    if args.a_interleave not in a_interleave_range:
-        logger.error("\nEnter a valid 'a_interleave' 0 or 1")
-        exit()
-
-    # B_Interleave
-    b_interleave_range=range(2)
-    if args.b_interleave not in b_interleave_range:
-        logger.error("\nEnter a valid 'b_interleave' 0 or 1")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
