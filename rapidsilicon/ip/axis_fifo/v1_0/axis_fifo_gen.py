@@ -263,7 +263,7 @@ def main():
 
     # Build
     if args.build:
-        rs_builder.build(
+        rs_builder.generate_verilog(
             platform   = platform,
             module     = module,
         )

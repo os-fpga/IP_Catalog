@@ -119,7 +119,7 @@ class RapidSiliconIPCatalogBuilder:
         f.write("\n".join(tcl))
         f.close()
 
-    def build(self, platform, module):
+    def generate_verilog(self, platform, module):
         assert self.prepared
         build_path     = "litex_build"
         build_filename = os.path.join(build_path, self.build_name) + ".v"
