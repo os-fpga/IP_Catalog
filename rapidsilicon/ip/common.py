@@ -10,7 +10,8 @@ import shutil
 # RapidSilicon IP Catalog Builder ------------------------------------------------------------------
 
 class RapidSiliconIPCatalogBuilder:
-    def __init__(self, ip_name):
+    def __init__(self, device, ip_name):
+        self.device   = device
         self.ip_name  = ip_name
         self.prepared = False
 
@@ -79,6 +80,45 @@ class RapidSiliconIPCatalogBuilder:
                 if os.path.isfile(full_file_path):
                     shutil.copy(full_file_path, self.litex_sim_path)
 
+    def generate_tcl(self):
+        assert self.prepared
+
+        # Build .tcl file.
+        # ----------------
+
+        tcl = []
+
+        # Create Design.
+        tcl.append(f"create_design {self.build_name}")
+
+        # Set Device.
+        tcl.append(f"target_device {self.device.upper()}") # CHECKME: .upper() required?
+
+        # Add Include Path.
+        tcl.append(f"add_library_path ../src")
+
+        # Add file extension
+        tcl.append(f"add_library_ext .v .sv")
+
+        # Add Sources.
+        tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
+
+        # Set Top Module.
+        tcl.append(f"set_top_module {self.build_name}")
+
+        # Add Timings Constraints.
+        tcl.append(f"add_constraint_file {self.build_name}.sdc")
+
+        # Run.
+        tcl.append("synthesize")
+
+        # Generate .tcl file.
+        # -------------------
+        tcl_filename = os.path.join(self.synth_path, "raptor.tcl")
+        f = open(tcl_filename, "w")
+        f.write("\n".join(tcl))
+        f.close()
+
     def build(self, platform, module):
         assert self.prepared
         build_path     = "litex_build"
@@ -95,7 +135,7 @@ class RapidSiliconIPCatalogBuilder:
         # Insert header.
         self.add_verilog_header(build_filename)
 
-        # Copy files to destination.
+        # Copy file to destination.
         shutil.copy(build_filename, self.src_path)
 
         # Remove build files.
