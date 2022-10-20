@@ -104,9 +104,9 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--data_width",     default=32,       type=int,            help="I2C_slave Data Width 8,16,32,64")
-    core_group.add_argument("--addr_width",     default=16,       type=int,            help="I2C_slave Address Width 8,16,32")
-    core_group.add_argument("--filter_len",     default=4,        type=int,            help="I2C_slave Filter Lenght from 1 to 4")
+    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="I2C_slave Data Width.")
+    core_group.add_argument("--addr_width", type=int, default=16, choices=[8, 16, 32],     help="I2C_slave Address Width.")
+    core_group.add_argument("--filter_len", type=int, default=4,  choices=range(1,5),      help="I2C_slave Filter Length.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -121,27 +121,6 @@ def main():
 
     args = parser.parse_args()
     
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data Width
-    data_width_param=[8, 16, 32, 64]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-        
-    # Address Width
-    addr_width_param=[8, 16, 32]
-    if args.addr_width not in addr_width_param:
-        logger.error("\nEnter a valid 'addr_width'\n %s", addr_width_param)
-        exit()
-
-    # Filter Length
-    filter_len_range=range(1,5)
-    if args.filter_len not in filter_len_range:
-        logger.error("\nEnter a valid 'filter_len' from 1 to 4")
-        exit()
-
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:

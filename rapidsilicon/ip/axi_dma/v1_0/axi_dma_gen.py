@@ -187,21 +187,22 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--axi_data_width",         default=32,     type=int,    help="DMA Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--axi_addr_width",         default=16,     type=int,    help="DMA Address Width from 8 to 16")
-    core_group.add_argument("--axi_id_width",           default=8,      type=int,    help="DMA ID Width from 1 to 32")
-    core_group.add_argument("--axi_max_burst_len",      default=16,     type=int,    help="DMA AXI burst length from 1 to 256")
-    core_group.add_argument("--axis_last_enable",       default=1,      type=int,    help="DMA AXI stream tlast 0 or 1")    
-    core_group.add_argument("--axis_id_enable",         default=0,      type=int,    help="DMA AXI stream tid 0 or 1")    
-    core_group.add_argument("--axis_id_width",          default=8,      type=int,    help="DMA AXI stream tid width from 1 to 32")    
-    core_group.add_argument("--axis_dest_enable",       default=0,      type=int,    help="DMA AXI stream tdest 0 or 1")
-    core_group.add_argument("--axis_dest_width",        default=8,      type=int,    help="DMA AXI stream tdest width  from 1 to 8")
-    core_group.add_argument("--axis_user_enable",       default=1,      type=int,    help="DMA AXI stream tuser 0 or 1")
-    core_group.add_argument("--axis_user_width",        default=1,      type=int,    help="DMA AXIS User Width from 1 to 8")    
-    core_group.add_argument("--len_width",              default=20,     type=int,    help="DMA AXI Width of length field from 1 to 20")
-    core_group.add_argument("--tag_width",              default=8,      type=int,    help="DMA Width of tag field from 1 to 8")
-    core_group.add_argument("--enable_sg",              default=0,      type=int,    help="Support for scatter/gather DMA 0 or 1")    
-    core_group.add_argument("--enable_unaligned",       default=0,      type=int,    help="Support for unaligned transfers 0 or 1")
+    core_group.add_argument("--axi_data_width",    type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
+    core_group.add_argument("--axi_addr_width",    type=int, default=16, choices=range(8, 17),              help="DMA Address Width.")
+    core_group.add_argument("--axi_id_width",      type=int, default=8,  choices=range(1, 33),              help="DMA ID Width.")
+    core_group.add_argument("--axi_max_burst_len", type=int, default=16, choices=range(1, 257),             help="DMA AXI burst length.")
+    core_group.add_argument("--axis_last_enable",  type=int, default=1,  choices=range(2),                  help="DMA AXI stream tlast.")
+    core_group.add_argument("--axis_id_enable",    type=int, default=0,  choices=range(2),                  help="DMA AXI stream tid.")
+    core_group.add_argument("--axis_id_width",     type=int, default=8,  choices=range(1, 33),              help="DMA AXI stream tid width.")
+    core_group.add_argument("--axis_dest_enable",  type=int, default=0,  choices=range(2),                  help="DMA AXI stream tdest.")
+    core_group.add_argument("--axis_dest_width",   type=int, default=8,  choices=range(1, 9),               help="DMA AXI stream tdest width.")
+    core_group.add_argument("--axis_user_enable",  type=int, default=1,  choices=range(2),                  help="DMA AXI stream tuser.")
+    core_group.add_argument("--axis_user_width",   type=int, default=1,  choices=range(1, 9),               help="DMA AXIS User Width.")
+    core_group.add_argument("--len_width",         type=int, default=20, choices=range(1, 21),              help="DMA AXI Width of length field.")
+    core_group.add_argument("--tag_width",         type=int, default=8,  choices=range(1, 9),               help="DMA Width of tag field.")
+    core_group.add_argument("--enable_sg",         type=int, default=0,  choices=range(2),                  help="Support for scatter/gather DMA.")
+    core_group.add_argument("--enable_unaligned",  type=int, default=0,  choices=range(2),                  help="Support for unaligned transfers.")
+
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -215,100 +216,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data_Width
-    data_width_param=[8, 16, 32, 64, 128, 256]
-    if args.axi_data_width not in data_width_param:
-        logger.error("\nEnter a valid 'axi_data_width'\n %s", data_width_param)
-        exit()
-    
-    # Address Width
-    addr_range=range(8, 17)
-    if args.axi_addr_width not in addr_range:
-        logger.error("\nEnter a valid 'axi_addr_width' from 8 to 16")
-        exit()
-
-    # ID_Width
-    id_range=range(1, 33)
-    if args.axi_id_width not in id_range:
-        logger.error("\nEnter a valid 'axi_id_width' from 1 to 32")
-        exit()
-    
-    # axis_user_width_range
-    axis_user_width_range=range(1,9)
-    if args.axis_user_width not in axis_user_width_range:
-        logger.error("\nEnter a valid 'axis_user_width' from 1 to 8")
-        exit()
-
-    # axis_id_width_range
-    axis_id_width_range=range(1,33)
-    if args.axis_id_width not in axis_id_width_range:
-        logger.error("\nEnter a valid 'axis_id_width' from 1 to 32")
-        exit()
-
-    # axi_max_burst_len_range
-    axi_max_burst_len_range=range(1,257)
-    if args.axi_max_burst_len not in axi_max_burst_len_range:
-        logger.error("\nEnter a valid 'a_intaxi_max_burst_lenerleave' from 1 to 256")
-        exit()
-
-    # axis_last_enable_range
-    axis_last_enable_range=range(2)
-    if args.axis_last_enable not in axis_last_enable_range:
-        logger.error("\nEnter a valid 'axis_last_enable' 0 or 1")
-        exit()
-
-    # AXIS_ID_ENABLE
-    axis_id_enable_range=range(2)
-    if args.axis_id_enable not in axis_id_enable_range:
-        logger.error("\nEnter a valid 'axis_id_enable' 0 or 1")
-        exit()
-
-    # AXIS_DEST_ENABLE
-    axis_dest_enable_range=range(2)
-    if args.axis_dest_enable not in axis_dest_enable_range:
-        logger.error("\nEnter a valid 'axis_dest_enable' 0 or 1")
-        exit()
-
-    # AXIS_DEST_WIDTH
-    axis_dest_width_range=range(1,9)
-    if args.axis_dest_width not in axis_dest_width_range:
-        logger.error("\nEnter a valid 'axis_dest_width' from 1 to 8")
-        exit()
-
-    # len_width
-    len_width_range=range(1,21)
-    if args.len_width not in len_width_range:
-        logger.error("\nEnter a valid 'len_width' from 1 to 20")
-        exit()
-
-    # AXIS_USER_ENABLE
-    axis_user_enable_range=range(2)
-    if args.axis_user_enable not in axis_user_enable_range:
-        logger.error("\nEnter a valid 'axis_user_enable' 0 or 1")
-        exit()
-
-    # ENABLE_SG
-    enable_sg_range=range(2)
-    if args.enable_sg not in enable_sg_range:
-        logger.error("\nEnter a valid 'enable_sg' 0 or 1")
-        exit()
-
-    # TAG_WIDTH
-    tag_width_range=range(1,9)
-    if args.tag_width not in tag_width_range:
-        logger.error("\nEnter a valid 'tag_width' from 1 to 8")
-        exit()
-
-    # ENABLE_UNALIGNED
-    enable_unaligned_range=range(2)
-    if args.enable_unaligned not in enable_unaligned_range:
-        logger.error("\nEnter a valid 'enable_unaligned' 0 or 1")
-        exit()
-
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

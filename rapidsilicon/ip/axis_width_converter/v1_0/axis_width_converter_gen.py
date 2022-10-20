@@ -65,10 +65,10 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--core_in_width",      default=128,       type=int,            help="AXI-ST Input Data-width.")
-    core_group.add_argument("--core_out_width",     default=64,        type=int,            help="AXI-ST Output Data-width.")
-    core_group.add_argument("--core_user_width",    default=1,         type=int,            help="AXI-ST User width.")
-    core_group.add_argument("--core_reverse",       default=0,         type=int,            help="Reverse Converter Ordering.")
+    core_group.add_argument("--core_in_width",   type=int, default=128, choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="AXI-ST Input Data-width.")
+    core_group.add_argument("--core_out_width",  type=int, default=64,  choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="AXI-ST Output Data-width.")
+    core_group.add_argument("--core_user_width", type=int, default=1,   choices=range(1,4097),                        help="AXI-ST User width.")
+    core_group.add_argument("--core_reverse",    type=int, default=0,   choices=range(2),                             help="Reverse Converter Ordering.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -82,29 +82,6 @@ def main():
     json_group.add_argument("--json-template",      action="store_true",            help="Generate JSON template.")
 
     args = parser.parse_args()
-    
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-    
-    # Data IN/OUT Check
-    data_param = [8, 16, 32, 64, 128, 256, 512, 1024]
-    if args.core_in_width not in data_param:
-        logger.error("\nEnter a valid 'core_in_width'\n %s", data_param)
-        exit()
-        
-    if args.core_out_width not in data_param:
-        logger.error("\nEnter a valid 'core_out_width'\n %s", data_param)
-        exit()
-        
-    # User Width
-    if args.core_user_width not in range(1,4097):
-        logger.error("\nEnter a valid 'core_user_width' from 1 to 4096\n")
-        exit()
-        
-    # Reverse Condition
-    if args.core_reverse not in range(2):
-        logger.error("\nEnter a valid 'core_reverse' 0 or 1\n")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

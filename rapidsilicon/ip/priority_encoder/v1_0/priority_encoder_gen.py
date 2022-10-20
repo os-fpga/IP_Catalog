@@ -68,8 +68,8 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--width",                  default=4,     type=int,        help="Width from 2 to 8")
-    core_group.add_argument("--lsb_high_priority",      default=0,     type=int,        help="LSB High Priority 0 or 1")
+    core_group.add_argument("--width",              type=int,  default=4, choices=range(2,9), help="Width.")
+    core_group.add_argument("--lsb_high_priority",  type=int,  default=0, choices=range(2),   help="LSB High Priority.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -83,21 +83,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-    
-    # Width
-    width_range=range(2,9)
-    if args.width not in width_range:
-        logger.error("\nEnter a valid 'width' from 2 to 8")
-        exit()
-        
-    # Data Width
-    lsb_high_priority_range=range(2)
-    if args.lsb_high_priority not in lsb_high_priority_range:
-        logger.error("\nEnter a valid 'lsb_high_priority' 0 or 1")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

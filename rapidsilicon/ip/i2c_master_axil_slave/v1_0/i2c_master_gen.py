@@ -92,14 +92,14 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--default_prescale",   default=1,   type=int,     help="I2C Default Prescale 0 or 1")
-    core_group.add_argument("--fixed_prescale",     default=0,   type=int,     help="I2C Fixed Prescale 0 or 1")
-    core_group.add_argument("--cmd_fifo",           default=1,   type=int,     help="I2C FIFO Command Enable 0 or 1")
-    core_group.add_argument("--cmd_addr_width",     default=5,   type=int,     help="I2C FIFO Command Address Width from 1 to 5)")
-    core_group.add_argument("--write_fifo",         default=1,   type=int,     help="I2C FIFO Write Enable 0 or 1")
-    core_group.add_argument("--write_addr_width",   default=5,   type=int,     help="I2C FIFO Write Address Width from 1 to 5)")
-    core_group.add_argument("--read_fifo",          default=1,   type=int,     help="I2C FIFO Read Enable 0 or 1")
-    core_group.add_argument("--read_addr_width",    default=5,   type=int,     help="I2C FIFO Read Address Width from 1 to 5)")
+    core_group.add_argument("--default_prescale",  type=int, default=1, choices=range(2),     help="I2C Default Prescale.")
+    core_group.add_argument("--fixed_prescale",    type=int, default=0, choices=range(2),     help="I2C Fixed Prescale.")
+    core_group.add_argument("--cmd_fifo",          type=int, default=1, choices=range(2),     help="I2C FIFO Command Enable.")
+    core_group.add_argument("--cmd_addr_width",    type=int, default=5, choices=range(1, 6),  help="I2C FIFO Command Address Width.")
+    core_group.add_argument("--write_fifo",        type=int, default=1, choices=range(2),     help="I2C FIFO Write Enable.")
+    core_group.add_argument("--write_addr_width",  type=int, default=5, choices=range(1, 6),  help="I2C FIFO Write Address Width.")
+    core_group.add_argument("--read_fifo",         type=int, default=1, choices=range(2),     help="I2C FIFO Read Enable.")
+    core_group.add_argument("--read_addr_width",   type=int, default=5, choices=range(1, 6),  help="I2C FIFO Read Address Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -113,57 +113,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-    
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Default Prescale
-    default_prescale_range=range(2)
-    if args.default_prescale not in default_prescale_range:
-        logger.error("\nEnter a valid 'default_prescale' 0 or 1")
-        exit()
-        
-    # Fixed Prescale
-    fixed_prescale_range=range(2)
-    if args.fixed_prescale not in fixed_prescale_range:
-        logger.error("\nEnter a valid 'fixed_prescale' 0 or 1")
-        exit()
-        
-    # CMD FIFO 
-    cmd_fifo_range=range(2)
-    if args.cmd_fifo not in cmd_fifo_range:
-        logger.error("\nEnter a valid 'cmd_fifo' 0 or 1")
-        exit()
-
-    # CMD FIFO Address Width
-    cmd_addr_width_range=range(1,6)
-    if args.cmd_addr_width not in cmd_addr_width_range:
-        logger.error("\nEnter a valid 'cmd_addr_width' from 1 to 5")
-        exit()
-        
-    # Write FIFO 
-    write_fifo_range=range(2)
-    if args.write_fifo not in write_fifo_range:
-        logger.error("\nEnter a valid 'write_fifo' 0 or 1")
-        exit()
-        
-    # Write FIFO Address Width
-    write_addr_width_range=range(1,6)
-    if args.write_addr_width not in write_addr_width_range:
-        logger.error("\nEnter a valid 'write_addr_width' from 1 to 5")
-        exit()
-        
-    # Read FIFO 
-    read_fifo_range=range(2)
-    if args.read_fifo not in read_fifo_range:
-        logger.error("\nEnter a valid 'read_fifo' 0 or 1")
-        exit()
-        
-    # Read FIFO Address Width
-    read_addr_width_range=range(1,6)
-    if args.read_addr_width not in read_addr_width_range:
-        logger.error("\nEnter a valid 'read_addr_width' from 1 to 5")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

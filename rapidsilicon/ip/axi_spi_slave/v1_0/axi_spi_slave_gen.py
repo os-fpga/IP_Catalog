@@ -110,11 +110,11 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--addr_width",        default=32,    type=int,       help="Address Width 8,16,32")
-    core_group.add_argument("--data_width",        default=64,    type=int,       help="Data Width 8,16,32,64")
-    core_group.add_argument("--user_width",        default=6,     type=int,       help="User Width from 1 to 8")
-    core_group.add_argument("--id_width",          default=3,     type=int,       help="ID Width from 1 to 16")
-    core_group.add_argument("--dummy_cycles",      default=32,    type=int,       help="Dummy Cycles 16,32")
+    core_group.add_argument("--addr_width",   type=int,  default=32, choices=[8, 16, 32, 64], help="Address Width.")
+    core_group.add_argument("--data_width",   type=int,  default=64, choices=[8, 16, 32],     help="Data Width.")
+    core_group.add_argument("--user_width",   type=int,  default=6,  choices=range(1,9),      help="User Width.")
+    core_group.add_argument("--id_width",     type=int,  default=3,  choices=range(1,17),     help="ID Width.")
+    core_group.add_argument("--dummy_cycles", type=int,  default=32, choices=[16, 32],        help="Dummy Cycles.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -129,40 +129,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-    
-    # Data Width
-    data_width_param=[8, 16, 32, 64]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s" , data_width_param)
-        exit()
-        
-    # Address Width
-    addr_width_param=[8, 16, 32]
-    if args.addr_width not in addr_width_param:
-        logger.error("\nEnter a valid 'addr_width'\n %s" , addr_width_param)
-        exit()
-
-    # User Width
-    user_width_range=range(1,9)
-    if args.user_width not in user_width_range:
-        logger.error("\nEnter a valid 'user_width' from 1 to 8")
-        exit()
-        
-    # ID Width
-    id_width_range=range(1,17)
-    if args.id_width not in id_width_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 16")
-        exit()
-        
-    # Dummy Cycles
-    dummy_cycles_param=[16, 32]
-    if args.dummy_cycles not in dummy_cycles_param:
-        logger.error("\nEnter a valid 'dummy_cycles'\n %s" , dummy_cycles_param)
-        exit()
-
-    
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:

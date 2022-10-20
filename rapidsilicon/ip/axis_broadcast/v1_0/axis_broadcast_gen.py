@@ -87,15 +87,15 @@ def main():
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     
-    core_group.add_argument("--m_count",       default=4,      type=int,    help="BROADCAST AXIS Master Interfaces from 2 to 16")
-    core_group.add_argument("--data_width",    default=32,     type=int,    help="BROADCAST AXIS interface Data Width from 1 to 4096")
-    core_group.add_argument("--last_en",       default=1,      type=int,    help="BROADCAST AXIS tlast signal 0 or 1")
-    core_group.add_argument("--id_en",         default=0,      type=int,    help="BROADCAST AXIS tid signal 0 or 1")
-    core_group.add_argument("--id_width",      default=8,      type=int,    help="BROADCAST AXIS tid signal width from 1 to 32")
-    core_group.add_argument("--dest_en",       default=0,      type=int,    help="BROADCAST AXIS tdest signal 0 or 1")
-    core_group.add_argument("--dest_width",    default=8,      type=int,    help="BROADCAST AXIS tdest signal width from 1 to 32")
-    core_group.add_argument("--user_en",       default=1,      type=int,    help="BROADCAST AXIS tuser signal 0 or 1")
-    core_group.add_argument("--user_width",    default=1,      type=int,    help="BROADCAST AXIS interface User Width from 1 to 4096")
+    core_group.add_argument("--m_count",    type=int, default=4,  choices=range(2,17),    help="BROADCAST AXIS Master Interfaces.")
+    core_group.add_argument("--data_width", type=int, default=32, choices=range(1,4097),  help="BROADCAST AXIS interface Data Width.")
+    core_group.add_argument("--last_en",    type=int, default=1,  choices=range(2),       help="BROADCAST AXIS tlast signal width.")
+    core_group.add_argument("--id_en",      type=int, default=0,  choices=range(2),       help="BROADCAST AXIS tid signal width.")
+    core_group.add_argument("--id_width",   type=int, default=8,  choices=range(1, 33),   help="BROADCAST AXIS tid signal width.")
+    core_group.add_argument("--dest_en",    type=int, default=0,  choices=range(2),       help="BROADCAST AXIS tdest signal width.")
+    core_group.add_argument("--dest_width", type=int, default=8,  choices=range(1, 33),   help="BROADCAST AXIS tdest signal width.")
+    core_group.add_argument("--user_en",    type=int, default=1,  choices=range(2),       help="BROADCAST AXIS tuser signal width.")
+    core_group.add_argument("--user_width", type=int, default=1,  choices=range(1, 4097), help="BROADCAST AXIS interface User Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -109,58 +109,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # AXI Master Interfaces
-    m_count_range=range(2,17)
-    if args.m_count not in m_count_range:
-        logger.error("\nEnter a valid 'm_count' from 2 to 16")
-        exit()
-
-    # Data_Width
-    data_width_range=range(1,4097)
-    if args.data_width not in data_width_range:
-        logger.error("\nEnter a valid 'data_width' from 1 to 4096")
-        exit()
-
-    # ID Enable
-    id_en_range=range(2)
-    if args.id_en not in id_en_range:
-        logger.error("\nEnter a valid 'id_en' 0 or 1")
-        exit()
-
-    # ID Width
-    id_width_range=range(1,33)
-    if args.id_width not in id_width_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 32")
-        exit()
-
-    # Destination Enable
-    dest_en_range=range(2)
-    if args.dest_en not in dest_en_range:
-        logger.error("\nEnter a valid 'dest_en' 0 or 1")
-        exit()
-        
-    # Destination Width
-    dest_width_range=range(1,33)
-    if args.dest_width not in dest_width_range:
-        logger.error("\nEnter a valid 'dest_width' from 1 to 32")
-        exit()
-        
-    # User Enable
-    user_en_range=range(2)
-    if args.user_en not in user_en_range:
-        logger.error("\nEnter a valid 'user_en' 0 or 1")
-        exit()
-        
-    # User Width
-    user_width_range=range(1,4097)
-    if args.user_width not in user_width_range:
-        logger.error("\nEnter a valid 'user_width' from 1 to 4096")
-        exit()
-
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

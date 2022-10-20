@@ -98,23 +98,23 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",             default=32,    type=int,       help="FIFO Data Width 32,64,128,256,512,1024")
-    core_group.add_argument("--addr_width",             default=32,    type=int,       help="FIFO Address Width from 1 to 64")
-    core_group.add_argument("--id_width",               default=1,     type=int,       help="FIFO ID Width from 1 to 32")
-    core_group.add_argument("--aw_user_en",             default=0,     type=int,       help="FIFO AW-Channel User Enable 0 or 1")
-    core_group.add_argument("--aw_user_width",          default=1,     type=int,       help="FIFO AW-Channel User Width from 1 to 1024")
-    core_group.add_argument("--w_user_en",              default=0,     type=int,       help="FIFO W-Channel User Enable 0 or 1")
-    core_group.add_argument("--w_user_width",           default=1,     type=int,       help="FIFO W-Channel User Width from 1 to 1024")
-    core_group.add_argument("--b_user_en",              default=0,     type=int,       help="FIFO B-Channel User Enable 0 or 1")
-    core_group.add_argument("--b_user_width",           default=1,     type=int,       help="FIFO B-Channel User Width from 1 to 1024")
-    core_group.add_argument("--ar_user_en",             default=0,     type=int,       help="FIFO AR-Channel User Enable 0 or 1")
-    core_group.add_argument("--ar_user_width",          default=1,     type=int,       help="FIFO AR-Channel User Width from 1 to 1024")
-    core_group.add_argument("--r_user_en",              default=0,     type=int,       help="FIFO R-Channel User Enable 0 or 1")
-    core_group.add_argument("--r_user_width",           default=1,     type=int,       help="FIFO R-Channel User Width from 1 to 1024")
-    core_group.add_argument("--write_fifo_depth",       default=0,     type=int,       help="FIFO Write Depth 0,32,512")
-    core_group.add_argument("--read_fifo_depth",        default=0,     type=int,       help="FIFO Read Depth 0,32,512")
-    core_group.add_argument("--write_fifo_delay",       default=0,     type=int,       help="FIFO Write Delay 0 or 1")
-    core_group.add_argument("--read_fifo_delay",        default=0,     type=int,       help="FIFO Read Delay 0 or 1")
+    core_group.add_argument("--data_width",       type=int,  default=32, choices=[32, 64, 128, 256, 512, 1024], help="FIFO Data Width.")
+    core_group.add_argument("--addr_width",       type=int,  default=32, choices=range(1,65),                   help="FIFO Address Width.")
+    core_group.add_argument("--id_width",         type=int,  default=1,  choices=range(1,33),                   help="FIFO ID Width.")
+    core_group.add_argument("--aw_user_en",       type=int,  default=0,  choices=range(2),                      help="FIFO AW-Channel User Enable.")
+    core_group.add_argument("--aw_user_width",    type=int,  default=1,  choices=range(1, 1025),                help="FIFO AW-Channel User Width.")
+    core_group.add_argument("--w_user_en",        type=int,  default=0,  choices=range(2),                      help="FIFO W-Channel User Enable.")
+    core_group.add_argument("--w_user_width",     type=int,  default=1,  choices=range(1, 1025),                help="FIFO W-Channel User Width.")
+    core_group.add_argument("--b_user_en",        type=int,  default=0,  choices=range(2),                      help="FIFO B-Channel User Enable.")
+    core_group.add_argument("--b_user_width",     type=int,  default=1,  choices=range(1, 1025),                help="FIFO B-Channel User Width.")
+    core_group.add_argument("--ar_user_en",       type=int,  default=0,  choices=range(2),                      help="FIFO AR-Channel User Enable.")
+    core_group.add_argument("--ar_user_width",    type=int,  default=1,  choices=range(1, 1025),                help="FIFO AR-Channel User Width.")
+    core_group.add_argument("--r_user_en",        type=int,  default=0,  choices=range(2),                      help="FIFO R-Channel User Enable.")
+    core_group.add_argument("--r_user_width",     type=int,  default=1,  choices=range(1, 1025),                help="FIFO R-Channel User Width.")
+    core_group.add_argument("--write_fifo_depth", type=int,  default=0,  choices=[0, 32, 512],                  help="FIFO Write Depth.")
+    core_group.add_argument("--read_fifo_depth",  type=int,  default=0,  choices=[0, 32, 512],                  help="FIFO Read Depth.")
+    core_group.add_argument("--write_fifo_delay", type=int,  default=0,  choices=range(2),                      help="FIFO Write Delay.")
+    core_group.add_argument("--read_fifo_delay",  type=int,  default=0,  choices=range(2),                      help="FIFO Read Delay.")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -128,112 +128,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-    
-    # Data Width
-    data_width_param=[32, 64, 128, 256, 512, 1024]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s" , data_width_param)
-        exit()
-
-    # Address Width
-    addr_width_range=range(1,65)
-    if args.addr_width not in addr_width_range:
-        logger.error("\nEnter a valid 'addr_width' from 1 to 64")
-        exit()
-        
-    # ID Width
-    id_width_range=range(1,33)
-    if args.id_width not in id_width_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 32")
-        exit()
-        
-    # AW_USER_ENABLE
-    aw_user_en_range=range(2)
-    if args.aw_user_en not in aw_user_en_range:
-        logger.error("\nEnter a valid 'aw_user_en' 0 or 1")
-        exit()
-        
-    # W_USER_ENABLE
-    w_user_en_range=range(2)
-    if args.w_user_en not in w_user_en_range:
-        logger.error("\nEnter a valid 'w_user_en' 0 or 1")
-        exit()
-        
-    # B_USER_ENABLE
-    b_user_en_range=range(2)
-    if args.b_user_en not in b_user_en_range:
-        logger.error("\nEnter a valid 'b_user_en' 0 or 1")
-        exit()
-        
-    # AR_USER_ENABLE
-    ar_user_en_range=range(2)
-    if args.ar_user_en not in ar_user_en_range:
-        logger.error("\nEnter a valid 'ar_user_en' 0 or 1")
-        exit()
-        
-    # R_USER_ENABLE
-    r_user_en_range=range(2)
-    if args.r_user_en not in r_user_en_range:
-        logger.error("\nEnter a valid 'r_user_en' 0 or 1")
-        exit()
-        
-    # AW_USER_Width
-    aw_user_width_range=range(1,1025)
-    if args.aw_user_width not in aw_user_width_range:
-        logger.error("\nEnter a valid 'aw_user_width' from 1 to 1024")
-        exit()
-        
-    # W_USER_Width
-    w_user_width_range=range(1,1025)
-    if args.w_user_width not in w_user_width_range:
-        logger.error("\nEnter a valid 'w_user_width' from 1 to 1024")
-        exit()
-        
-    # B_USER_Width
-    b_user_width_range=range(1,1025)
-    if args.b_user_width not in b_user_width_range:
-        logger.error("Enter a valid 'b_user_width' from 1 to 1024")
-        exit()
-        
-    # AR_USER_Width
-    ar_user_width_range=range(1,1025)
-    if args.ar_user_width not in ar_user_width_range:
-        logger.error("\nEnter a valid 'ar_user_width' from 1 to 1024")
-        exit()
-        
-    # R_USER_Width
-    r_user_width_range=range(1,1025)
-    if args.r_user_width not in r_user_width_range:
-        logger.error("\nEnter a valid 'r_user_width' from 1 to 1024")
-        exit()
-        
-    # WRITE_FIFO_DEPTH
-    write_fifo_depth_param=[0, 32, 512]
-    if args.write_fifo_depth not in write_fifo_depth_param:
-        logger.error("\nEnter a valid 'write_fifo_depth'\n %s", write_fifo_depth_param)
-        exit()
-        
-    # READ_FIFO_DEPTH
-    read_fifo_depth_param=[0, 32, 512]
-    if args.read_fifo_depth not in read_fifo_depth_param:
-        logger.error("\nEnter a valid 'read_fifo_depth'\n %s", read_fifo_depth_param)
-        exit()
-        
-    # WRITE_FIFO_DELAY
-    write_fifo_delay_range=range(2)
-    if args.write_fifo_delay not in write_fifo_delay_range:
-        logger.error("\nEnter a valid 'write_fifo_delay' 0 or 1")
-        exit()
-        
-    # READ_FIFO_DELAY
-    read_fifo_delay_range=range(2)
-    if args.read_fifo_delay not in read_fifo_delay_range:
-        logger.error("\nEnter a valid 'read_fifo_delay' 0 or 1")
-        exit()
-        
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

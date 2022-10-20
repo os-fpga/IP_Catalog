@@ -85,10 +85,10 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--m_count",        default=4,      type=int,         help="Crossbar Master Interfaces 2 to 16")
-    core_group.add_argument("--s_count",        default=4,      type=int,         help="Crossbar SLAVE Interfaces 1 to 16")
-    core_group.add_argument("--data_width",     default=32,     type=int,         help="Crossbar Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",     default=32,     type=int,         help="Crossbar Address Width 32,64,128,256")
+    core_group.add_argument("--m_count",        default=4,  choices=range(1,17),               type=int, help="Crossbar Master Interfaces.")
+    core_group.add_argument("--s_count",        default=4,  choices=range(1,17),               type=int, help="Crossbar Slave Interfaces.")
+    core_group.add_argument("--data_width",     default=32, choices=[8, 16, 32, 64, 128, 256], type=int, help="Crossbar Data Width.")
+    core_group.add_argument("--addr_width",     default=32, choices=[32, 64, 128, 256],        type=int, help="Crossbar Address Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -103,34 +103,6 @@ def main():
 
     args = parser.parse_args()
     
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # AXI Master Interfaces
-    m_count_range=range(2,17)
-    if args.m_count not in m_count_range:
-        logger.error("\nEnter a valid 'm_count' from 2 to 16")
-        exit()
-        
-    # AXI Slave Interfaces
-    s_count_range=range(1,17)
-    if args.s_count not in s_count_range:
-        logger.error("\nEnter a valid 's_count' from 1 to 16")
-        exit()
-
-    # Data_Width
-    data_width_param=[8, 16, 32, 64, 128, 256]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-        
-    # Address Width
-    addr_width_param=[32, 64, 128, 256]
-    if args.addr_width not in addr_width_param:
-        logger.error("\nEnter a valid 'addr_width'\n %s", addr_width_param)
-        exit()
-
-
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:

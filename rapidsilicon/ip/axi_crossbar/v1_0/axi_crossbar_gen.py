@@ -99,21 +99,21 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--m_count",        default=4,      type=int,         help="Crossbar Master Interfaces 2 to 16")
-    core_group.add_argument("--s_count",        default=4,      type=int,         help="Crossbar SLAVE Interfaces 1 to 16")
-    core_group.add_argument("--data_width",     default=32,     type=int,         help="AXI Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",     default=32,     type=int,         help="AXI Address Width 32,64")
-    core_group.add_argument("--s_id_width",     default=8,      type=int,         help="AXI SLAVE ID Width from 1 to 8")
-    core_group.add_argument("--aw_user_en",     default=0,      type=int,         help="AW-Channel User Enable 0 or 1")
-    core_group.add_argument("--aw_user_width",  default=1,      type=int,         help="AW-Channel User Width from 1 to 1024")
-    core_group.add_argument("--w_user_en",      default=0,      type=int,         help="W-Channel User Enable 0 or 1")
-    core_group.add_argument("--w_user_width",   default=1,      type=int,         help="W-Channel User Width from 1 to 1024")
-    core_group.add_argument("--b_user_en",      default=0,      type=int,         help="B-Channel User Enable 0 or 1")
-    core_group.add_argument("--b_user_width",   default=1,      type=int,         help="B-Channel User Width from 1 to 1024")
-    core_group.add_argument("--ar_user_en",     default=0,      type=int,         help="AR-Channel User Enable 0 or 1")
-    core_group.add_argument("--ar_user_width",  default=1,      type=int,         help="AR-Channel User Width from 1 to 1024")
-    core_group.add_argument("--r_user_en",      default=0,      type=int,         help="R-Channel User Enable 0 or 1")
-    core_group.add_argument("--r_user_width",   default=1,      type=int,         help="R-Channel User Width from 1 to 1024")    
+    core_group.add_argument("--m_count",       type=int,  default=4,  choices=range(2,17),               help="Crossbar Master Interfaces.")
+    core_group.add_argument("--s_count",       type=int,  default=4,  choices=range(1,17),               help="Crossbar SLAVE Interfaces.")
+    core_group.add_argument("--data_width",    type=int,  default=32, choices=[8, 16, 32, 64, 128, 256], help="AXI Data Width.")
+    core_group.add_argument("--addr_width",    type=int,  default=32, choices=[32, 64],                  help="AXI Address Width.")
+    core_group.add_argument("--s_id_width",    type=int,  default=8,  choices=range(1, 9),               help="AXI SLAVE ID Width.")
+    core_group.add_argument("--aw_user_en",    type=int,  default=0,  choices=range(2),                  help="AW-Channel User Enable.")
+    core_group.add_argument("--aw_user_width", type=int,  default=1,  choices=range(1, 1025),            help="AW-Channel User Width.")
+    core_group.add_argument("--w_user_en",     type=int,  default=0,  choices=range(2),                  help="W-Channel User Enable.")
+    core_group.add_argument("--w_user_width",  type=int,  default=1,  choices=range(1, 1025),            help="W-Channel User Width.")
+    core_group.add_argument("--b_user_en",     type=int,  default=0,  choices=range(2),                  help="B-Channel User Enable.")
+    core_group.add_argument("--b_user_width",  type=int,  default=1,  choices=range(1, 1025),            help="B-Channel User Width.")
+    core_group.add_argument("--ar_user_en",    type=int,  default=0,  choices=range(2),                  help="AR-Channel User Enable.")
+    core_group.add_argument("--ar_user_width", type=int,  default=1,  choices=range(1, 1025),            help="AR-Channel User Width.")
+    core_group.add_argument("--r_user_en",     type=int,  default=0,  choices=range(2),                  help="R-Channel User Enable.")
+    core_group.add_argument("--r_user_width",  type=int,  default=1,  choices=range(1, 1025),            help="R-Channel User Width.")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -127,99 +127,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # AXI Master Interfaces
-    m_count_range=range(2,17)
-    if args.m_count not in m_count_range:
-        logger.error("\nEnter a valid 'm_count' from 2 to 16")
-        exit()
-        
-    # AXI Slave Interfaces
-    s_count_range=range(1,17)
-    if args.s_count not in s_count_range:
-        logger.error("\nEnter a valid 's_count' from 1 to 16")
-        exit()
-
-    # Data_Width
-    data_width_param=[8, 16, 32, 64, 128, 256]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-        
-    # Address Width
-    addr_width_param=[32, 64]
-    if args.addr_width not in addr_width_param:
-        logger.error("\nEnter a valid 'addr_width'\n %s", addr_width_param)
-        exit()
-        
-    # ID_Width
-    id_range=range(1, 9)
-    if args.s_id_width not in id_range:
-        logger.error("\nEnter a valid 's_id_width' from 1 to 8")
-        exit()
-        
-    # Write Address Channel User Width
-    aw_user_range=range(1, 1025)
-    if args.aw_user_width not in aw_user_range:
-        logger.error("\nEnter a valid 'aw_user_width' from 1 to 1024")
-        exit()
-
-    # Write Data Channel User Width
-    w_user_range=range(1, 1025)
-    if args.w_user_width not in w_user_range:
-        logger.error("\nEnter a valid 'w_user_width' from 1 to 1024")
-        exit()
-
-    # Write Response Channel User Width
-    b_user_range=range(1, 1025)
-    if args.b_user_width not in b_user_range:
-        logger.error("\nEnter a valid 'b_user_width' from 1 to 1024")
-        exit()
-
-    # Read Address Channel User Width
-    ar_user_range=range(1, 1025)
-    if args.ar_user_width not in ar_user_range:
-        logger.error("\nEnter a valid 'ar_user_width' from 1 to 1024")
-        exit()
-
-    # Read Data Channel User Width
-    r_user_range=range(1, 1025)
-    if args.r_user_width not in r_user_range:
-        logger.error("\nEnter a valid 'r_user_width' from 1 to 1024")
-        exit()
-        
-    # AW_USER_ENABLE
-    aw_user_en_range=range(2)
-    if args.aw_user_en not in aw_user_en_range:
-        logger.error("\nEnter a valid 'aw_user_en' 0 or 1")
-        exit()
-        
-    # W_USER_ENABLE
-    w_user_en_range=range(2)
-    if args.w_user_en not in w_user_en_range:
-        logger.error("\nEnter a valid 'w_user_en' 0 or 1")
-        exit()
-        
-    # B_USER_ENABLE
-    b_user_en_range=range(2)
-    if args.b_user_en not in b_user_en_range:
-        logger.error("\nEnter a valid 'b_user_en' 0 or 1")
-        exit()
-        
-    # AR_USER_ENABLE
-    ar_user_en_range=range(2)
-    if args.ar_user_en not in ar_user_en_range:
-        logger.error("\nEnter a valid 'ar_user_en' 0 or 1")
-        exit()
-        
-    # R_USER_ENABLE
-    r_user_en_range=range(2)
-    if args.r_user_en not in r_user_en_range:
-        logger.error("\nEnter a valid 'r_user_en' 0 or 1")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:

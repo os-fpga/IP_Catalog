@@ -108,13 +108,13 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",         default=32,     type=int,    help="DMA Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",         default=16,     type=int,    help="DMA Address Width 8 - 16")
-    core_group.add_argument("--id_width",           default=8,      type=int,    help="DMA ID Width from 1 - 32")
-    core_group.add_argument("--axi_max_burst_len",  default=16,     type=int,    help="DMA AXI burst length from 1 to 256 ")
-    core_group.add_argument("--len_width",          default=20,     type=int,    help="DMA AXI Width of length field from 1 to 20")
-    core_group.add_argument("--tag_width",          default=8,      type=int,    help="DMA Width of tag field from 1 to 8")
-    core_group.add_argument("--enable_unaligned",   default=0,      type=int,    help="Support for unaligned transfers 0 or 1")
+    core_group.add_argument("--data_width",        type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
+    core_group.add_argument("--addr_width",        type=int, default=16, choices=range(8, 17),              help="DMA Address Width.")
+    core_group.add_argument("--id_width",          type=int, default=8,  choices=range(1, 33),              help="DMA ID Width.")
+    core_group.add_argument("--axi_max_burst_len", type=int, default=16, choices=range(1,257),              help="DMA AXI burst length.")
+    core_group.add_argument("--len_width",         type=int, default=20, choices=range(1,21),               help="DMA AXI Width of length field.")
+    core_group.add_argument("--tag_width",         type=int, default=8,  choices=range(1,9),                help="DMA Width of tag field.")
+    core_group.add_argument("--enable_unaligned",  type=int, default=0,  choices=range(2),                  help="Support for unaligned transfers.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -128,52 +128,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
-
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data_Width
-    data_width_param=[8, 16, 32, 64, 128, 256]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-    
-    # Address Width
-    addr_range=range(8, 17)
-    if args.addr_width not in addr_range:
-        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
-        exit()
-
-    # ID_Width
-    id_range=range(1, 33)
-    if args.id_width not in id_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 32")
-        exit()
-    
-    # axi_max_burst_len_range
-    axi_max_burst_len_range=range(1,257)
-    if args.axi_max_burst_len not in axi_max_burst_len_range:
-        logger.error("\nEnter a valid 'a_intaxi_max_burst_lenerleave' from 0 to 256")
-        exit()
-
-    # len_width
-    len_width_range=range(1,21)
-    if args.len_width not in len_width_range:
-        logger.error("\nEnter a valid 'len_width' from 1 to 20")
-        exit()
-
-    # TAG_WIDTH
-    tag_width_range=range(1,9)
-    if args.tag_width not in tag_width_range:
-        logger.error("\nEnter a valid 'tag_width' from 1 to 8")
-        exit()
-
-    # ENABLE_UNALIGNED
-    enable_unaligned_range=range(2)
-    if args.enable_unaligned not in enable_unaligned_range:
-        logger.error("\nEnter a valid 'enable_unaligned' 0 or 1")
-        exit()
-
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
