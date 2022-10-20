@@ -321,41 +321,40 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Build Project Directory ----------------------------------------------------------------------
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXIDMAWrapper(platform,
+        axi_data_width    = args.axi_data_width,
+        axi_addr_width    = args.axi_addr_width,
+        axi_id_width      = args.axi_id_width,
+        axi_max_burst_len = args.axi_max_burst_len,
+        axis_last_enable  = args.axis_last_enable,
+        axis_id_enable    = args.axis_id_enable,
+        axis_id_width     = args.axis_id_width,
+        axis_dest_enable  = args.axis_dest_enable,
+        axis_dest_width   = args.axis_dest_width,
+        axis_user_enable  = args.axis_user_enable,
+        axis_user_width   = args.axis_user_width,
+        len_width         = args.len_width,
+        tag_width         = args.tag_width,
+        enable_sg         = args.enable_sg,
+        enable_unaligned  = args.enable_unaligned
+    )
 
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_dma")
-
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_dma")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
-        
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module = AXIDMAWrapper(platform,
-        axi_data_width      = args.axi_data_width,
-        axi_addr_width      = args.axi_addr_width,
-        axi_id_width        = args.axi_id_width,
-        axi_max_burst_len   = args.axi_max_burst_len,
-        axis_last_enable    = args.axis_last_enable,
-        axis_id_enable      = args.axis_id_enable,
-        axis_id_width       = args.axis_id_width,
-        axis_dest_enable    = args.axis_dest_enable,
-        axis_dest_width     = args.axis_dest_width,
-        axis_user_enable    = args.axis_user_enable,
-        axis_user_width     = args.axis_user_width,
-        len_width           = args.len_width,
-        tag_width           = args.tag_width,
-        enable_sg           = args.enable_sg,
-        enable_unaligned    = args.enable_unaligned
-        )
-    
-    # Build
-    if args.build:
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,
         )
+
 
 if __name__ == "__main__":
     main()

@@ -187,29 +187,27 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Build Project Directory ----------------------------------------------------------------------
-
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_cdma")
-
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXICDMAWrapper(platform,
+        data_width        = args.data_width,
+        addr_width        = args.addr_width,
+        id_width          = args.id_width,
+        axi_max_burst_len = args.axi_max_burst_len,
+        len_width         = args.len_width,
+        tag_width         = args.tag_width,
+        enable_unaligned  = args.enable_unaligned
+    )
+    
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_cdma")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
-
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module = AXICDMAWrapper(platform,
-        data_width          = args.data_width,
-        addr_width          = args.addr_width,
-        id_width            = args.id_width,
-        axi_max_burst_len   = args.axi_max_burst_len,
-        len_width           = args.len_width,
-        tag_width           = args.tag_width,
-        enable_unaligned    = args.enable_unaligned
-        )
-    
-    # Build
-    if args.build:
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,

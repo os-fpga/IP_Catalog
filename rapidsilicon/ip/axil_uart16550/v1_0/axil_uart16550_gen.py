@@ -137,24 +137,22 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Build Project Directory ----------------------------------------------------------------------
-
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axil_uart16550")
-
-    if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
-        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
-        rs_builder.generate_tcl()
-
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
     module     = AXILITEUARTWrapper(platform,
-        addr_width      = args.addr_width,
-        data_width      = args.data_width
+        addr_width = args.addr_width,
+        data_width = args.data_width,
     )
 
-    # Build
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axil_uart16550")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,

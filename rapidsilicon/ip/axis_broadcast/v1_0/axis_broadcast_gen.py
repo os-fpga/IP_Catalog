@@ -173,31 +173,29 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Build Project Directory ----------------------------------------------------------------------
-
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axis_broadcast")
-
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXIBROADCASTWrapper(platform,
+        m_count    = args.m_count,
+        data_width = args.data_width,
+        last_en    = args.last_en,
+        id_en      = args.id_en,
+        id_width   = args.id_width,
+        dest_en    = args.dest_en,
+        dest_width = args.dest_width,
+        user_en    = args.user_en,
+        user_width = args.user_width,
+    )
+    
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axis_broadcast")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
-        
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module = AXIBROADCASTWrapper(platform,
-        m_count         = args.m_count,
-        data_width      = args.data_width,
-        last_en         = args.last_en,
-        id_en           = args.id_en,
-        id_width        = args.id_width,
-        dest_en         = args.dest_en,
-        dest_width      = args.dest_width,
-        user_en         = args.user_en,
-        user_width      = args.user_width
-        )
-    
-    # Build
-    if args.build:
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,

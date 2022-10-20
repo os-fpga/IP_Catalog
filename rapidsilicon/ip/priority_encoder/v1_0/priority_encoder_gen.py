@@ -110,27 +110,22 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Build Project Directory ----------------------------------------------------------------------
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = PRIORITYENCODERWrapper(platform,
+        width             = args.width,
+        lsb_high_priority = args.lsb_high_priority,
+    )
 
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="priority_encoder")
-
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="priority_encoder")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
-
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = PRIORITYENCODERWrapper(platform,
-        width               = args.width,
-        lsb_high_priority   = args.lsb_high_priority
-    )
-    # Build
-    if args.build:
-        rs_builder.generate_verilog(
-            platform   = platform,
-            module     = module,
-        )
 
 if __name__ == "__main__":
     main()

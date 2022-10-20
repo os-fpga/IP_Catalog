@@ -121,19 +121,20 @@ def main():
     core_in_width   = int(args.core_in_width)
     core_out_width  = int(args.core_out_width)
     core_user_width = int(args.core_user_width)
-    platform   = OSFPGAPlatform( io=[], device='gemini', toolchain="raptor")
+    platform   = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module     = AXISConverter(platform,
         in_width   = core_in_width,
         out_width  = core_out_width,
         user_width = core_user_width,
     )
     
-    # Build Project Directory ----------------------------------------------------------------------
-
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axis_width_converter")
-
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axis_width_converter")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
 
