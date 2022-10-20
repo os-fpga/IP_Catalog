@@ -125,40 +125,12 @@ def main():
     common_path = os.path.join(os.path.dirname(__file__), "..", "..")  # FIXME
     sys.path.append(common_path)                                       # FIXME
     from common import RapidSiliconIPCatalogBuilder
-    rs_builder = RapidSiliconIPCatalogBuilder(ip_name="axil_gpio")
+    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axil_gpio")
 
     if args.build:
         rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
-
-        # Design Path
-        design_path = os.path.join("../src", (args.build_name + ".sv"))
-
-        # TCL File Content
-        tcl = []
-        # Create Design.
-        tcl.append(f"create_design {args.build_name}")
-        # Set Device.
-        tcl.append(f"target_device {'GEMINI'}")
-        # Add Include Path.
-        tcl.append(f"add_library_path {'../src'}")
-        # Add file extension
-        tcl.append(f"add_library_ext .v .sv")
-        # Add Sources.
-#        for f, typ, lib in file_name:
-        tcl.append(f"add_design_file {design_path}")
-        # Set Top Module.
-        tcl.append(f"set_top_module {args.build_name}")
-        # Add Timings Constraints.
-#        tcl.append(f"add_constraint_file {args.build_name}.sdc")
-        # Run.
-        tcl.append("synthesize")
-
-        # Generate .tcl file
-        tcl_path = os.path.join(rs_builder.synth_path, "raptor.tcl")
-        with open(tcl_path, "w") as f:
-            f.write("\n".join(tcl))
-        f.close()
+        rs_builder.generate_tcl()
         
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
