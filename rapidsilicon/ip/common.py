@@ -63,19 +63,21 @@ class RapidSiliconIPCatalogBuilder:
 
         # Copy RTL files.
         rtl_path  = os.path.join(gen_path, "src")
-        rtl_files = os.listdir(rtl_path)
-        for file_name in rtl_files:
-            full_file_path = os.path.join(rtl_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, self.src_path)
+        if os.path.exists(rtl_path):
+            rtl_files = os.listdir(rtl_path)
+            for file_name in rtl_files:
+                full_file_path = os.path.join(rtl_path, file_name)
+                if os.path.isfile(full_file_path):
+                    shutil.copy(full_file_path, self.src_path)
 
         # Copy litex_sim files.
         litex_path  = os.path.join(gen_path, "litex_sim")
-        litex_files = os.listdir(litex_path)
-        for file_name in litex_files:
-            full_file_path = os.path.join(litex_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, self.litex_sim_path)
+        if os.path.exists(litex_path):
+            litex_files = os.listdir(litex_path)
+            for file_name in litex_files:
+                full_file_path = os.path.join(litex_path, file_name)
+                if os.path.isfile(full_file_path):
+                    shutil.copy(full_file_path, self.litex_sim_path)
 
     def build(self, platform, module):
         assert self.prepared
