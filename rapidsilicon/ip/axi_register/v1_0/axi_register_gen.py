@@ -216,35 +216,33 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Build Project Directory ----------------------------------------------------------------------
-
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_register")
-
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXIREGISTERWrapper(platform,
+        data_width    = args.data_width,
+        addr_width    = args.addr_width,
+        id_width      = args.id_width,
+        aw_user_width = args.aw_user_width,
+        w_user_width  = args.w_user_width,
+        b_user_width  = args.b_user_width,
+        ar_user_width = args.ar_user_width,
+        r_user_width  = args.r_user_width,
+        aw_reg_type   = args.aw_reg_type,
+        w_reg_type    = args.w_reg_type,
+        b_reg_type    = args.b_reg_type,
+        ar_reg_type   = args.ar_reg_type,
+        r_reg_type    = args.r_reg_type,
+    )
+    
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_register")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
-        
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module = AXIREGISTERWrapper(platform,
-        data_width          = args.data_width,
-        addr_width          = args.addr_width,
-        id_width            = args.id_width,
-        aw_user_width       = args.aw_user_width,
-        w_user_width        = args.w_user_width,
-        b_user_width        = args.b_user_width,
-        ar_user_width       = args.ar_user_width,
-        r_user_width        = args.r_user_width,   
-        aw_reg_type         = args.aw_reg_type,
-        w_reg_type          = args.w_reg_type,
-        b_reg_type          = args.b_reg_type,
-        ar_reg_type         = args.ar_reg_type,
-        r_reg_type          = args.r_reg_type                  
-        )
-    
-    # Build
-    if args.build:
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,

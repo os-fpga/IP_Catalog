@@ -174,27 +174,25 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Build Project Directory ----------------------------------------------------------------------
-
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_spi_slave")
-
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXISPISLAVEWrapper(platform,
+        addr_width   = args.addr_width,
+        data_width   = args.data_width,
+        user_width   = args.user_width,
+        id_width     = args.id_width,
+        dummy_cycles = args.dummy_cycles,
+    )
+    
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_spi_slave")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
-
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module = AXISPISLAVEWrapper(platform,
-        addr_width          = args.addr_width,
-        data_width          = args.data_width,
-        user_width          = args.user_width,
-        id_width            = args.id_width, 
-        dummy_cycles        = args.dummy_cycles
-        )
-    
-    # Build
-    if args.build:
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,

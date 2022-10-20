@@ -128,15 +128,22 @@ def main():
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
         
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = AXILITEGPIOWrapper(platform,
-        addr_width  = args.addr_width,
-        data_width  = args.data_width
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXILITEGPIOWrapper(platform,
+        addr_width = args.addr_width,
+        data_width = args.data_width,
     )
 
-    # Build
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axil_gpio")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,

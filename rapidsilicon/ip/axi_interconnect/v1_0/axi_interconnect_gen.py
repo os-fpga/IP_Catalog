@@ -235,28 +235,35 @@ def main():
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
 
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = AXIINTERCONNECTWrapper(platform,
-        m_count             = args.m_count,
-        s_count             = args.s_count,
-        data_width          = args.data_width,
-        addr_width          = args.addr_width,
-        id_width            = args.id_width,
-        aw_user_en          = args.aw_user_en,
-        aw_user_width       = args.aw_user_width,
-        w_user_en           = args.w_user_en,
-        w_user_width        = args.w_user_width, 
-        b_user_en           = args.b_user_en,
-        b_user_width        = args.b_user_width,
-        ar_user_en          = args.ar_user_en,
-        ar_user_width       = args.ar_user_width,
-        r_user_en           = args.r_user_en,
-        r_user_width        = args.r_user_width
-        )
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXIINTERCONNECTWrapper(platform,
+        m_count       = args.m_count,
+        s_count       = args.s_count,
+        data_width    = args.data_width,
+        addr_width    = args.addr_width,
+        id_width      = args.id_width,
+        aw_user_en    = args.aw_user_en,
+        aw_user_width = args.aw_user_width,
+        w_user_en     = args.w_user_en,
+        w_user_width  = args.w_user_width,
+        b_user_en     = args.b_user_en,
+        b_user_width  = args.b_user_width,
+        ar_user_en    = args.ar_user_en,
+        ar_user_width = args.ar_user_width,
+        r_user_en     = args.r_user_en,
+        r_user_width  = args.r_user_width
+    )
     
-    # Build
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_interconnect")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,

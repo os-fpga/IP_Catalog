@@ -165,30 +165,28 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Build Project Directory ----------------------------------------------------------------------
-
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axis_adapter")
-
-    if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
-        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
-        rs_builder.generate_tcl()
-        
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = AXISADAPTERWrapper(platform,
-        s_data_width    = args.s_data_width,
-        m_data_width    = args.m_data_width,
-        id_en           = args.id_en,
-        id_width        = args.id_width,
-        dest_en         = args.dest_en,
-        dest_width      = args.dest_width,
-        user_en         = args.user_en,
-        user_width      = args.user_width
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXISADAPTERWrapper(platform,
+        s_data_width = args.s_data_width,
+        m_data_width = args.m_data_width,
+        id_en        = args.id_en,
+        id_width     = args.id_width,
+        dest_en      = args.dest_en,
+        dest_width   = args.dest_width,
+        user_en      = args.user_en,
+        user_width   = args.user_width,
     )
 
-    # Build
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axis_adapter")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
+        )
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
         rs_builder.generate_verilog(
             platform   = platform,
             module     = module,
