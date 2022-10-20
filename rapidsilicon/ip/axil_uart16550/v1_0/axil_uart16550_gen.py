@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import sys
 import json
 import argparse
 import shutil
@@ -89,6 +90,12 @@ def main():
         width             = 120
     )
 
+    # Import Common Modules.
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    sys.path.append(common_path)
+
+    from common import RapidSiliconIPCatalogBuilder
+
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--addr_width",      default=16,       type=int,       help="UART Address Width 8,16,32")
@@ -139,10 +146,6 @@ def main():
 
     # Build Project Directory ----------------------------------------------------------------------
 
-    import sys
-    common_path = os.path.join(os.path.dirname(__file__), "..", "..")  # FIXME
-    sys.path.append(common_path)                                       # FIXME
-    from common import RapidSiliconIPCatalogBuilder
     rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axil_uart16550")
 
     if args.build:
