@@ -117,9 +117,6 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
         
-    # Remove build extension when specified.
-    args.build_name = os.path.splitext(args.build_name)[0]
-
     # Create LiteX Core ----------------------------------------------------------------------------
     core_in_width   = int(args.core_in_width)
     core_out_width  = int(args.core_out_width)

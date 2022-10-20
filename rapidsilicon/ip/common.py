@@ -38,6 +38,9 @@ class RapidSiliconIPCatalogBuilder:
         self.add_verilog_text(filename, header, 13)
 
     def prepare(self, build_dir, build_name, version="v1_0"):
+        # Remove build_name extension when specified.
+        build_name = os.path.splitext(build_name)[0]
+
         # Define paths.
         self.build_name     = build_name
         self.build_path     = os.path.join(build_dir, "rapidsilicon", "ip", self.ip_name, version, build_name)
