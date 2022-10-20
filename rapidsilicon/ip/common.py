@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import shutil
 
 # RapidSilicon IP Catalog Builder ------------------------------------------------------------------
 
@@ -30,3 +31,25 @@ class RapidSiliconIPCatalogBuilder:
         header.append("`timescale 1ns / 1ps")
         header = "\n".join(header)
         self.add_verilog_text(filename, header, 13)
+
+
+    def build(self, platform, module, build_name, dst_path):
+        build_path     = "litex_build"
+        build_filename = os.path.join(build_path, build_name) + ".v"
+
+        # Build LiteX module.
+        platform.build(module,
+            build_dir    = build_path,
+            build_name   = build_name,
+            run          = False,
+            regular_comb = False
+        )
+
+        # Insert header.
+        self.add_verilog_header(build_filename)
+
+        # Copy files to destination.
+        shutil.copy(build_filename, dst_path)
+
+        # Remove build files.
+        shutil.rmtree(build_path)
