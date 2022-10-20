@@ -10,6 +10,10 @@ import shutil
 # RapidSilicon IP Catalog Builder ------------------------------------------------------------------
 
 class RapidSiliconIPCatalogBuilder:
+    def __init__(self, ip_name):
+        self.ip_name  = ip_name
+        self.prepared = False
+
     @staticmethod
     def add_verilog_text(filename, text, line):
         # Read Verilog content and add text.
@@ -32,15 +36,56 @@ class RapidSiliconIPCatalogBuilder:
         header = "\n".join(header)
         self.add_verilog_text(filename, header, 13)
 
+    def prepare(self, build_dir, build_name, version="v1_0"):
+        # Define paths.
+        self.build_name     = build_name
+        self.build_path     = os.path.join(build_dir, "rapidsilicon", "ip", self.ip_name, version, build_name)
+        self.litex_sim_path = os.path.join(self.build_path, "litex_sim")
+        self.sim_path       = os.path.join(self.build_path, "sim")
+        self.src_path       = os.path.join(self.build_path, "src")
+        self.synth_path     = os.path.join(self.build_path, "synth")
 
-    def build(self, platform, module, build_name, dst_path):
+        # Create paths.
+        os.makedirs(self.build_path,     exist_ok=True)
+        os.makedirs(self.litex_sim_path, exist_ok=True)
+        os.makedirs(self.sim_path,       exist_ok=True)
+        os.makedirs(self.src_path,       exist_ok=True)
+        os.makedirs(self.synth_path,     exist_ok=True)
+
+        self.prepared = True
+
+    def copy_files(self, gen_path):
+        assert self.prepared
+
+        # Copy Generator file.
+        generator_filename = os.path.join(gen_path, f"{self.ip_name}_gen.py")
+        shutil.copy(generator_filename, self.build_path)
+
+        # Copy RTL files.
+        rtl_path  = os.path.join(gen_path, "src")
+        rtl_files = os.listdir(rtl_path)
+        for file_name in rtl_files:
+            full_file_path = os.path.join(rtl_path, file_name)
+            if os.path.isfile(full_file_path):
+                shutil.copy(full_file_path, self.src_path)
+
+        # Copy litex_sim files.
+        litex_path  = os.path.join(gen_path, "litex_sim")
+        litex_files = os.listdir(litex_path)
+        for file_name in litex_files:
+            full_file_path = os.path.join(litex_path, file_name)
+            if os.path.isfile(full_file_path):
+                shutil.copy(full_file_path, self.litex_sim_path)
+
+    def build(self, platform, module):
+        assert self.prepared
         build_path     = "litex_build"
-        build_filename = os.path.join(build_path, build_name) + ".v"
+        build_filename = os.path.join(build_path, self.build_name) + ".v"
 
         # Build LiteX module.
         platform.build(module,
             build_dir    = build_path,
-            build_name   = build_name,
+            build_name   = self.build_name,
             run          = False,
             regular_comb = False
         )
@@ -49,7 +94,7 @@ class RapidSiliconIPCatalogBuilder:
         self.add_verilog_header(build_filename)
 
         # Copy files to destination.
-        shutil.copy(build_filename, dst_path)
+        shutil.copy(build_filename, self.src_path)
 
         # Remove build files.
         shutil.rmtree(build_path)
