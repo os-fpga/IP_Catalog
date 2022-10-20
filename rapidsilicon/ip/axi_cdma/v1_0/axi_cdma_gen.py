@@ -275,21 +275,16 @@ def main():
     
     # Build
     if args.build:
-        platform.build(module,
-            build_dir    = "litex_build",
-            build_name   = args.build_name,
-            run          = False,
-            regular_comb = False
-        )
-        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
-        shutil.rmtree("litex_build")
-
         import sys
         sys.path.append("../../") # FIXME
         from common import RapidSiliconIPCatalogBuilder
-        filename   = os.path.join(src_path, f'{args.build_name}.v')
         rs_builder = RapidSiliconIPCatalogBuilder()
-        rs_builder.add_verilog_header(filename)
+        rs_builder.build(
+            platform   = platform,
+            module     = module,
+            build_name = args.build_name,
+            dst_path   = src_path,
+        )
 
 if __name__ == "__main__":
     main()
