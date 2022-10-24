@@ -16,7 +16,7 @@ class RapidSiliconIPCatalogBuilder:
         self.prepared = False
 
     @staticmethod
-    def add_verilog_text(filename, text, line):
+    def add_wrapper_text(filename, text, line):
         # Read Verilog content and add text.
         f = open(filename, "r")
         content = f.readlines()
@@ -28,14 +28,14 @@ class RapidSiliconIPCatalogBuilder:
         f.write("".join(content))
         f.close()
 
-    def add_verilog_header(self, filename):
+    def add_wrapper_header(self, filename):
         header = []
         header.append("// This file is Copyright (c) 2022 RapidSilicon")
         header.append(f"//{'-'*80}")
         header.append("")
         header.append("`timescale 1ns / 1ps")
         header = "\n".join(header)
-        self.add_verilog_text(filename, header, 13)
+        self.add_wrapper_text(filename, header, 13)
 
     def prepare(self, build_dir, build_name, version="v1_0"):
         # Remove build_name extension when specified.
@@ -44,7 +44,7 @@ class RapidSiliconIPCatalogBuilder:
         # Define paths.
         self.build_name     = build_name
         self.build_path     = os.path.join(build_dir, "rapidsilicon", "ip", self.ip_name, version, build_name)
-        self.litex_sim_path = os.path.join(self.build_path, "litex_sim")
+        self.litex_sim_path = os.path.join(self.build_path, "litex_wrapper")
         self.sim_path       = os.path.join(self.build_path, "sim")
         self.src_path       = os.path.join(self.build_path, "src")
         self.synth_path     = os.path.join(self.build_path, "synth")
@@ -75,7 +75,7 @@ class RapidSiliconIPCatalogBuilder:
                     shutil.copy(full_file_path, self.src_path)
 
         # Copy litex_sim files.
-        litex_path  = os.path.join(gen_path, "litex_sim")
+        litex_path  = os.path.join(gen_path, "litex_wrapper")
         if os.path.exists(litex_path):
             litex_files = os.listdir(litex_path)
             for file_name in litex_files:
@@ -146,7 +146,7 @@ class RapidSiliconIPCatalogBuilder:
         )
 
         # Insert header.
-        self.add_verilog_header(build_filename)
+        self.add_wrapper_header(build_filename)
 
         # Copy file to destination.
         shutil.copy(build_filename, self.src_path)
