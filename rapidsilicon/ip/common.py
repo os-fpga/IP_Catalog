@@ -42,16 +42,16 @@ class RapidSiliconIPCatalogBuilder:
         build_name = os.path.splitext(build_name)[0]
 
         # Define paths.
-        self.build_name     = build_name
-        self.build_path     = os.path.join(build_dir, "rapidsilicon", "ip", self.ip_name, version, build_name)
-        self.litex_sim_path = os.path.join(self.build_path, "litex_wrapper")
-        self.sim_path       = os.path.join(self.build_path, "sim")
-        self.src_path       = os.path.join(self.build_path, "src")
-        self.synth_path     = os.path.join(self.build_path, "synth")
+        self.build_name         = build_name
+        self.build_path         = os.path.join(build_dir, "rapidsilicon", "ip", self.ip_name, version, build_name)
+        self.litex_wrapper_path = os.path.join(self.build_path, "litex_wrapper")
+        self.sim_path           = os.path.join(self.build_path, "sim")
+        self.src_path           = os.path.join(self.build_path, "src")
+        self.synth_path         = os.path.join(self.build_path, "synth")
 
         # Create paths.
         os.makedirs(self.build_path,     exist_ok=True)
-        os.makedirs(self.litex_sim_path, exist_ok=True)
+        os.makedirs(self.litex_wrapper_path, exist_ok=True)
         os.makedirs(self.sim_path,       exist_ok=True)
         os.makedirs(self.src_path,       exist_ok=True)
         os.makedirs(self.synth_path,     exist_ok=True)
@@ -81,7 +81,7 @@ class RapidSiliconIPCatalogBuilder:
             for file_name in litex_files:
                 full_file_path = os.path.join(litex_path, file_name)
                 if os.path.isfile(full_file_path):
-                    shutil.copy(full_file_path, self.litex_sim_path)
+                    shutil.copy(full_file_path, self.litex_wrapper_path)
 
     def generate_tcl(self, language):
         assert self.prepared
