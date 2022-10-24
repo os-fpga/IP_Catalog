@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import sys
 import json
 import argparse
 import shutil
@@ -82,21 +83,23 @@ class I2CMASTERWrapper(Module):
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="I2C MASTER CORE")
-    parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
-        max_help_position = 10,
-        width             = 120
-    )
+
+    # Import Common Modules.
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    sys.path.append(common_path)
+
+    from common import RapidSiliconIPCatalogBuilder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--default_prescale",   default=1,   type=int,     help="I2C Default Prescale 0 or 1")
-    core_group.add_argument("--fixed_prescale",     default=0,   type=int,     help="I2C Fixed Prescale 0 or 1")
-    core_group.add_argument("--cmd_fifo",           default=1,   type=int,     help="I2C FIFO Command Enable 0 or 1")
-    core_group.add_argument("--cmd_addr_width",     default=5,   type=int,     help="I2C FIFO Command Address Width from 1 to 5)")
-    core_group.add_argument("--write_fifo",         default=1,   type=int,     help="I2C FIFO Write Enable 0 or 1")
-    core_group.add_argument("--write_addr_width",   default=5,   type=int,     help="I2C FIFO Write Address Width from 1 to 5)")
-    core_group.add_argument("--read_fifo",          default=1,   type=int,     help="I2C FIFO Read Enable 0 or 1")
-    core_group.add_argument("--read_addr_width",    default=5,   type=int,     help="I2C FIFO Read Address Width from 1 to 5)")
+    core_group.add_argument("--default_prescale",  type=int, default=1, choices=range(2),     help="I2C Default Prescale.")
+    core_group.add_argument("--fixed_prescale",    type=int, default=0, choices=range(2),     help="I2C Fixed Prescale.")
+    core_group.add_argument("--cmd_fifo",          type=int, default=1, choices=range(2),     help="I2C FIFO Command Enable.")
+    core_group.add_argument("--cmd_addr_width",    type=int, default=5, choices=range(1, 6),  help="I2C FIFO Command Address Width.")
+    core_group.add_argument("--write_fifo",        type=int, default=1, choices=range(2),     help="I2C FIFO Write Enable.")
+    core_group.add_argument("--write_addr_width",  type=int, default=5, choices=range(1, 6),  help="I2C FIFO Write Address Width.")
+    core_group.add_argument("--read_fifo",         type=int, default=1, choices=range(2),     help="I2C FIFO Read Enable.")
+    core_group.add_argument("--read_addr_width",   type=int, default=5, choices=range(1, 6),  help="I2C FIFO Read Address Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -110,57 +113,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-    
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Default Prescale
-    default_prescale_range=range(2)
-    if args.default_prescale not in default_prescale_range:
-        logger.error("\nEnter a valid 'default_prescale' 0 or 1")
-        exit()
-        
-    # Fixed Prescale
-    fixed_prescale_range=range(2)
-    if args.fixed_prescale not in fixed_prescale_range:
-        logger.error("\nEnter a valid 'fixed_prescale' 0 or 1")
-        exit()
-        
-    # CMD FIFO 
-    cmd_fifo_range=range(2)
-    if args.cmd_fifo not in cmd_fifo_range:
-        logger.error("\nEnter a valid 'cmd_fifo' 0 or 1")
-        exit()
-
-    # CMD FIFO Address Width
-    cmd_addr_width_range=range(1,6)
-    if args.cmd_addr_width not in cmd_addr_width_range:
-        logger.error("\nEnter a valid 'cmd_addr_width' from 1 to 5")
-        exit()
-        
-    # Write FIFO 
-    write_fifo_range=range(2)
-    if args.write_fifo not in write_fifo_range:
-        logger.error("\nEnter a valid 'write_fifo' 0 or 1")
-        exit()
-        
-    # Write FIFO Address Width
-    write_addr_width_range=range(1,6)
-    if args.write_addr_width not in write_addr_width_range:
-        logger.error("\nEnter a valid 'write_addr_width' from 1 to 5")
-        exit()
-        
-    # Read FIFO 
-    read_fifo_range=range(2)
-    if args.read_fifo not in read_fifo_range:
-        logger.error("\nEnter a valid 'read_fifo' 0 or 1")
-        exit()
-        
-    # Read FIFO Address Width
-    read_addr_width_range=range(1,6)
-    if args.read_addr_width not in read_addr_width_range:
-        logger.error("\nEnter a valid 'read_addr_width' from 1 to 5")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
@@ -173,121 +125,37 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Remove build extension when specified.
-    args.build_name = os.path.splitext(args.build_name)[0]
+    # Build Project Directory ----------------------------------------------------------------------
 
-# Build Project Directory ----------------------------------------------------------------------
+    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="i2c_master")
+
     if args.build:
-        # Build Path 
-        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/i2c_master/v1_0/' + (args.build_name))
-        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "i2c_master_gen.py"))
+        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
         
-        if not os.path.exists(build_path):
-            os.makedirs(build_path)
-            shutil.copy(gen_path, build_path)
-
-        # Litex_sim Path
-        litex_sim_path = os.path.join(build_path, "litex_sim")
-        if not os.path.exists(litex_sim_path):    
-            os.makedirs(litex_sim_path)
-
-        # Simulation Path
-        sim_path = os.path.join(build_path, "sim")
-        if not os.path.exists(sim_path):    
-            os.makedirs(sim_path)
-
-        # Source Path
-        src_path = os.path.join(build_path, "src")
-        if not os.path.exists(src_path):    
-            os.makedirs(src_path)
-
-        # Synthesis Path
-        synth_path = os.path.join(build_path, "synth")
-        if not os.path.exists(synth_path):    
-            os.makedirs(synth_path)
-
-        # Design Path 
-        design_path = os.path.join("../src", (args.build_name + ".v"))  
-
-        # Copy RTL from Source to Destination
-        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")        
-        rtl_files = os.listdir(rtl_path)
-        for file_name in rtl_files:
-            full_file_path = os.path.join(rtl_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, src_path)
-
-        # Copy litex_sim Data from Source to Destination
-        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")        
-        litex_files = os.listdir(litex_path)
-        for file_name in litex_files:
-            full_file_path = os.path.join(litex_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, litex_sim_path) 
-
-
-        # TCL File Content
-        tcl = []
-        # Create Design.
-        tcl.append(f"create_design {args.build_name}")
-        # Set Device.
-        tcl.append(f"target_device {'GEMINI'}")
-        # Add Include Path.
-        tcl.append(f"add_library_path {'../src'}")
-        # Add file extension
-        tcl.append(f"add_library_ext .v .sv")
-        # Add Sources.
-#        for f, typ, lib in file_name:
-        tcl.append(f"add_design_file {design_path}")
-        # Set Top Module.
-        tcl.append(f"set_top_module {args.build_name}")
-        # Add Timings Constraints.
-#        tcl.append(f"add_constraint_file {args.build_name}.sdc")
-        # Run.
-        tcl.append("synthesize")
-
-        
-        # Generate .tcl File
-        tcl_path = os.path.join(synth_path, "raptor.tcl")
-        with open(tcl_path, "w") as f:
-            f.write("\n".join(tcl))
-        f.close()
-        
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = I2CMASTERWrapper(platform,
-        default_prescale    = args.default_prescale,
-        fixed_prescale      = args.fixed_prescale,
-        cmd_fifo            = args.cmd_fifo,
-        cmd_addr_width      = args.cmd_addr_width,
-        write_fifo          = args.write_fifo,
-        write_addr_width    = args.write_addr_width,
-        read_fifo           = args.read_fifo,
-        read_addr_width     = args.read_addr_width
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = I2CMASTERWrapper(platform,
+        default_prescale = args.default_prescale,
+        fixed_prescale   = args.fixed_prescale,
+        cmd_fifo         = args.cmd_fifo,
+        cmd_addr_width   = args.cmd_addr_width,
+        write_fifo       = args.write_fifo,
+        write_addr_width = args.write_addr_width,
+        read_fifo        = args.read_fifo,
+        read_addr_width  = args.read_addr_width,
     )
 
-    # Build
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        platform.build(module,
-            build_dir    = "litex_build",
-            build_name   = args.build_name,
-            run          = False,
-            regular_comb = False
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="i2c_master")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
         )
-        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
-        shutil.rmtree("litex_build")
-        
-        # TimeScale Addition to Wrapper
-        wrapper = os.path.join(src_path, f'{args.build_name}.v')
-        f = open(wrapper, "r")
-        content = f.readlines()
-        content.insert(13, '// This file is Copyright (c) 2022 RapidSilicon\n//------------------------------------------------------------------------------')
-        content.insert(15, '\n`timescale 1ns / 1ps\n')
-        f = open(wrapper, "w")
-        content = "".join(content)
-        f.write(str(content))
-        f.close()
-
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
 
 if __name__ == "__main__":
     main()
