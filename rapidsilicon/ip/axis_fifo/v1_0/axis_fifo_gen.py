@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import sys
 import json
 import argparse
 import shutil
@@ -101,26 +102,28 @@ class AXISTREAMFIFOWrapper(Module):
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXIS FIFO CORE")
-    parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
-        max_help_position = 10,
-        width             = 120
-    )
+
+    # Import Common Modules.
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    sys.path.append(common_path)
+
+    from common import RapidSiliconIPCatalogBuilder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--depth",          default=4096,     type=int,         help="FIFO Depth 8,16,32,64,...,32768")
-    core_group.add_argument("--data_width",     default=8,        type=int,         help="FIFO Data Width from 1 to 4096")
-    core_group.add_argument("--last_en",        default=1,        type=int,         help="FIFO Last Enable 0 or 1")
-    core_group.add_argument("--id_en",          default=0,        type=int,         help="FIFO ID Enable 0 or 1")
-    core_group.add_argument("--id_width",       default=8,        type=int,         help="FIFO ID Width from 1 to 32")
-    core_group.add_argument("--dest_en",        default=0,        type=int,         help="FIFO Destination Enable 0 or 1")
-    core_group.add_argument("--dest_width",     default=8,        type=int,         help="FIFO Destination Width from 1 to 32")
-    core_group.add_argument("--user_en",        default=1,        type=int,         help="FIFO User Enable 0 or 1")
-    core_group.add_argument("--user_width",     default=1,        type=int,         help="FIFO User Width from 1 to 4096")
-    core_group.add_argument("--pip_out",        default=2,        type=int,         help="FIFO Pipeline Output from 0 to 2")
-    core_group.add_argument("--frame_fifo",     default=0,        type=int,         help="FIFO Frame 0 or 1")
-    core_group.add_argument("--drop_bad_frame", default=0,        type=int,         help="FIFO Drop Bad Frame 0 or 1")
-    core_group.add_argument("--drop_when_full", default=0,        type=int,         help="FIFO Drop Frame When Full 0 or 1")
+    core_group.add_argument("--depth",          type=int, default=4096, choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768], help="FIFO Depth.")
+    core_group.add_argument("--data_width",     type=int, default=8,    choices=range(1,4097),                                                        help="FIFO Data Width.")
+    core_group.add_argument("--last_en",        type=int, default=1,    choices=range(2),                                                             help="FIFO Last Enable.")
+    core_group.add_argument("--id_en",          type=int, default=0,    choices=range(2),                                                             help="FIFO ID Enable.")
+    core_group.add_argument("--id_width",       type=int, default=8,    choices=range(1, 33),                                                         help="FIFO ID Width.")
+    core_group.add_argument("--dest_en",        type=int, default=0,    choices=range(2),                                                             help="FIFO Destination Enable.")
+    core_group.add_argument("--dest_width",     type=int, default=8,    choices=range(1, 33),                                                         help="FIFO Destination Width.")
+    core_group.add_argument("--user_en",        type=int, default=1,    choices=range(2),                                                             help="FIFO User Enable.")
+    core_group.add_argument("--user_width",     type=int, default=1,    choices=range(1, 4097),                                                       help="FIFO User Width.")
+    core_group.add_argument("--pip_out",        type=int, default=2,    choices=range(3),                                                             help="FIFO Pipeline Output.")
+    core_group.add_argument("--frame_fifo",     type=int, default=0,    choices=range(2),                                                             help="FIFO Frame.")
+    core_group.add_argument("--drop_bad_frame", type=int, default=0,    choices=range(2),                                                             help="FIFO Drop Bad Frame.")
+    core_group.add_argument("--drop_when_full", type=int, default=0,    choices=range(2),                                                             help="FIFO Drop Frame When Full.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -135,87 +138,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Depth
-    depth_param=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768]
-    if args.depth not in depth_param:
-        logger.error("\nEnter a valid 'depth'\n %s", depth_param)
-        exit()
-
-    # Data_Width
-    data_width_range=range(1,4097)
-    if args.data_width not in data_width_range:
-        logger.error("\nEnter a valid 'data_width' from 1 to 4096")
-        exit()
-    
-    # Last Enable
-    last_en_range=range(2)
-    if args.last_en not in last_en_range:
-        logger.error("\nEnter a valid 'last_en' 0 or 1")
-        exit()
-
-    # ID Enable
-    id_en_range=range(2)
-    if args.id_en not in id_en_range:
-        logger.error("\nEnter a valid 'id_en' 0 or 1")
-        exit()
-
-    # ID Width
-    id_width_range=range(1,33)
-    if args.id_width not in id_width_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 32")
-        exit()
-
-    # Destination Enable
-    dest_en_range=range(2)
-    if args.dest_en not in dest_en_range:
-        logger.error("\nEnter a valid 'dest_en' 0 or 1")
-        exit()
-        
-    # Destination Width
-    dest_width_range=range(1,33)
-    if args.dest_width not in dest_width_range:
-        logger.error("\nEnter a valid 'dest_width' from 1 to 32")
-        exit()
-        
-    # User Enable
-    user_en_range=range(2)
-    if args.user_en not in user_en_range:
-        logger.error("\nEnter a valid 'user_en' 0 or 1")
-        exit()
-        
-    # User Width
-    user_width_range=range(1,4097)
-    if args.user_width not in user_width_range:
-        logger.error("\nEnter a valid 'user_width' from 1 to 4096")
-        exit()
-        
-    # Pipeline_Output
-    pip_range=range(3)
-    if args.pip_out not in pip_range:
-        logger.error("\nEnter a valid 'pip_out' from 0 to 2")
-        exit()
-        
-    # Frame FIFO
-    frame_fifo_range=range(2)
-    if args.frame_fifo not in frame_fifo_range:
-        logger.error("\nEnter a valid 'frame_fifo' 0 or 1")
-        exit()
-        
-    # Drop Bad Frame
-    drop_bad_frame_range=range(2)
-    if args.drop_bad_frame not in drop_bad_frame_range:
-        logger.error("\nEnter a valid 'drop_bad_frame' 0 or 1")
-        exit()
-        
-    # Drop When Full
-    drop_when_full_range=range(2)
-    if args.drop_when_full not in drop_when_full_range:
-        logger.error("\nEnter a valid 'drop_when_full' 0 or 1")
-        exit()
-
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:
@@ -227,121 +149,37 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Remove build extension when specified.
-    args.build_name = os.path.splitext(args.build_name)[0]
-
-    # Build Project Directory ----------------------------------------------------------------------
-    if args.build:
-        # Build Path
-        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axis_fifo/v1_0/' + (args.build_name))
-        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axis_fifo_gen.py"))
-        if not os.path.exists(build_path):
-            os.makedirs(build_path)
-            shutil.copy(gen_path, build_path)
-
-        # Litex_sim Path
-        litex_sim_path = os.path.join(build_path, "litex_sim")
-        if not os.path.exists(litex_sim_path):    
-            os.makedirs(litex_sim_path)
-
-        # Simulation Path
-        sim_path = os.path.join(build_path, "sim")
-        if not os.path.exists(sim_path):    
-            os.makedirs(sim_path)
-
-        # Source Path
-        src_path = os.path.join(build_path, "src")
-        if not os.path.exists(src_path):    
-            os.makedirs(src_path) 
-
-        # Synthesis Path
-        synth_path = os.path.join(build_path, "synth")
-        if not os.path.exists(synth_path):    
-            os.makedirs(synth_path) 
-        # Design Path
-        design_path = os.path.join("../src", (args.build_name + ".v")) 
-
-        # Copy RTL from Source to Destination 
-        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")       
-        rtl_files = os.listdir(rtl_path)
-        for file_name in rtl_files:
-            full_file_path = os.path.join(rtl_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, src_path)
-
-        # Copy litex_sim Data from Source to Destination
-        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")        
-        litex_files = os.listdir(litex_path)
-        for file_name in litex_files:
-            full_file_path = os.path.join(litex_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, litex_sim_path)
-                
-
-        # TCL File Content        
-        tcl = []
-        # Create Design.
-        tcl.append(f"create_design {args.build_name}")
-        # Set Device.
-        tcl.append(f"target_device {'GEMINI'}")
-        # Add Include Path.
-        tcl.append(f"add_library_path {'../src'}")
-        # Add Sources.
-#        for f, typ, lib in file_name:
-        tcl.append(f"add_design_file {design_path}")
-        # Set Top Module.
-        tcl.append(f"set_top_module {args.build_name}")
-        # Add Timings Constraints.
-#        tcl.append(f"add_constraint_file {args.build_name}.sdc")
-        # Run.
-        tcl.append("synthesize")
-
-
-        # Generate .tcl file
-        tcl_path = os.path.join(synth_path, "raptor.tcl")
-        with open(tcl_path, "w") as f:
-            f.write("\n".join(tcl))
-        f.close()
-        
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = AXISTREAMFIFOWrapper(platform,
-        depth           = args.depth,
-        data_width      = args.data_width,
-        last_en         = args.last_en,
-        id_en           = args.id_en,
-        id_width        = args.id_width,
-        dest_en         = args.dest_en,
-        dest_width      = args.dest_width,
-        user_en         = args.user_en,
-        user_width      = args.user_width,
-        pip_out         = args.pip_out,
-        frame_fifo      = args.frame_fifo,
-        drop_bad_frame  = args.drop_bad_frame,
-        drop_when_full  = args.drop_when_full
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXISTREAMFIFOWrapper(platform,
+        depth          = args.depth,
+        data_width     = args.data_width,
+        last_en        = args.last_en,
+        id_en          = args.id_en,
+        id_width       = args.id_width,
+        dest_en        = args.dest_en,
+        dest_width     = args.dest_width,
+        user_en        = args.user_en,
+        user_width     = args.user_width,
+        pip_out        = args.pip_out,
+        frame_fifo     = args.frame_fifo,
+        drop_bad_frame = args.drop_bad_frame,
+        drop_when_full = args.drop_when_full,
     )
 
-    # Build
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        platform.build(module,
-            build_dir    = "litex_build",
-            build_name   = args.build_name,
-            run          = False,
-            regular_comb = False
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axis_fifo")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
         )
-        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
-        shutil.rmtree("litex_build")
-        
-        # TimeScale Addition to Wrapper
-        wrapper = os.path.join(src_path, f'{args.build_name}.v')
-        f = open(wrapper, "r")
-        content = f.readlines()
-        content.insert(13, '// This file is Copyright (c) 2022 RapidSilicon\n//------------------------------------------------------------------------------')
-        content.insert(15, '\n`timescale 1ns / 1ps\n')
-        f = open(wrapper, "w")
-        content = "".join(content)
-        f.write(str(content))
-        f.close()
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
+        rs_builder.generate_verilog(
+            platform   = platform,
+            module     = module,
+        )
 
 if __name__ == "__main__":
     main()

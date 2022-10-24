@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import sys
 import json
 import argparse
 import shutil
@@ -98,20 +99,22 @@ class AXICDMAWrapper(Module):
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXI CDMA CORE")
-    parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
-        max_help_position = 10,
-        width             = 120
-    )
+
+    # Import Common Modules.
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    sys.path.append(common_path)
+
+    from common import RapidSiliconIPCatalogBuilder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width",         default=32,     type=int,    help="DMA Data Width 8,16,32,64,128,256")
-    core_group.add_argument("--addr_width",         default=16,     type=int,    help="DMA Address Width 8 - 16")
-    core_group.add_argument("--id_width",           default=8,      type=int,    help="DMA ID Width from 1 - 32")
-    core_group.add_argument("--axi_max_burst_len",  default=16,     type=int,    help="DMA AXI burst length from 1 to 256 ")
-    core_group.add_argument("--len_width",          default=20,     type=int,    help="DMA AXI Width of length field from 1 to 20")
-    core_group.add_argument("--tag_width",          default=8,      type=int,    help="DMA Width of tag field from 1 to 8")
-    core_group.add_argument("--enable_unaligned",   default=0,      type=int,    help="Support for unaligned transfers 0 or 1")
+    core_group.add_argument("--data_width",        type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
+    core_group.add_argument("--addr_width",        type=int, default=16, choices=range(8, 17),              help="DMA Address Width.")
+    core_group.add_argument("--id_width",          type=int, default=8,  choices=range(1, 33),              help="DMA ID Width.")
+    core_group.add_argument("--axi_max_burst_len", type=int, default=16, choices=range(1,257),              help="DMA AXI burst length.")
+    core_group.add_argument("--len_width",         type=int, default=20, choices=range(1,21),               help="DMA AXI Width of length field.")
+    core_group.add_argument("--tag_width",         type=int, default=8,  choices=range(1,9),                help="DMA Width of tag field.")
+    core_group.add_argument("--enable_unaligned",  type=int, default=0,  choices=range(2),                  help="Support for unaligned transfers.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -126,52 +129,6 @@ def main():
 
     args = parser.parse_args()
 
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data_Width
-    data_width_param=[8, 16, 32, 64, 128, 256]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-    
-    # Address Width
-    addr_range=range(8, 17)
-    if args.addr_width not in addr_range:
-        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
-        exit()
-
-    # ID_Width
-    id_range=range(1, 33)
-    if args.id_width not in id_range:
-        logger.error("\nEnter a valid 'id_width' from 1 to 32")
-        exit()
-    
-    # axi_max_burst_len_range
-    axi_max_burst_len_range=range(1,257)
-    if args.axi_max_burst_len not in axi_max_burst_len_range:
-        logger.error("\nEnter a valid 'a_intaxi_max_burst_lenerleave' from 0 to 256")
-        exit()
-
-    # len_width
-    len_width_range=range(1,21)
-    if args.len_width not in len_width_range:
-        logger.error("\nEnter a valid 'len_width' from 1 to 20")
-        exit()
-
-    # TAG_WIDTH
-    tag_width_range=range(1,9)
-    if args.tag_width not in tag_width_range:
-        logger.error("\nEnter a valid 'tag_width' from 1 to 8")
-        exit()
-
-    # ENABLE_UNALIGNED
-    enable_unaligned_range=range(2)
-    if args.enable_unaligned not in enable_unaligned_range:
-        logger.error("\nEnter a valid 'enable_unaligned' 0 or 1")
-        exit()
-
-
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:
@@ -184,117 +141,31 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Remove build extension when specified.
-    args.build_name = os.path.splitext(args.build_name)[0]
-
-    # Build Project Directory ----------------------------------------------------------------------
-    if args.build:
-        # Build Path
-        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axi_cdma/v1_0/' + (args.build_name))
-        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axi_cdma_gen.py"))
-        
-        if not os.path.exists(build_path):
-            os.makedirs(build_path)
-            shutil.copy(gen_path, build_path)
-
-        # Litex_sim Path
-        litex_sim_path = os.path.join(build_path, "litex_sim")
-        if not os.path.exists(litex_sim_path):    
-            os.makedirs(litex_sim_path)
-
-        # Simulation Path
-        sim_path = os.path.join(build_path, "sim")
-        if not os.path.exists(sim_path):    
-            os.makedirs(sim_path)
-
-        # Source Path
-        src_path = os.path.join(build_path, "src")
-        if not os.path.exists(src_path):    
-            os.makedirs(src_path) 
-
-        # Synthesis Path
-        synth_path = os.path.join(build_path, "synth")
-        if not os.path.exists(synth_path):    
-            os.makedirs(synth_path) 
-
-        # Design Path
-        design_path = os.path.join("../src", (args.build_name + ".v")) 
-
-        # Copy RTL from Source to Destination
-        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")        
-        rtl_files = os.listdir(rtl_path)
-        for file_name in rtl_files:
-            full_file_path = os.path.join(rtl_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, src_path)
-
-        # Copy litex_sim Data from Source to Destination  
-        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")      
-        litex_files = os.listdir(litex_path)
-        for file_name in litex_files:
-            full_file_path = os.path.join(litex_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, litex_sim_path)
-
-        
-        # TCL File Content        
-        tcl = []
-        # Create Design.
-        tcl.append(f"create_design {args.build_name}")
-        # Set Device.
-        tcl.append(f"target_device {'GEMINI'}")
-        # Add Include Path.
-        tcl.append(f"add_library_path {'../src'}")
-        # Add Sources.
-#        for f, typ, lib in file_name:
-        tcl.append(f"add_design_file {design_path}")
-        # Set Top Module.
-        tcl.append(f"set_top_module {args.build_name}")
-        # Add Timings Constraints.
-#        tcl.append(f"add_constraint_file {args.build_name}.sdc")
-        # Run.
-        tcl.append("synthesize")
-
-        # Generate .tcl file
-        tcl_path = os.path.join(synth_path, "raptor.tcl")
-        with open(tcl_path, "w") as f:
-            f.write("\n".join(tcl))
-        f.close()
-        
-    # Create LiteX Core ----------------------------------------------------------------------------
+    # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module = AXICDMAWrapper(platform,
-        data_width          = args.data_width,
-        addr_width          = args.addr_width,
-        id_width            = args.id_width,
-        axi_max_burst_len   = args.axi_max_burst_len,
-        len_width           = args.len_width,
-        tag_width           = args.tag_width,
-        enable_unaligned    = args.enable_unaligned
-        )
+    module   = AXICDMAWrapper(platform,
+        data_width        = args.data_width,
+        addr_width        = args.addr_width,
+        id_width          = args.id_width,
+        axi_max_burst_len = args.axi_max_burst_len,
+        len_width         = args.len_width,
+        tag_width         = args.tag_width,
+        enable_unaligned  = args.enable_unaligned
+    )
     
-    # Build
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        platform.build(module,
-            build_dir    = "litex_build",
-            build_name   = args.build_name,
-            run          = False,
-            regular_comb = False
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi_cdma")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
         )
-        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
-        shutil.rmtree("litex_build")
-        
-        # TimeScale Addition to Wrapper
-        wrapper = os.path.join(src_path, f'{args.build_name}.v')
-        f = open(wrapper, "r")
-        content = f.readlines()
-        content.insert(13, '// This file is Copyright (c) 2022 RapidSilicon\n//------------------------------------------------------------------------------')
-        content.insert(15, '\n`timescale 1ns / 1ps\n')
-        f = open(wrapper, "w")
-        content = "".join(content)
-        f.write(str(content))
-        f.close()
-
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
+        rs_builder.generate_verilog(
+            platform   = platform,
+            module     = module,
+        )
 
 if __name__ == "__main__":
     main()

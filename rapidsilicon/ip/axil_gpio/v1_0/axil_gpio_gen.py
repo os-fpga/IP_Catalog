@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import sys
 import json
 import argparse
 import shutil
@@ -64,15 +65,17 @@ class AXILITEGPIOWrapper(Module):
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXI LITE GPIO CORE")
-    parser.formatter_class = lambda prog: argparse.ArgumentDefaultsHelpFormatter(prog,
-        max_help_position = 10,
-        width             = 120
-    )
+
+    # Import Common Modules.
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    sys.path.append(common_path)
+
+    from common import RapidSiliconIPCatalogBuilder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
-    core_group.add_argument("--data_width",     default=32,     type=int,       help="GPIO Data Width 8,16,32")
-    core_group.add_argument("--addr_width",     default=16,     type=int,       help="GPIO Address Width from 8 to 16")
+    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32],   help="GPIO Data Width.")
+    core_group.add_argument("--addr_width", type=int, default=16, choices=range(8, 17),  help="GPIO Address Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -86,21 +89,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-    
-    # Parameter Check -------------------------------------------------------------------------------
-    logger = logging.getLogger("Invalid Parameter Value")
-
-    # Data_Width
-    data_width_param=[8, 16, 32]
-    if args.data_width not in data_width_param:
-        logger.error("\nEnter a valid 'data_width'\n %s", data_width_param)
-        exit()
-    
-    # Address Width
-    addr_range=range(8, 17)
-    if args.addr_width not in addr_range:
-        logger.error("\nEnter a valid 'addr_width' from 8 to 16")
-        exit()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
@@ -113,116 +101,35 @@ def main():
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
 
-    # Remove build extension when specified.
-    args.build_name = os.path.splitext(args.build_name)[0]
-
     # Build Project Directory ----------------------------------------------------------------------
+
+    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axil_gpio")
+
     if args.build:
-        # Build Path 
-        build_path = os.path.join(args.build_dir, 'rapidsilicon/ip/axil_gpio/v1_0/' + (args.build_name))
-        gen_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "axil_gpio_gen.py"))
-
-        if not os.path.exists(build_path):
-            os.makedirs(build_path)
-            shutil.copy(gen_path, build_path)
-
-        # Litex_sim Path
-        litex_sim_path = os.path.join(build_path, "litex_sim")
-        if not os.path.exists(litex_sim_path):    
-            os.makedirs(litex_sim_path)
-
-        # Simulation Path
-        sim_path = os.path.join(build_path, "sim")
-        if not os.path.exists(sim_path):    
-            os.makedirs(sim_path)
-
-        # Source Path
-        src_path = os.path.join(build_path, "src")
-        if not os.path.exists(src_path):    
-            os.makedirs(src_path)
-
-        # Synthesis Path
-        synth_path = os.path.join(build_path, "synth")
-        if not os.path.exists(synth_path):    
-            os.makedirs(synth_path)
-
-        # Design Path 
-        design_path = os.path.join("../src", (args.build_name + ".sv"))  
-
-        # Copy RTL from Source to Destination
-        rtl_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "src")        
-        rtl_files = os.listdir(rtl_path)
-        for file_name in rtl_files:
-            full_file_path = os.path.join(rtl_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, src_path)
-
-        # Copy litex_sim Data from Source to Destination
-        litex_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "litex_sim")
-        litex_files = os.listdir(litex_path)
-        for file_name in litex_files:
-            full_file_path = os.path.join(litex_path, file_name)
-            if os.path.isfile(full_file_path):
-                shutil.copy(full_file_path, litex_sim_path)        
-
-        # TCL File Content
-        tcl = []
-        # Create Design.
-        tcl.append(f"create_design {args.build_name}")
-        # Set Device.
-        tcl.append(f"target_device {'GEMINI'}")
-        # Add Include Path.
-        tcl.append(f"add_library_path {'../src'}")
-        # Add file extension
-        tcl.append(f"add_library_ext .v .sv")
-        # Add Sources.
-#        for f, typ, lib in file_name:
-        tcl.append(f"add_design_file {design_path}")
-        # Set Top Module.
-        tcl.append(f"set_top_module {args.build_name}")
-        # Add Timings Constraints.
-#       tcl.append(f"add_constraint_file {args.build_name}.sdc")
-        # Run.
-        tcl.append("synthesize")
+        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
         
-        # Generate .tcl File
-        tcl_path = os.path.join(synth_path, "raptor.tcl")
-        with open(tcl_path, "w") as f:
-            f.write("\n".join(tcl))
-        f.close()
-        
-    # Create LiteX Core ----------------------------------------------------------------------------
-    platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
-    module     = AXILITEGPIOWrapper(platform,
-        addr_width  = args.addr_width,
-        data_width  = args.data_width
+    # Create Wrapper -------------------------------------------------------------------------------
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    module   = AXILITEGPIOWrapper(platform,
+        addr_width = args.addr_width,
+        data_width = args.data_width,
     )
 
-    # Build
+    # Build Project --------------------------------------------------------------------------------
     if args.build:
-        platform.build(module,
-            build_dir    = "litex_build",
-            build_name   = args.build_name,
-            run          = False,
-            regular_comb = False
+        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axil_gpio")
+        rs_builder.prepare(
+            build_dir  = args.build_dir,
+            build_name = args.build_name,
         )
-        shutil.copy(f"litex_build/{args.build_name}.v", src_path)
-        shutil.rmtree("litex_build")
-        
-        # Changing File Extension from .v to .sv
-        old_wrapper = os.path.join(src_path, f'{args.build_name}.v')
-        new_wrapper = old_wrapper.replace('.v','.sv')
-        os.rename(old_wrapper, new_wrapper)
-        
-        # TimeScale Addition to Wrapper
-        f = open(new_wrapper, "r")
-        content = f.readlines()
-        content.insert(13, '// This file is Copyright (c) 2022 RapidSilicon\n//------------------------------------------------------------------------------')
-        f = open(new_wrapper, "w")
-        content = "".join(content)
-        f.write(str(content))
-        f.close()
-
+        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        rs_builder.generate_tcl()
+        rs_builder.generate_verilog(
+            platform   = platform,
+            module     = module,
+        )
 
 if __name__ == "__main__":
     main()
