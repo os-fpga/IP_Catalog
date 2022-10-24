@@ -106,9 +106,9 @@ class RapidSiliconIPCatalogBuilder:
         # Add Sources.
         # Verilog vs System Verilog
         if (language == 1):
-            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
-        else:
             tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.sv')}")
+        else:
+            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
 
         # Set Top Module.
         tcl.append(f"set_top_module {self.build_name}")
