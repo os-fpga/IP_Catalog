@@ -83,7 +83,7 @@ class RapidSiliconIPCatalogBuilder:
                 if os.path.isfile(full_file_path):
                     shutil.copy(full_file_path, self.litex_sim_path)
 
-    def generate_tcl(self):
+    def generate_tcl(self, language):
         assert self.prepared
 
         # Build .tcl file.
@@ -95,7 +95,7 @@ class RapidSiliconIPCatalogBuilder:
         tcl.append(f"create_design {self.build_name}")
 
         # Set Device.
-        tcl.append(f"target_device {self.device.upper()}") # CHECKME: .upper() required?
+        tcl.append(f"target_device {self.device.upper()}")
 
         # Add Include Path.
         tcl.append(f"add_library_path ../src")
@@ -104,7 +104,11 @@ class RapidSiliconIPCatalogBuilder:
         tcl.append(f"add_library_ext .v .sv")
 
         # Add Sources.
-        tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
+        # Verilog vs System Verilog
+        if (language == 1):
+            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
+        else:
+            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.sv')}")
 
         # Set Top Module.
         tcl.append(f"set_top_module {self.build_name}")
