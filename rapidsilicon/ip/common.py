@@ -98,6 +98,7 @@ class RapidSiliconIPCatalogBuilder:
         tcl.append(f"target_device {self.device.upper()}")
 
         # Add Include Path.
+        tcl.append(f"add_include_path ../src")
         tcl.append(f"add_library_path ../src")
 
         # Add file extension
