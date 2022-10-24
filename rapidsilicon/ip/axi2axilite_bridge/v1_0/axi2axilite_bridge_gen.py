@@ -8,8 +8,6 @@ import os
 import sys
 import json
 import argparse
-import shutil
-import logging
 
 from litex_sim.axi2axilite_bridge_litex_wrapper import AXI2AXILITE
 
@@ -74,7 +72,7 @@ def main():
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Data Width")
     core_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width.")
-    core_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width from.")
+    core_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -95,7 +93,6 @@ def main():
             t_args = argparse.Namespace()
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
-
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -118,6 +115,10 @@ def main():
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
+        rs_builder.generate_verilog(
+            platform   = platform,
+            module     = module,
+        )
 
 if __name__ == "__main__":
     main()
