@@ -114,7 +114,7 @@ class RapidSiliconIPCatalogBuilder:
         tcl.append(f"set_top_module {self.build_name}")
 
         # Add Timings Constraints.
-        tcl.append(f"add_constraint_file {self.build_name}.sdc")
+        # tcl.append(f"add_constraint_file {self.build_name}.sdc")
 
         # Run.
         tcl.append("synthesize")
