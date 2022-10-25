@@ -130,12 +130,7 @@ class RapidSiliconIPCatalogBuilder:
     def generate_wrapper(self, platform, module, language):
         assert self.prepared
         build_path     = "litex_build"
-        
-        # Verilog vs System Verilog
-        if (language == 1):
-            build_filename = os.path.join(build_path, self.build_name) + ".sv"
-        else:
-            build_filename = os.path.join(build_path, self.build_name) + ".v"
+        build_filename = os.path.join(build_path, self.build_name) + ".v"
 
         # Build LiteX module.
         platform.build(module,
@@ -150,6 +145,11 @@ class RapidSiliconIPCatalogBuilder:
 
         # Copy file to destination.
         shutil.copy(build_filename, self.src_path)
+        if (language == 1):
+            # Changing File Extension from .v to .sv
+            old_wrapper = os.path.join(self.src_path, f'{self.build_name}.v')
+            new_wrapper = old_wrapper.replace('.v','.sv')
+            os.rename(old_wrapper, new_wrapper)
 
         # Remove build files.
         shutil.rmtree(build_path)
