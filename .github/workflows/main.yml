@@ -143,6 +143,7 @@ jobs:
         run: |
            export LC_ALL=en_US.utf-8
            export LANG=en_US.utf-8
+           export PYTHONPATH=$GITHUB_WORKSPACE
            cd Raptor_Tools/python_tools/build/share/envs/litex/bin
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --build-name=dpram_wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
