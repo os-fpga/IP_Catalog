@@ -7,9 +7,9 @@
 import os
 import shutil
 
-# RapidSilicon IP Catalog Builder ------------------------------------------------------------------
+# IP Catalog Builder ------------------------------------------------------------------
 
-class RapidSiliconIPCatalogBuilder:
+class IP_Builder:
     def __init__(self, device, ip_name, language):
         self.device   = device
         self.ip_name  = ip_name
@@ -107,7 +107,7 @@ class RapidSiliconIPCatalogBuilder:
 
         # Add Sources.
         # Verilog vs System Verilog
-        if (self.language == "sverilog"):
+        if   (self.language == "sverilog"):
             tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.sv')}")
             
         elif (self.language == "verilog"):
