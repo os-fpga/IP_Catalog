@@ -8,9 +8,8 @@ import os
 import sys
 import json
 import argparse
-import shutil
 
-from litex_sim.vexriscv_cpu_litex_wrapper import VexRiscv
+from litex_wrapper.vexriscv_cpu_litex_wrapper import VexRiscv
 
 from migen import *
 
@@ -98,7 +97,7 @@ def main():
     common_path = os.path.join(os.path.dirname(__file__), "..", "..")
     sys.path.append(common_path)
 
-    from common import RapidSiliconIPCatalogBuilder
+    from common import IP_Builder
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -130,12 +129,17 @@ def main():
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="vexriscv_cpu")
+        rs_builder = IP_Builder(device="gemini", ip_name="vexriscv_cpu", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
+        rs_builder.generate_wrapper(
+            platform   = platform,
+            module     = module,
+        )
+        
 if __name__ == "__main__":
     main()

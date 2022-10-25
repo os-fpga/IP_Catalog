@@ -8,10 +8,8 @@ import os
 import sys
 import json
 import argparse
-import shutil
-import logging
 
-from litex_sim.i2c_master_litex_wrapper import I2CMASTER
+from litex_wrapper.i2c_master_litex_wrapper import I2CMASTER
 
 from migen import *
 
@@ -88,7 +86,7 @@ def main():
     common_path = os.path.join(os.path.dirname(__file__), "..", "..")
     sys.path.append(common_path)
 
-    from common import RapidSiliconIPCatalogBuilder
+    from common import IP_Builder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
@@ -124,15 +122,6 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
-
-    # Build Project Directory ----------------------------------------------------------------------
-
-    rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="i2c_master")
-
-    if args.build:
-        rs_builder.prepare(build_dir=args.build_dir, build_name=args.build_name)
-        rs_builder.copy_files(gen_path=os.path.dirname(__file__))
-        rs_builder.generate_tcl()
         
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -149,13 +138,17 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="i2c_master")
+        rs_builder = IP_Builder(device="gemini", ip_name="i2c_master", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
+        rs_builder.generate_wrapper(
+            platform   = platform,
+            module     = module,
+        )
 
 if __name__ == "__main__":
     main()
