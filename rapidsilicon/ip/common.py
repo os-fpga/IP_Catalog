@@ -10,9 +10,10 @@ import shutil
 # RapidSilicon IP Catalog Builder ------------------------------------------------------------------
 
 class RapidSiliconIPCatalogBuilder:
-    def __init__(self, device, ip_name):
+    def __init__(self, device, ip_name, language):
         self.device   = device
         self.ip_name  = ip_name
+        self.language = language
         self.prepared = False
 
     @staticmethod
@@ -50,11 +51,11 @@ class RapidSiliconIPCatalogBuilder:
         self.synth_path         = os.path.join(self.build_path, "synth")
 
         # Create paths.
-        os.makedirs(self.build_path,     exist_ok=True)
+        os.makedirs(self.build_path,         exist_ok=True)
         os.makedirs(self.litex_wrapper_path, exist_ok=True)
-        os.makedirs(self.sim_path,       exist_ok=True)
-        os.makedirs(self.src_path,       exist_ok=True)
-        os.makedirs(self.synth_path,     exist_ok=True)
+        os.makedirs(self.sim_path,           exist_ok=True)
+        os.makedirs(self.src_path,           exist_ok=True)
+        os.makedirs(self.synth_path,         exist_ok=True)
 
         self.prepared = True
 
@@ -83,7 +84,7 @@ class RapidSiliconIPCatalogBuilder:
                 if os.path.isfile(full_file_path):
                     shutil.copy(full_file_path, self.litex_wrapper_path)
 
-    def generate_tcl(self, language):
+    def generate_tcl(self):
         assert self.prepared
 
         # Build .tcl file.
@@ -106,8 +107,12 @@ class RapidSiliconIPCatalogBuilder:
 
         # Add Sources.
         # Verilog vs System Verilog
-        if (language == 1):
+        if (self.language == "sverilog"):
             tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.sv')}")
+            
+        elif (self.language == "verilog"):
+            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
+            
         else:
             tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
 
@@ -127,7 +132,7 @@ class RapidSiliconIPCatalogBuilder:
         f.write("\n".join(tcl))
         f.close()
 
-    def generate_wrapper(self, platform, module, language):
+    def generate_wrapper(self, platform, module):
         assert self.prepared
         build_path     = "litex_build"
         build_filename = os.path.join(build_path, self.build_name) + ".v"
@@ -145,8 +150,9 @@ class RapidSiliconIPCatalogBuilder:
 
         # Copy file to destination.
         shutil.copy(build_filename, self.src_path)
-        if (language == 1):
-            # Changing File Extension from .v to .sv
+        
+        # Changing File Extension from .v to .sv
+        if (self.language == "sverilog"):
             old_wrapper = os.path.join(self.src_path, f'{self.build_name}.v')
             new_wrapper = old_wrapper.replace('.v','.sv')
             os.rename(old_wrapper, new_wrapper)
