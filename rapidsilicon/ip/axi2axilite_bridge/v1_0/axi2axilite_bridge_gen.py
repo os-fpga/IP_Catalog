@@ -71,7 +71,7 @@ def main():
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Data Width")
-    core_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width.")
+    core_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width")
     core_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width")
 
     # Build Parameters.
@@ -114,8 +114,9 @@ def main():
             build_name = args.build_name,
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
-        rs_builder.generate_tcl()
-        rs_builder.generate_verilog(
+        rs_builder.generate_tcl(language=0)
+        rs_builder.generate_wrapper(
+            language   = 0,
             platform   = platform,
             module     = module,
         )
