@@ -8,10 +8,8 @@ import os
 import sys
 import json
 import argparse
-import shutil
-import logging
 
-from litex_sim.axi2axilite_bridge_litex_wrapper import AXI2AXILITE
+from litex_wrapper.axi2axilite_bridge_litex_wrapper import AXI2AXILITE
 
 from migen import *
 
@@ -68,13 +66,13 @@ def main():
     common_path = os.path.join(os.path.dirname(__file__), "..", "..")
     sys.path.append(common_path)
 
-    from common import RapidSiliconIPCatalogBuilder
+    from rapidsilicon.lib.common import IP_Builder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Data Width")
-    core_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width.")
-    core_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width from.")
+    core_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width")
+    core_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -96,7 +94,6 @@ def main():
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
 
-
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
@@ -111,13 +108,17 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axi2axilite_bridge")
+        rs_builder = IP_Builder(device="gemini", ip_name="axi2axilite_bridge", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
+        rs_builder.generate_wrapper(
+            platform   = platform,
+            module     = module,
+        )
 
 if __name__ == "__main__":
     main()
