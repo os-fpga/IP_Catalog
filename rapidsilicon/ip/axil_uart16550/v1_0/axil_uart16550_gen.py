@@ -8,10 +8,8 @@ import os
 import sys
 import json
 import argparse
-import shutil
-import logging
 
-from litex_sim.axil_uart16550_litex_wrapper import AXILITEUART
+from litex_wrapper.axil_uart16550_litex_wrapper import AXILITEUART
 
 from migen import *
 
@@ -90,7 +88,7 @@ def main():
     common_path = os.path.join(os.path.dirname(__file__), "..", "..")
     sys.path.append(common_path)
 
-    from common import RapidSiliconIPCatalogBuilder
+    from rapidsilicon.lib.common import IP_Builder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
@@ -130,14 +128,14 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = RapidSiliconIPCatalogBuilder(device="gemini", ip_name="axil_uart16550")
+        rs_builder = IP_Builder(device="gemini", ip_name="axil_uart16550", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
-        rs_builder.generate_verilog(
+        rs_builder.generate_wrapper(
             platform   = platform,
             module     = module,
         )
