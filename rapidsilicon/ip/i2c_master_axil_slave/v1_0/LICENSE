@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/i2c_master_axil_slave/v1_0/i2c_master_gen.py
-rapidsilicon/ip/i2c_master_axil_slave/v1_0/litex_sim/i2c_master_litex_wrapper.py
+rapidsilicon/ip/i2c_master_axil_slave/v1_0/litex_wrapper/i2c_master_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 

@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_gen.py
-rapidsilicon/ip/axis_broadcast/v1_0/litex_sim/axis_broadcast_litex_wrapper.py
+rapidsilicon/ip/axis_broadcast/v1_0/litex_wrapper/axis_broadcast_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
