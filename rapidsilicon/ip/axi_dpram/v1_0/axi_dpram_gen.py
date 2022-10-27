@@ -82,7 +82,7 @@ def main():
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width",   type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DPRAM Data Width.")
     core_group.add_argument("--addr_width",   type=int, default=16, choices=range(8, 17),              help="DPRAM Address Width.")
-    core_group.add_argument("--id_width",     type=int, default=32, choices=range(1, 33),              help="DPRAM ID Width.")
+    core_group.add_argument("--id_width",     type=int, default=8, choices=range(1, 33),              help="DPRAM ID Width.")
     core_group.add_argument("--a_pip_out",    type=int, default=0,  choices=range(2),                  help="DPRAM A Pipeline Output.")
     core_group.add_argument("--b_pip_out",    type=int, default=0,  choices=range(2),                  help="DPRAM B Pipeline Output.")
     core_group.add_argument("--a_interleave", type=int, default=0,  choices=range(2),                  help="DPRAM A Interleave.")
