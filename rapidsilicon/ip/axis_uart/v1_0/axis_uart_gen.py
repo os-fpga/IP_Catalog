@@ -96,7 +96,7 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width", type=int, default=5, choices=range(5,9), help="UART Data Width.")
+    core_group.add_argument("--data_width", type=int, default=8, choices=range(5,9), help="UART Data Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")

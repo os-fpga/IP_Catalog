@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_gen.py
-rapidsilicon/ip/axil_crossbar/v1_0/litex_sim/axil_crossbar_litex_wrapper.py
+rapidsilicon/ip/axil_crossbar/v1_0/litex_wrapper/axil_crossbar_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 

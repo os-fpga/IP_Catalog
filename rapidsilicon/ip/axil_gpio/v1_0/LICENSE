@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/axil_gpio/v1_0/axil_gpio_gen.py
-rapidsilicon/ip/axil_gpio/v1_0/litex_sim/axil_gpio_litex_wrapper.py
+rapidsilicon/ip/axil_gpio/v1_0/litex_wrapper/axil_gpio_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 

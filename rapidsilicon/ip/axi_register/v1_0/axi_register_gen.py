@@ -95,7 +95,7 @@ def main():
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width",    type=int, default=32, choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="Register Data Width.")
     core_group.add_argument("--addr_width",    type=int, default=32, choices=range(1,65),                          help="Register Address Width.")
-    core_group.add_argument("--id_width",      type=int, default=32, choices=range(1,33),                          help="Register ID Width from.")
+    core_group.add_argument("--id_width",      type=int, default=8,  choices=range(1,33),                          help="Register ID Width.")
 
     core_group.add_argument("--aw_user_width", type=int, default=1,  choices=range(1, 1025),  help="Register AW-User Width.")
     core_group.add_argument("--w_user_width",  type=int, default=1,  choices=range(1, 1025),  help="Register W-User Width.")
