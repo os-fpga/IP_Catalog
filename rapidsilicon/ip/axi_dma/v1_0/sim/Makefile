@@ -33,6 +33,9 @@ VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/$(DUT)_wra
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/$(DUT).v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/$(DUT)_wr.v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/$(DUT)_rd.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/$(DUT)_desc_mux.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/priority_encoder.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/arbiter.v
 
 # module parameters
 export PARAM_AXI_DATA_WIDTH = 32
