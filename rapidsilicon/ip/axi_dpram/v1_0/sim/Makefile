@@ -27,13 +27,13 @@ COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axi_dp_ram
-TOPLEVEL = $(DUT)
+TOPLEVEL = axi_dpram_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src//axi_dpram_wrapper.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src//$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src//axi_ram_wr_rd_if.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src//axi_ram_wr_if.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src//axi_ram_rd_if.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_dpram_wrapper.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/$(DUT).v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_ram_wr_rd_if.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_ram_wr_if.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_ram_rd_if.v
 
 # module parameters
 export PARAM_DATA_WIDTH ?= 32
