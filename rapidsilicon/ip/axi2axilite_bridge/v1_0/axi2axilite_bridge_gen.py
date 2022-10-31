@@ -68,6 +68,9 @@ def main():
 
     from common import IP_Builder
 
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axi2axilite_bridge", language="verilog")
+
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Data Width")
@@ -89,14 +92,11 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -108,7 +108,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axi2axilite_bridge", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
