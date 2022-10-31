@@ -5,9 +5,11 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import json
 import shutil
+import argparse
 
-# IP Catalog Builder ------------------------------------------------------------------
+# IP Catalog Builder -------------------------------------------------------------------------------
 
 class IP_Builder:
     def __init__(self, device, ip_name, language):
@@ -37,6 +39,48 @@ class IP_Builder:
         header.append("`timescale 1ns / 1ps")
         header = "\n".join(header)
         self.add_wrapper_text(filename, header, 13)
+
+    def export_json_template(self, parser):
+        # Get "Core" group.
+        core_group = None
+        for group in parser._action_groups:
+            if "core" in group.title.lower():
+                core_group = group
+                break
+        assert core_group is not None
+
+        # Create vars dict of arguments.
+        _args = parser.parse_args()
+        _vars = vars(_args)
+
+        # Add choices/description to Core arguments.
+        for name, var in _vars.items():
+            for core_action in core_group._group_actions:
+                if name == core_action.dest:
+                    _vars[name] = {
+                        "choices"     : str(core_action.choices),
+                        "value"       : str(core_action.default),
+                        "description" : str(core_action.help),
+                    }
+
+        # Dump vars to JSON.
+        print(json.dumps(_vars, indent=4))
+
+    def import_args_from_json(self, parser, json_filename):
+        # Fill vars from JSON.
+        _vars = {}
+        with open(json_filename, "rt") as f:
+            t_args = argparse.Namespace()
+            _vars = json.load(f)
+
+        # Remove choice/description from Core arguments.
+        for name, var in _vars.items():
+            if isinstance(var, dict):
+                _vars[name] = var["value"]
+
+        # Parse/Return args.
+        args = parser.parse_args(namespace=t_args)
+        return args
 
     def prepare(self, build_dir, build_name, version="v1_0"):
         # Remove build_name extension when specified.
