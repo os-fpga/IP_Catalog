@@ -16,7 +16,9 @@
 ////                                 ///
 ////  Created:                       ///
 ////////////////////////////////////////
+
 `include "uart_defines.vh"
+`include "timescale.v"
 
 module axi4lite_uart_top #(
     parameter ADDRESS_WIDTH     = 16,
