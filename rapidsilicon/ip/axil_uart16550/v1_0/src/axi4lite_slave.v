@@ -24,6 +24,7 @@
 `define DECERR  2'b11
 
 `include "uart_defines.vh"
+`include "timescale.v"
 /* verilator lint_off ASSIGNDLY */
 /* verilator lint_off UNUSED */
 module axi4lite_slave #(
