@@ -62,12 +62,19 @@ def main():
 
     from common import IP_Builder
 
+    valid_parameters = {
+        "data_width": [8,16,32,64],
+        "addr_width": list(range(8,17)),
+        "id_width"  : list(range(1,9)),
+        "pip_out"   : list(range(2))
+    }
+    
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="RAM Data Width.")
-    core_group.add_argument("--addr_width", type=int, default=16, choices=range(8,17),     help="RAM Address Width.")
-    core_group.add_argument("--id_width",   type=int, default=8,  choices=range(1, 9),     help="RAM ID Width.")
-    core_group.add_argument("--pip_out",    type=int, default=0,  choices=range(2),        help="RAM Pipeline Output.")
+    core_group.add_argument("--data_width", type=int, default=32, choices=valid_parameters['data_width'],  help="RAM Data Width.")
+    core_group.add_argument("--addr_width", type=int, default=16, choices=valid_parameters['addr_width'],  help="RAM Address Width.")
+    core_group.add_argument("--id_width",   type=int, default=8,  choices=valid_parameters['id_width'],    help="RAM ID Width.")
+    core_group.add_argument("--pip_out",    type=int, default=0,  choices=valid_parameters['pip_out'],     help="RAM Pipeline Output.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -77,11 +84,12 @@ def main():
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
-    json_group.add_argument("--json",                                           help="Generate Core from JSON File")
-    json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
+    json_group.add_argument("--json",                                                               help="Generate Core from JSON File")
+    json_group.add_argument("--json-template",  action="store_true",                                help="Generate JSON Template")
+    json_group.add_argument("--valid-param",    action="store_true",    default=valid_parameters,   help="Generate Valid Parameters")
 
     args = parser.parse_args()
-
+    
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         with open(args.json, 'rt') as f:
@@ -89,6 +97,9 @@ def main():
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
 
+    # if args.valid_param:
+        # print(json.dumps(valid_parameters, indent=4))
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         print(json.dumps(vars(args), indent=4))
