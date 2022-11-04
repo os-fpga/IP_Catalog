@@ -34,7 +34,6 @@ class IP_Builder:
         header.append("// This file is Copyright (c) 2022 RapidSilicon")
         header.append(f"//{'-'*80}")
         header.append("")
-        header.append("`timescale 1ns / 1ps")
         header = "\n".join(header)
         self.add_wrapper_text(filename, header, 13)
 
