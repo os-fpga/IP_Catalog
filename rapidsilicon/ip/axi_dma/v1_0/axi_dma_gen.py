@@ -105,11 +105,11 @@ class AXIDMAWrapper(Module):
         platform.add_extension(axi.get_ios("m_axi"))
         self.comb += axi.connect_to_pads(platform.request("m_axi"), mode="master")
         
-        platform.add_extension(m_axis.get_ios("m_axis"))
-        self.comb += m_axis.connect_to_pads(platform.request("m_axis"), mode="master")
+        platform.add_extension(m_axis.get_ios("m_axis_read_data"))
+        self.comb += m_axis.connect_to_pads(platform.request("m_axis_read_data"), mode="master")
         
-        platform.add_extension(s_axis.get_ios("s_axis"))
-        self.comb += s_axis.connect_to_pads(platform.request("s_axis"), mode="slave")
+        platform.add_extension(s_axis.get_ios("s_axis_write_data"))
+        self.comb += s_axis.connect_to_pads(platform.request("s_axis_write_data"), mode="slave")
         
         # AXI_DMA
         self.submodules.dma = dma = AXIDMA(platform, 
