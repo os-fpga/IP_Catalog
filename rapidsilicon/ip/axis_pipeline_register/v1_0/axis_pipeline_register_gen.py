@@ -79,7 +79,7 @@ def main():
     parser = argparse.ArgumentParser(description="AXIS PIPELINE REGISTER CORE")
 
     # Import Common Modules.
-    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib")
     sys.path.append(common_path)
 
     from common import IP_Builder
