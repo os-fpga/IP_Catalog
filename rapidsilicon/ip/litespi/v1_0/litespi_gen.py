@@ -28,11 +28,11 @@ def main():
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--module",         default="S25FL128L",                             help="SPI Flash Module.")
-    core_group.add_argument("--mode",           default="x1",         choices=["x1", "x4"],      help="SPI Mode.")
-    core_group.add_argument("--rate",           default="1:1",        choices=["1:1", "1:2"],    help="SPI Flash Core rate.")
-    core_group.add_argument("--divisor",        default="1",          choices=range(1, 256),     help="SPI Clk Divisor.")
-    core_group.add_argument("--bus-endianness", default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
+    core_group.add_argument("--core-module",         default="S25FL128L",                             help="SPI Flash Module.")
+    core_group.add_argument("--core-mode",           default="x1",         choices=["x1", "x4"],      help="SPI Mode.")
+    core_group.add_argument("--core-rate",           default="1:1",        choices=["1:1", "1:2"],    help="SPI Flash Core rate.")
+    core_group.add_argument("--core-divisor",        default="1",          choices=range(1, 256),     help="SPI Clk Divisor.")
+    core_group.add_argument("--core-bus-endianness", default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -62,12 +62,12 @@ def main():
     from litespi.gen import LiteSPICore, _io
     platform = OSFPGAPlatform(io=_io, toolchain="raptor", device="gemini")
     module   = LiteSPICore(platform,
-        module         = args.module,
-        mode           = args.mode,
-        rate           = args.rate,
-        divisor        = args.divisor,
+        module         = args.core_module,
+        mode           = args.core_mode,
+        rate           = args.core_rate,
+        divisor        = args.core_divisor,
         bus_standard   = "axi-lite",
-        bus_endianness = args.bus_endianness,
+        bus_endianness = args.core_bus_endianness,
         sim            = False,
     )
 
