@@ -98,7 +98,7 @@ def main():
     common_path = os.path.join(os.path.dirname(__file__), "..", "..")
     sys.path.append(common_path)
 
-    from common import IP_Builder
+    from rapidsilicon.lib.common import IP_Builder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core Parameters")
