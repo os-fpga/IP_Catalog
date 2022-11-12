@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/axil_uart16550/v1_0/axil_uart16550_gen.py
-rapidsilicon/ip/axil_uart16550/v1_0/litex_sim/axil_uart16550_litex_wrapper.py
+rapidsilicon/ip/axil_uart16550/v1_0/litex_wrapper/axil_uart16550_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 

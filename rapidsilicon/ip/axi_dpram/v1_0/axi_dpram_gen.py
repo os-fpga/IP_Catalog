@@ -21,24 +21,24 @@ from litex.soc.interconnect.axi import AXIInterface
 
 
 # IOs / Interface ----------------------------------------------------------------------------------
-def get_clkin_ios():
+def get_clkin_a_ios():
     return [
         ("a_clk", 0, Pins(1)),
-        ("a_rst", 0, Pins(1)),
+        ("a_rst", 0, Pins(1))
+    ]
+    
+def get_clkin_b_ios():
+    return [
         ("b_clk", 0, Pins(1)),
-        ("b_rst", 0, Pins(1)),
+        ("b_rst", 0, Pins(1))
     ]
     
 # AXI-DPRAM Wrapper --------------------------------------------------------------------------------
 class AXIDPRAMWrapper(Module):
     def __init__(self, platform, data_width, addr_width, id_width, a_pip_out, b_pip_out, a_interleave, b_interleave):
-        
-        platform.add_extension(get_clkin_ios())
+
+        # Clock Domain
         self.clock_domains.cd_sys = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("a_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("a_rst"))
-        self.comb += self.cd_sys.clk.eq(platform.request("b_clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("b_rst"))
         
         # AXI
         s_axi_a = AXIInterface(
@@ -60,29 +60,37 @@ class AXIDPRAMWrapper(Module):
         self.comb += s_axi_b.connect_to_pads(platform.request("s_axi_b"), mode="slave")
         
         # AXI-DPRAM -------------------------------------------------------------------------------
-        self.submodules += AXIDPRAM(platform, s_axi_a, s_axi_b, 
+        self.submodules.dpram = dpram = AXIDPRAM(platform, s_axi_a, s_axi_b, 
             a_pipeline_output   =   a_pip_out, 
             b_pipeline_output   =   b_pip_out, 
             a_interleave        =   a_interleave, 
             b_interleave        =   b_interleave, 
             size                =   (2**addr_width)*(data_width/8)
             )
+        
+        platform.add_extension(get_clkin_a_ios())
+        self.comb += dpram.a_clk.eq(platform.request("a_clk"))
+        self.comb += dpram.a_rst.eq(platform.request("a_rst"))
+        
+        platform.add_extension(get_clkin_b_ios())
+        self.comb += dpram.b_clk.eq(platform.request("b_clk"))
+        self.comb += dpram.b_rst.eq(platform.request("b_rst"))
 
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXI DPRAM CORE")
 
     # Import Common Modules.
-    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib")
     sys.path.append(common_path)
 
-    from rapidsilicon.lib.common import IP_Builder
+    from common import IP_Builder
 
     # Core Parameters.
     core_group = parser.add_argument_group(title="Core parameters")
     core_group.add_argument("--data_width",   type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DPRAM Data Width.")
     core_group.add_argument("--addr_width",   type=int, default=16, choices=range(8, 17),              help="DPRAM Address Width.")
-    core_group.add_argument("--id_width",     type=int, default=32, choices=range(1, 33),              help="DPRAM ID Width.")
+    core_group.add_argument("--id_width",     type=int, default=8, choices=range(1, 33),              help="DPRAM ID Width.")
     core_group.add_argument("--a_pip_out",    type=int, default=0,  choices=range(2),                  help="DPRAM A Pipeline Output.")
     core_group.add_argument("--b_pip_out",    type=int, default=0,  choices=range(2),                  help="DPRAM B Pipeline Output.")
     core_group.add_argument("--a_interleave", type=int, default=0,  choices=range(2),                  help="DPRAM A Interleave.")

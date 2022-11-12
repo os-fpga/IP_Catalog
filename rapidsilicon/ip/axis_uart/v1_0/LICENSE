@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/axis_uart/v1_0/axis_uart_gen.py
-rapidsilicon/ip/axis_uart/v1_0/litex_sim/axis_uart_litex_wrapper.py
+rapidsilicon/ip/axis_uart/v1_0/litex_wrapper/axis_uart_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
