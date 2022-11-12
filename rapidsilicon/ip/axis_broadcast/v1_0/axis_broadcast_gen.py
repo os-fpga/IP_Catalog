@@ -77,7 +77,7 @@ def main():
     parser = argparse.ArgumentParser(description="AXIS BROADCAST CORE")
 
     # Import Common Modules.
-    common_path = os.path.join(os.path.dirname(__file__), "..", "..")
+    common_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib")
     sys.path.append(common_path)
 
     from rapidsilicon.lib.common import IP_Builder
@@ -86,7 +86,7 @@ def main():
     core_group = parser.add_argument_group(title="Core parameters")
     
     core_group.add_argument("--m_count",    type=int, default=4,  choices=range(2,17),    help="BROADCAST AXIS Master Interfaces.")
-    core_group.add_argument("--data_width", type=int, default=32, choices=range(1,4097),  help="BROADCAST AXIS interface Data Width.")
+    core_group.add_argument("--data_width", type=int, default=8,  choices=range(1,4097),  help="BROADCAST AXIS interface Data Width.")
     core_group.add_argument("--last_en",    type=int, default=1,  choices=range(2),       help="BROADCAST AXIS tlast signal width.")
     core_group.add_argument("--id_en",      type=int, default=0,  choices=range(2),       help="BROADCAST AXIS tid signal width.")
     core_group.add_argument("--id_width",   type=int, default=8,  choices=range(1, 33),   help="BROADCAST AXIS tid signal width.")

@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_bridge_gen.py
-rapidsilicon/ip/axi2axilite_bridge/v1_0/litex_sim/axi2axilite_bridge_litex_wrapper.py
+rapidsilicon/ip/axi2axilite_bridge/v1_0/litex_wrapper/axi2axilite_bridge_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
