@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidrilicon/ip/vexriscv_cpu/v1_0/vexriscv_cpu_gen.py
-rapidSilicon/ip/vexriscv_cpu/v1_0/litex_sim/vexriscv_cpu_litex_wrapper.py
+rapidSilicon/ip/vexriscv_cpu/v1_0/litex_wrapper/vexriscv_cpu_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 

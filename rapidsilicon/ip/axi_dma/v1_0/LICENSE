@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/axi_dma/v1_0/axi_dma_gen.py
-rapidsilicon/ip/axi_dma/v1_0/litex_sim/axi_dma_litex_wrapper.py
+rapidsilicon/ip/axi_dma/v1_0/litex_wrapper/axi_dma_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
