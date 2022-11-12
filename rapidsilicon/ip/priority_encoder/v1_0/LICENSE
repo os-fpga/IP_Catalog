@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/priority_encoder/v1_0/priority_encoder_gen.py
-rapidsilicon/ip/priority_encoder/v1_0/litex_sim/priority_encoder_litex_wrapper.py
+rapidsilicon/ip/priority_encoder/v1_0/litex_wrapper/priority_encoder_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 

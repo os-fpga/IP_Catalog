@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-rapidsilicon/ip/i2c_slave_axil_master/v1_0/i2c_slave_gen.py
-rapidsilicon/ip/i2c_slave_axil_master/v1_0/litex_sim/i2c_slave_litex_wrapper.py
+rapidsilicon/ip/i2c_master/v1_0/i2c_master_gen.py
+rapidsilicon/ip/i2c_master/v1_0/litex_wrapper/i2c_master_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -50,7 +50,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 FILES:
-rapidsilicon/ip/i2c_slave_axil_master/v1_0/src/i2c_slave_axil_master.v
-rapidsilicon/ip/i2c_slave_axil_master/v1_0/src/i2c_slave.v
+rapidsilicon/ip/i2c_master/v1_0/src/i2c_master_axil.v
+rapidsilicon/ip/i2c_master/v1_0/src/i2c_master.v
+rapidsilicon/ip/i2c_master/v1_0/src/axis_fifo.v
 
 ---------------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/axi_spi_slave/v1_0/axi_spi_slave_gen.py
-rapidsilicon/ip/axi_spi_slave/v1_0/litex_sim/axi_spi_slave_litex_wrapper.py
+rapidsilicon/ip/axi_spi_slave/v1_0/litex_wrapper/axi_spi_slave_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 

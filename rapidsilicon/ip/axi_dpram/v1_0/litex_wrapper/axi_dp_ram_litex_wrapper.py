@@ -57,6 +57,12 @@ class AXIDPRAM(Module):
         self.logger.info(f"B Pipeline Output: {b_pipeline_output}")
         self.logger.info(f"B Interleave R/W : {b_interleave}")
 
+        # Clock/Reset Signals
+        self.a_clk= Signal()
+        self.a_rst= Signal()
+        self.b_clk= Signal()
+        self.b_rst= Signal()
+        
         # Module instance.
         # ----------------
         self.specials += Instance("axi_dp_ram",
@@ -74,10 +80,10 @@ class AXIDPRAM(Module):
             p_B_INTERLEAVE      = b_interleave,
 
             # Clk / Rst.
-            i_a_clk            = ClockSignal(),
-            i_a_rst            = ResetSignal(),
-            i_b_clk            = ClockSignal(),
-            i_b_rst            = ResetSignal(),
+            i_a_clk            = self.a_clk,
+            i_a_rst            = self.a_rst,
+            i_b_clk            = self.b_clk,
+            i_b_rst            = self.b_rst,
 
             # AXI Slave Interface.
             # --------------------
