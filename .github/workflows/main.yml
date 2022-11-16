@@ -59,8 +59,6 @@ jobs:
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_gen.py --addr_width=8 --data_width=32 --build-name=cdma --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_dma/v1_0/axi_dma_gen.py --axi_data_width=32 --axi_addr_width=8 --build-name=dma --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_fifo/v1_0/axi_fifo_gen.py --data_width=32 --addr_width=64 --build-name=fifo --build
-        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_spi_master/v1_0/axi_spi_master_gen.py --data_width=32 --addr_width=16 --build-name=spi --build
-        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_spi_slave/v1_0/axi_spi_slave_gen.py --data_width=32 --addr_width=16 --build-name=spi --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_adapter/v1_0/axis_adapter_gen.py --s_data_width=32 --build-name=adapter --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_fifo/v1_0/axis_fifo_gen.py --depth=2048 --data_width=32 --build-name=fifo --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_pipeline_register/v1_0/axis_pipeline_register_gen.py --data_width=32 --build-name=reg --build
@@ -151,8 +149,6 @@ jobs:
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_gen.py --addr_width=8 --data_width=32 --build-name=cdma --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_dma/v1_0/axi_dma_gen.py --axi_data_width=32 --axi_addr_width=8 --build-name=dma --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_fifo/v1_0/axi_fifo_gen.py --data_width=32 --addr_width=64 --build-name=fifo --build
-           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_spi_master/v1_0/axi_spi_master_gen.py --data_width=32 --addr_width=16 --build-name=spi --build
-           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_spi_slave/v1_0/axi_spi_slave_gen.py --data_width=32 --addr_width=16 --build-name=spi --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_adapter/v1_0/axis_adapter_gen.py --s_data_width=32 --build-name=adapter --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_fifo/v1_0/axis_fifo_gen.py --depth=2048 --data_width=32 --build-name=fifo --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_pipeline_register/v1_0/axis_pipeline_register_gen.py --data_width=32 --build-name=reg --build
