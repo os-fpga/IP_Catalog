@@ -89,11 +89,20 @@ def main():
     sys.path.append(common_path)
 
     from common import IP_Builder
+   # Parameter Dependency dictionary
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--addr_width", type=int, default=16, choices=[8, 16, 32],     help="UART Address Width.")
-    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="UART Data Width.")
+    #                Ports     :    Dependency
+    dep_dict = {}            
+
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axi_uart16550", language="verilog")
+
+    # Core fix value parameters.
+
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--addr_width", type=int, default=16, choices=[8, 16, 32],     help="UART Address Width.")
+    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="UART Data Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -110,14 +119,11 @@ def main():
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")

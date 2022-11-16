@@ -62,12 +62,35 @@ def main():
 
     from common import IP_Builder
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="RAM Data Width.")
-    core_group.add_argument("--addr_width", type=int, default=16, choices=range(8,17),     help="RAM Address Width.")
-    core_group.add_argument("--id_width",   type=int, default=8,  choices=range(1, 9),     help="RAM ID Width.")
-    core_group.add_argument("--pip_out",    type=int, default=0,  choices=range(2),        help="RAM Pipeline Output.")
+   # Parameter Dependency dictionary
+
+    #                Ports     :    Dependency
+    dep_dict = {}            
+
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axi_ram", language="verilog")
+
+    # Core fix value parameters.
+
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="RAM Data Width.")
+ 
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--pip_out",    type=bool, default=False,        help="RAM Pipeline Output.")
+
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--addr_width", type=int, default=16, choices=range(8,17),     help="RAM Address Width.")
+    core_range_param_group.add_argument("--id_width",   type=int, default=8,  choices=range(1, 9),     help="RAM ID Width.")
+
+    # Core string parameters.
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
+    core_string_param_group.add_argument("--file_path", type=str, default="./", help="File Path for memory initialization file")
+
+
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -84,14 +107,13 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

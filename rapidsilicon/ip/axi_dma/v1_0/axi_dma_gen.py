@@ -183,23 +183,43 @@ def main():
 
     from common import IP_Builder
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--axi_data_width",    type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
-    core_group.add_argument("--axi_addr_width",    type=int, default=16, choices=range(8, 17),              help="DMA Address Width.")
-    core_group.add_argument("--axi_id_width",      type=int, default=8,  choices=range(1, 33),              help="DMA ID Width.")
-    core_group.add_argument("--axi_max_burst_len", type=int, default=16, choices=range(1, 257),             help="DMA AXI burst length.")
-    core_group.add_argument("--axis_last_enable",  type=int, default=1,  choices=range(2),                  help="DMA AXI stream tlast.")
-    core_group.add_argument("--axis_id_enable",    type=int, default=0,  choices=range(2),                  help="DMA AXI stream tid.")
-    core_group.add_argument("--axis_id_width",     type=int, default=8,  choices=range(1, 33),              help="DMA AXI stream tid width.")
-    core_group.add_argument("--axis_dest_enable",  type=int, default=0,  choices=range(2),                  help="DMA AXI stream tdest.")
-    core_group.add_argument("--axis_dest_width",   type=int, default=8,  choices=range(1, 9),               help="DMA AXI stream tdest width.")
-    core_group.add_argument("--axis_user_enable",  type=int, default=1,  choices=range(2),                  help="DMA AXI stream tuser.")
-    core_group.add_argument("--axis_user_width",   type=int, default=1,  choices=range(1, 9),               help="DMA AXIS User Width.")
-    core_group.add_argument("--len_width",         type=int, default=20, choices=range(1, 21),              help="DMA AXI Width of length field.")
-    core_group.add_argument("--tag_width",         type=int, default=8,  choices=range(1, 9),               help="DMA Width of tag field.")
-    core_group.add_argument("--enable_sg",         type=int, default=0,  choices=range(2),                  help="Support for scatter/gather DMA.")
-    core_group.add_argument("--enable_unaligned",  type=int, default=0,  choices=range(2),                  help="Support for unaligned transfers.")
+   # Parameter Dependency dictionary
+
+    #                Ports     :    Dependency
+    dep_dict = {    
+                'axi_id_width' :   'axis_id_enable',
+                'axis_dest_width'  :   'axis_dest_enable',
+                'axis_user_width'  :   'axis_user_enable'}            
+
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axi_dma", language="verilog")
+
+    # Core fix value parameters.
+
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--axi_data_width",    type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
+ 
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--axis_last_enable",  type=bool, default=True,                help="DMA AXI stream tlast.")
+    core_bool_param_group.add_argument("--axis_id_enable",    type=bool, default=False,              help="DMA AXI stream tid.")
+    core_bool_param_group.add_argument("--axis_dest_enable",  type=bool, default=False,              help="DMA AXI stream tdest.")
+    core_bool_param_group.add_argument("--axis_user_enable",  type=bool, default=True,                help="DMA AXI stream tuser.")
+    core_bool_param_group.add_argument("--enable_sg",         type=bool, default=False,                  help="Support for unaligned transfers.")
+    core_bool_param_group.add_argument("--enable_unaligned",  type=bool, default=False,                  help="Support for unaligned transfers.")
+
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--axi_addr_width",    type=int, default=16, choices=range(8, 17),     help="DMA Address Width.")
+    core_range_param_group.add_argument("--axi_id_width",      type=int, default=8,  choices=range(1, 33),     help="DMA ID Width.")
+    core_range_param_group.add_argument("--axi_max_burst_len", type=int, default=16, choices=range(1, 257),    help="DMA AXI burst length.")
+    core_range_param_group.add_argument("--axis_id_width",     type=int, default=8,  choices=range(1, 33),     help="DMA AXI stream tid width.")
+    core_range_param_group.add_argument("--axis_dest_width",   type=int, default=8,  choices=range(1, 9),      help="DMA AXI stream tdest width.")
+    core_range_param_group.add_argument("--axis_user_width",   type=int, default=1,  choices=range(1, 9),      help="DMA AXIS User Width.")
+    core_range_param_group.add_argument("--len_width",         type=int, default=20, choices=range(1, 21),     help="DMA AXI Width of length field.")
+    core_range_param_group.add_argument("--tag_width",         type=int, default=8,  choices=range(1, 9),      help="DMA Width of tag field.")
 
 
     # Build Parameters.
@@ -217,14 +237,11 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
