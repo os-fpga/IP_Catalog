@@ -64,10 +64,24 @@ def main():
 
     from common import IP_Builder
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--width",              type=int,  default=4, choices=range(2,9), help="Width.")
-    core_group.add_argument("--lsb_high_priority",  type=int,  default=0, choices=range(2),   help="LSB High Priority.")
+   # Parameter Dependency dictionary
+
+    #                Ports     :    Dependency
+    dep_dict = {}            
+
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="priority_encoder", language="verilog")
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--lsb_high_priority", type=bool, default=False,   help="LSB High Priority.")
+
+
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--width",              type=int,  default=4, choices=range(2,9), help="Width.")\
+
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -84,14 +98,11 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

@@ -89,23 +89,46 @@ def main():
 
     from common import IP_Builder
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--m_count",        type=int, default=4,  choices=range(1,17),               help="Interconnect Master Interfaces.")
-    core_group.add_argument("--s_count",        type=int, default=4,  choices=range(1,17),               help="Interconnect SLAVE Interfaces.")
-    core_group.add_argument("--data_width",     type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="AXI Data Width.")
-    core_group.add_argument("--addr_width",     type=int, default=32, choices=[32, 64, 128, 256],        help="AXI Address Width.")
-    core_group.add_argument("--id_width",       type=int, default=8,  choices=range(1, 9),               help="AXI ID Width.")
-    core_group.add_argument("--aw_user_en",     type=int, default=0,  choices=range(2),                  help="AW-Channel User Enable.")
-    core_group.add_argument("--aw_user_width",  type=int, default=1,  choices=range(1, 1025),            help="AW-Channel User Width.")
-    core_group.add_argument("--w_user_en",      type=int, default=0,  choices=range(2),                  help="W-Channel User Enable.")
-    core_group.add_argument("--w_user_width",   type=int, default=1,  choices=range(1, 1025),            help="W-Channel User Width.")
-    core_group.add_argument("--b_user_en",      type=int, default=0,  choices=range(2),                  help="B-Channel User Enable.")
-    core_group.add_argument("--b_user_width",   type=int, default=1,  choices=range(1, 1025),            help="B-Channel User Width.")
-    core_group.add_argument("--ar_user_en",     type=int, default=0,  choices=range(2),                  help="AR-Channel User Enable.")
-    core_group.add_argument("--ar_user_width",  type=int, default=1,  choices=range(1, 1025),            help="AR-Channel User Width.")
-    core_group.add_argument("--r_user_en",      type=int, default=0,  choices=range(2),                  help="R-Channel User Enable.")
-    core_group.add_argument("--r_user_width",   type=int, default=1,  choices=range(1, 1025),            help="R-Channel User Width.")
+   # Parameter Dependency dictionary
+
+    #                Ports        :    Dependency
+    dep_dict = { 'aw_user_width'  :  'aw_user_en',
+                 'w_user_width '  :  'w_user_en',
+                 'b_user_width '  :  'b_user_en',
+                 'ar_user_width'  :  'ar_user_en',
+                 'r_user_width '  :  'r_user_en'}            
+
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axi_dma", language="verilog")
+
+    # Core fix value parameters.
+
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--data_width",     type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="AXI Data Width.")
+    core_fix_param_group.add_argument("--addr_width",     type=int, default=32, choices=[32, 64, 128],        help="AXI Address Width.")
+
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--aw_user_en",     type=bool, default=True,                   help="AW-Channel User Enable.")
+    core_bool_param_group.add_argument("--w_user_en",      type=bool, default=True,                   help="W-Channel User Enable.")
+    core_bool_param_group.add_argument("--b_user_en",      type=bool, default=True,                   help="B-Channel User Enable.")
+    core_bool_param_group.add_argument("--ar_user_en",     type=bool, default=True,                   help="AR-Channel User Enable.")
+    core_bool_param_group.add_argument("--r_user_en",      type=bool, default=True,                   help="R-Channel User Enable.")
+
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--m_count",        type=int, default=4,  choices=range(1,17),               help="Interconnect Master Interfaces.")
+    core_range_param_group.add_argument("--s_count",        type=int, default=4,  choices=range(1,17),               help="Interconnect SLAVE Interfaces.")
+    core_range_param_group.add_argument("--id_width",       type=int, default=8,  choices=range(1, 9),               help="AXI ID Width.")
+    core_range_param_group.add_argument("--aw_user_width",  type=int, default=1,  choices=range(1, 1025),            help="AW-Channel User Width.")
+    core_range_param_group.add_argument("--w_user_width",   type=int, default=1,  choices=range(1, 1025),            help="W-Channel User Width.")
+    core_range_param_group.add_argument("--b_user_width",   type=int, default=1,  choices=range(1, 1025),            help="B-Channel User Width.")
+    core_range_param_group.add_argument("--ar_user_width",  type=int, default=1,  choices=range(1, 1025),            help="AR-Channel User Width.")
+    core_range_param_group.add_argument("--r_user_width",   type=int, default=1,  choices=range(1, 1025),            help="R-Channel User Width.")
+
+
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -122,14 +145,11 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
