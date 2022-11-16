@@ -185,7 +185,7 @@ reg	[fifo_pointer_w-1:0]	bottom;
 reg	[fifo_counter_w-1:0]	count;
 reg				overrun;
 wire [fifo_pointer_w-1:0] top_plus_1 = top + 1'b1;
-reg push_en;
+wire push_en;
 
 raminfr #(fifo_pointer_w,fifo_width,fifo_depth) tfifo  
         (.clk(clk), 

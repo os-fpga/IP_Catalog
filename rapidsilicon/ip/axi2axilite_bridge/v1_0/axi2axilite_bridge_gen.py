@@ -68,11 +68,23 @@ def main():
 
     from common import IP_Builder
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Data Width")
-    core_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width")
-    core_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width")
+    # Parameter Dependency dictionary
+
+    dep_dict = {}            
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axi2axilite", language="verilog")
+
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Data Width")
+
+
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width")
+    core_range_param_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width")
+
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -89,14 +101,13 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

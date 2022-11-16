@@ -99,6 +99,11 @@ def main():
 
     from common import IP_Builder
 
+   # Parameter Dependency dictionary
+
+    #                Ports     :    Dependency
+    dep_dict = {}            
+
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")

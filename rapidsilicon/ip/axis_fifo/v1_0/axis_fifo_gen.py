@@ -107,21 +107,41 @@ def main():
 
     from common import IP_Builder
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--depth",          type=int, default=4096, choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768], help="FIFO Depth.")
-    core_group.add_argument("--data_width",     type=int, default=8,    choices=range(1,4097),                                                        help="FIFO Data Width.")
-    core_group.add_argument("--last_en",        type=int, default=1,    choices=range(2),                                                             help="FIFO Last Enable.")
-    core_group.add_argument("--id_en",          type=int, default=0,    choices=range(2),                                                             help="FIFO ID Enable.")
-    core_group.add_argument("--id_width",       type=int, default=8,    choices=range(1, 33),                                                         help="FIFO ID Width.")
-    core_group.add_argument("--dest_en",        type=int, default=0,    choices=range(2),                                                             help="FIFO Destination Enable.")
-    core_group.add_argument("--dest_width",     type=int, default=8,    choices=range(1, 33),                                                         help="FIFO Destination Width.")
-    core_group.add_argument("--user_en",        type=int, default=1,    choices=range(2),                                                             help="FIFO User Enable.")
-    core_group.add_argument("--user_width",     type=int, default=1,    choices=range(1, 4097),                                                       help="FIFO User Width.")
-    core_group.add_argument("--pip_out",        type=int, default=2,    choices=range(3),                                                             help="FIFO Pipeline Output.")
-    core_group.add_argument("--frame_fifo",     type=int, default=0,    choices=range(2),                                                             help="FIFO Frame.")
-    core_group.add_argument("--drop_bad_frame", type=int, default=0,    choices=range(2),                                                             help="FIFO Drop Bad Frame.")
-    core_group.add_argument("--drop_when_full", type=int, default=0,    choices=range(2),                                                             help="FIFO Drop Frame When Full.")
+   # Parameter Dependency dictionary
+
+    #                Ports     :    Dependency
+    dep_dict = {    
+                'id_width'    :   'id_en',
+                'dest_width'  :   'dest_en',
+                'user_width'  :   'user_en'}   
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axis_fifo", language="verilog")
+
+    # Core fix value parameters.
+
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--depth",          type=int, default=4096, choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768], help="FIFO Depth.")
+ 
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--last_en",        type=bool, default=True,                  help="FIFO Last Enable.")
+    core_bool_param_group.add_argument("--id_en",          type=bool, default=True,                  help="FIFO ID Enable.")
+    core_bool_param_group.add_argument("--dest_en",        type=bool, default=True,                  help="FIFO Destination Enable.")
+    core_bool_param_group.add_argument("--user_en",        type=bool, default=True,                  help="FIFO User Enable.")
+    core_bool_param_group.add_argument("--pip_out",        type=bool, default=True,                  help="FIFO Pipeline Output.")
+    core_bool_param_group.add_argument("--frame_fifo",     type=bool, default=True,                  help="FIFO Frame.")
+    core_bool_param_group.add_argument("--drop_bad_frame", type=bool, default=True,                  help="FIFO Drop Bad Frame.")
+    core_bool_param_group.add_argument("--drop_when_full", type=bool, default=True,                  help="FIFO Drop Frame When Full.")
+
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--data_width",     type=int, default=8,    choices=range(1,4097),             help="FIFO Data Width.")
+    core_range_param_group.add_argument("--id_width",       type=int, default=8,    choices=range(1, 33),              help="FIFO ID Width.")
+    core_range_param_group.add_argument("--dest_width",     type=int, default=8,    choices=range(1, 33),              help="FIFO Destination Width.")
+    core_range_param_group.add_argument("--user_width",     type=int, default=1,    choices=range(1, 4097),            help="FIFO User Width.")
+
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -138,14 +158,11 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
