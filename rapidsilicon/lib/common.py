@@ -8,7 +8,6 @@ import os
 import json
 import shutil
 import argparse
-from jsonschema import validate
 
 # IP Catalog Builder -------------------------------------------------------------------------------
 
