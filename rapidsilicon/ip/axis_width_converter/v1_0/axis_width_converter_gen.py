@@ -61,12 +61,34 @@ def main():
 
     from common import IP_Builder
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--core_in_width",   type=int, default=128, choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="AXI-ST Input Data-width.")
-    core_group.add_argument("--core_out_width",  type=int, default=64,  choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="AXI-ST Output Data-width.")
-    core_group.add_argument("--core_user_width", type=int, default=1,   choices=range(1,4097),                        help="AXI-ST User width.")
-    core_group.add_argument("--core_reverse",    type=int, default=0,   choices=range(2),                             help="Reverse Converter Ordering.")
+   # Parameter Dependency dictionary
+
+    #                Ports     :    Dependency
+    dep_dict = {    
+                'axi_id_width' :   'axis_id_enable',
+                'axis_dest_width'  :   'axis_dest_enable',
+                'axis_user_width'  :   'axis_user_enable'}            
+
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axis_width_converter", language="verilog")
+
+    # Core fix value parameters.
+
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--core_in_width",   type=int, default=128, choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="AXI-ST Input Data-width.")
+    core_fix_param_group.add_argument("--core_out_width",  type=int, default=64,  choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="AXI-ST Output Data-width.")
+ 
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--core_reverse",    type=bool, default=False,                          help="Reverse Converter Ordering.")
+
+
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--core_user_width", type=int, default=1,   choices=range(1,4097),                        help="AXI-ST User width.")
+
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -83,15 +105,12 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
-        
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+
     # Create LiteX Core ----------------------------------------------------------------------------
     core_in_width   = int(args.core_in_width)
     core_out_width  = int(args.core_out_width)

@@ -84,18 +84,39 @@ def main():
 
     from common import IP_Builder
 
-    # Core Parameters.
-    core_group = parser.add_argument_group(title="Core parameters")
-    core_group.add_argument("--data_width", type=int, default=8, choices=range(1,4097),  help="Data Width.")
-    core_group.add_argument("--last_en",    type=int, default=1, choices=range(2),       help="Last Enable.")
-    core_group.add_argument("--id_en",      type=int, default=0, choices=range(2),       help="ID Enable.")
-    core_group.add_argument("--id_width",   type=int, default=8, choices=range(1, 33),   help="ID Width.")
-    core_group.add_argument("--dest_en",    type=int, default=0, choices=range(2),       help="Destination Enable.")
-    core_group.add_argument("--dest_width", type=int, default=8, choices=range(1, 33),   help="Destination Width.")
-    core_group.add_argument("--user_en",    type=int, default=1, choices=range(2),       help="User Enable.")
-    core_group.add_argument("--user_width", type=int, default=1, choices=range(1, 4097), help="User Width.")
-    core_group.add_argument("--reg_type",   type=int, default=2, choices=range(3),       help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
-    core_group.add_argument("--length",     type=int, default=2, choices=range(6),       help="Number of registers in pipeline.")
+   # Parameter Dependency dictionary
+
+    #                Ports     :    Dependency
+    dep_dict = {    
+                'id_width'    :   'id_en',
+                'dest_width'  :   'dest_en',
+                'user_width'  :   'user_en'}   
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axis_pipeline_register", language="verilog")
+
+    # Core fix value parameters.
+
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+
+ 
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--last_en",    type=bool, default=True,       help="Last Enable.")
+    core_bool_param_group.add_argument("--id_en",      type=bool, default=True,       help="ID Enable.")
+    core_bool_param_group.add_argument("--dest_en",    type=bool, default=True,       help="Destination Enable.")
+    core_bool_param_group.add_argument("--user_en",    type=bool, default=True,       help="User Enable.")
+    core_bool_param_group.add_argument("--reg_type",   type=bool, default=True,       help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
+    core_bool_param_group.add_argument("--length",     type=bool, default=True,       help="Number of registers in pipeline.")
+
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--data_width", type=int, default=8, choices=range(1,4097),  help="Data Width.")
+    core_range_param_group.add_argument("--id_width",   type=int, default=8, choices=range(1, 33),   help="ID Width.")
+    core_range_param_group.add_argument("--dest_width", type=int, default=8, choices=range(1, 33),   help="Destination Width.")
+    core_range_param_group.add_argument("--user_width", type=int, default=1, choices=range(1, 4097), help="User Width.")
+
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -112,14 +133,11 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
