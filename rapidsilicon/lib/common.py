@@ -159,20 +159,13 @@ class IP_Builder:
 
 
     def import_args_from_json(self, parser, json_filename):
-        # Fill vars from JSON.
-        _vars = {}
         with open(json_filename, "rt") as f:
             t_args = argparse.Namespace()
-            _vars = json.load(f)
-
-        # Remove choice/description from Core arguments.
-        for name, var in _vars.items():
-            if isinstance(var, dict):
-                _vars[name] = var["value"]
-
-        # Parse/Return args.
-        args = parser.parse_args(namespace=t_args)
+            t_args.__dict__.update(json.load(f))
+            args = parser.parse_args(namespace=t_args)
         return args
+
+
 
     def prepare(self, build_dir, build_name, version="v1_0"):
         # Remove build_name extension when specified.
