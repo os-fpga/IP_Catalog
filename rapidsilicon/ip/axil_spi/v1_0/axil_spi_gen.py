@@ -26,38 +26,33 @@ def main():
     from common import IP_Builder
 
     # Parameter Dependency dictionary
-    #                Ports     :    Dependency
-    dep_dict = {    
-                'axi_id_width' :   'axis_id_enable',
-                'axis_dest_width'  :   'axis_dest_enable',
-                'axis_user_width'  :   'axis_user_enable'}            
-
+    # -----------------  Ports     :    Dependency
+    dep_dict = {}            
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_spi", language="verilog")
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-
-    core_string_param_group.add_argument("--core-module",         type=str,  default="S25FL128L",  choices=["S25FL128L"],     help="SPI Flash Module.")
-    core_string_param_group.add_argument("--core-mode",           type=str,  default="x1",         choices=["x1", "x4"],      help="SPI Mode.")
-    core_string_param_group.add_argument("--core-rate",           type=str,  default="1:1",        choices=["1:1", "1:2"],    help="SPI Flash Core rate.")
-    core_string_param_group.add_argument("--core-bus-endianness", type=str,  default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
+    core_string_param_group.add_argument("--core_module",         type=str,  default="S25FL128L",  choices=["S25FL128L"],     help="SPI Flash Module.")
+    core_string_param_group.add_argument("--core_mode",           type=str,  default="x1",         choices=["x1", "x4"],      help="SPI Mode.")
+    core_string_param_group.add_argument("--core_rate",           type=str,  default="1:1",        choices=["1:1", "1:2"],    help="SPI Flash Core rate.")
+    core_string_param_group.add_argument("--core_bus_endianness", type=str,  default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--core-divisor",      type=int,  default=1, choices=range(1, 256),     help="SPI Clk Divisor.")
+    core_range_param_group.add_argument("--core_divisor",         type=int,  default=1,             choices=range(1, 256),     help="SPI Clk Divisor.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",             action="store_true",   help="Build core.")
     build_group.add_argument("--build-dir",         default="./",          help="Build directory.")
-    build_group.add_argument("--build-name",        default="axil_spi",     help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",        default="axil_spi",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON parameters")
-    json_group.add_argument("--json",                                    help="Generate core from JSON file.")
-    json_group.add_argument("--json-template",      action="store_true", help="Generate JSON template.")
+    json_group.add_argument("--json",                                      help="Generate core from JSON file.")
+    json_group.add_argument("--json-template",      action="store_true",   help="Generate JSON template.")
 
     args = parser.parse_args()
 
