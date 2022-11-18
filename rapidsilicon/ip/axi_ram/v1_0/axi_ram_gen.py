@@ -86,9 +86,9 @@ def main():
     core_range_param_group.add_argument("--addr_width", type=int, default=16, choices=range(8,17),     help="RAM Address Width.")
     core_range_param_group.add_argument("--id_width",   type=int, default=8,  choices=range(1, 9),     help="RAM ID Width.")
 
-    # Core string parameters.
-    core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--file_path", type=str, default="./", help="File Path for memory initialization file")
+    # Core file path parameters.
+    core_file_path_group = parser.add_argument_group(title="Core file path parameters")
+    core_file_path_group.add_argument("--file_path", type=str, default="./", help="File Path for memory initialization file")
 
 
 
