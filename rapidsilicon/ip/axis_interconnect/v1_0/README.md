@@ -12,8 +12,8 @@ User can configure AXIS_INTERCONNECT CORE using the following parameters:
 
 | Sr. No.|      Parameter     |       Keyword      |          Value          |
 |--------|--------------------|--------------------|-------------------------|
-|   1.   |   S_COUNT          |   s_count          |    1-16                 |
-|   2.   |   M_COUNT          |   m_count          |    1-16                 |
+|   1.   |   S_COUNT          |   s_count          |    2-16                 |
+|   2.   |   M_COUNT          |   m_count          |    2-16                 |
 |   3.   |   DATA_WIDTH       |   data_width       |    1-4096               |
 |   4.   |   LAST_ENABLE      |   last_en          |    0/1                  |  
 |   5.   |   ID_ENABLE        |   id_en            |    0/1                  |

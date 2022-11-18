@@ -43,7 +43,7 @@ class AXISTREAMINTERCONNECTWrapper(Module):
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         
         # Keep Width, Select_width Calculation
-        keep_width      = math.ceil((data_width+7)/8)
+        keep_width      = int((data_width+7)/8)
         select_width    = (m_count*(math.ceil(math.log2(s_count))))-1
         
         # Slave Interfaces
@@ -118,8 +118,8 @@ def main():
 
     # Core Range Value Parameters.
     core_range_param_group = parser.add_argument_group(title="Core Range Parameters")
-    core_range_param_group.add_argument("--s_count",     type=int,   default=4,    choices=range(1,17),       help="Slave Interfaces.")
-    core_range_param_group.add_argument("--m_count",     type=int,   default=4,    choices=range(1,17),       help="Master Interfaces.")
+    core_range_param_group.add_argument("--s_count",     type=int,   default=4,    choices=range(2,17),       help="Slave Interfaces.")
+    core_range_param_group.add_argument("--m_count",     type=int,   default=4,    choices=range(2,17),       help="Master Interfaces.")
     core_range_param_group.add_argument("--data_width",  type=int,   default=8,    choices=range(1,4097),     help="Data Width.")
     core_range_param_group.add_argument("--id_width",    type=int,   default=8,    choices=range(1, 33),      help="ID Width.")
     core_range_param_group.add_argument("--dest_width",  type=int,   default=8,    choices=range(1, 33),      help="Destination Width.")
