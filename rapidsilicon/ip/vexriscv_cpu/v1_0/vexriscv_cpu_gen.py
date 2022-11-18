@@ -102,7 +102,14 @@ def main():
    # Parameter Dependency dictionary
 
     #                Ports     :    Dependency
-    dep_dict = {}            
+    dep_dict = {    
+                'axi_id_width' :   'axis_id_enable',
+                'axis_dest_width'  :   'axis_dest_enable',
+                'axis_user_width'  :   'axis_user_enable'}            
+
+
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="Vexriscv_cpu", language="verilog")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -119,14 +126,11 @@ def main():
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        with open(args.json, 'rt') as f:
-            t_args = argparse.Namespace()
-            t_args.__dict__.update(json.load(f))
-            args = parser.parse_args(namespace=t_args)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        print(json.dumps(vars(args), indent=4))
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
