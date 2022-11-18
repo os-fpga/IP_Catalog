@@ -36,10 +36,11 @@ class IP_Builder:
         header.append("// This file is Copyright (c) 2022 RapidSilicon")
         header.append(f"//{'-'*80}")
         header.append("")
-        header.append("`timescale 1ns / 1ps")
         header = "\n".join(header)
         self.add_wrapper_text(filename, header, 13)
 
+
+    # JSON template for GUI parsing
     def export_json_template(self, parser, dep_dict):
 
         # Get "core_fix_param_group" group.
@@ -70,8 +71,12 @@ class IP_Builder:
                 core_str_param_group = group
                 break
 
-
-
+        # Get "core_str_param_group" group.
+        core_file_path_group = None
+        for group in parser._action_groups:
+            if "core file" in group.title.lower():
+                core_file_path_group = group
+                break
 
         # Create vars dict of arguments.
         _args = parser.parse_args()
@@ -125,12 +130,22 @@ class IP_Builder:
                         core_param_list.append(
                         {   "parameter"     : str(name),
                             "title"         : str(name.upper()),
+                            "options"       : list(core_action.choices),
                             "default"       : str(core_action.default),
                             "type"          : str("str"),
                             "description"   : str(core_action.help),
                         })
 
-
+            if core_file_path_group is not None:
+                for core_action in core_file_path_group._group_actions:
+                    if name == core_action.dest:
+                        core_param_list.append(
+                        {   "parameter"     : str(name),
+                            "title"         : str(name.upper()),
+                            "default"       : str(core_action.default),
+                            "type"          : str("str"),
+                            "description"   : str(core_action.help),
+                        })
 
             if name.startswith("build"):
                 build_param_list.append({name :  str(_vars[name])})
