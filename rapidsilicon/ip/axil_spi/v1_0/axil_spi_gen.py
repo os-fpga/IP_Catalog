@@ -77,6 +77,9 @@ def main():
     from litespi.gen import LiteSPICore, _io
     platform = OSFPGAPlatform(io=_io, toolchain="raptor", device="gemini")
 
+    import logging
+    logging.basicConfig(level=logging.ERROR)
+
     module   = LiteSPICore(platform,
         module         = args.core_module,
         mode           = args.core_mode,
