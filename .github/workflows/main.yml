@@ -51,9 +51,10 @@ jobs:
     - name: Sanity Check
       shell: bash
       run: |
-        cd Raptor_Tools/python_tools/build/share/envs/litex/bin
         gen_list=`find GITHUB_WORKSPACE -type f -iname "*_gen.py"`
-        
+
+        cd Raptor_Tools/python_tools/build/share/envs/litex/bin
+
         for n in $gen_list
         do  
             ./python3 $n --json-template
