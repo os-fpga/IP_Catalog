@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from migen import *
@@ -26,8 +25,7 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {    
                 'axi_id_width' :   'axis_id_enable',
@@ -38,7 +36,6 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_spi", language="verilog")
     
-
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
 
@@ -46,7 +43,6 @@ def main():
     core_string_param_group.add_argument("--core-mode",           type=str,  default="x1",         choices=["x1", "x4"],      help="SPI Mode.")
     core_string_param_group.add_argument("--core-rate",           type=str,  default="1:1",        choices=["1:1", "1:2"],    help="SPI Flash Core rate.")
     core_string_param_group.add_argument("--core-bus-endianness", type=str,  default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
-
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
