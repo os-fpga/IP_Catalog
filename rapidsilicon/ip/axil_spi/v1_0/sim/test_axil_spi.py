@@ -20,8 +20,6 @@ from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
 from litex.soc.interconnect.axi import *
 
-from verilog_axi.axi_common import *
-
 # IOs ----------------------------------------------------------------------------------------------
 
 _io = [
