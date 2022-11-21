@@ -57,7 +57,7 @@ jobs:
 
         for n in $gen_list
         do  
-            ./python3 $n --json-template
+            ./python3 $n --build --json-template
         done
 
 
@@ -149,6 +149,20 @@ jobs:
           export LANG=en_US.utf-8
           cd Raptor_Tools/python_tools
           make build 
+
+
+      - name: Sanity Check
+        shell: bash
+        run: |
+          gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"`
+  
+          cd Raptor_Tools/python_tools/build/share/envs/litex/bin
+  
+          for n in $gen_list
+          do  
+              ./python3 $n --build --json-template
+          done
+
 
       - name: Test IP Generation
         run: |
