@@ -71,10 +71,10 @@ class AXISimSoC(SoCCore):
         axil_spi = AXILiteInterface(data_width=32, address_width=32)
 
         # Generate Core.
-        os.system("litespi_gen --bus-standard=axi-lite --mode=x4 --sim") # Replace with axil_spi_gen.py
+        os.system("cd .. && ./axil_spi_gen.py --core_module=S25FL128L --core_mode=x4 --core_phy=model --build")
 
         # Core Instance.
-        self.specials += Instance("litespi_core",
+        self.specials += Instance("axil_spi",
             # Clk / Rst.
             # ----------
             i_clk         = ClockSignal("sys"),
@@ -111,8 +111,8 @@ class AXISimSoC(SoCCore):
             # ----
             # No IOs since using integrated model.
         )
-        platform.add_verilog_include_path("build/gateware")
-        platform.add_source("build/gateware/litespi_core.v")
+        platform.add_source("../rapidsilicon/ip/axil_spi/v1_0/axil_spi/src/axil_spi.v")
+        platform.add_source("axil_spi_mem.init", copy=True)
         self.bus.add_slave("axil_spi", axil_spi, region=SoCRegion(origin=0x3000_000, size=0x1000))
 
 # Build --------------------------------------------------------------------------------------------
