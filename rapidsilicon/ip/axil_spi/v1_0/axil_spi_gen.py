@@ -38,6 +38,7 @@ def main():
     core_string_param_group.add_argument("--core_mode",           type=str,  default="x1",         choices=["x1", "x4"],      help="SPI Mode.")
     core_string_param_group.add_argument("--core_rate",           type=str,  default="1:1",        choices=["1:1", "1:2"],    help="SPI Flash Core rate.")
     core_string_param_group.add_argument("--core_bus_endianness", type=str,  default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
+    core_string_param_group.add_argument("--core_phy",            type=str,  default="real",       choices=["real", "model"], help="Type or PHY (Real or Model (Sim)).")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -78,7 +79,7 @@ def main():
         divisor        = args.core_divisor,
         bus_standard   = "axi-lite",
         bus_endianness = args.core_bus_endianness,
-        sim            = False,
+        sim            = (args.core_phy == "model"),
     )
 
     # Build Project --------------------------------------------------------------------------------
