@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+import os
 import argparse
 
 from migen import *
@@ -64,6 +65,55 @@ class AXISimSoC(SoCCore):
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, clk_freq=sys_clk_freq, bus_standard="axi-lite", uart_name="sim", integrated_rom_size=0x10000)
         self.add_config("BIOS_NO_BOOT")
+
+        # AXIL-SPI Core generation/integration -----------------------------------------------------
+
+        axil_spi = AXILiteInterface(data_width=32, address_width=32)
+
+        # Generate Core.
+        os.system("litespi_gen --bus-standard=axi-lite --mode=x4 --sim") # Replace with axil_spi_gen.py
+
+        # Core Instance.
+        self.specials += Instance("litespi_core",
+            # Clk / Rst.
+            # ----------
+            i_clk         = ClockSignal("sys"),
+            i_rst         = ResetSignal("sys"),
+
+            # AXI-Lite.
+            # ---------
+            # AW.
+            i_bus_awvalid = axil_spi.aw.valid,
+            o_bus_awready = axil_spi.aw.ready,
+            i_bus_awaddr  = axil_spi.aw.addr,
+            i_bus_awprot  = axil_spi.aw.prot,
+            # W.
+            i_bus_wvalid  = axil_spi.w.valid,
+            o_bus_wready  = axil_spi.w.ready,
+            i_bus_wdata   = axil_spi.w.data,
+            i_bus_wstrb   = axil_spi.w.strb,
+            # B
+            o_bus_bvalid  = axil_spi.b.valid,
+            i_bus_bready  = axil_spi.b.ready,
+            o_bus_bresp   = axil_spi.b.resp,
+            # AR.
+            i_bus_arvalid = axil_spi.ar.valid,
+            o_bus_arready = axil_spi.ar.ready,
+            i_bus_araddr  = axil_spi.ar.addr,
+            i_bus_arprot  = axil_spi.ar.prot,
+            # R.
+            o_bus_rvalid  = axil_spi.r.valid,
+            i_bus_rready  = axil_spi.r.ready,
+            o_bus_rresp   = axil_spi.r.resp,
+            o_bus_rdata   = axil_spi.r.data,
+
+            # IOs.
+            # ----
+            # No IOs since using integrated model.
+        )
+        platform.add_verilog_include_path("build/gateware")
+        platform.add_source("build/gateware/litespi_core.v")
+        self.bus.add_slave("axil_spi", axil_spi, region=SoCRegion(origin=0x3000_000, size=0x1000))
 
 # Build --------------------------------------------------------------------------------------------
 
