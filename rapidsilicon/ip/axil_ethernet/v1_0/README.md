@@ -11,7 +11,9 @@ LiteEth is a parametrizable core and the list/supported values of the available 
 obtain with `./axil_eth_gen.py --help` command:
 
 ```
-  --core-phy                          Ethernet PHY (mii).
+  --core-phy                          Ethernet PHY (mii or model).
+  --core-ntxslots                     Number of TX Slots (1, 2 or 4).
+  --core-nrxslots                     Number of RX Slots (1, 2 or 4).
   --core-bus-endianness {big,little}  Bus Endianness (big, little).
 ```
 
