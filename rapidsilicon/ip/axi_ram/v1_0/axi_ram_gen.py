@@ -88,7 +88,7 @@ def main():
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--file_path", type=str, default="./", help="File Path for memory initialization file")
+    core_file_path_group.add_argument("--file_path", type=argparse.FileType('r'), default="./", help="File Path for memory initialization file")
 
 
 
