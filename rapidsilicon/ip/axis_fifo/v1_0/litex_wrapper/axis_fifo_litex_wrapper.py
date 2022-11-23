@@ -77,6 +77,8 @@ class AXISTREAMFIFO(Module):
             # Global.
             p_DEPTH             = depth,
             p_DATA_WIDTH        = data_width,
+            p_KEEP_ENABLE       = data_width>8,
+            p_KEEP_WIDTH        = int(data_width/8),
             p_LAST_ENABLE       = last_en,
             p_ID_ENABLE         = id_en,
             p_ID_WIDTH          = id_width,

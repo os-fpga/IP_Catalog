@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axis_fifo_litex_wrapper import AXISTREAMFIFO
@@ -41,8 +40,8 @@ def get_status_ios():
 class AXISTREAMFIFOWrapper(Module):
     def __init__(self, platform, depth, data_width, last_en, id_en, id_width, 
                 dest_en, dest_width, user_en, user_width, pip_out, frame_fifo,
-                drop_bad_frame, drop_when_full
-                ):
+                drop_bad_frame, drop_when_full):
+        
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
@@ -107,9 +106,8 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
-    #                Ports     :    Dependency
+    # Parameter Dependency dictionary
+    #                Ports    :    Dependency
     dep_dict = {    
                 'id_width'    :   'id_en',
                 'dest_width'  :   'dest_en',
@@ -119,10 +117,8 @@ def main():
     rs_builder = IP_Builder(device="gemini", ip_name="axis_fifo", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--depth",          type=int, default=4096, choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768], help="FIFO Depth.")
- 
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -141,7 +137,6 @@ def main():
     core_range_param_group.add_argument("--id_width",       type=int, default=8,    choices=range(1, 33),              help="FIFO ID Width.")
     core_range_param_group.add_argument("--dest_width",     type=int, default=8,    choices=range(1, 33),              help="FIFO Destination Width.")
     core_range_param_group.add_argument("--user_width",     type=int, default=1,    choices=range(1, 4097),            help="FIFO User Width.")
-
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -184,7 +179,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axis_fifo", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
