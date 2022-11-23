@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axis_async_fifo_litex_wrapper import AXISASYNCFIFO
@@ -32,7 +31,6 @@ def get_clkin_s_ios():
         ("s_rst", 0, Pins(1))
     ]
     
-
 def get_slave_status_ios():
     return [
         ("s_status", 0,
@@ -40,6 +38,7 @@ def get_slave_status_ios():
             Subsignal("bad_frame",  Pins(1)),
             Subsignal("good_frame", Pins(1)),
         )]
+    
 def get_master_status_ios():
     return [
         ("m_status", 0,
@@ -53,8 +52,7 @@ def get_master_status_ios():
 class AXISASYNCFIFOWrapper(Module):
     def __init__(self, platform, depth, data_width, last_en, id_en, id_width, 
                 dest_en, dest_width, user_en, user_width, pip_out, out_fifo_en, frame_fifo, bad_frame_value, 
-                drop_bad_frame, drop_when_full
-                ):
+                drop_bad_frame, drop_when_full):
 
         # Clock Domain
         self.clock_domains.cd_sys = ClockDomain()
@@ -64,14 +62,16 @@ class AXISASYNCFIFOWrapper(Module):
             data_width = data_width,
             user_width = user_width,
             dest_width = dest_width,
-            id_width   = id_width
+            id_width   = id_width,
+            keep_width = int((data_width+7)/8)
         )
         
         m_axis = AXIStreamInterface(
             data_width = data_width,
             user_width = user_width,
             dest_width = dest_width,
-            id_width   = id_width
+            id_width   = id_width,
+            keep_width = int((data_width+7)/8)
         )
         # Input AXI
         platform.add_extension(s_axis.get_ios("s_axis"))
@@ -134,8 +134,7 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {    
                 'id_width'    :   'id_en',
@@ -146,23 +145,21 @@ def main():
     rs_builder = IP_Builder(device="gemini", ip_name="axis_async_fifo", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--depth",          type=int, default=4096, choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768], help="FIFO Depth.")
- 
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--last_en",        type=bool, default=True,     help="FIFO Last Enable.")
-    core_bool_param_group.add_argument("--id_en",          type=bool, default=True,     help="FIFO ID Enable.")
-    core_bool_param_group.add_argument("--dest_en",        type=bool, default=True,     help="FIFO Destination Enable.")
-    core_bool_param_group.add_argument("--user_en",        type=bool, default=True,     help="FIFO User Enable.")
-    core_bool_param_group.add_argument("--pip_out",        type=bool, default=True,     help="FIFO Pipeline Output.")
-    core_bool_param_group.add_argument("--frame_fifo",     type=bool, default=True,     help="FIFO Frame.")
-    core_bool_param_group.add_argument("--out_fifo_en",     type=bool, default=True,    help="OUTPUT FIFO ENABLE.")
-    core_bool_param_group.add_argument("--bad_frame_value", type=bool, default=True,    help="USER BAD FRAME VALUE.")
-    core_bool_param_group.add_argument("--drop_bad_frame", type=bool, default=True,     help="FIFO Drop Bad Frame.")
-    core_bool_param_group.add_argument("--drop_when_full", type=bool, default=True,     help="FIFO Drop Frame When Full.")
+    core_bool_param_group.add_argument("--last_en",         type=bool, default=True,     help="FIFO Last Enable.")
+    core_bool_param_group.add_argument("--id_en",           type=bool, default=True,     help="FIFO ID Enable.")
+    core_bool_param_group.add_argument("--dest_en",         type=bool, default=True,     help="FIFO Destination Enable.")
+    core_bool_param_group.add_argument("--user_en",         type=bool, default=True,     help="FIFO User Enable.")
+    core_bool_param_group.add_argument("--pip_out",         type=bool, default=True,     help="FIFO Pipeline Output.")
+    core_bool_param_group.add_argument("--frame_fifo",      type=bool, default=True,     help="FIFO Frame.")
+    core_bool_param_group.add_argument("--out_fifo_en",     type=bool, default=True,     help="OUTPUT FIFO ENABLE.")
+    core_bool_param_group.add_argument("--bad_frame_value", type=bool, default=True,     help="USER BAD FRAME VALUE.")
+    core_bool_param_group.add_argument("--drop_bad_frame",  type=bool, default=True,     help="FIFO Drop Bad Frame.")
+    core_bool_param_group.add_argument("--drop_when_full",  type=bool, default=True,     help="FIFO Drop Frame When Full.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -170,7 +167,6 @@ def main():
     core_range_param_group.add_argument("--id_width",       type=int, default=8,    choices=range(1, 33),              help="FIFO ID Width.")
     core_range_param_group.add_argument("--dest_width",     type=int, default=8,    choices=range(1, 33),              help="FIFO Destination Width.")
     core_range_param_group.add_argument("--user_width",     type=int, default=1,    choices=range(1, 4097),            help="FIFO User Width.")
-
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -215,7 +211,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axis_async_fifo", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
