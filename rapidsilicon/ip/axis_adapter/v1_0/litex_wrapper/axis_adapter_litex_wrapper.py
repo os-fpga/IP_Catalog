@@ -18,11 +18,8 @@ logging.basicConfig(level=logging.INFO)
 
 # AXIS_ADAPTER ---------------------------------------------------------------------------------------
 class AXISADAPTER(Module):
-    def __init__(self, platform, s_axis, m_axis,
-        id_en           = 0,
-        dest_en         = 0,
-        user_en         = 1,
-    ):
+    def __init__(self, platform, s_axis, m_axis, id_en , dest_en, user_en):
+        
         self.logger = logging.getLogger("AXIS_ADAPTER")
         
         self.logger.propagate = False
@@ -57,7 +54,11 @@ class AXISADAPTER(Module):
             # -----------
             # Global.
             p_S_DATA_WIDTH      = s_data_width,
+            p_S_KEEP_ENABLE     = s_data_width>8,
+            p_S_KEEP_WIDTH      = int((s_data_width+7)/8),
             p_M_DATA_WIDTH      = m_data_width,
+            p_M_KEEP_ENABLE     = m_data_width>8,
+            p_M_KEEP_WIDTH      = int((m_data_width+7)/8),
             p_ID_ENABLE         = id_en,
             p_ID_WIDTH          = id_width,
             p_DEST_ENABLE       = dest_en,
