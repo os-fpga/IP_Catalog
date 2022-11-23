@@ -99,7 +99,7 @@ def main():
     }            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="axi_dma", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="axi_interconnect", language="verilog")
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
