@@ -7,14 +7,14 @@ AXIS-WIDTH-CONVERTER is AXI4-Stream based IP core.
 This directory contains the generator script which generates the RTL to `rapidsilicon/ip/axis_width_converter/v1_0/<build-name>/src/` directory. 
     
 ## Parameters
-There are four parameters for AXIS_WIDTH_CONVERTER core. These parameters, their keywords and values are given below:
+User can configure AXIS_WIDTH_CONVERTER CORE using following parameters:
 
-    | Sr.No.|      Parameter     |       Keyword      |           Value           |
-    |-------|--------------------|--------------------|---------------------------|
-    |   1.  |   CORE_IN_WIDTH    |   core_in_width    |  8,16,32,64,128,512,1024  |
-    |   2.  |   CORE_OUT_WIDTH   |   core_out_width   |  8,16,32,64,128,512,1024  |
-    |   3.  |   CORE_USER_WIDTH  |   core_user_width  |  1-4096                   |  
-    |   4.  |   CORE_REVERSE     |   core_reverse     |  0/1                      |
+| Sr.No.|      Parameter     |       Keyword      |           Value           |
+|-------|--------------------|--------------------|---------------------------|
+|   1.  |   CORE_IN_WIDTH    |   core_in_width    |  8,16,32,64,128,512,1024  |
+|   2.  |   CORE_OUT_WIDTH   |   core_out_width   |  8,16,32,64,128,512,1024  |
+|   3.  |   CORE_USER_WIDTH  |   core_user_width  |  1-4096                   |  
+|   4.  |   CORE_REVERSE     |   core_reverse     |  0/1                      |
 
 
 To generate RTL with above parameters, run the following command:
