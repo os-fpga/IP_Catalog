@@ -9,13 +9,13 @@ For more information, visit: http://alexforencich.com/wiki/en/verilog/i2c/start
 This directory contains the generator script which places the RTL to `rapidsilicon/ip/i2c_slave/v1_0/<build-name>/src/` directory and generates its wrapper in the same directory. 
 
 ## Parameters
-There are three parameters for I2C_SLAVE core. These parameters, their keywords and values are given below:
+User can configure I2C_SLAVE CORE using following parameters:
 
-    | Sr.No.|     Parameter     |     Keyword      |      Value     |
-    |-------|-------------------|------------------|----------------|
-    |   1.  |   DATA_WIDTH      |   data_width     |   8,16,32,64   |
-    |   2.  |   ADDRESS_WIDTH   |   addr_width     |   8,16,32      |
-    |   3.  |   FILTER_LENGTH   |   filter_len     |   1-4          |
+| Sr.No.|     Parameter     |     Keyword      |      Value     |
+|-------|-------------------|------------------|----------------|
+|   1.  |   DATA_WIDTH      |   data_width     |   8,16,32,64   |
+|   2.  |   ADDRESS_WIDTH   |   addr_width     |   8,16,32      |
+|   3.  |   FILTER_LENGTH   |   filter_len     |   1-4          |
 
 
 

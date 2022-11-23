@@ -9,12 +9,12 @@ For more information, visit: http://alexforencich.com/wiki/en/verilog/uart/start
 This directory contains the generator script which places the RTL to `rapidsilicon/ip/priority_encoder/v1_0/<build-name>/src/` directory and generates its wrapper in the same directory. 
 
 ## Parameters
-There are two parameter for PRIORITY_ENCODER core. These parameter, it's keyword and value is given below:
+User can configure PRIORITY_ENCODER CORE using following parameters:
 
-    | Sr.No.|        Parameter       |        Keyword         |    Value   |
-    |-------|------------------------|------------------------|------------|
-    |   1.  |   WIDTH                |    width               |    2 - 8   |
-    |   2.  |   LSB_HIGH_PRIORITY    |    lsb_high_priority   |    0/1     |
+| Sr.No.|        Parameter       |        Keyword         |    Value   |
+|-------|------------------------|------------------------|------------|
+|   1.  |   WIDTH                |    width               |    2 - 8   |
+|   2.  |   LSB_HIGH_PRIORITY    |    lsb_high_priority   |    0/1     |
 
 
 
