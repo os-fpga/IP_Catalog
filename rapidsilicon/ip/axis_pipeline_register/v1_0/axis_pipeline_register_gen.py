@@ -94,24 +94,21 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_pipeline_register", language="verilog")
 
-    # Core fix value parameters.
-    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--last_en",    type=bool, default=True,       help="Last Enable.")
-    core_bool_param_group.add_argument("--id_en",      type=bool, default=True,       help="ID Enable.")
-    core_bool_param_group.add_argument("--dest_en",    type=bool, default=True,       help="Destination Enable.")
-    core_bool_param_group.add_argument("--user_en",    type=bool, default=True,       help="User Enable.")
-    core_bool_param_group.add_argument("--reg_type",   type=bool, default=True,       help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
-    core_bool_param_group.add_argument("--length",     type=bool, default=True,       help="Number of registers in pipeline.")
+    core_bool_param_group.add_argument("--last_en",    type=bool,       default=True,       help="Last Enable.")
+    core_bool_param_group.add_argument("--id_en",      type=bool,       default=True,       help="ID Enable.")
+    core_bool_param_group.add_argument("--dest_en",    type=bool,       default=True,       help="Destination Enable.")
+    core_bool_param_group.add_argument("--user_en",    type=bool,       default=True,       help="User Enable.")
+    core_bool_param_group.add_argument("--reg_type",   type=bool,       default=True,       help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
+    core_bool_param_group.add_argument("--length",     type=bool,       default=True,       help="Number of registers in pipeline.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width", type=int, default=8, choices=range(1,4097),  help="Data Width.")
-    core_range_param_group.add_argument("--id_width",   type=int, default=8, choices=range(1, 33),   help="ID Width.")
-    core_range_param_group.add_argument("--dest_width", type=int, default=8, choices=range(1, 33),   help="Destination Width.")
-    core_range_param_group.add_argument("--user_width", type=int, default=1, choices=range(1, 4097), help="User Width.")
+    core_range_param_group.add_argument("--data_width",     type=int,       default=8,      choices=range(1,4097),      help="Data Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),       help="ID Width.")
+    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),       help="Destination Width.")
+    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),     help="User Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")

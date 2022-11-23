@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.vexriscv_cpu_litex_wrapper import VexRiscv
@@ -99,17 +98,12 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
-    dep_dict = {    
-                'axi_id_width' :   'axis_id_enable',
-                'axis_dest_width'  :   'axis_dest_enable',
-                'axis_user_width'  :   'axis_user_enable'}            
-
+    dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="Vexriscv_cpu", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="vexriscv_cpu", language="verilog")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -138,7 +132,6 @@ def main():
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="vexriscv_cpu", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,

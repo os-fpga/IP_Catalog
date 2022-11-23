@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axi_ram_litex_wrapper import AXIRAM
@@ -62,35 +61,29 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {}            
-
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_ram", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="RAM Data Width.")
- 
+    core_fix_param_group.add_argument("--data_width",   type=int,   default=32,     choices=[8, 16, 32, 64],    help="RAM Data Width.")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--pip_out",    type=bool, default=False,        help="RAM Pipeline Output.")
+    core_bool_param_group.add_argument("--pip_out",    type=bool,   default=False,    help="RAM Pipeline Output.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--addr_width", type=int, default=16, choices=range(8,17),     help="RAM Address Width.")
-    core_range_param_group.add_argument("--id_width",   type=int, default=8,  choices=range(1, 9),     help="RAM ID Width.")
+    core_range_param_group.add_argument("--addr_width",     type=int,   default=16,     choices=range(8,17),     help="RAM Address Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,   default=8,      choices=range(1, 9),     help="RAM ID Width.")
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--file_path", type=str, default="./", help="File Path for memory initialization file")
-
-
+    core_file_path_group.add_argument("--file_path",        type=str,   default="./",   help="File Path for memory initialization file")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -109,11 +102,9 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
-
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -126,7 +117,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axi_ram", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,

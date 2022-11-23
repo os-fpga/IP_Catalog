@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axil_crossbar_litex_wrapper import AXILITECROSSBAR
@@ -71,7 +70,6 @@ class AXILITECROSSBARWrapper(Module):
             )
 
 # Build --------------------------------------------------------------------------------------------
-
 def main():
     parser = argparse.ArgumentParser(description="AXI_LITE_CROSSBAR_CORE")
 
@@ -82,7 +80,6 @@ def main():
     from common import IP_Builder
 
     # Parameter Dependency dictionary
-
     dep_dict = {}            
 
     # IP Builder.
@@ -90,15 +87,14 @@ def main():
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width",     default=32, choices=[8, 16, 32, 64, 128, 256], type=int, help="Crossbar Data Width.")
-    core_fix_param_group.add_argument("--addr_width",     default=32, choices=[32, 64, 128, 256],        type=int, help="Crossbar Address Width.")
+    core_fix_param_group.add_argument("--data_width",     default=32,   choices=[8, 16, 32, 64, 128, 256],  type=int,   help="Crossbar Data Width.")
+    core_fix_param_group.add_argument("--addr_width",     default=32,   choices=[32, 64, 128, 256],         type=int,   help="Crossbar Address Width.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--m_count",        default=4,  choices=range(1,17),               type=int, help="Crossbar Master Interfaces.")
-    core_range_param_group.add_argument("--s_count",        default=4,  choices=range(1,17),               type=int, help="Crossbar Slave Interfaces.")
+    core_range_param_group.add_argument("--m_count",      default=4,    choices=range(1,17),     type=int,   help="Crossbar Master Interfaces.")
+    core_range_param_group.add_argument("--s_count",      default=4,    choices=range(1,17),     type=int,   help="Crossbar Slave Interfaces.")
     
-
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                    help="Build Core")
@@ -116,11 +112,9 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
-
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -133,7 +127,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axil_crossbar", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
