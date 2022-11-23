@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axis_pipeline_register_litex_wrapper import AXISPIPELINEREGISTER
@@ -43,14 +42,16 @@ class AXISPIPELINEREGISTERWrapper(Module):
             data_width = data_width,
             user_width = user_width,
             dest_width = dest_width,
-            id_width   = id_width
+            id_width   = id_width,
+            keep_width = int((data_width+7)/8)
         )
         
         m_axis = AXIStreamInterface(
             data_width = data_width,
             user_width = user_width,
             dest_width = dest_width,
-            id_width   = id_width
+            id_width   = id_width,
+            keep_width = int((data_width+7)/8)
         )
         
         # Input AXI
@@ -73,7 +74,6 @@ class AXISPIPELINEREGISTERWrapper(Module):
             length          = length
             )
         
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXIS PIPELINE REGISTER CORE")
@@ -84,9 +84,8 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
-    #                Ports     :    Dependency
+    # Parameter Dependency dictionary
+    #                Ports    :    Dependency
     dep_dict = {    
                 'id_width'    :   'id_en',
                 'dest_width'  :   'dest_en',
@@ -96,10 +95,7 @@ def main():
     rs_builder = IP_Builder(device="gemini", ip_name="axis_pipeline_register", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-
- 
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -116,7 +112,6 @@ def main():
     core_range_param_group.add_argument("--id_width",   type=int, default=8, choices=range(1, 33),   help="ID Width.")
     core_range_param_group.add_argument("--dest_width", type=int, default=8, choices=range(1, 33),   help="Destination Width.")
     core_range_param_group.add_argument("--user_width", type=int, default=1, choices=range(1, 4097), help="User Width.")
-
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -156,7 +151,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axis_pipeline_register", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
