@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axi2axilite_bridge_litex_wrapper import AXI2AXILITE
@@ -69,22 +68,19 @@ def main():
     from common import IP_Builder
 
     # Parameter Dependency dictionary
-
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="axi2axilite", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="axi2axilite_bridge", language="verilog")
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Data Width")
 
-
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--addr_width", type=int, default=6,  choices=range(6, 17),              help="Address Width")
     core_range_param_group.add_argument("--id_width",   type=int, default=2,  choices=range(1, 33),              help="ID Width")
-
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -103,11 +99,9 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
-
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -119,7 +113,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axi2axilite_bridge", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
