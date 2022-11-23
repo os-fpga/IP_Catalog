@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axis_broadcast_litex_wrapper import AXISBROADCAST
@@ -54,7 +53,8 @@ class AXIBROADCASTWrapper(Module):
             data_width      = data_width,
             id_width        = id_width,
             user_width      = user_width,
-            dest_width      = dest_width
+            dest_width      = dest_width,
+            keep_width      = int((data_width+7)/8)
         )
 
         # Input AXI
@@ -82,14 +82,13 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
-    #                Ports     :    Dependency
+    # Parameter Dependency dictionary
+    #                Ports    :    Dependency
     dep_dict = {    
                 'id_width'    :   'id_en',
                 'dest_width'  :   'dest_en',
-                'user_width'  :   'user_en'}            
-
+                'user_width'  :   'user_en'
+    }            
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_broadcast", language="verilog")
@@ -100,7 +99,6 @@ def main():
     core_bool_param_group.add_argument("--id_en",      type=bool, default=True,       help="BROADCAST AXIS tid signal width.")
     core_bool_param_group.add_argument("--dest_en",    type=bool, default=True,       help="BROADCAST AXIS tdest signal width.")
     core_bool_param_group.add_argument("--user_en",    type=bool, default=True,       help="BROADCAST AXIS tuser signal width.")
-
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -147,7 +145,6 @@ def main():
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axis_broadcast", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
