@@ -37,51 +37,50 @@ class AXISASYNCFIFO(Module):
         self.logger.propagate = False
 
         # Depth
-        self.logger.info(f"DEPTH            : {depth}")
+        self.logger.info(f"DEPTH                : {depth}")
 
         # Data Width
         data_width = len(s_axis.data)
-        self.logger.info(f"DATA_WIDTH       : {data_width}")
-        self.logger.info(f"LAST_ENABLE      : {last_en}")
+        self.logger.info(f"DATA_WIDTH           : {data_width}")
+        self.logger.info(f"LAST_ENABLE          : {last_en}")
         
         # ID Width
-        self.logger.info(f"ID_ENABLE        : {id_en}")
+        self.logger.info(f"ID_ENABLE            : {id_en}")
         id_width = len(s_axis.id)
-        self.logger.info(f"ID Width         : {id_width}")
+        self.logger.info(f"ID Width             : {id_width}")
         
         # Destination Width
-        self.logger.info(f"DEST_ENABLE      : {dest_en}")
+        self.logger.info(f"DEST_ENABLE          : {dest_en}")
         dest_width = len(s_axis.dest)
-        self.logger.info(f"DEST_WIDTH       : {dest_width}")
+        self.logger.info(f"DEST_WIDTH           : {dest_width}")
         
         # User Width
-        self.logger.info(f"USER_ENABLE      : {user_en}")
+        self.logger.info(f"USER_ENABLE          : {user_en}")
         user_width = len(s_axis.user)
-        self.logger.info(f"USER_WIDTH       : {user_width}")
+        self.logger.info(f"USER_WIDTH           : {user_width}")
         
         # Other
-        self.logger.info(f"RAM_PIPELINE     : {pip_out}")
-        self.logger.info(f"FRAME_FIFO       : {frame_fifo}")
-        self.logger.info(f"OUTPUT_FIFO_ENABLE       : {out_fifo_en}")
-        self.logger.info(f"USER_BAD_FRAME_VALUE       : {bad_frame_value}")
-        self.logger.info(f"USER_BAD_FRAME_MASK       : {bad_frame_mask}")
-
-        self.logger.info(f"DROP_BAD_FRAME   : {drop_bad_frame}")
-        self.logger.info(f"DROP_WHEN_FULL   : {drop_when_full}")
+        self.logger.info(f"RAM_PIPELINE         : {pip_out}")
+        self.logger.info(f"FRAME_FIFO           : {frame_fifo}")
+        self.logger.info(f"OUTPUT_FIFO_ENABLE   : {out_fifo_en}")
+        self.logger.info(f"USER_BAD_FRAME_VALUE : {bad_frame_value}")
+        self.logger.info(f"USER_BAD_FRAME_MASK  : {bad_frame_mask}")
+        self.logger.info(f"DROP_BAD_FRAME       : {drop_bad_frame}")
+        self.logger.info(f"DROP_WHEN_FULL       : {drop_when_full}")
         
         # Status Signals
-        self.s_status_overflow    = Signal()
-        self.s_status_bad_frame   = Signal()
-        self.s_status_good_frame  = Signal()
-        self.m_status_overflow    = Signal()
-        self.m_status_bad_frame   = Signal()
-        self.m_status_good_frame  = Signal()
+        self.s_status_overflow     = Signal()
+        self.s_status_bad_frame    = Signal()
+        self.s_status_good_frame   = Signal()
+        self.m_status_overflow     = Signal()
+        self.m_status_bad_frame    = Signal()
+        self.m_status_good_frame   = Signal()
 
         # Clock/Reset Signals
-        self.m_clk              = Signal()
-        self.m_rst              = Signal()
-        self.s_clk              = Signal()
-        self.s_rst              = Signal()
+        self.m_clk                 = Signal()
+        self.m_rst                 = Signal()
+        self.s_clk                 = Signal()
+        self.s_rst                 = Signal()
         
         # Module instance.
         # ----------------
@@ -91,6 +90,8 @@ class AXISASYNCFIFO(Module):
             # Global.
             p_DEPTH                 = depth,
             p_DATA_WIDTH            = data_width,
+            p_KEEP_ENABLE           = data_width>8,
+            p_KEEP_WIDTH            = int((data_width+7)/8),
             p_LAST_ENABLE           = last_en,
             p_ID_ENABLE             = id_en,
             p_ID_WIDTH              = id_width,
@@ -115,32 +116,32 @@ class AXISASYNCFIFO(Module):
 
             # AXI Input
             # --------------------
-            i_s_axis_tdata      = s_axis.data,
-            i_s_axis_tkeep      = s_axis.keep,
-            i_s_axis_tvalid     = s_axis.valid,
-            o_s_axis_tready     = s_axis.ready,
-            i_s_axis_tlast      = s_axis.last,
-            i_s_axis_tid        = s_axis.id,
-            i_s_axis_tdest      = s_axis.dest,
-            i_s_axis_tuser      = s_axis.user,
+            i_s_axis_tdata          = s_axis.data,
+            i_s_axis_tkeep          = s_axis.keep,
+            i_s_axis_tvalid         = s_axis.valid,
+            o_s_axis_tready         = s_axis.ready,
+            i_s_axis_tlast          = s_axis.last,
+            i_s_axis_tid            = s_axis.id,
+            i_s_axis_tdest          = s_axis.dest,
+            i_s_axis_tuser          = s_axis.user,
 
             # AXI Output
-            o_m_axis_tdata      = m_axis.data,
-            o_m_axis_tkeep      = m_axis.keep,
-            o_m_axis_tvalid     = m_axis.valid,
-            i_m_axis_tready     = m_axis.ready,
-            o_m_axis_tlast      = m_axis.last,
-            o_m_axis_tid        = m_axis.id,
-            o_m_axis_tdest      = m_axis.dest,
-            o_m_axis_tuser      = m_axis.user,
+            o_m_axis_tdata          = m_axis.data,
+            o_m_axis_tkeep          = m_axis.keep,
+            o_m_axis_tvalid         = m_axis.valid,
+            i_m_axis_tready         = m_axis.ready,
+            o_m_axis_tlast          = m_axis.last,
+            o_m_axis_tid            = m_axis.id,
+            o_m_axis_tdest          = m_axis.dest,
+            o_m_axis_tuser          = m_axis.user,
             
             # Status
-            o_s_status_overflow   = self.s_status_overflow,
-            o_s_status_bad_frame  = self.s_status_bad_frame,
-            o_s_status_good_frame = self.s_status_good_frame,
-            o_m_status_overflow   = self.m_status_overflow,
-            o_m_status_full       = self.m_status_bad_frame,
-            o_m_status_empty      = self.m_status_good_frame
+            o_s_status_overflow     = self.s_status_overflow,
+            o_s_status_bad_frame    = self.s_status_bad_frame,
+            o_s_status_good_frame   = self.s_status_good_frame,
+            o_m_status_overflow     = self.m_status_overflow,
+            o_m_status_full         = self.m_status_bad_frame,
+            o_m_status_empty        = self.m_status_good_frame
         )
 
         # Add Sources.
