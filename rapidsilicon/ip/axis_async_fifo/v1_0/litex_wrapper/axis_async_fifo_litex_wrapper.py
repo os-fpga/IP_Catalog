@@ -140,8 +140,8 @@ class AXISASYNCFIFO(Module):
             o_s_status_bad_frame    = self.s_status_bad_frame,
             o_s_status_good_frame   = self.s_status_good_frame,
             o_m_status_overflow     = self.m_status_overflow,
-            o_m_status_full         = self.m_status_bad_frame,
-            o_m_status_empty        = self.m_status_good_frame
+            o_m_status_bad_frame    = self.m_status_bad_frame,
+            o_m_status_good_frame   = self.m_status_good_frame
         )
 
         # Add Sources.
