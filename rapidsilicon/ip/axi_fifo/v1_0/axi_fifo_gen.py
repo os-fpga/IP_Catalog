@@ -99,9 +99,8 @@ def main():
                 'w_user_width'  :   'w_user_en',
                 'b_user_width'  :   'b_user_en',
                 'ar_user_width' :   'ar_user_en',
-                'r_user_width'  :   'r_user_en' }            
-
-
+                'r_user_width'  :   'r_user_en' 
+        }            
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_fifo", language="verilog")
@@ -109,8 +108,8 @@ def main():
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",           type=int,    default=32,    choices=[32, 64, 128, 256, 512, 1024],  help="FIFO Data Width.")
-    core_fix_param_group.add_argument("--write_fifo_depth",     type=int,    default=0,     choices=[0, 32, 512],                   help="FIFO Write Depth.")
-    core_fix_param_group.add_argument("--read_fifo_depth",      type=int,    default=0,     choices=[0, 32, 512],                   help="FIFO Read Depth.")
+    core_fix_param_group.add_argument("--write_fifo_depth",     type=int,    default=32,     choices=[32, 512],                     help="FIFO Write Depth.")
+    core_fix_param_group.add_argument("--read_fifo_depth",      type=int,    default=32,     choices=[32, 512],                     help="FIFO Read Depth.")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -125,7 +124,7 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--addr_width",          type=int,       default=32,    choices=range(1,65),         help="FIFO Address Width.")
-    core_range_param_group.add_argument("--id_width",            type=int,       default=1,     choices=range(1,33),         help="FIFO ID Width.")
+    core_range_param_group.add_argument("--id_width",            type=int,       default=8,     choices=range(1,33),         help="FIFO ID Width.")
     core_range_param_group.add_argument("--aw_user_width",       type=int,       default=1,     choices=range(1, 1025),      help="FIFO AW-Channel User Width.")
     core_range_param_group.add_argument("--w_user_width",        type=int,       default=1,     choices=range(1, 1025),      help="FIFO W-Channel User Width.")
     core_range_param_group.add_argument("--b_user_width",        type=int,       default=1,     choices=range(1, 1025),      help="FIFO B-Channel User Width.")
