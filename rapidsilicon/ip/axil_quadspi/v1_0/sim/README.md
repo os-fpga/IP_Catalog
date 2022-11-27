@@ -1,12 +1,12 @@
 # Simulation
 
-The simulation create a LiteX SoC and integrated the generated `axil_spi.v` core to it as a MMAPed
+The simulation create a LiteX SoC and integrated the generated `axil_quadspi.v` core to it as a MMAPed
 peripheral. The SPI Flash is then accessible and initial content can be verified.
 
 
 Run simulation:
 ```
-./test_axil_spi.py
+./test_axil_quadspi.py
 ```
 
 User can then interfact with the LiteX BIOS that the SPI Flash is present and accessible:
@@ -24,5 +24,5 @@ Memory dump:
 0x03000010  04 00 00 00 05 00 00 00 06 00 00 00 07 00 00 00  ................
 ```
 
-The initial content that can be seen is the content of `axil_spi_mem.init` and can be modified to
+The initial content that can be seen is the content of `axil_quadspi_mem.init` and can be modified to
 simulate real SPI Flash content.
