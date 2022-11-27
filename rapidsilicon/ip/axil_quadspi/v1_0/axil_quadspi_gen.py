@@ -17,7 +17,7 @@ from litex.build.osfpga import OSFPGAPlatform
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteSPI Core.")
+    parser = argparse.ArgumentParser(description="Lite QUADSPI Core.")
 
     # Import Common Modules.
     common_path = os.path.join(os.path.dirname(__file__), "..", ".." ,".." , "lib")
@@ -30,7 +30,7 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="axil_spi", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="axil_quadspi", language="verilog")
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
@@ -46,9 +46,9 @@ def main():
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
-    build_group.add_argument("--build",             action="store_true",   help="Build core.")
-    build_group.add_argument("--build-dir",         default="./",          help="Build directory.")
-    build_group.add_argument("--build-name",        default="axil_spi",    help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build",             action="store_true",        help="Build core.")
+    build_group.add_argument("--build-dir",         default="./",               help="Build directory.")
+    build_group.add_argument("--build-name",        default="axil_quadspi",     help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON parameters")
