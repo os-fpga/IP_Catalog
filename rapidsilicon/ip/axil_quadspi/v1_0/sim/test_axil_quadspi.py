@@ -66,13 +66,13 @@ class AXISimSoC(SoCCore):
 
         # AXIL-SPI Core generation/integration -----------------------------------------------------
 
-        axil_spi = AXILiteInterface(data_width=32, address_width=32)
+        axil_quadspi = AXILiteInterface(data_width=32, address_width=32)
 
         # Generate Core.
-        os.system("cd .. && ./axil_spi_gen.py --core_module=S25FL128L --core_mode=x4 --core_phy=model --build")
+        os.system("cd .. && ./axil_quadspi_gen.py --core_module=S25FL128L --core_mode=x4 --core_phy=model --build")
 
         # Core Instance.
-        self.specials += Instance("axil_spi",
+        self.specials += Instance("axil_quadspi",
             # Clk / Rst.
             # ----------
             i_clk         = ClockSignal("sys"),
@@ -81,42 +81,42 @@ class AXISimSoC(SoCCore):
             # AXI-Lite.
             # ---------
             # AW.
-            i_bus_awvalid = axil_spi.aw.valid,
-            o_bus_awready = axil_spi.aw.ready,
-            i_bus_awaddr  = axil_spi.aw.addr,
-            i_bus_awprot  = axil_spi.aw.prot,
+            i_bus_awvalid = axil_quadspi.aw.valid,
+            o_bus_awready = axil_quadspi.aw.ready,
+            i_bus_awaddr  = axil_quadspi.aw.addr,
+            i_bus_awprot  = axil_quadspi.aw.prot,
             # W.
-            i_bus_wvalid  = axil_spi.w.valid,
-            o_bus_wready  = axil_spi.w.ready,
-            i_bus_wdata   = axil_spi.w.data,
-            i_bus_wstrb   = axil_spi.w.strb,
+            i_bus_wvalid  = axil_quadspi.w.valid,
+            o_bus_wready  = axil_quadspi.w.ready,
+            i_bus_wdata   = axil_quadspi.w.data,
+            i_bus_wstrb   = axil_quadspi.w.strb,
             # B
-            o_bus_bvalid  = axil_spi.b.valid,
-            i_bus_bready  = axil_spi.b.ready,
-            o_bus_bresp   = axil_spi.b.resp,
+            o_bus_bvalid  = axil_quadspi.b.valid,
+            i_bus_bready  = axil_quadspi.b.ready,
+            o_bus_bresp   = axil_quadspi.b.resp,
             # AR.
-            i_bus_arvalid = axil_spi.ar.valid,
-            o_bus_arready = axil_spi.ar.ready,
-            i_bus_araddr  = axil_spi.ar.addr,
-            i_bus_arprot  = axil_spi.ar.prot,
+            i_bus_arvalid = axil_quadspi.ar.valid,
+            o_bus_arready = axil_quadspi.ar.ready,
+            i_bus_araddr  = axil_quadspi.ar.addr,
+            i_bus_arprot  = axil_quadspi.ar.prot,
             # R.
-            o_bus_rvalid  = axil_spi.r.valid,
-            i_bus_rready  = axil_spi.r.ready,
-            o_bus_rresp   = axil_spi.r.resp,
-            o_bus_rdata   = axil_spi.r.data,
+            o_bus_rvalid  = axil_quadspi.r.valid,
+            i_bus_rready  = axil_quadspi.r.ready,
+            o_bus_rresp   = axil_quadspi.r.resp,
+            o_bus_rdata   = axil_quadspi.r.data,
 
             # IOs.
             # ----
             # No IOs since using integrated model.
         )
-        platform.add_source("../rapidsilicon/ip/axil_spi/v1_0/axil_spi/src/axil_spi.v")
-        platform.add_source("axil_spi_mem.init", copy=True)
-        self.bus.add_slave("axil_spi", axil_spi, region=SoCRegion(origin=0x3000_000, size=0x1000))
+        platform.add_source("../rapidsilicon/ip/axil_quadspi/v1_0/axil_quadspi/src/axil_quadspi.v")
+        platform.add_source("axil_quadspi_mem.init", copy=True)
+        self.bus.add_slave("axil_quadspi", axil_quadspi, region=SoCRegion(origin=0x3000_000, size=0x1000))
 
 # Build --------------------------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="AXIL_SPI  / LiteX simulation.")
+    parser = argparse.ArgumentParser(description="AXIL_QUADSPI  / LiteX simulation.")
     verilator_build_args(parser)
     args = parser.parse_args()
     verilator_build_kwargs = verilator_build_argdict(args)
