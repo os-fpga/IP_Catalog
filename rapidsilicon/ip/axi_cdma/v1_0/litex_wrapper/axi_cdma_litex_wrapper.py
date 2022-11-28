@@ -73,14 +73,14 @@ class AXICDMA(Module):
             # Parameters.
             # -----------
             # Global AXI
-            p_AXI_DATA_WIDTH      = data_width,
-            p_AXI_ADDR_WIDTH      = address_width,
-            p_AXI_ID_WIDTH        = id_width,
+            p_AXI_DATA_WIDTH      =  Instance.PreformattedParam(data_width),
+            p_AXI_ADDR_WIDTH      =  Instance.PreformattedParam(address_width),
+            p_AXI_ID_WIDTH        =  Instance.PreformattedParam(id_width),
 
             # IP Params.
-            p_AXI_MAX_BURST_LEN   = axi_max_burst_len,    
-            p_LEN_WIDTH           = len_width,
-            p_TAG_WIDTH           = tag_width,
+            p_AXI_MAX_BURST_LEN   =  Instance.PreformattedParam(axi_max_burst_len),    
+            p_LEN_WIDTH           =  Instance.PreformattedParam(len_width),
+            p_TAG_WIDTH           =  Instance.PreformattedParam(tag_width),
             p_ENABLE_UNALIGNED    = enable_unaligned,    
 
 
