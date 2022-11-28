@@ -69,9 +69,9 @@ class AXIDPRAM(Module):
             # Parameters.
             # -----------
             # Global.
-            p_DATA_WIDTH        = data_width,
-            p_ADDR_WIDTH        = address_width,
-            p_ID_WIDTH          = id_width,
+            p_DATA_WIDTH        =  Instance.PreformattedParam(data_width),
+            p_ADDR_WIDTH        =  Instance.PreformattedParam(address_width),
+            p_ID_WIDTH          =  Instance.PreformattedParam(id_width),
 
             # Pipeline/Interleave.
             p_A_PIPELINE_OUTPUT = a_pipeline_output,
