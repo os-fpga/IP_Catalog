@@ -85,8 +85,6 @@ def main():
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
     core_file_path_group.add_argument("--file_path", type=argparse.FileType('r'), help="File Path for memory initialization file")
 
-
-
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
