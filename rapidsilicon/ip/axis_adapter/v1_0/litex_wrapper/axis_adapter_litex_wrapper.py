@@ -46,26 +46,25 @@ class AXISADAPTER(Module):
         user_width = len(s_axis.user)
         self.logger.info(f"USER_WIDTH       : {user_width}")
         
-
         # Module instance.
         # ----------------
         self.specials += Instance("axis_adapter",
             # Parameters.
             # -----------
             # Global.
-            p_S_DATA_WIDTH      = s_data_width,
+            p_S_DATA_WIDTH      = Instance.PreformattedParam(s_data_width),
+            p_S_KEEP_WIDTH      = Instance.PreformattedParam(int((s_data_width+7)/8)),
+            p_M_DATA_WIDTH      = Instance.PreformattedParam(m_data_width),
+            p_ID_WIDTH          = Instance.PreformattedParam(id_width),
+            p_DEST_WIDTH        = Instance.PreformattedParam(dest_width),
+            p_USER_WIDTH        = Instance.PreformattedParam(user_width),
+            p_M_KEEP_WIDTH      = Instance.PreformattedParam(int((m_data_width+7)/8)),
             p_S_KEEP_ENABLE     = s_data_width>8,
-            p_S_KEEP_WIDTH      = int((s_data_width+7)/8),
-            p_M_DATA_WIDTH      = m_data_width,
             p_M_KEEP_ENABLE     = m_data_width>8,
-            p_M_KEEP_WIDTH      = int((m_data_width+7)/8),
             p_ID_ENABLE         = id_en,
-            p_ID_WIDTH          = id_width,
             p_DEST_ENABLE       = dest_en,
-            p_DEST_WIDTH        = dest_width,
-            p_USER_ENABLE       = user_en, 
-            p_USER_WIDTH        = user_width,
-
+            p_USER_ENABLE       = user_en,
+            
             # Clk / Rst.
             # ----------
             i_clk               = ClockSignal(),

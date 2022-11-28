@@ -49,6 +49,7 @@ class AXISTREAMRAMSWITCH(Module):
         m_connect,
         ram_pipeline
     ):
+        
         self.logger = logging.getLogger("AXI_STREAM_RAM_SWITCH")
         self.logger.propagate = False
         
@@ -58,10 +59,13 @@ class AXISTREAMRAMSWITCH(Module):
 
         # User Width
         self.logger.info(f"USER_ENABLE      : {user_enable}")
+        
         # user_width = len(s_axis[0].user)
         self.logger.info(f"USER_WIDTH       : {user_width}")
+        
+        # Number of Slave Interfaces
         s_count = len(s_axis)
-        self.logger.info(f"S_COUNT =      :{s_count}")
+        self.logger.info(f"S_COUNT          : {s_count}")
 
         # Destination Width
         self.logger.info(f"M_DEST_WIDTH     : {m_dest_width}")
@@ -83,20 +87,22 @@ class AXISTREAMRAMSWITCH(Module):
             p_S_COUNT                   = Instance.PreformattedParam(len(s_axis)), 
             p_M_COUNT                   = Instance.PreformattedParam(len(m_axis)),
             p_S_DATA_WIDTH              = Instance.PreformattedParam(s_data_width),
-            p_USER_WIDTH                = user_width,
-            p_S_KEEP_ENABLE             = s_keep_enable, 
             p_S_KEEP_WIDTH              = Instance.PreformattedParam(s_keep_width),
             p_M_DATA_WIDTH              = Instance.PreformattedParam(m_data_width),
-            p_M_KEEP_ENABLE             = m_keep_enable,
             p_M_KEEP_WIDTH              = Instance.PreformattedParam(m_keep_width),
-            p_ID_ENABLE                 = id_enable,
             p_S_ID_WIDTH                = Instance.PreformattedParam(s_id_width),
             p_M_ID_WIDTH                = Instance.PreformattedParam(m_id_width),
             p_M_DEST_WIDTH              = Instance.PreformattedParam(m_dest_width),
             p_S_DEST_WIDTH              = Instance.PreformattedParam(s_dest_width),
-            p_USER_ENABLE               = user_enable,
             p_USER_BAD_FRAME_VALUE      = Instance.PreformattedParam(user_bad_frame_value),
             p_USER_BAD_FRAME_MASK       = Instance.PreformattedParam(user_bad_frame_mask),
+            p_M_CONNECT                 = Instance.PreformattedParam(m_connect),
+            p_RAM_PIPELINE              = Instance.PreformattedParam(ram_pipeline),
+            p_USER_WIDTH                = user_width,
+            p_S_KEEP_ENABLE             = s_keep_enable,
+            p_M_KEEP_ENABLE             = m_keep_enable,
+            p_ID_ENABLE                 = id_enable,
+            p_USER_ENABLE               = user_enable,
             p_DROP_BAD_FRAME            = drop_bad_frame,
             p_DROP_WHEN_FULL            = drop_when_full,
             p_M_BASE                    = C(m_base, len(s_axis)*s_dest_width),
@@ -104,8 +110,6 @@ class AXISTREAMRAMSWITCH(Module):
             p_UPDATE_TID                = update_tid,
             p_ARB_TYPE_ROUND_ROBIN      = arb_type_round_robin,
             p_ARB_LSB_HIGH_PRIORITY     = arb_lsb_high_priority,
-            p_M_CONNECT                 = Instance.PreformattedParam(m_connect),
-            p_RAM_PIPELINE              = Instance.PreformattedParam(ram_pipeline),
 
             # Clk / Rst.
             # ----------

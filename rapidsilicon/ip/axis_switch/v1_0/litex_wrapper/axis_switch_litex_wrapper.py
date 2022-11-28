@@ -53,8 +53,7 @@ class AXISTREAMSWITCH(Module):
 
         # Destination Width
         self.logger.info(f"M_DEST_WIDTH     : {m_dest_width}")
-
-
+        
         # Module Instance.
         # ----------------
         self.specials += Instance("axis_switch",
@@ -67,21 +66,21 @@ class AXISTREAMSWITCH(Module):
             p_USER_WIDTH                = Instance.PreformattedParam(user_width),
             p_KEEP_ENABLE               = Instance.PreformattedParam(keep_enable), 
             p_KEEP_WIDTH                = Instance.PreformattedParam(keep_width), 
-            p_ID_ENABLE                 = id_enable,
             p_S_ID_WIDTH                = Instance.PreformattedParam(s_id_width),
             p_M_ID_WIDTH                = Instance.PreformattedParam(m_id_width),
             p_M_DEST_WIDTH              = Instance.PreformattedParam(m_dest_width),
             p_S_DEST_WIDTH              = Instance.PreformattedParam(s_dest_width),
+            p_S_REG_TYPE                = Instance.PreformattedParam(s_reg_type),
+            p_M_REG_TYPE                = Instance.PreformattedParam(m_reg_type),
+            p_M_CONNECT                 = Instance.PreformattedParam(m_connect),
+            p_ID_ENABLE                 = id_enable,
             p_USER_ENABLE               = user_enable,
             p_M_BASE                    = C(m_base, len(s_axis)*s_dest_width),
             p_M_TOP                     = C(m_top, len(m_axis)*s_dest_width),
             p_UPDATE_TID                = update_tid,
-            p_S_REG_TYPE                = Instance.PreformattedParam(s_reg_type),
-            p_M_REG_TYPE                = Instance.PreformattedParam(m_reg_type),
             p_ARB_TYPE_ROUND_ROBIN      = arb_type_round_robin,
             p_ARB_LSB_HIGH_PRIORITY     = arb_lsb_high_priority,
-            p_M_CONNECT                 = Instance.PreformattedParam(m_connect),
-
+            
             # Clk / Rst.
             # ----------
             i_clk                       = ClockSignal(),

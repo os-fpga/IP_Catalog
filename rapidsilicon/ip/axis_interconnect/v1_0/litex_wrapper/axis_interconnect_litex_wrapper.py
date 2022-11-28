@@ -9,7 +9,6 @@
 
 import os
 import logging
-import math
 
 from migen import *
 
@@ -58,7 +57,7 @@ class AXISTREAMINTERCONNECT(Module):
         self.logger.info(f"USER_WIDTH       : {user_width}")
 
         # Control Signal
-        self.select = Signal(select_width)
+        self.select             = Signal(select_width)
         
         # Module instance.
         # ----------------
@@ -66,19 +65,19 @@ class AXISTREAMINTERCONNECT(Module):
             # Parameters.
             # -----------
             # Global.
-            p_S_COUNT           = len(s_axis),
-            p_M_COUNT           = len(m_axis),
-            p_DATA_WIDTH        = data_width,
+            p_S_COUNT           = Instance.PreformattedParam(len(s_axis)),
+            p_M_COUNT           = Instance.PreformattedParam(len(m_axis)),
+            p_DATA_WIDTH        = Instance.PreformattedParam(data_width),
+            p_KEEP_WIDTH        = Instance.PreformattedParam(int((data_width+7)/8)),
+            p_ID_WIDTH          = Instance.PreformattedParam(id_width),
+            p_DEST_WIDTH        = Instance.PreformattedParam(dest_width),
+            p_USER_WIDTH        = Instance.PreformattedParam(user_width),
             p_KEEP_ENABLE       = (data_width>8),
-            p_KEEP_WIDTH        = int((data_width+7)/8),
             p_LAST_ENABLE       = last_en,
             p_ID_ENABLE         = id_en,
-            p_ID_WIDTH          = id_width,
             p_DEST_ENABLE       = dest_en,
-            p_DEST_WIDTH        = dest_width,
             p_USER_ENABLE       = user_en, 
-            p_USER_WIDTH        = user_width,
-
+            
             # Clk / Rst.
             # ----------
             i_clk               = ClockSignal(),

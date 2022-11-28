@@ -54,26 +54,24 @@ class AXISPIPELINEREGISTER(Module):
         self.logger.info(f"REG_TYPE         : {reg_type}")
         self.logger.info(f"LENGTH           : {length}")
         
-
         # Module instance.
         # ----------------
         self.specials += Instance("axis_pipeline_register",
             # Parameters.
             # -----------
             # Global.
-            p_DATA_WIDTH        = data_width,
+            p_DATA_WIDTH        = Instance.PreformattedParam(data_width),
+            p_KEEP_WIDTH        = Instance.PreformattedParam(int((data_width+7)/8)),
+            p_ID_WIDTH          = Instance.PreformattedParam(id_width),
+            p_DEST_WIDTH        = Instance.PreformattedParam(dest_width),
+            p_USER_WIDTH        = Instance.PreformattedParam(user_width),
+            p_REG_TYPE          = Instance.PreformattedParam(reg_type),
+            p_LENGTH            = Instance.PreformattedParam(length),
             p_KEEP_ENABLE       = data_width>8,
-            p_KEEP_WIDTH        = int((data_width+7)/8),
             p_LAST_ENABLE       = last_en,
             p_ID_ENABLE         = id_en,
-            p_ID_WIDTH          = id_width,
             p_DEST_ENABLE       = dest_en,
-            p_DEST_WIDTH        = dest_width,
             p_USER_ENABLE       = user_en, 
-            p_USER_WIDTH        = user_width,
-            p_REG_TYPE          = reg_type,
-            p_LENGTH            = length,
-
 
             # Clk / Rst.
             # ----------

@@ -59,13 +59,10 @@ class AXICDMA(Module):
         self.s_axis_desc_len            = Signal(len_width)
         self.s_axis_desc_valid          = Signal()
         self.s_axis_desc_ready          = Signal()
-        
         self.m_axis_desc_status_tag     = Signal(tag_width)
         self.m_axis_desc_status_error   = Signal(4)
         self.m_axis_desc_status_valid   = Signal()
-        
         self.enable                     = Signal()
-
 
         # Module instance.
         # ----------------
@@ -73,16 +70,15 @@ class AXICDMA(Module):
             # Parameters.
             # -----------
             # Global AXI
-            p_AXI_DATA_WIDTH      =  Instance.PreformattedParam(data_width),
-            p_AXI_ADDR_WIDTH      =  Instance.PreformattedParam(address_width),
-            p_AXI_ID_WIDTH        =  Instance.PreformattedParam(id_width),
+            p_AXI_DATA_WIDTH            = Instance.PreformattedParam(data_width),
+            p_AXI_ADDR_WIDTH            = Instance.PreformattedParam(address_width),
+            p_AXI_ID_WIDTH              = Instance.PreformattedParam(id_width),
 
             # IP Params.
-            p_AXI_MAX_BURST_LEN   =  Instance.PreformattedParam(axi_max_burst_len),    
-            p_LEN_WIDTH           =  Instance.PreformattedParam(len_width),
-            p_TAG_WIDTH           =  Instance.PreformattedParam(tag_width),
-            p_ENABLE_UNALIGNED    = enable_unaligned,    
-
+            p_AXI_MAX_BURST_LEN         = Instance.PreformattedParam(axi_max_burst_len),    
+            p_LEN_WIDTH                 = Instance.PreformattedParam(len_width),
+            p_TAG_WIDTH                 = Instance.PreformattedParam(tag_width),
+            p_ENABLE_UNALIGNED          = enable_unaligned,    
 
             # Clk / Rst.
             i_clk                       = ClockSignal(m_axi.clock_domain),
@@ -103,54 +99,52 @@ class AXICDMA(Module):
             o_m_axis_desc_status_error  = self.m_axis_desc_status_error,
             o_m_axis_desc_status_valid  = self.m_axis_desc_status_valid,
 
-
             # AXI master Interface.
             # --------------------
             # AW.
-            o_m_axi_awid     = m_axi.aw.id,
-            o_m_axi_awaddr   = m_axi.aw.addr,
-            o_m_axi_awlen    = m_axi.aw.len,
-            o_m_axi_awsize   = m_axi.aw.size,
-            o_m_axi_awburst  = m_axi.aw.burst,
-            o_m_axi_awlock   = m_axi.aw.lock,
-            o_m_axi_awcache  = m_axi.aw.cache,
-            o_m_axi_awprot   = m_axi.aw.prot,
-            o_m_axi_awvalid  = m_axi.aw.valid,
-            i_m_axi_awready  = m_axi.aw.ready,
+            o_m_axi_awid                = m_axi.aw.id,
+            o_m_axi_awaddr              = m_axi.aw.addr,
+            o_m_axi_awlen               = m_axi.aw.len,
+            o_m_axi_awsize              = m_axi.aw.size,
+            o_m_axi_awburst             = m_axi.aw.burst,
+            o_m_axi_awlock              = m_axi.aw.lock,
+            o_m_axi_awcache             = m_axi.aw.cache,
+            o_m_axi_awprot              = m_axi.aw.prot,
+            o_m_axi_awvalid             = m_axi.aw.valid,
+            i_m_axi_awready             = m_axi.aw.ready,
 
             # W.
-            o_m_axi_wdata    = m_axi.w.data,
-            o_m_axi_wstrb    = m_axi.w.strb,
-            o_m_axi_wlast    = m_axi.w.last,
-            o_m_axi_wvalid   = m_axi.w.valid,
-            i_m_axi_wready   = m_axi.w.ready,
+            o_m_axi_wdata               = m_axi.w.data,
+            o_m_axi_wstrb               = m_axi.w.strb,
+            o_m_axi_wlast               = m_axi.w.last,
+            o_m_axi_wvalid              = m_axi.w.valid,
+            i_m_axi_wready              = m_axi.w.ready,
 
             # B.
-            i_m_axi_bid      = m_axi.b.id,
-            i_m_axi_bresp    = m_axi.b.resp,
-            i_m_axi_bvalid   = m_axi.b.valid,
-            o_m_axi_bready   = m_axi.b.ready,
+            i_m_axi_bid                 = m_axi.b.id,
+            i_m_axi_bresp               = m_axi.b.resp,
+            i_m_axi_bvalid              = m_axi.b.valid,
+            o_m_axi_bready              = m_axi.b.ready,
 
             # AR.
-            o_m_axi_arid     = m_axi.ar.id,
-            o_m_axi_araddr   = m_axi.ar.addr,
-            o_m_axi_arlen    = m_axi.ar.len,
-            o_m_axi_arsize   = m_axi.ar.size,
-            o_m_axi_arburst  = m_axi.ar.burst,
-            o_m_axi_arlock   = m_axi.ar.lock,
-            o_m_axi_arcache  = m_axi.ar.cache,
-            o_m_axi_arprot   = m_axi.ar.prot,
-            o_m_axi_arvalid  = m_axi.ar.valid,
-            i_m_axi_arready  = m_axi.ar.ready,
+            o_m_axi_arid                = m_axi.ar.id,
+            o_m_axi_araddr              = m_axi.ar.addr,
+            o_m_axi_arlen               = m_axi.ar.len,
+            o_m_axi_arsize              = m_axi.ar.size,
+            o_m_axi_arburst             = m_axi.ar.burst,
+            o_m_axi_arlock              = m_axi.ar.lock,
+            o_m_axi_arcache             = m_axi.ar.cache,
+            o_m_axi_arprot              = m_axi.ar.prot,
+            o_m_axi_arvalid             = m_axi.ar.valid,
+            i_m_axi_arready             = m_axi.ar.ready,
 
             # R.
-            i_m_axi_rid      = m_axi.r.id,
-            i_m_axi_rdata    = m_axi.r.data,
-            i_m_axi_rresp    = m_axi.r.resp,
-            i_m_axi_rlast    = m_axi.r.last,
-            i_m_axi_rvalid   = m_axi.r.valid,
-            o_m_axi_rready   = m_axi.r.ready,
-
+            i_m_axi_rid                 = m_axi.r.id,
+            i_m_axi_rdata               = m_axi.r.data,
+            i_m_axi_rresp               = m_axi.r.resp,
+            i_m_axi_rlast               = m_axi.r.last,
+            i_m_axi_rvalid              = m_axi.r.valid,
+            o_m_axi_rready              = m_axi.r.ready,
         )
 
         # Add Sources.

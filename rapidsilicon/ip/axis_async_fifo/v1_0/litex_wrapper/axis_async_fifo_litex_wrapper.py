@@ -32,6 +32,7 @@ class AXISASYNCFIFO(Module):
         drop_bad_frame  = 0,
         drop_when_full  = 0        
     ):
+        
         self.logger = logging.getLogger("AXI_STREAM_ASYNCHRONUS_FIFO")
         
         self.logger.propagate = False
@@ -88,18 +89,18 @@ class AXISASYNCFIFO(Module):
             # Parameters.
             # -----------
             # Global.
-            p_DEPTH                 = depth,
-            p_DATA_WIDTH            = data_width,
+            p_DEPTH                 = Instance.PreformattedParam(depth),
+            p_DATA_WIDTH            = Instance.PreformattedParam(data_width),
+            p_KEEP_WIDTH            = Instance.PreformattedParam(int((data_width+7)/8)),
+            p_ID_WIDTH              = Instance.PreformattedParam(id_width),
+            p_DEST_WIDTH            = Instance.PreformattedParam(dest_width),
+            p_USER_WIDTH            = Instance.PreformattedParam(user_width),
+            p_RAM_PIPELINE          = Instance.PreformattedParam(pip_out),
             p_KEEP_ENABLE           = data_width>8,
-            p_KEEP_WIDTH            = int((data_width+7)/8),
             p_LAST_ENABLE           = last_en,
             p_ID_ENABLE             = id_en,
-            p_ID_WIDTH              = id_width,
             p_DEST_ENABLE           = dest_en,
-            p_DEST_WIDTH            = dest_width,
-            p_USER_ENABLE           = user_en, 
-            p_USER_WIDTH            = user_width,
-            p_RAM_PIPELINE          = pip_out,
+            p_USER_ENABLE           = user_en,
             p_OUTPUT_FIFO_ENABLE    = out_fifo_en,
             p_USER_BAD_FRAME_VALUE  = bad_frame_value,
             p_USER_BAD_FRAME_MASK   = bad_frame_mask,
