@@ -39,13 +39,11 @@ from cocotb.regression import TestFactory
 
 from cocotbext.axi import AxiStreamBus, AxiStreamFrame, AxiStreamSource, AxiStreamSink
 
-
+s_count = 4             # Edit these according to the configuration of the RTL Wrapper
+m_count = 4             # Edit these according to the configuration of the RTL Wrapper
 class TB(object):
     def __init__(self, dut):
         self.dut = dut
-
-        s_count = len(dut.axis_switch.s_axis_tvalid)
-        m_count = len(dut.axis_switch.m_axis_tvalid)
 
         self.log = logging.getLogger("cocotb.tb")
         self.log.setLevel(logging.DEBUG)
@@ -287,9 +285,6 @@ def incrementing_payload(length):
 
 
 if cocotb.SIM_NAME:
-
-    s_count = len(cocotb.top.axis_switch.s_axis_tvalid)
-    m_count = len(cocotb.top.axis_switch.m_axis_tvalid)
 
     factory = TestFactory(run_test)
     factory.add_option("payload_lengths", [size_list])
