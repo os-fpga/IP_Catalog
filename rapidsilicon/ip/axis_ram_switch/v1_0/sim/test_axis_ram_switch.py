@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
-
 import itertools
 import logging
 import os
@@ -39,19 +38,16 @@ from cocotb.regression import TestFactory
 
 from cocotbext.axi import AxiStreamBus, AxiStreamFrame, AxiStreamSource, AxiStreamSink
 
+s_count = 4             # Edit these according to the configuration of the RTL Wrapper
+m_count = 4             # Edit these according to the configuration of the RTL Wrapper
 
 class TB(object):
     def __init__(self, dut):
         self.dut = dut
-
-        s_count = len(dut.axis_ram_switch.s_axis_tvalid)
-        m_count = len(dut.axis_ram_switch.m_axis_tvalid)
-
         self.log = logging.getLogger("cocotb.tb")
         self.log.setLevel(logging.DEBUG)
 
         cocotb.start_soon(Clock(dut.clk, 10, units="ns").start())
-
         self.source = [AxiStreamSource(AxiStreamBus.from_prefix(dut, f"s{k:02d}_axis"), dut.clk, dut.rst) for k in range(s_count)]
         self.sink = [AxiStreamSink(AxiStreamBus.from_prefix(dut, f"m{k:02d}_axis"), dut.clk, dut.rst) for k in range(m_count)]
 
@@ -286,12 +282,7 @@ def size_list():
 def incrementing_payload(length):
     return bytearray(itertools.islice(itertools.cycle(range(256)), length))
 
-
 if cocotb.SIM_NAME:
-
-    s_count = len(cocotb.top.axis_ram_switch.s_axis_tvalid)
-    m_count = len(cocotb.top.axis_ram_switch.m_axis_tvalid)
-
     factory = TestFactory(run_test)
     factory.add_option("payload_lengths", [size_list])
     factory.add_option("payload_data", [incrementing_payload])

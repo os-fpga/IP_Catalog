@@ -168,7 +168,7 @@ def main():
     core_bool_param_group.add_argument("--user_en",                 type=bool,  default=True,   help="SWITCH User Enable.")
     core_bool_param_group.add_argument("--lsb_high_priority",       type=bool,  default=True,   help="SWITCH LSB Priority Selection")
     core_bool_param_group.add_argument("--type_round_robin",        type=bool,  default=True,   help="SWITCH Round Robin Arbitration")
-    core_bool_param_group.add_argument("--tid",              type=bool,  default=False,  help="SWITCH Update TID")
+    core_bool_param_group.add_argument("--tid",                     type=bool,  default=False,  help="SWITCH Update TID")
 
     # Core range value parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -187,7 +187,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="axis_switch_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="axis_switch_wrapper",  help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")

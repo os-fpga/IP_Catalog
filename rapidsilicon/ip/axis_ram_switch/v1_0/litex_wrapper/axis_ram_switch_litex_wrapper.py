@@ -19,35 +19,15 @@ logging.basicConfig(level=logging.INFO)
 # AXIS_RAM_SWITCH ---------------------------------------------------------------------------------------
 class AXISTREAMRAMSWITCH(Module):
     def __init__(self, platform, s_axis, m_axis,
-        fifo_depth,
-        cmd_fifo_depth,
-        speedup,
-        s_count, 
-        m_count,
-        s_data_width,
-        s_keep_enable, 
-        s_keep_width,
-        m_data_width,
-        m_keep_enable,
-        m_keep_width, 
-        id_enable,
-        s_id_width,
-        m_id_width,
-        m_dest_width,
-        s_dest_width,
-        user_enable,
-        user_width,
-        user_bad_frame_value,
-        user_bad_frame_mask,
-        drop_bad_frame,
-        drop_when_full,
-        m_base,
-        m_top,
-        update_tid,
-        arb_type_round_robin,
-        arb_lsb_high_priority,
-        m_connect,
-        ram_pipeline
+        fifo_depth, cmd_fifo_depth, speedup, s_count, 
+        m_count, s_data_width, s_keep_enable, s_keep_width,
+        m_data_width, m_keep_enable, m_keep_width, 
+        id_enable, s_id_width, m_id_width, m_dest_width,
+        s_dest_width, user_enable, user_width,
+        user_bad_frame_value, user_bad_frame_mask,
+        drop_bad_frame, drop_when_full, m_base, m_top,
+        update_tid, arb_type_round_robin, arb_lsb_high_priority,
+        m_connect, ram_pipeline
     ):
         
         self.logger = logging.getLogger("AXI_STREAM_RAM_SWITCH")
@@ -71,9 +51,9 @@ class AXISTREAMRAMSWITCH(Module):
         self.logger.info(f"M_DEST_WIDTH     : {m_dest_width}")
 
         # Status Signals
-        self.status_overflow            = Signal(s_count)
-        self.status_bad_frame           = Signal(s_count)
-        self.status_good_frame          = Signal(s_count)
+        self.status_overflow            = Signal()
+        self.status_bad_frame           = Signal()
+        self.status_good_frame          = Signal()
 
         # Module Instance.
         # ----------------
@@ -89,17 +69,30 @@ class AXISTREAMRAMSWITCH(Module):
             p_S_DATA_WIDTH              = Instance.PreformattedParam(s_data_width),
             p_S_KEEP_WIDTH              = Instance.PreformattedParam(s_keep_width),
             p_M_DATA_WIDTH              = Instance.PreformattedParam(m_data_width),
+<<<<<<< HEAD
+            p_USER_BAD_FRAME_VALUE      = Instance.PreformattedParam(user_bad_frame_value),
+            p_USER_BAD_FRAME_MASK       = Instance.PreformattedParam(user_bad_frame_mask),
+=======
             p_M_KEEP_WIDTH              = Instance.PreformattedParam(m_keep_width),
+>>>>>>> 97fe9b50b693e5fbb47f1ebce0a313aaa850494b
             p_S_ID_WIDTH                = Instance.PreformattedParam(s_id_width),
             p_M_ID_WIDTH                = Instance.PreformattedParam(m_id_width),
             p_M_DEST_WIDTH              = Instance.PreformattedParam(m_dest_width),
             p_S_DEST_WIDTH              = Instance.PreformattedParam(s_dest_width),
+<<<<<<< HEAD
+            p_M_KEEP_WIDTH              = Instance.PreformattedParam(m_keep_width),
+            p_M_CONNECT                 = Instance.PreformattedParam(m_connect),
+            p_RAM_PIPELINE              = Instance.PreformattedParam(ram_pipeline),
+            p_USER_WIDTH                = user_width,
+            p_S_KEEP_ENABLE             = s_keep_enable, 
+=======
             p_USER_BAD_FRAME_VALUE      = Instance.PreformattedParam(user_bad_frame_value),
             p_USER_BAD_FRAME_MASK       = Instance.PreformattedParam(user_bad_frame_mask),
             p_M_CONNECT                 = Instance.PreformattedParam(m_connect),
             p_RAM_PIPELINE              = Instance.PreformattedParam(ram_pipeline),
             p_USER_WIDTH                = user_width,
             p_S_KEEP_ENABLE             = s_keep_enable,
+>>>>>>> 97fe9b50b693e5fbb47f1ebce0a313aaa850494b
             p_M_KEEP_ENABLE             = m_keep_enable,
             p_ID_ENABLE                 = id_enable,
             p_USER_ENABLE               = user_enable,
@@ -110,6 +103,10 @@ class AXISTREAMRAMSWITCH(Module):
             p_UPDATE_TID                = update_tid,
             p_ARB_TYPE_ROUND_ROBIN      = arb_type_round_robin,
             p_ARB_LSB_HIGH_PRIORITY     = arb_lsb_high_priority,
+<<<<<<< HEAD
+
+=======
+>>>>>>> 97fe9b50b693e5fbb47f1ebce0a313aaa850494b
 
             # Clk / Rst.
             # ----------
