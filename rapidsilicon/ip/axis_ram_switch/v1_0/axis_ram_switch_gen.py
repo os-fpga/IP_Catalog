@@ -186,12 +186,14 @@ def main():
     from common import IP_Builder
 
     # Parameter Dependency dictionary
-
     #       Ports       :   Dependency
     dep_dict = {
         'user_width'    :   'user_enable'
     }
 
+    # IP Builder.
+    rs_builder = IP_Builder(device="gemini", ip_name="axis_ram_switch", language="verilog")
+    
     # Core fix value parameters
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--fifo_depth",       type=int,   default=4096,   choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768], help="RAM_SWITCH FIFO Depth.")
@@ -273,7 +275,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axis_ram_switch", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name

@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 import math
 
@@ -224,9 +223,8 @@ def main():
         arb_lsb_high_priority   = args.lsb_high_priority
     )
 
- # Build Project --------------------------------------------------------------------------------
+# Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axis_switch", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name
