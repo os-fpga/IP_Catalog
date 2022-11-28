@@ -87,7 +87,7 @@ jobs:
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_gen.py --data_width=32 --addr_width=32 --s_count=7 --m_count=4  --build-name=crossbar_wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_gen.py --data_width=1024 --m_count=8 --build-name=broadcast --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_bridge_gen.py --data_width=256 --addr_width=8 --build-name=wrapper --build
-        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_spi/v1_0/axil_spi_gen.py --build-name=wrapper --build
+        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_quadspi/v1_0/axil_quadspi_gen.py --build-name=wrapper --build
 
 
 
@@ -192,4 +192,4 @@ jobs:
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_gen.py --data_width=32 --addr_width=32 --s_count=7 --m_count=4 --json-template --build-name=crossbar_wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_gen.py --data_width=1024 --m_count=8 --json-template --build-name=broadcast --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_bridge_gen.py --data_width=256 --addr_width=8 --json-template --build-name=wrapper --build
-           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_spi/v1_0/axil_spi_gen.py --json-template --build-name=wrapper --build
+           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_quadspi/v1_0/axil_quadspi_gen.py --json-template --build-name=wrapper --build
