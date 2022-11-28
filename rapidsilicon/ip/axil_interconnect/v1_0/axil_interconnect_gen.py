@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axil_interconnect_litex_wrapper import AXILITEINTERCONNECT
@@ -81,27 +80,22 @@ def main():
     from common import IP_Builder
 
 
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {}            
-
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_interconnect", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="Interconnect Data Width.")
-    core_fix_param_group.add_argument("--addr_width", type=int, default=32, choices=[32,64,128,256],           help="Interconnect Address Width.")
-
+    core_fix_param_group.add_argument("--data_width",       type=int,       default=32,     choices=[8, 16, 32, 64, 128, 256],  help="Interconnect Data Width.")
+    core_fix_param_group.add_argument("--addr_width",       type=int,       default=32,     choices=[32,64,128,256],            help="Interconnect Address Width.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--m_count",           type=int, default=4,  choices=range(1,17),               help="Interconnect Master Interfaces.")
-    core_range_param_group.add_argument("--s_count",           type=int, default=4,  choices=range(1,17),               help="Interconnect SLAVE Interfaces.")
-
+    core_range_param_group.add_argument("--m_count",        type=int,       default=4,      choices=range(1,17),      help="Interconnect Master Interfaces.")
+    core_range_param_group.add_argument("--s_count",        type=int,       default=4,      choices=range(1,17),      help="Interconnect SLAVE Interfaces.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -135,7 +129,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axil_interconnect", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,

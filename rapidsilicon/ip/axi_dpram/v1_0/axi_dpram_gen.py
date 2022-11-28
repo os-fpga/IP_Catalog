@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axi_dp_ram_litex_wrapper import AXIDPRAM
@@ -86,34 +85,28 @@ def main():
 
     from common import IP_Builder
 
-  # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {}            
-
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_dpram", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width",   type=int, default=32, choices=[8, 16, 32, 64, 128, 256], help="DPRAM Data Width.")
- 
+    core_fix_param_group.add_argument("--data_width",   type=int,   default=32,     choices=[8, 16, 32, 64, 128, 256], help="DPRAM Data Width.")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--a_pip_out",    type=bool, default=True,                  help="DPRAM A Pipeline Output.")
-    core_bool_param_group.add_argument("--b_pip_out",    type=bool, default=True,                  help="DPRAM B Pipeline Output.")
-    core_bool_param_group.add_argument("--a_interleave", type=bool, default=True,                  help="DPRAM A Interleave.")
-    core_bool_param_group.add_argument("--b_interleave", type=bool, default=True,                  help="DPRAM B Interleave.")
-
+    core_bool_param_group.add_argument("--a_pip_out",       type=bool,     default=True,       help="DPRAM A Pipeline Output.")
+    core_bool_param_group.add_argument("--b_pip_out",       type=bool,     default=True,       help="DPRAM B Pipeline Output.")
+    core_bool_param_group.add_argument("--a_interleave",    type=bool,     default=True,       help="DPRAM A Interleave.")
+    core_bool_param_group.add_argument("--b_interleave",    type=bool,     default=True,       help="DPRAM B Interleave.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--addr_width",   type=int, default=16, choices=range(8, 17),              help="DPRAM Address Width.")
-    core_range_param_group.add_argument("--id_width",     type=int, default=32, choices=range(1, 33),              help="DPRAM ID Width.")
-
+    core_range_param_group.add_argument("--addr_width",     type=int,      default=16,      choices=range(8, 17),     help="DPRAM Address Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,      default=32,      choices=range(1, 33),     help="DPRAM ID Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -150,7 +143,6 @@ def main():
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axi_dpram", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,

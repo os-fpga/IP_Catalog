@@ -69,28 +69,26 @@ class AXIINTERCONNECT(Module):
         r_user_width = len(s_axi[0].r.user)
         self.logger.info(f"RUSER_WIDTH  : {r_user_width}")
 
-
         # Module instance.
         # ----------------
         self.specials += Instance("axi_interconnect",
             # Parameters.
             # -----------
-            p_S_COUNT       = len(s_axi),
-            p_M_COUNT       = len(m_axi),
-            p_DATA_WIDTH    = data_width,
-            p_ADDR_WIDTH    = address_width,
-            p_ID_WIDTH      = id_width,
-
+            p_S_COUNT       = Instance.PreformattedParam(len(s_axi)),
+            p_M_COUNT       = Instance.PreformattedParam(len(m_axi)),
+            p_DATA_WIDTH    = Instance.PreformattedParam(data_width),
+            p_ADDR_WIDTH    = Instance.PreformattedParam(address_width),
+            p_ID_WIDTH      = Instance.PreformattedParam(id_width),
+            p_AWUSER_WIDTH  = Instance.PreformattedParam(aw_user_width),
+            p_WUSER_WIDTH   = Instance.PreformattedParam(w_user_width),
+            p_BUSER_WIDTH   = Instance.PreformattedParam(b_user_width),
+            p_ARUSER_WIDTH  = Instance.PreformattedParam(ar_user_width),
+            p_RUSER_WIDTH   = Instance.PreformattedParam(r_user_width),
             p_AWUSER_ENABLE = aw_user_en,
-            p_AWUSER_WIDTH  = aw_user_width,
             p_WUSER_ENABLE  = w_user_en,
-            p_WUSER_WIDTH   = w_user_width,
             p_BUSER_ENABLE  = b_user_en,
-            p_BUSER_WIDTH   = b_user_width,
             p_ARUSER_ENABLE = ar_user_en,
-            p_ARUSER_WIDTH  = ar_user_width,
             p_RUSER_ENABLE  = r_user_en,
-            p_RUSER_WIDTH   = r_user_width,
 
             # Clk / Rst.
             # ----------

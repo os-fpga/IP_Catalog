@@ -45,17 +45,15 @@ class AXILITECROSSBAR(Module):
         addr_width = len(s_axil[0].aw.addr)
         self.logger.info(f"ADDR_WIDTH   : {addr_width}")
 
-
         # Module instance.
-        # ----------------
-
+        # ---------------
         self.specials += Instance("axil_crossbar",
             # Parameters.
             # -----------
-            p_S_COUNT           = len(s_axil),
-            p_M_COUNT           = len(m_axil),
-            p_DATA_WIDTH        = data_width,
-            p_ADDR_WIDTH        = addr_width,
+            p_S_COUNT           = Instance.PreformattedParam(len(s_axil)),
+            p_M_COUNT           = Instance.PreformattedParam(len(m_axil)),
+            p_DATA_WIDTH        = Instance.PreformattedParam(data_width),
+            p_ADDR_WIDTH        = Instance.PreformattedParam(addr_width),
 
             # Clk / Rst.
             # ----------
@@ -92,7 +90,6 @@ class AXILITECROSSBAR(Module):
             o_s_axil_rresp      = Cat(*[s_axi.r.resp      for s_axi in s_axil]),
             o_s_axil_rvalid     = Cat(*[s_axi.r.valid     for s_axi in s_axil]),
             i_s_axil_rready     = Cat(*[s_axi.r.ready     for s_axi in s_axil]),
-            
             
             # AXI-Lite Master Interface.
             # -------------------------
