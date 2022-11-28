@@ -20,7 +20,7 @@
 
 TOPLEVEL_LANG = verilog
 
-SIM ?= icarus
+SIM ?= verilator
 WAVES ?= 1
 
 COCOTB_HDL_TIMEUNIT = 1ns
@@ -29,7 +29,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axi_dp_ram
 TOPLEVEL = axi_dpram_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_dpram_wrapper.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/$(TOPLEVEL).v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/$(DUT).v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_ram_wr_rd_if.v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_ram_wr_if.v
@@ -45,25 +45,13 @@ export PARAM_PIPELINE_OUTPUT ?= 0
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
 
-	COMPILE_ARGS += -P $(TOPLEVEL).DATA_WIDTH=$(PARAM_DATA_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).ADDR_WIDTH=$(PARAM_ADDR_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).STRB_WIDTH=$(PARAM_STRB_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).ID_WIDTH=$(PARAM_ID_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).PIPELINE_OUTPUT=$(PARAM_PIPELINE_OUTPUT)
-
 	ifeq ($(WAVES), 1)
 		VERILOG_SOURCES += iverilog_dump.v
 		COMPILE_ARGS += -s iverilog_dump
-#		COMPILE_ARGS += $dumpfile("test.vcd")
+
 	endif
 else ifeq ($(SIM), verilator)
-	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-CASEINCOMPLETE
-
-	COMPILE_ARGS += -GDATA_WIDTH=$(PARAM_DATA_WIDTH)
-	COMPILE_ARGS += -GADDR_WIDTH=$(PARAM_ADDR_WIDTH)
-	COMPILE_ARGS += -GSTRB_WIDTH=$(PARAM_STRB_WIDTH)
-	COMPILE_ARGS += -GID_WIDTH=$(PARAM_ID_WIDTH)
-	COMPILE_ARGS += -GPIPELINE_OUTPUT=$(PARAM_PIPELINE_OUTPUT)
+	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-CASEINCOMPLETE -Wno-fatal
 
 	ifeq ($(WAVES), 1)
 		COMPILE_ARGS += --trace-fst

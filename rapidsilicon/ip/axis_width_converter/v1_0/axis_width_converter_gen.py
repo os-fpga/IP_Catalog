@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from migen import *
@@ -61,33 +60,29 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
-    #                Ports     :    Dependency
+    # Parameter Dependency dictionary
+    #                Ports         :    Dependency
     dep_dict = {    
-                'axi_id_width' :   'axis_id_enable',
+                'axi_id_width'     :   'axis_id_enable',
                 'axis_dest_width'  :   'axis_dest_enable',
-                'axis_user_width'  :   'axis_user_enable'}            
-
+                'axis_user_width'  :   'axis_user_enable'
+    }            
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_width_converter", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--core_in_width",   type=int, default=128, choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="AXI-ST Input Data-width.")
-    core_fix_param_group.add_argument("--core_out_width",  type=int, default=64,  choices=[8, 16, 32, 64, 128, 256, 512, 1024], help="AXI-ST Output Data-width.")
- 
+    core_fix_param_group.add_argument("--core_in_width",    type=int,   default=128,    choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="AXI-ST Input Data-width.")
+    core_fix_param_group.add_argument("--core_out_width",   type=int,   default=64,     choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="AXI-ST Output Data-width.")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--core_reverse",    type=bool, default=False,                          help="Reverse Converter Ordering.")
-
+    core_bool_param_group.add_argument("--core_reverse",    type=bool,      default=False,       help="Reverse Converter Ordering.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--core_user_width", type=int, default=1,   choices=range(1,4097),                        help="AXI-ST User width.")
+    core_range_param_group.add_argument("--core_user_width",    type=int,       default=1,      choices=range(1,4097),      help="AXI-ST User width.")
 
 
     # Build Parameters.
@@ -124,7 +119,6 @@ def main():
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axis_width_converter", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,

@@ -44,7 +44,7 @@ class AXISTREAMUART(Module):
             # Parameters.
             # -----------
             # Global.
-            p_DATA_WIDTH        = data_width,
+            p_DATA_WIDTH        = Instance.PreformattedParam(data_width),
 
             # Clk / Rst.
             # ----------
@@ -52,7 +52,6 @@ class AXISTREAMUART(Module):
             i_rst               = ResetSignal(),
 
             # AXI Input
-            # --------------------
             i_s_axis_tdata      = s_axis.data,
             i_s_axis_tvalid     = s_axis.valid,
             o_s_axis_tready     = s_axis.ready,
