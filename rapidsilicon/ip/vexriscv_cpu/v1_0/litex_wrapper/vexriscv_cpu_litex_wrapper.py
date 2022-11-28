@@ -13,43 +13,41 @@ from migen import *
 
 class VexRiscv(Module):
     def __init__(self, platform, ibus, dbus, variant="standard"):
-        self.platform         = platform
-        self.variant          = variant
-        self.human_name       = "VexRiscv"
-        self.external_variant = None
-        self.ibus             = ibus
-        self.dbus             = dbus
-        self.reset            = Signal()
-        self.interrupt        = Signal(32)
+        self.platform          = platform
+        self.variant           = variant
+        self.human_name        = "VexRiscv"
+        self.external_variant  = None
+        self.ibus              = ibus
+        self.dbus              = dbus
+        self.reset             = Signal()
+        self.interrupt         = Signal(32)
 
         # Jtag Signals
-        self.jtag_tms         = Signal()
-        self.jtag_tdi         = Signal()
-        self.jtag_tdo         = Signal()
-        self.jtag_tck         = Signal()
+        self.jtag_tms          = Signal()
+        self.jtag_tdi          = Signal()
+        self.jtag_tdo          = Signal()
+        self.jtag_tck          = Signal()
 
         # Other IOs
-        self.timerInterrupt   = Signal()
-        self.externalInterrupt= Signal()
-        self.softwareInterrupt= Signal()
-        self.debugReset       = Signal()
-        self.debug_resetOut   = Signal()    
-
+        self.timerInterrupt    = Signal()
+        self.externalInterrupt = Signal()
+        self.softwareInterrupt = Signal()
+        self.debugReset        = Signal()
+        self.debug_resetOut    = Signal()    
 
         # CPU Instance.
         self.cpu_params = dict(
-
             # Clk / Rst.
             # ----------
-            i_clk                    = ClockSignal("sys"),
-            i_reset                  = ResetSignal("sys") | self.reset,
+            i_clk                       = ClockSignal("sys"),
+            i_reset                     = ResetSignal("sys") | self.reset,
 
             #Interrupts/Debug
-            i_externalInterrupt     = self.timerInterrupt,
-            i_timerInterrupt        = self.externalInterrupt,
-            i_softwareInterrupt     = self.softwareInterrupt,
-            i_debugReset            = self.debugReset,
-            o_debug_resetOut        = self.debug_resetOut,  
+            i_externalInterrupt         = self.timerInterrupt,
+            i_timerInterrupt            = self.externalInterrupt,
+            i_softwareInterrupt         = self.softwareInterrupt,
+            i_debugReset                = self.debugReset,
+            o_debug_resetOut            = self.debug_resetOut,  
 
             # IBUS AXI-FULL   
             # -------------
@@ -127,10 +125,10 @@ class VexRiscv(Module):
             i_dBusAxi_r_payload_last    = self.dbus.r.last,
 
             # JTAG
-            i_jtag_tms= self.jtag_tms,
-            i_jtag_tdi= self.jtag_tdi,
-            o_jtag_tdo= self.jtag_tdo,
-            i_jtag_tck= self.jtag_tck,
+            i_jtag_tms                  = self.jtag_tms,
+            i_jtag_tdi                  = self.jtag_tdi,
+            o_jtag_tdo                  = self.jtag_tdo,
+            i_jtag_tck                  = self.jtag_tck,
         )
 
     def set_reset_address(self, reset_address):

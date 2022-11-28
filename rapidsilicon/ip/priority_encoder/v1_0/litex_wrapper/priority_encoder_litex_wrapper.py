@@ -40,7 +40,7 @@ class PRIORITYENCODER(Module):
         self.specials += Instance("priority_encoder",
             # Parameters.
             # -----------
-            p_WIDTH             = width,
+            p_WIDTH             = Instance.PreformattedParam(width),
             p_LSB_HIGH_PRIORITY = lsb_high_priority,
 
             # Signals

@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axis_uart_litex_wrapper import AXISTREAMUART
@@ -94,19 +93,16 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {}            
-
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_uart", language="verilog")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width", type=int, default=5, choices=range(5,9), help="UART Data Width.")
-
+    core_range_param_group.add_argument("--data_width",     type=int,       default=5,      choices=range(5,9),     help="UART Data Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -137,7 +133,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axis_uart", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
