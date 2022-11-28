@@ -19,24 +19,11 @@ logging.basicConfig(level=logging.INFO)
 # AXIS_SWITCH ---------------------------------------------------------------------------------------
 class AXISTREAMSWITCH(Module):
     def __init__(self, platform, s_axis, m_axis,
-        s_count, 
-        m_count,  
-        keep_enable, 
-        keep_width, 
-        id_enable,
-        s_id_width,
-        m_id_width,
-        m_dest_width,
-        s_dest_width,
-        user_enable,
-        user_width,
-        m_base,
-        m_top,
-        update_tid,
-        s_reg_type,
-        m_reg_type,
-        arb_type_round_robin,
-        arb_lsb_high_priority,
+        s_count, m_count, keep_enable, keep_width, 
+        id_enable, s_id_width, m_id_width, m_dest_width,
+        s_dest_width, user_enable, user_width,
+        m_base, m_top, update_tid, s_reg_type,
+        m_reg_type, arb_type_round_robin, arb_lsb_high_priority,
         m_connect
     ):
         self.logger = logging.getLogger("AXI_STREAM_SWITCH")
@@ -65,7 +52,11 @@ class AXISTREAMSWITCH(Module):
             p_DATA_WIDTH                = Instance.PreformattedParam(data_width),
             p_USER_WIDTH                = Instance.PreformattedParam(user_width),
             p_KEEP_ENABLE               = Instance.PreformattedParam(keep_enable), 
+<<<<<<< HEAD
+            p_KEEP_WIDTH                = Instance.PreformattedParam(keep_width),
+=======
             p_KEEP_WIDTH                = Instance.PreformattedParam(keep_width), 
+>>>>>>> 97fe9b50b693e5fbb47f1ebce0a313aaa850494b
             p_S_ID_WIDTH                = Instance.PreformattedParam(s_id_width),
             p_M_ID_WIDTH                = Instance.PreformattedParam(m_id_width),
             p_M_DEST_WIDTH              = Instance.PreformattedParam(m_dest_width),
@@ -81,6 +72,10 @@ class AXISTREAMSWITCH(Module):
             p_ARB_TYPE_ROUND_ROBIN      = arb_type_round_robin,
             p_ARB_LSB_HIGH_PRIORITY     = arb_lsb_high_priority,
             
+<<<<<<< HEAD
+
+=======
+>>>>>>> 97fe9b50b693e5fbb47f1ebce0a313aaa850494b
             # Clk / Rst.
             # ----------
             i_clk                       = ClockSignal(),
