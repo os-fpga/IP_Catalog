@@ -48,6 +48,8 @@ export PARAM_ADDR_WIDTH ?= 32
 export PARAM_STRB_WIDTH ?= $(shell expr $(PARAM_DATA_WIDTH) / 8 )
 export PARAM_M_REGIONS ?= 1
 
+$(shell ../$(DUT)_gen.py --s_count=${PARAM_S_COUNT} --m_count=${PARAM_M_COUNT} --build)
+
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
 

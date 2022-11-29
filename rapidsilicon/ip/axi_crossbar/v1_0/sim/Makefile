@@ -60,6 +60,8 @@ export PARAM_RUSER_ENABLE ?= 0
 export PARAM_RUSER_WIDTH ?= 1
 export PARAM_M_REGIONS ?= 1
 
+$(shell ../$(DUT)_gen.py --s_count=${PARAM_S_COUNT} --m_count=${PARAM_M_COUNT} --build)
+
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
 
@@ -76,6 +78,9 @@ else ifeq ($(SIM), verilator)
 endif
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
+
+$(TOPLEVEL)_wrapper.v: ../$(DUT)_gen.py
+	$< --s_count $(PARAM_S_COUNT) --m_count $(PARAM_M_COUNT) --build
 
 iverilog_dump.v:
 	echo 'module iverilog_dump();' > $@

@@ -45,6 +45,8 @@ export PARAM_LEN_WIDTH = 20
 export PARAM_TAG_WIDTH = 8
 export PARAM_ENABLE_UNALIGNED = 0
 
+$(shell ../$(DUT)_gen.py --build)
+
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
 
