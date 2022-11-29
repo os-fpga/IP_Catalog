@@ -56,6 +56,8 @@ export PARAM_READ_FIFO_DEPTH ?= 32
 export PARAM_WRITE_FIFO_DELAY ?= 0
 export PARAM_READ_FIFO_DELAY ?= 0
 
+$(shell ../$(DUT)_gen.py --build)
+
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
 

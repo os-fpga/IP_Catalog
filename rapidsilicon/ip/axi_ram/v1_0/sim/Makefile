@@ -39,6 +39,8 @@ export PARAM_STRB_WIDTH ?= $(shell expr $(PARAM_DATA_WIDTH) / 8 )
 export PARAM_ID_WIDTH ?= 8
 export PARAM_PIPELINE_OUTPUT ?= 0
 
+$(shell ../$(DUT)_gen.py --build)
+
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
 

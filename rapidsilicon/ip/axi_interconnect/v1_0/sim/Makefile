@@ -26,19 +26,21 @@ WAVES ?= 1
 COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
-DUT      = axi_register
-TOPLEVEL = $(DUT)_wrapper
-MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_register/v1_0/axi_register_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_register/v1_0/axi_register_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_register/v1_0/axi_register_wrapper/src/$(DUT)_wr.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_register/v1_0/axi_register_wrapper/src/$(DUT)_rd.v
+export PARAM_S_COUNT ?= 4
+export PARAM_M_COUNT ?= 4
 
-REG_TYPE ?= 2
+DUT      = axi_interconnect
+WRAPPER	 = $(DUT)_wrapper
+TOPLEVEL = $(WRAPPER)
+MODULE   = test_$(DUT)
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_interconnect/v1_0/axi_interconnect_wrapper/src/$(TOPLEVEL).v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_interconnect/v1_0/axi_interconnect_wrapper/src/$(DUT).v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_interconnect/v1_0/axi_interconnect_wrapper/src/arbiter.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_interconnect/v1_0/axi_interconnect_wrapper/src/priority_encoder.v
 
 # module parameters
 export PARAM_DATA_WIDTH ?= 32
-export PARAM_ADDR_WIDTH ?= 16
+export PARAM_ADDR_WIDTH ?= 32
 export PARAM_STRB_WIDTH ?= $(shell expr $(PARAM_DATA_WIDTH) / 8 )
 export PARAM_ID_WIDTH ?= 8
 export PARAM_AWUSER_ENABLE ?= 0
@@ -51,13 +53,10 @@ export PARAM_ARUSER_ENABLE ?= 0
 export PARAM_ARUSER_WIDTH ?= 1
 export PARAM_RUSER_ENABLE ?= 0
 export PARAM_RUSER_WIDTH ?= 1
-export PARAM_AW_REG_TYPE ?= $(REG_TYPE)
-export PARAM_W_REG_TYPE ?= $(REG_TYPE)
-export PARAM_B_REG_TYPE ?= $(REG_TYPE)
-export PARAM_AR_REG_TYPE ?= $(REG_TYPE)
-export PARAM_R_REG_TYPE ?= $(REG_TYPE)
+export PARAM_FORWARD_ID ?= 1
+export PARAM_M_REGIONS ?= 1
 
-$(shell ../$(DUT)_gen.py --build)
+$(shell ../$(DUT)_gen.py --s_count=${PARAM_S_COUNT} --m_count=${PARAM_M_COUNT} --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
@@ -67,7 +66,7 @@ ifeq ($(SIM), icarus)
 		COMPILE_ARGS += -s iverilog_dump
 	endif
 else ifeq ($(SIM), verilator)
-	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-CASEINCOMPLETE
+	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-fatal
 
 	ifeq ($(WAVES), 1)
 		COMPILE_ARGS += --trace-fst
@@ -87,3 +86,4 @@ iverilog_dump.v:
 clean::
 	@rm -rf iverilog_dump.v
 	@rm -rf dump.fst $(TOPLEVEL).fst
+	@rm -rf *_wrap_*.v
