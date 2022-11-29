@@ -27,7 +27,7 @@ COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axi_dma
-TOPLEVEL = $(DUT)
+TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/$(TOPLEVEL).v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_dma/v1_0/axi_dma_wrapper/src/$(DUT).v
