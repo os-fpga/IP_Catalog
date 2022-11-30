@@ -95,7 +95,7 @@ class AXISASYNCFIFO(Module):
             p_ID_WIDTH              = Instance.PreformattedParam(id_width),
             p_DEST_WIDTH            = Instance.PreformattedParam(dest_width),
             p_USER_WIDTH            = Instance.PreformattedParam(user_width),
-            p_RAM_PIPELINE          = Instance.PreformattedParam(pip_out),
+            p_RAM_PIPELINE          = pip_out,
             p_KEEP_ENABLE           = data_width>8,
             p_LAST_ENABLE           = last_en,
             p_ID_ENABLE             = id_en,
