@@ -1,13 +1,28 @@
-# Lite QUADSPI Core Generation
+# AXIL QUADSPI Core Generation
 
 ## Introduction
-Lite QUADSPI is a SPI Flash-MMAP IP core initially design for use in LiteX systems.
+
+The AXIL_QUADSPI core is a SPIFlash MMAP IP core generated from LiteSPI core (used in LiteX designs).
+
+It has the following features:
+
+PHY:
+    Portable/Generic.
+    Single/Dual/Quad/Octal SPI Bus support.
+    Dynamic Clk frequency configuration and auto-calibration.
+
+Core:
+    Dynamic Crossbar.
+    MMAP read accesses.
+    CSR-based read/write accesses.
+
+More information and source code of the core can be found at: https://github.com/litex-hub/litespi
 
 ## Generator Script
 This directory contains the generator script which generates the RTL to `rapidsilicon/ip/axil_quadspi/v1_0/<build-name>/src/` directory.
 
 ## Parameters
-LiteSPI is a parametrizable core and the list/supported values of the available parameters can be
+AXIL QUADSPI is a parametrizable core and the list/supported values of the available parameters can be
 obtain with `./axil_quadspi_gen.py --help` command:
 
 ```
