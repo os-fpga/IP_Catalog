@@ -18,6 +18,28 @@ Core:
 
 More information and source code of the core can be found at: https://github.com/litex-hub/litespi
 
+## Architecture
+
+AXIL QUADSPI has the following simplified architecture:
+
+```
+AXIL QUADSPI
+└─── litespiphy_0* (LiteSPIPHY)
+│    └─── spiflash_phy (LiteSPISDRPHYCore)
+│    │    └─── resyncreg_0* (ResyncReg)
+│    │    └─── clkgen (LiteSPIClkGen)
+│    │    └─── waittimer_0* (WaitTimer)
+│    │    └─── fsm (FSM)
+└─── litespi_0* (LiteSPI)
+     └─── crossbar (LiteSPICrossbar)
+     │    └─── rr (RoundRobin)
+     │    └─── tx_mux (Multiplexer)
+     │    └─── rx_demux (Demultiplexer)
+     └─── mmap (LiteSPIMMAP)
+          └─── waittimer_0* (WaitTimer)
+          └─── fsm (FSM)
+```
+
 ## Generator Script
 This directory contains the generator script which generates the RTL to `rapidsilicon/ip/axil_quadspi/v1_0/<build-name>/src/` directory.
 

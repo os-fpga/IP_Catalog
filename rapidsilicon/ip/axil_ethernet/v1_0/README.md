@@ -21,6 +21,33 @@ Frontend
 
 More information and source code of the core can be found at: https://github.com/enjoy-digital/liteeth
 
+## Architecture
+
+AXIL ETHERNET has the following simplified architecture:
+
+```
+AXIL ETHERNET
+└─── ethphy (LiteEthPHYMII)
+│    └─── crg (LiteEthPHYMIICRG)
+│    └─── tx (LiteEthPHYMIITX)
+│    └─── rx (LiteEthPHYMIIRX)
+│    └─── mdio (LiteEthPHYMDIO)
+└─── ethmac (LiteEthMAC)
+     └─── core (LiteEthMACCore)
+     │    └─── tx_datapath (TXDatapath)
+     │    └─── rx_datapath (RXDatapath)
+     └─── interface (LiteEthMACWishboneInterface)
+         └─── sram (LiteEthMACSRAM)
+         │    └─── writer (LiteEthMACSRAMWriter))
+         │    └─── reader (LiteEthMACSRAMReader)
+         │    └─── ev (SharedIRQ)
+         └─── sram_0* (SRAM)
+         └─── sram_1* (SRAM)
+         └─── sram_2* (SRAM)
+         └─── sram_3* (SRAM)
+         └─── decoder_0* (Decoder)
+```
+
 ## Generator Script
 This directory contains the generator script which generates the RTL to `rapidsilicon/ip/axil_eth/v1_0/<build-name>/src/` directory.
 
