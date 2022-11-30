@@ -21,19 +21,19 @@
 TOPLEVEL_LANG = verilog
 
 SIM ?= verilator
-WAVES ?= 0
+WAVES ?= 1
 
 COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
-export PORTS ?= 4
+export M_COUNT ?= 4
 
 DUT      = axis_broadcast
 WRAPPER  = $(DUT)_wrapper
 TOPLEVEL = $(WRAPPER)
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ../rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_wrapper/src/$(WRAPPER).v
-VERILOG_SOURCES += ../rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_wrapper/src/$(DUT).v
+VERILOG_SOURCES += ./rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_wrapper/src/$(TOPLEVEL).v
+VERILOG_SOURCES += ./rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_wrapper/src/$(DUT).v
 
 # module parameters
 export PARAM_DATA_WIDTH ?= 8
@@ -47,19 +47,10 @@ export PARAM_DEST_WIDTH ?= 8
 export PARAM_USER_ENABLE ?= 1
 export PARAM_USER_WIDTH ?= 1
 
+$(shell ../$(DUT)_gen.py --m_count=${M_COUNT} --build)
+
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
-
-	COMPILE_ARGS += -P $(TOPLEVEL).DATA_WIDTH=$(PARAM_DATA_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).KEEP_ENABLE=$(PARAM_KEEP_ENABLE)
-	COMPILE_ARGS += -P $(TOPLEVEL).KEEP_WIDTH=$(PARAM_KEEP_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).LAST_ENABLE=$(PARAM_LAST_ENABLE)
-	COMPILE_ARGS += -P $(TOPLEVEL).ID_ENABLE=$(PARAM_ID_ENABLE)
-	COMPILE_ARGS += -P $(TOPLEVEL).ID_WIDTH=$(PARAM_ID_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).DEST_ENABLE=$(PARAM_DEST_ENABLE)
-	COMPILE_ARGS += -P $(TOPLEVEL).DEST_WIDTH=$(PARAM_DEST_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).USER_ENABLE=$(PARAM_USER_ENABLE)
-	COMPILE_ARGS += -P $(TOPLEVEL).USER_WIDTH=$(PARAM_USER_WIDTH)
 
 	ifeq ($(WAVES), 1)
 		VERILOG_SOURCES += iverilog_dump.v
@@ -67,17 +58,6 @@ ifeq ($(SIM), icarus)
 	endif
 else ifeq ($(SIM), verilator)
 	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-fatal
-
-	# COMPILE_ARGS += -GDATA_WIDTH=$(PARAM_DATA_WIDTH)
-	# COMPILE_ARGS += -GKEEP_ENABLE=$(PARAM_KEEP_ENABLE)
-	# COMPILE_ARGS += -GKEEP_WIDTH=$(PARAM_KEEP_WIDTH)
-	# COMPILE_ARGS += -GLAST_ENABLE=$(PARAM_LAST_ENABLE)
-	# COMPILE_ARGS += -GID_ENABLE=$(PARAM_ID_ENABLE)
-	# COMPILE_ARGS += -GID_WIDTH=$(PARAM_ID_WIDTH)
-	# COMPILE_ARGS += -GDEST_ENABLE=$(PARAM_DEST_ENABLE)
-	# COMPILE_ARGS += -GDEST_WIDTH=$(PARAM_DEST_WIDTH)
-	# COMPILE_ARGS += -GUSER_ENABLE=$(PARAM_USER_ENABLE)
-	# COMPILE_ARGS += -GUSER_WIDTH=$(PARAM_USER_WIDTH)
 
 	ifeq ($(WAVES), 1)
 		COMPILE_ARGS += --trace-fst

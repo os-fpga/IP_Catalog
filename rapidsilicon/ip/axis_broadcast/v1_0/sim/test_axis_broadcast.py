@@ -43,7 +43,7 @@ class TB(object):
     def __init__(self, dut):
         self.dut = dut
 
-        ports = int(os.getenv("PORTS"))
+        ports = int(os.getenv("M_COUNT"))
 
         self.log = logging.getLogger("cocotb.tb")
         self.log.setLevel(logging.DEBUG)
@@ -180,7 +180,7 @@ def test_axis_broadcast(request, ports, data_width):
 
     extra_env = {f'PARAM_{k}': str(v) for k, v in parameters.items()}
 
-    extra_env['PORTS'] = str(ports)
+    extra_env['M_COUNT'] = str(ports)
 
     sim_build = os.path.join(tests_dir, "sim_build",
         request.node.name.replace('[', '-').replace(']', ''))
