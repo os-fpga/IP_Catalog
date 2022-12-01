@@ -21,59 +21,31 @@
 TOPLEVEL_LANG = verilog
 
 SIM ?= verilator
-WAVES ?= 0
+WAVES ?= 1
 
 COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
-
-export S_COUNT ?= 4
-export M_COUNT ?= 4
 
 DUT      = axis_switch
 WRAPPER  = $(DUT)_wrapper
 TOPLEVEL = $(WRAPPER)
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ../rapidsilicon/ip/axis_switch/v1_0/axis_switch_wrapper/src/$(WRAPPER).v
-VERILOG_SOURCES += ../rapidsilicon/ip/axis_switch/v1_0/axis_switch_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ../rapidsilicon/ip/axis_switch/v1_0/axis_switch_wrapper/src/axis_register.v
-VERILOG_SOURCES += ../rapidsilicon/ip/axis_switch/v1_0/axis_switch_wrapper/src/arbiter.v
-VERILOG_SOURCES += ../rapidsilicon/ip/axis_switch/v1_0/axis_switch_wrapper/src/priority_encoder.v
+VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/$(TOPLEVEL).v
+VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/$(DUT).v
+VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/axis_register.v
+VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/arbiter.v
+VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/priority_encoder.v
 
 # module parameters
-export PARAM_DATA_WIDTH ?= 8
-export PARAM_KEEP_ENABLE ?= $(shell expr $(PARAM_DATA_WIDTH) \> 8 )
-export PARAM_KEEP_WIDTH ?= $(shell expr \( $(PARAM_DATA_WIDTH) + 7 \) / 8 )
 export PARAM_ID_ENABLE ?= 1
 export PARAM_S_ID_WIDTH ?= 16
-export PARAM_M_ID_WIDTH ?= $(shell python3 -c "print($(PARAM_S_ID_WIDTH) + ($(S_COUNT)-1).bit_length())")
 export PARAM_M_DEST_WIDTH ?= 8
-export PARAM_S_DEST_WIDTH ?= $(shell python3 -c "print($(PARAM_M_DEST_WIDTH) + ($(M_COUNT)-1).bit_length())")
-export PARAM_USER_ENABLE ?= 1
-export PARAM_USER_WIDTH ?= 1
 export PARAM_UPDATE_TID ?= 1
-export PARAM_S_REG_TYPE ?= 0
-export PARAM_M_REG_TYPE ?= 2
-export PARAM_ARB_TYPE_ROUND_ROBIN ?= 1
-export PARAM_ARB_LSB_HIGH_PRIORITY ?= 1
+
+$(shell ../$(DUT)_gen.py --id_en=$(PARAM_ID_ENABLE) --tid=$(PARAM_UPDATE_TID) --s_id_width=$(PARAM_S_ID_WIDTH) --m_dest_width=$(PARAM_M_DEST_WIDTH) --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
-
-	COMPILE_ARGS += -P $(TOPLEVEL).DATA_WIDTH=$(PARAM_DATA_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).KEEP_ENABLE=$(PARAM_KEEP_ENABLE)
-	COMPILE_ARGS += -P $(TOPLEVEL).KEEP_WIDTH=$(PARAM_KEEP_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).ID_ENABLE=$(PARAM_ID_ENABLE)
-	COMPILE_ARGS += -P $(TOPLEVEL).S_ID_WIDTH=$(PARAM_S_ID_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).M_ID_WIDTH=$(PARAM_M_ID_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).S_DEST_WIDTH=$(PARAM_S_DEST_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).M_DEST_WIDTH=$(PARAM_M_DEST_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).USER_ENABLE=$(PARAM_USER_ENABLE)
-	COMPILE_ARGS += -P $(TOPLEVEL).USER_WIDTH=$(PARAM_USER_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).UPDATE_TID=$(PARAM_UPDATE_TID)
-	COMPILE_ARGS += -P $(TOPLEVEL).S_REG_TYPE=$(PARAM_S_REG_TYPE)
-	COMPILE_ARGS += -P $(TOPLEVEL).M_REG_TYPE=$(PARAM_M_REG_TYPE)
-	COMPILE_ARGS += -P $(TOPLEVEL).ARB_TYPE_ROUND_ROBIN=$(PARAM_ARB_TYPE_ROUND_ROBIN)
-	COMPILE_ARGS += -P $(TOPLEVEL).ARB_LSB_HIGH_PRIORITY=$(PARAM_ARB_LSB_HIGH_PRIORITY)
 
 	ifeq ($(WAVES), 1)
 		VERILOG_SOURCES += iverilog_dump.v
@@ -81,22 +53,6 @@ ifeq ($(SIM), icarus)
 	endif
 else ifeq ($(SIM), verilator)
 	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-fatal
-
-	# COMPILE_ARGS += -GDATA_WIDTH=$(PARAM_DATA_WIDTH)
-	# COMPILE_ARGS += -GKEEP_ENABLE=$(PARAM_KEEP_ENABLE)
-	# COMPILE_ARGS += -GKEEP_WIDTH=$(PARAM_KEEP_WIDTH)
-	# COMPILE_ARGS += -GID_ENABLE=$(PARAM_ID_ENABLE)
-	# COMPILE_ARGS += -GS_ID_WIDTH=$(PARAM_S_ID_WIDTH)
-	# COMPILE_ARGS += -GM_ID_WIDTH=$(PARAM_M_ID_WIDTH)
-	# COMPILE_ARGS += -GS_DEST_WIDTH=$(PARAM_S_DEST_WIDTH)
-	# COMPILE_ARGS += -GM_DEST_WIDTH=$(PARAM_M_DEST_WIDTH)
-	# COMPILE_ARGS += -GUSER_ENABLE=$(PARAM_USER_ENABLE)
-	# COMPILE_ARGS += -GUSER_WIDTH=$(PARAM_USER_WIDTH)
-	# COMPILE_ARGS += -GUPDATE_TID=$(PARAM_UPDATE_TID)
-	# COMPILE_ARGS += -GS_REG_TYPE=$(PARAM_S_REG_TYPE)
-	# COMPILE_ARGS += -GM_REG_TYPE=$(PARAM_M_REG_TYPE)
-	# COMPILE_ARGS += -GARB_TYPE_ROUND_ROBIN=$(PARAM_ARB_TYPE_ROUND_ROBIN)
-	# COMPILE_ARGS += -GARB_LSB_HIGH_PRIORITY=$(PARAM_ARB_LSB_HIGH_PRIORITY)
 
 	ifeq ($(WAVES), 1)
 		COMPILE_ARGS += --trace-fst
@@ -117,4 +73,7 @@ clean::
 	@rm -rf iverilog_dump.v
 	@rm -rf dump.fst $(TOPLEVEL).fst
 	@rm -rf *_wrap_*.v
- 
+	@rm -rf rapidsilicon/
+	@rm -rf __pycache__
+	@rm -rf results.xml
+	@rm -rf ../litex_wrapper/__pycache__ 
