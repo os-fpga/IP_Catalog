@@ -9,7 +9,7 @@ For more information, visit: http://alexforencich.com/wiki/en/verilog/axis/start
 This directory contains the generator script which places the RTL to `rapidsilicon/ip/axis_switch/v1_0/<build-name>/src/` directory and generates its wrapper in the same directory. 
 
 ## Parameters
-There are the parameters for AXIS-SWITCH core along with 
+These are the parameters for AXIS-SWITCH core along with their keyword and values: -
 
 | Sr.No. |      Parameter             |       Keyword              |    Value      |
 |--------|----------------------------|----------------------------|---------------|
