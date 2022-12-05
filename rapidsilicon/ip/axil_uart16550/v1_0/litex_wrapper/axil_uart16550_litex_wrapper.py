@@ -36,42 +36,40 @@ class AXILITEUART(Module):
         data_width = len(s_axil.r.data)
         self.logger.info(f"DATA_WIDTH       : {data_width}")
         
-        
         # UART Signals
-        self.int_o      = Signal()
-        self.srx_pad_i  = Signal()  
-        self.stx_pad_o  = Signal()
-        self.rts_pad_o  = Signal()
-        self.cts_pad_i  = Signal()
-        self.dtr_pad_o  = Signal()
-        self.dsr_pad_i  = Signal()
-        self.ri_pad_i   = Signal()
-        self.dcd_pad_i  = Signal()
+        self.int_o           = Signal()
+        self.srx_pad_i       = Signal()  
+        self.stx_pad_o       = Signal()
+        self.rts_pad_o       = Signal()
+        self.cts_pad_i       = Signal()
+        self.dtr_pad_o       = Signal()
+        self.dsr_pad_i       = Signal()
+        self.ri_pad_i        = Signal()
+        self.dcd_pad_i       = Signal()
         
         # Module instance.
         # ----------------
         self.specials += Instance("axi4lite_uart_top",
-                                                    
         # Parameters.
             # -----------
-            p_ADDRESS_WIDTH     = address_width,
-            p_DATA_WIDTH        = data_width,
+            p_ADDRESS_WIDTH  = Instance.PreformattedParam(address_width),
+            p_DATA_WIDTH     = Instance.PreformattedParam(data_width),
 
             # Clk / Rst.
             # ----------
-            i_s_axi_aclk       = ClockSignal(clock_domain),
-            i_s_axi_aresetn    = ResetSignal(clock_domain),
+            i_s_axi_aclk     = ClockSignal(clock_domain),
+            i_s_axi_aresetn  = ResetSignal(clock_domain),
             
             # UART Signals
-            o_int_o           = self.int_o,
-            i_srx_pad_i       = self.srx_pad_i,
-            o_stx_pad_o       = self.stx_pad_o,
-            o_rts_pad_o       = self.rts_pad_o,
-            i_cts_pad_i       = self.cts_pad_i,
-            o_dtr_pad_o       = self.dtr_pad_o,
-            i_dsr_pad_i       = self.dsr_pad_i,
-            i_ri_pad_i        = self.ri_pad_i,
-            i_dcd_pad_i       = self.dcd_pad_i,
+            o_int_o          = self.int_o,
+            i_srx_pad_i      = self.srx_pad_i,
+            o_stx_pad_o      = self.stx_pad_o,
+            o_rts_pad_o      = self.rts_pad_o,
+            i_cts_pad_i      = self.cts_pad_i,
+            o_dtr_pad_o      = self.dtr_pad_o,
+            i_dsr_pad_i      = self.dsr_pad_i,
+            i_ri_pad_i       = self.ri_pad_i,
+            i_dcd_pad_i      = self.dcd_pad_i,
             
             # AXI-Lite Slave Interface.
             # -------------------------

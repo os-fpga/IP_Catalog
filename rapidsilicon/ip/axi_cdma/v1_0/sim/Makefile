@@ -20,16 +20,16 @@
 
 TOPLEVEL_LANG = verilog
 
-SIM ?= icarus
+SIM ?= verilator
 WAVES ?= 1
 
 COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axi_cdma
-TOPLEVEL = $(DUT)
+TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/$(DUT)_wrapper.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/$(TOPLEVEL).v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/$(DUT).v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/$(DUT)_desc_mux.v
 VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/priority_encoder.v
@@ -45,17 +45,10 @@ export PARAM_LEN_WIDTH = 20
 export PARAM_TAG_WIDTH = 8
 export PARAM_ENABLE_UNALIGNED = 0
 
+$(shell ../$(DUT)_gen.py --build)
+
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
-
-	COMPILE_ARGS += -P $(TOPLEVEL).AXI_DATA_WIDTH=$(PARAM_AXI_DATA_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).AXI_ADDR_WIDTH=$(PARAM_AXI_ADDR_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).AXI_STRB_WIDTH=$(PARAM_AXI_STRB_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).AXI_ID_WIDTH=$(PARAM_AXI_ID_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).AXI_MAX_BURST_LEN=$(PARAM_AXI_MAX_BURST_LEN)
-	COMPILE_ARGS += -P $(TOPLEVEL).LEN_WIDTH=$(PARAM_LEN_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).TAG_WIDTH=$(PARAM_TAG_WIDTH)
-	COMPILE_ARGS += -P $(TOPLEVEL).ENABLE_UNALIGNED=$(PARAM_ENABLE_UNALIGNED)
 
 	ifeq ($(WAVES), 1)
 		VERILOG_SOURCES += iverilog_dump.v
@@ -63,15 +56,6 @@ ifeq ($(SIM), icarus)
 	endif
 else ifeq ($(SIM), verilator)
 	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-CASEINCOMPLETE
-
-	COMPILE_ARGS += -GAXI_DATA_WIDTH=$(PARAM_AXI_DATA_WIDTH)
-	COMPILE_ARGS += -GAXI_ADDR_WIDTH=$(PARAM_AXI_ADDR_WIDTH)
-	COMPILE_ARGS += -GAXI_STRB_WIDTH=$(PARAM_AXI_STRB_WIDTH)
-	COMPILE_ARGS += -GAXI_ID_WIDTH=$(PARAM_AXI_ID_WIDTH)
-	COMPILE_ARGS += -GAXI_MAX_BURST_LEN=$(PARAM_AXI_MAX_BURST_LEN)
-	COMPILE_ARGS += -GLEN_WIDTH=$(PARAM_LEN_WIDTH)
-	COMPILE_ARGS += -GTAG_WIDTH=$(PARAM_TAG_WIDTH)
-	COMPILE_ARGS += -GENABLE_UNALIGNED=$(PARAM_ENABLE_UNALIGNED)
 
 	ifeq ($(WAVES), 1)
 		COMPILE_ARGS += --trace-fst

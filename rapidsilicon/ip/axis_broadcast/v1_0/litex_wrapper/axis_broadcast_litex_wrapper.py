@@ -48,23 +48,23 @@ class AXISBROADCAST(Module):
         user_width = len(s_axis.user)
         self.logger.info(f"USER_WIDTH       : {user_width}")
         
-
         # Module instance.
         # ----------------
         self.specials += Instance("axis_broadcast",
             # Parameters.
             # -----------
             # Global.
-            p_M_COUNT           = len(m_axis),
-            p_DATA_WIDTH        = data_width,
+            p_M_COUNT           = Instance.PreformattedParam(len(m_axis)),
+            p_DATA_WIDTH        = Instance.PreformattedParam(data_width),
+            p_KEEP_WIDTH        = Instance.PreformattedParam(int((data_width+7)/8)),
+            p_ID_WIDTH          = Instance.PreformattedParam(id_width),
+            p_DEST_WIDTH        = Instance.PreformattedParam(dest_width),
+            p_USER_WIDTH        = Instance.PreformattedParam(user_width),
+            p_KEEP_ENABLE       = data_width>8,
             p_LAST_ENABLE       = last_en,
             p_ID_ENABLE         = id_en,
-            p_ID_WIDTH          = id_width,
             p_DEST_ENABLE       = dest_en,
-            p_DEST_WIDTH        = dest_width,
-            p_USER_ENABLE       = user_en, 
-            p_USER_WIDTH        = user_width,
-
+            p_USER_ENABLE       = user_en,
 
             # Clk / Rst.
             # ----------

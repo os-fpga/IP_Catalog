@@ -1,4 +1,4 @@
-﻿
+
 COPYRIGHT TEXT:
 --------------
 
@@ -50,6 +50,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 FILES:
-rapidsilicon/ip/vexriscv_cpu/v1_0/src/vexriscv.v
+rapidsilicon/ip/vexriscv_cpu/v1_0/src/vexriscv_cached_mmu.v
+rapidsilicon/ip/vexriscv_cpu/v1_0/src/vexriscv_uncached_nommu.v
+rapidsilicon/ip/vexriscv_cpu/v1_0/src/vexriscv_cached_mmu_plic_clint.v
 
----------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------- 

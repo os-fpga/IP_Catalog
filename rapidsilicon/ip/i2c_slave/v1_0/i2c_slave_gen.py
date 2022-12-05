@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.i2c_slave_litex_wrapper import I2CSLAVE
@@ -100,25 +99,21 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {}            
 
-
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="I2c_slave", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="i2c_slave", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="I2C_slave Data Width.")
-    core_fix_param_group.add_argument("--addr_width", type=int, default=16, choices=[8, 16, 32],     help="I2C_slave Address Width.")
- 
+    core_fix_param_group.add_argument("--data_width",       type=int,       default=32,         choices=[8, 16, 32, 64],    help="I2C_slave Data Width.")
+    core_fix_param_group.add_argument("--addr_width",       type=int,       default=16,         choices=[8, 16, 32],        help="I2C_slave Address Width.")
+
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--filter_len", type=int, default=4,  choices=range(1,5),      help="I2C_slave Filter Length.")
-
+    core_range_param_group.add_argument("--filter_len",     type=int,       default=4,          choices=range(1,5),      help="I2C_slave Filter Length.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -151,7 +146,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="i2c_slave", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,

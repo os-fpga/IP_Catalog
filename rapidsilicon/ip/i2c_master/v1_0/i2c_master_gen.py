@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.i2c_master_litex_wrapper import I2CMASTER
@@ -88,29 +87,26 @@ def main():
 
     from common import IP_Builder
 
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {}            
 
-
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="I2c_master", language="verilog")
-
+    rs_builder = IP_Builder(device="gemini", ip_name="i2c_master", language="verilog")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--default_prescale",  type=bool, default=True,     help="I2C Default Prescale.")
-    core_bool_param_group.add_argument("--fixed_prescale",    type=bool, default=False,     help="I2C Fixed Prescale.")
-    core_bool_param_group.add_argument("--cmd_fifo",          type=bool, default=True,     help="I2C FIFO Command Enable.")
-    core_bool_param_group.add_argument("--write_fifo",        type=bool, default=True,     help="I2C FIFO Write Enable.")
-    core_bool_param_group.add_argument("--read_fifo",         type=bool, default=True,     help="I2C FIFO Read Enable.")
+    core_bool_param_group.add_argument("--default_prescale",    type=bool,        default=True,         help="I2C Default Prescale.")
+    core_bool_param_group.add_argument("--fixed_prescale",      type=bool,        default=False,        help="I2C Fixed Prescale.")
+    core_bool_param_group.add_argument("--cmd_fifo",            type=bool,        default=True,         help="I2C FIFO Command Enable.")
+    core_bool_param_group.add_argument("--write_fifo",          type=bool,        default=True,         help="I2C FIFO Write Enable.")
+    core_bool_param_group.add_argument("--read_fifo",           type=bool,        default=True,         help="I2C FIFO Read Enable.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--cmd_addr_width",    type=int, default=5, choices=range(1, 6),  help="I2C FIFO Command Address Width.")
-    core_range_param_group.add_argument("--write_addr_width",  type=int, default=5, choices=range(1, 6),  help="I2C FIFO Write Address Width.")
-    core_range_param_group.add_argument("--read_addr_width",   type=int, default=5, choices=range(1, 6),  help="I2C FIFO Read Address Width.")
+    core_range_param_group.add_argument("--cmd_addr_width",         type=int,      default=5,     choices=range(1, 6),      help="I2C FIFO Command Address Width.")
+    core_range_param_group.add_argument("--write_addr_width",       type=int,      default=5,     choices=range(1, 6),      help="I2C FIFO Write Address Width.")
+    core_range_param_group.add_argument("--read_addr_width",        type=int,      default=5,     choices=range(1, 6),      help="I2C FIFO Read Address Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -148,7 +144,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="i2c_master", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,

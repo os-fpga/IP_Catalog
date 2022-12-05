@@ -8,13 +8,13 @@ For more information, visit: https://github.com/ZipCPU/wb2axip#wb2axip-bus-inter
 This directory contains the generator script which places the RTL to `rapidsilicon/ip/axi2axilite_bridge/v1_0/<build-name>/src` directory and generates its wrapper in the same directory. 
 
 ## Parameters
-There are three parameters for AXI-to-AXILITE core. These parameters, their keywords and values are given below:
+User can configure AXI2AXILITE_BRIDGE CORE using following parameters:
 
-    | Sr.No.|      Parameter       |         Keyword        |         Value         |
-    |-------|----------------------|------------------------|-----------------------|
-    |   1.  |   C_AXI_DATA_WIDTH   |    data_width          |   8,16,32,64,128,256  |
-    |   2.  |   C_AXI_ADDR_WIDTH   |    addr_width          |   6-16                |
-    |   3.  |   C_AXI_ID_WIDTH     |    id_width            |   1-32                |
+| Sr.No.|      Parameter       |         Keyword        |         Value         |
+|-------|----------------------|------------------------|-----------------------|
+|   1.  |   C_AXI_DATA_WIDTH   |    data_width          |   8,16,32,64,128,256  |
+|   2.  |   C_AXI_ADDR_WIDTH   |    addr_width          |   6-16                |
+|   3.  |   C_AXI_ID_WIDTH     |    id_width            |   1-32                |
 
 
 
