@@ -6,7 +6,7 @@ on:
 
 jobs:
   IP_Catalog_Ubuntu:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
 
     - name: Cancel previous
@@ -57,7 +57,7 @@ jobs:
 
         for n in $gen_list
         do  
-            ./python3 $n --json-template
+            ./python3 $n --build --json-template
         done
 
 
@@ -87,7 +87,7 @@ jobs:
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_gen.py --data_width=32 --addr_width=32 --s_count=7 --m_count=4  --build-name=crossbar_wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_gen.py --data_width=1024 --m_count=8 --build-name=broadcast --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_bridge_gen.py --data_width=256 --addr_width=8 --build-name=wrapper --build
-        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_spi/v1_0/axil_spi_gen.py --build-name=wrapper --build
+        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_quadspi/v1_0/axil_quadspi_gen.py --build-name=wrapper --build
 
 
 
@@ -150,6 +150,20 @@ jobs:
           cd Raptor_Tools/python_tools
           make build 
 
+
+      - name: Sanity Check
+        shell: bash
+        run: |
+          gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"`
+  
+          cd Raptor_Tools/python_tools/build/share/envs/litex/bin
+  
+          for n in $gen_list
+          do  
+              ./python3 $n --build --json-template
+          done
+
+
       - name: Test IP Generation
         run: |
            export LC_ALL=en_US.utf-8
@@ -178,4 +192,4 @@ jobs:
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_gen.py --data_width=32 --addr_width=32 --s_count=7 --m_count=4 --json-template --build-name=crossbar_wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_gen.py --data_width=1024 --m_count=8 --json-template --build-name=broadcast --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_bridge_gen.py --data_width=256 --addr_width=8 --json-template --build-name=wrapper --build
-           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_spi/v1_0/axil_spi_gen.py --json-template --build-name=wrapper --build
+           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_quadspi/v1_0/axil_quadspi_gen.py --json-template --build-name=wrapper --build

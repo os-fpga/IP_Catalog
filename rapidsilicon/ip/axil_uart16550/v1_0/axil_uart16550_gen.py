@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axil_uart16550_litex_wrapper import AXILITEUART
@@ -89,25 +88,22 @@ def main():
     sys.path.append(common_path)
 
     from common import IP_Builder
-   # Parameter Dependency dictionary
-
+    # Parameter Dependency dictionary
     #                Ports     :    Dependency
     dep_dict = {}            
 
-
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="axi_uart16550", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="axil_uart16550", language="verilog")
 
     # Core fix value parameters.
-
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--addr_width", type=int, default=16, choices=[8, 16, 32],     help="UART Address Width.")
-    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32, 64], help="UART Data Width.")
+    core_fix_param_group.add_argument("--addr_width",       type=int,       default=16,     choices=[8, 16, 32],        help="UART Address Width.")
+    core_fix_param_group.add_argument("--data_width",       type=int,       default=32,     choices=[8, 16, 32, 64],    help="UART Data Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
-    build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
+    build_group.add_argument("--build",         action="store_true",                 help="Build Core")
+    build_group.add_argument("--build-dir",     default="./",                        help="Build Directory")
     build_group.add_argument("--build-name",    default="axil_uart16550_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
@@ -134,7 +130,6 @@ def main():
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
-        rs_builder = IP_Builder(device="gemini", ip_name="axil_uart16550", language="verilog")
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,

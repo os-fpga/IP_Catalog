@@ -9,19 +9,19 @@ For more information, visit: http://alexforencich.com/wiki/en/verilog/axis/start
 This directory contains the generator script which places the RTL to `rapidsilicon/ip/axis_broadcast/v1_0/<build-name>/src` directory and generates its wrapper in the same directory. 
 
 ## Parameters
-There are nine parameters for AXIS-BROADCAST core. These parameters, their keywords and values are given below:
+User can configure AXIS_BROADCAST CORE using following parameters:
 
-    | Sr.No.|      Parameter   |       Keyword      |    Value    |
-    |-------|------------------|--------------------|-------------|
-    |   1.  |   M_COUNT        |    m_count         |   2-16      |
-    |   2.  |   DATA_WIDTH     |    data_width      |   1-4096    |
-    |   3.  |   LAST_ENABLE    |    last_en         |   0/1       |
-    |   4.  |   ID_ENABLE      |    id_en           |   0/1       |
-    |   5.  |   ID_WIDTH       |    id_width        |   1-32      |
-    |   6.  |   DEST_ENABLE    |    dest_en         |   0/1       |
-    |   7.  |   DEST_WIDTH     |    dest_width      |   1-32      |
-    |   8.  |   USER_ENABLE    |    user_en         |   0/1       |
-    |   9.  |   USER_WIDTH     |    user_width      |   1-4096    |
+| Sr.No.|      Parameter   |       Keyword      |    Value    |
+|-------|------------------|--------------------|-------------|
+|   1.  |   M_COUNT        |    m_count         |   2-16      |
+|   2.  |   DATA_WIDTH     |    data_width      |   1-4096    |
+|   3.  |   LAST_ENABLE    |    last_en         |   0/1       |
+|   4.  |   ID_ENABLE      |    id_en           |   0/1       |
+|   5.  |   ID_WIDTH       |    id_width        |   1-32      |
+|   6.  |   DEST_ENABLE    |    dest_en         |   0/1       |
+|   7.  |   DEST_WIDTH     |    dest_width      |   1-32      |
+|   8.  |   USER_ENABLE    |    user_en         |   0/1       |
+|   9.  |   USER_WIDTH     |    user_width      |   1-4096    |
 
 
 To generate RTL with above parameters, run the following command:

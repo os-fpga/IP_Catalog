@@ -36,31 +36,30 @@ class I2CSLAVE(Module):
         self.logger.info(f"FILTER_LENGTH  : {filter_len}")
         
         # I2C interface
-        self.i2c_scl_i      = Signal()
-        self.i2c_scl_o      = Signal()
-        self.i2c_scl_t      = Signal()
-        self.i2c_sda_i      = Signal()
-        self.i2c_sda_o      = Signal()
-        self.i2c_sda_t      = Signal()
+        self.i2c_scl_i        = Signal()
+        self.i2c_scl_o        = Signal()
+        self.i2c_scl_t        = Signal()
+        self.i2c_sda_i        = Signal()
+        self.i2c_sda_o        = Signal()
+        self.i2c_sda_t        = Signal()
         
         # Status
-        self.busy           = Signal()
-        self.bus_addressed  = Signal()
-        self.bus_active     = Signal()
+        self.busy             = Signal()
+        self.bus_addressed    = Signal()
+        self.bus_active       = Signal()
         
         # Configuration
-        self.enable         = Signal()
-        self.device_address = Signal(7)
+        self.enable           = Signal()
+        self.device_address   = Signal(7)
         
         # Module instance.
         # ----------------
         self.specials += Instance("i2c_slave_axil_master",
-                                                    
             # Parameters.
             # -----------
-            p_DATA_WIDTH      = data_width,
-            p_ADDR_WIDTH      = addr_width,
-            p_FILTER_LEN      = filter_len,
+            p_DATA_WIDTH      = Instance.PreformattedParam(data_width),
+            p_ADDR_WIDTH      = Instance.PreformattedParam(addr_width),
+            p_FILTER_LEN      = Instance.PreformattedParam(filter_len),
             
             # Clk / Rst.
             # ----------

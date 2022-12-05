@@ -10,7 +10,7 @@ For simulation, you have to install either of the simulators `Icarus Verilog` or
 
 Before starting simulation, you have to create IP with default parameters. To create this IP, run the following command:
 ```
-python3 ../axis_adapter_gen.py --build --id_en=1 --dest_en=1
+python3 ../axis_adapter_gen.py --build
 ```
 
 Run the following command for simulation:

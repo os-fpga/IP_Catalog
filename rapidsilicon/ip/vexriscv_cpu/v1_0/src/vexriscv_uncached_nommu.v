@@ -4,7 +4,7 @@
 
 `timescale 1ns/1ps 
 
-module vexriscv (
+module vexriscv_uncached_nommu (
   output              debug_resetOut,
   input               timerInterrupt,
   input               externalInterrupt,
@@ -4344,7 +4344,7 @@ module vexriscv (
   assign jtag_tdo = jtagBridge_1_io_jtag_tdo;
   always @(posedge clk or posedge reset) begin
     if(reset) begin
-      IBusSimplePlugin_fetchPc_pcReg <= 32'h80000000;
+      IBusSimplePlugin_fetchPc_pcReg <= 32'h00000000;
       IBusSimplePlugin_fetchPc_correctionReg <= 1'b0;
       IBusSimplePlugin_fetchPc_booted <= 1'b0;
       IBusSimplePlugin_fetchPc_inc <= 1'b0;
@@ -5186,12 +5186,11 @@ module JtagBridge (
     .clk                           (clk                                          ), //i
     .debugReset                    (debugReset                                   )  //i
   );
-
-//  initial begin
-//  `ifndef SYNTHESIS
-//    jtag_tap_fsm_state = {1{$urandom}};
-//  `endif
-//  end
+  initial begin
+  `ifndef SYNTHESIS
+    jtag_tap_fsm_state = {1{$urandom}};
+  `endif
+  end
 
   `ifndef SYNTHESIS
   always @(*) begin
@@ -5687,12 +5686,11 @@ module FlowCCByToggle (
     .clk           (clk                                   ), //i
     .debugReset    (debugReset                            )  //i
   );
-
-//  initial begin
-//  `ifndef SYNTHESIS
-//    inputArea_target = $urandom;
-//  `endif
-//  end
+  initial begin
+  `ifndef SYNTHESIS
+    inputArea_target = $urandom;
+  `endif
+  end
 
   assign outputArea_target = inputArea_target_buffercc_io_dataOut;
   assign outputArea_flow_valid = (outputArea_target != outputArea_hit);
