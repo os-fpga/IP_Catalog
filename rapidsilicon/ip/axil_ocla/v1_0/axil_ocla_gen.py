@@ -179,7 +179,9 @@ def main():
             module     = module,
         )
         # Update the macro definition file ---------------------------------------------------------
-        rtl_dir = os.path.join(os.path.dirname(__file__),rs_builder.src_path+"/defines.sv")
+        #rtl_dir = os.path.join(os.path.dirname(__file__),rs_builder.src_path+"/defines.sv")
+        rtl_dir = rs_builder.src_path
+        rtl_dir = rtl_dir + "/defines.sv"
         f = open(rtl_dir,"r+")
         content = f.read()
         f.seek(0, 0)
