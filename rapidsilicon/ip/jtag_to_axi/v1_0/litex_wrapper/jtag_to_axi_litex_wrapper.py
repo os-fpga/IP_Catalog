@@ -18,20 +18,11 @@ logging.basicConfig(level=logging.INFO)
 
 # JTAG_AXILIT ---------------------------------------------------------------------------------
 class JTAGAXI(Module):
-    def __init__(self, platform, m_axi, m_count, aw_user_en, w_user_en,
-        b_user_en, ar_user_en, r_user_en):
+    def __init__(self, platform, m_axi):
         
-        self.logger = logging.getLogger("AXI_CROSSBAR")
+        self.logger = logging.getLogger("JTAG_TO_AXI")
         
         self.logger.propagate = False
-
-        # AXI Inputs (slave interfaces).
-      #  s_count = len(s_axi)
-      #  self.logger.info(f"S_COUNT      : {s_count}")
-        
-        # AXI outputs (master interfaces).
-        m_count = len(m_axi)
-        self.logger.info(f"M_COUNT      : {m_count}")
         
         # Clock Domain.
         clock_domain = m_axi[0].clock_domain
@@ -46,8 +37,8 @@ class JTAGAXI(Module):
         self.logger.info(f"DATA_WIDTH   : {data_width}")
 
         # ID width.
-        s_id_width = len(m_axi[0].aw.id)
-        self.logger.info(f"S_ID_WIDTH   : {s_id_width}")
+        m_id_width = len(m_axi[0].aw.id)
+        self.logger.info(f"M_ID_WIDTH   : {m_id_width}")
 
         # AW User width.
         aw_user_width = len(m_axi[0].aw.user)
@@ -80,18 +71,18 @@ class JTAGAXI(Module):
         self.specials += Instance("jtag_to_axi_top",
             # Parameters.
             # -----------
-            p_C_S_AXI_ID_WIDTH      = Instance.PreformattedParam(s_id_width),
+            p_C_S_AXI_ID_WIDTH      = Instance.PreformattedParam(m_id_width),
             p_C_S_AXI_DATA_WIDTH    = Instance.PreformattedParam(data_width),
             p_C_S_AXI_ADDR_WIDTH    = Instance.PreformattedParam(address_width),
             p_C_S_AXI_AWUSER_WIDTH  = Instance.PreformattedParam(aw_user_width),
-            p_C_S_AXI_ARUSER_WIDTH  = Instance.PreformattedParam(s_id_width),
+            p_C_S_AXI_ARUSER_WIDTH  = Instance.PreformattedParam(ar_user_width),
             p_C_S_AXI_WUSER_WIDTH   = Instance.PreformattedParam(w_user_width),
             p_C_S_AXI_RUSER_WIDTH   = Instance.PreformattedParam(r_user_width),
             p_C_S_AXI_BUSER_WIDTH   = Instance.PreformattedParam(b_user_width),
 
             # Clk / Rst.
             # ----------
-            i_ACLK           = ClockSignal(),
+            i_ACLK              = ClockSignal(),
             i_ARESETN           = ResetSignal(),
             
             i_JTAG_TCK = self.JTAG_TCK,
