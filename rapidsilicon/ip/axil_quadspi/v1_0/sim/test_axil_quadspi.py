@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: MIT
 
 import os
+import subprocess
 import argparse
 
 from migen import *
@@ -69,9 +70,13 @@ class AXISimSoC(SoCCore):
         axil_quadspi = AXILiteInterface(data_width=32, address_width=32)
 
         # Generate Core.
-        os.system("cd .. && ./axil_quadspi_gen.py --core_module=S25FL128L --core_mode=x4 --core_phy=model --build")
+        os.system("cd .. && ./axil_quadspi_gen.py --core_module=S25FL128L --core_mode=x4 --build")
 
         # Core Instance.
+        spiflash4x_clk  = Signal()
+        spiflash4x_cs_n = Signal()
+        spiflash4x_dq   = Signal(4)
+
         self.specials += Instance("axil_quadspi",
             # Clk / Rst.
             # ----------
@@ -107,11 +112,24 @@ class AXISimSoC(SoCCore):
 
             # IOs.
             # ----
-            # No IOs since using integrated model.
+            o_spiflash4x_clk  = spiflash4x_clk,
+            o_spiflash4x_cs_n = spiflash4x_cs_n,
+            o_spiflash4x_dq   = spiflash4x_dq,
         )
         platform.add_source("../rapidsilicon/ip/axil_quadspi/v1_0/axil_quadspi/src/axil_quadspi.v")
-        platform.add_source("axil_quadspi_mem.init", copy=True)
         self.bus.add_slave("axil_quadspi", axil_quadspi, region=SoCRegion(origin=0x3000_000, size=0x1000))
+
+        # Model Instance.
+        platform.add_source("axil_quadspi_mem.init", copy=True)
+        self.specials += Instance("spiflash",
+            i_csb  = spiflash4x_cs_n,
+            i_clk  = spiflash4x_clk,
+            io_io0 = spiflash4x_dq[0],
+            io_io1 = spiflash4x_dq[1],
+            io_io2 = spiflash4x_dq[2],
+            io_io3 = spiflash4x_dq[3],
+        )
+        platform.add_source("spiflash.v")
 
 # Build --------------------------------------------------------------------------------------------
 
