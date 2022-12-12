@@ -190,13 +190,12 @@ def main():
         f.write("// ---------------------------------------------------------------\n")
         f.write("`define NUM_OF_PROBES  " + str(nofprobes) +"\n")
         f.write("`define MEMORY_DEPTH  " + str(memory_depth) +"\n")
-        
+        f.write("`define NUM_OF_TRIGGER_INPUTS  "+ str(ntrigger_inputs)+"\n")
         f.write("`define PROBE_WIDHT_BITS "+ str(nprobe_widht)+"\n")   
         if(value_compare):
             f.write("`define value_compare_trigger  \n")
         if(triginpts_en):
             f.write("`define TRIGGER_INPUTS \n")
-            f.write("`define NUM_OF_TRIGGER_INPUTS  "+ str(ntrigger_inputs)+"\n")
         if(advance_trigger):
             f.write("`define advance_trigger \n\n")
         f.write(content)

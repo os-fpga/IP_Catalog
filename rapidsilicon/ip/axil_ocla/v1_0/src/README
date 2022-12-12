@@ -1,36 +1,17 @@
 
 ```
-├── axi_interface.sv
-├── axi_slv_lite.v
+├── ocla.sv
+│    ├── axi_slv_lite.sv
+│    ├── ocla_controller.sv
+│    ├── stream_out_buffer.sv
+│    ├── trigger_control_unit.sv
+│    │	└── trigger_unit.sv
+│    ├── ocla_mem_controller.sv
+│    │ 	├── gray2binary.sv
+│    │	├── dual_port_ram.sv
+│    │	└── synchronizer.sv
+│    └── sampler_buffer.sv
 ├── defines.sv
-├── extra
-├── fifo
-│   ├── fifo_tbtop.v
-│   ├── fifo.v
-│   ├── flop_synchronizer.v
-│   └── mem.v
-├── ocla_controller.sv
-├── ocla_controller_tb.v
-├── ocla_csrs.sv
-├── ocla_top.sv
-├── ocla_top_tb.sv
-├── README
-├── sampler_buffer.sv
-├── stream_out_buffer.sv
-├── trig_control_unit_tb.sv
-├── trigger_control_unit.sv
-└── trigger_unit.sv
+└── README
 
 ```
-TODO:
-
-    -> Complete all modules implementation
-            -> OCLA Controller add all control logic 
-            -> sampler buffer verify and improve logic
-            -> stream_out_buffer verify and improve logic
-            -> Add asynchronous fifo
-            -> Test the AXI slave interface
-            -> Test the synchronization of all the modules
-            -> integrate all the modules
-            -> perform initial testing 
-            -> OCLA Top design
