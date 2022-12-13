@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-# LiteX wrapper around Alex Forencich Verilog-AXI's axi_crossbar.v
+# LiteX wrapper around jtag_to_axi_top.v
 
 import os
 import logging
@@ -155,4 +155,4 @@ class JTAGAXI(Module):
     @staticmethod
     def add_sources(platform):
         rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "axi_crossbar.v"))
+        platform.add_source(os.path.join(rtl_dir, "jtag_to_axi_top.v"))
