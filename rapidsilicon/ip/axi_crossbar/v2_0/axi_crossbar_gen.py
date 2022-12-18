@@ -26,23 +26,24 @@ def get_clkin_ios():
         ("ACLK",    0, Pins(1)),
         ("ARESET",  0, Pins(1)),
     ]
-
+# Slave interface clock/reset signals
 def get_clkin_ios_s(i):
     return [
         ("s{}_axi_aclk".format(i),     0, Pins(1)),
-        ("s{}_axi_aresten".format(i),  0, Pins(1)),
+        ("s{}_axi_areset".format(i),  0, Pins(1)),
     ]
 
+# Master intrerface clock/reset signals
 def get_clkin_ios_m(j):
     return [
         ("m{}_axi_aclk".format(j),     0, Pins(1)),
-        ("m{}_axi_aresten".format(j),  0, Pins(1)),
+        ("m{}_axi_areset".format(j),  0, Pins(1)),
     ]
 
 # AXI CROSSBAR Wrapper ----------------------------------------------------------------------------------
 class AXICROSSBARWrapper(Module):
     def __init__(self, platform, m_count, s_count ,data_width, addr_width, s_id_width, aw_user_width, w_user_width, b_user_width, ar_user_width, r_user_width,
-                aw_user_en, w_user_en, b_user_en, ar_user_en, r_user_en,sync_stages,fifo_depth):
+                aw_user_en, w_user_en, b_user_en, ar_user_en, r_user_en,sync_stages,fifo_depth,bram):
         
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
@@ -55,16 +56,16 @@ class AXICROSSBARWrapper(Module):
             platform.add_extension(get_clkin_ios_s(i))
             self.clock_domains.cd_sys  = ClockDomain("s{}_axi_aclk".format(i))
             self.comb += self.cd_sys.clk.eq(platform.request("s{}_axi_aclk".format(i)))
-            self.clock_domains.cd_sys  = ClockDomain("s{}_axi_aresten".format(i))
-            self.comb += self.cd_sys.rst.eq(platform.request("s{}_axi_aresten".format(i)))
+            self.clock_domains.cd_sys  = ClockDomain("s{}_axi_areset".format(i))
+            self.comb += self.cd_sys.rst.eq(platform.request("s{}_axi_areset".format(i)))
 
         # CLK for Master Interfaces
         for j in range (m_count):
             platform.add_extension(get_clkin_ios_m(j))
             self.clock_domains.cd_sys  = ClockDomain("m{}_axi_aclk".format(j))
             self.comb += self.cd_sys.clk.eq(platform.request("m{}_axi_aclk".format(j)))
-            self.clock_domains.cd_sys  = ClockDomain("m{}_axi_aresten".format(j))
-            self.comb += self.cd_sys.rst.eq(platform.request("m{}_axi_aresten".format(j)))
+            self.clock_domains.cd_sys  = ClockDomain("m{}_axi_areset".format(j))
+            self.comb += self.cd_sys.rst.eq(platform.request("m{}_axi_areset".format(j)))
 
         # Slave Interfaces
         s_axis = []
@@ -112,6 +113,7 @@ class AXICROSSBARWrapper(Module):
             r_user_en           = r_user_en,
             sync_stages         = sync_stages,
             fifo_depth          = fifo_depth,
+            bram                = bram,
             )
 
 # Build --------------------------------------------------------------------------------------------
@@ -149,7 +151,8 @@ def main():
     core_bool_param_group.add_argument("--w_user_en",     type=bool,    default=False,     help="W-Channel User Enable.")
     core_bool_param_group.add_argument("--b_user_en",     type=bool,    default=False,     help="B-Channel User Enable.")
     core_bool_param_group.add_argument("--ar_user_en",    type=bool,    default=True,      help="AR-Channel User Enable.")
-    core_bool_param_group.add_argument("--r_user_en",     type=bool,    default=False,     help="R-Channel User Enable.")         
+    core_bool_param_group.add_argument("--r_user_en",     type=bool,    default=False,     help="R-Channel User Enable.")  
+    core_bool_param_group.add_argument("--bram",          type=bool,    default=False,     help="Memory type")       
 
 
     # Core range value parameters.
@@ -206,6 +209,7 @@ def main():
         r_user_width  = args.r_user_width,
         sync_stages   = args.sync_stages,
         fifo_depth    = args.fifo_depth,
+        bram          = args.bram,
     )
 
     # Build Project --------------------------------------------------------------------------------
