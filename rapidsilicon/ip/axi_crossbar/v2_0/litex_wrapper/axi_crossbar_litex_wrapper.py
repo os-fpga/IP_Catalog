@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 # AXI CROSSBAR ---------------------------------------------------------------------------------
 class AXICROSSBAR(Module):
     def __init__(self, platform, s_axi, m_axi, s_count, m_count, aw_user_en, w_user_en,
-        b_user_en, ar_user_en, r_user_en, sync_stages, fifo_depth):
+        b_user_en, ar_user_en, r_user_en, sync_stages, fifo_depth,bram):
 
         self.s_awid_internal 	  = [Signal(len(s_axi[0].aw.id)) for s_count in range(s_count+1)]
         self.s_awaddr_internal   = [Signal(len(s_axi[0].aw.addr)) for s_count in range(s_count+1)]
@@ -143,7 +143,11 @@ class AXICROSSBAR(Module):
         data_width = len(s_axi[0].w.data)
         self.logger.info(f"DATA_WIDTH   : {data_width}")
 
-        # ID width.
+        # Master ID width.
+        m_id_width = len(m_axi[0].aw.id)
+        self.logger.info(f"M_ID_WIDTH   : {m_id_width}")
+        
+        # Slave ID width.
         s_id_width = len(s_axi[0].aw.id)
         self.logger.info(f"S_ID_WIDTH   : {s_id_width}")
 
@@ -304,6 +308,8 @@ class AXICROSSBAR(Module):
             o_m_axi_rready   = Cat(self.m_rready_internal),
         )
         
+        # Slave interface CDC blocks
+        
         for s_count in range (s_count):
             self.specials += 	Instance("axi_cdc",
             p_AXI_ID_WIDTH     = 	Instance.PreformattedParam(s_id_width),
@@ -311,9 +317,10 @@ class AXICROSSBAR(Module):
             p_AXI_ADDR_WIDTH   = 	Instance.PreformattedParam(address_width),
             p_SYNC_STAGES      = 	Instance.PreformattedParam(sync_stages),
             p_FIFO_LOG         = 	Instance.PreformattedParam(fifo_depth),
+            p_MEM_TYPE		=       bram,
           
             i_S_AXI_ACLK 	= 	ClockSignal("s{}_axi_aclk".format(s_count)),
-            i_S_AXI_ARESET	=	ResetSignal("s{}_axi_aresten".format(s_count)),
+            i_S_AXI_ARESET	=	ResetSignal("s{}_axi_areset".format(s_count)),
             i_M_AXI_ACLK	= 	ClockSignal(),
             i_M_AXI_ARESET	=	ResetSignal(),
             
@@ -403,19 +410,21 @@ class AXICROSSBAR(Module):
             i_M_AXI_RVALID 	= 	self.s_rvalid_internal[s_count],
             o_M_AXI_RREADY 	= 	self.s_rready_internal[s_count],
         )   
-
+        
+        # Master interface CDC blocks
         for m_count in range (m_count):
             self.specials += Instance("axi_cdc",
-            p_AXI_ID_WIDTH     = 	Instance.PreformattedParam(s_id_width),
+            p_AXI_ID_WIDTH     = 	Instance.PreformattedParam(m_id_width),
             p_AXI_DATA_WIDTH   = 	Instance.PreformattedParam(data_width),
             p_AXI_ADDR_WIDTH   = 	Instance.PreformattedParam(address_width),
             p_SYNC_STAGES      = 	Instance.PreformattedParam(sync_stages),
             p_FIFO_LOG         = 	Instance.PreformattedParam(fifo_depth),
+            p_MEM_TYPE		=       bram,
 
             i_S_AXI_ACLK 	= 	ClockSignal(),
             i_S_AXI_ARESET	=	ResetSignal(),
             i_M_AXI_ACLK	= 	ClockSignal("m{}_axi_aclk".format(m_count)),
-            i_M_AXI_ARESET	=	ResetSignal("m{}_axi_aresten".format(m_count)),
+            i_M_AXI_ARESET	=	ResetSignal("m{}_axi_areset".format(m_count)),
             
             i_S_AXI_AWID 	= 	self.m_awid_internal[m_count],
             i_S_AXI_AWADDR 	= 	self.m_awaddr_internal[m_count],

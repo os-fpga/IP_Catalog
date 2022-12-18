@@ -1,19 +1,19 @@
-`define AXI4FULL 
+//`define AXI4FULL 
 
 
 module axi_cdc #(
 	/* ID width for master and slave interface */
-	parameter	AXI_ID_WIDTH	= 	8,
+    parameter	AXI_ID_WIDTH	= 	8,
 	/* Data width of axi bus */
-	parameter  	AXI_DATA_WIDTH	= 	32,
+    parameter  	AXI_DATA_WIDTH	= 	32,
 	/* Address width of axi bus */
-	parameter  	AXI_ADDR_WIDTH	= 	32,
+    parameter  	AXI_ADDR_WIDTH	= 	32,
 	 /* Total number of synchronization stages, to handle metastaibility. This value can be greater but minimum value is 2 */
-	parameter	SYNC_STAGES 	= 	4,
+    parameter	SYNC_STAGES 	= 	4,
 	/* The log value of total number of entries in FIFO */
-	parameter	FIFO_LOG        = 	5,
+    parameter	FIFO_LOG        = 	5,
 	/* For BRAM set MEM_TYPE=1, while for Distributed memory set MEM_TYPE=0 */
-        parameter   MEM_TYPE = 0
+    parameter   MEM_TYPE = 0
 		
 ) 
 (
