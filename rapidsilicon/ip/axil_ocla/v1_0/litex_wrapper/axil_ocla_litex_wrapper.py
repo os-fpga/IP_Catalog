@@ -26,27 +26,27 @@ class AXILITEOCLA(Module):
                  mem_depth, 
                  trigger_inputs_en):
         
-        self.logger = logging.getLogger("AXI_LITE_OCLA")
+        #self.logger = logging.getLogger("AXI_LITE_OCLA")
         
-        self.logger.propagate = True
+        #self.logger.propagate = True
         
         # Clock Domain
-        clock_domain = s_axil.clock_domain
-        self.logger.info(f"CLOCK_DOMAIN     : {clock_domain}")
+        #clock_domain = s_axil.clock_domain
+        #self.logger.info(f"CLOCK_DOMAIN     : {clock_domain}")
         
         # Address width.
-        address_width = len(s_axil.aw.addr)
-        self.logger.info(f"ADDRESS_WIDTH    : {address_width}")
+        #address_width = len(s_axil.aw.addr)
+        #self.logger.info(f"ADDRESS_WIDTH    : {address_width}")
         
         # Read Data width.
-        data_width = len(s_axil.r.data)
-        self.logger.info(f"DATA_WIDTH       : {data_width}")
+        #data_width = len(s_axil.r.data)
+        #self.logger.info(f"DATA_WIDTH       : {data_width}")
         
         # OCLA features.
-        self.logger.info(f"NO_OF_PROBES          : {nprobes}")
-        self.logger.info(f"NO_OF_TRIGGER_INPUTS  : {trigger_inputs}")
-        self.logger.info(f"PROBE_WIDHT           : {probe_widht}")
-        self.logger.info(f"MEM_DEPTH             : {mem_depth}")
+        #self.logger.info(f"NO_OF_PROBES          : {nprobes}")
+        #self.logger.info(f"NO_OF_TRIGGER_INPUTS  : {trigger_inputs}")
+        #self.logger.info(f"PROBE_WIDHT           : {probe_widht}")
+        #self.logger.info(f"MEM_DEPTH             : {mem_depth}")
 
         
         # OCLA Signals
