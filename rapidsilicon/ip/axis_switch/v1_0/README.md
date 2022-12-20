@@ -26,8 +26,8 @@ These are the parameters for AXIS-SWITCH core along with their keyword and value
 |   11.  |   ARB_LSB_HIGH_PRIORITY    |     lsb_high_priority      |    0 / 1      |
 |   12.  |   ARB_TYPE_ROUND_ROBIN     |     type_round_robin       |    0 / 1      |
 |   13.  |   UPDATE_TID               |     tid                    |    0 / 1      |
-|   14.  |   M_TOP                    |     m_top                  |    0 - 36     |
-|   15.  |   M_BASE                   |     m_base                 |    0 - 36     |
+|   14.  |   M_TOP                    |     m_top                  |    0 - 16     |
+|   15.  |   M_BASE                   |     m_base                 |    0 - 16     |
 
 
 
