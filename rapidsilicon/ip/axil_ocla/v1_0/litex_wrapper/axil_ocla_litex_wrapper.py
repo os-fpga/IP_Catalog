@@ -31,15 +31,15 @@ class AXILITEOCLA(Module):
         #self.logger.propagate = True
         
         # Clock Domain
-        #clock_domain = s_axil.clock_domain
+        clock_domain = s_axil.clock_domain
         #self.logger.info(f"CLOCK_DOMAIN     : {clock_domain}")
         
         # Address width.
-        #address_width = len(s_axil.aw.addr)
+        address_width = len(s_axil.aw.addr)
         #self.logger.info(f"ADDRESS_WIDTH    : {address_width}")
         
         # Read Data width.
-        #data_width = len(s_axil.r.data)
+        data_width = len(s_axil.r.data)
         #self.logger.info(f"DATA_WIDTH       : {data_width}")
         
         # OCLA features.
