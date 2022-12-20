@@ -197,7 +197,7 @@ def main():
         if(triginpts_en):
             f.write("`define TRIGGER_INPUTS \n")
         if(advance_trigger):
-            f.write("`define advance_trigger \n\n")
+            f.write("`define ADVANCE_TRIGGER \n\n")
         f.write(content)
         f.close()
 
