@@ -28,7 +28,7 @@ class AXILITEOCLA(Module):
         
         self.logger = logging.getLogger("AXI_LITE_OCLA")
         
-        self.logger.propagate = True
+        self.logger.propagate = False
         
         # Clock Domain
         clock_domain = s_axil.clock_domain
