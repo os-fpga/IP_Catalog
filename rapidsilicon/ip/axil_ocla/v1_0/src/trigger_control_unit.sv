@@ -34,7 +34,7 @@ module trigger_control_unit #(
     input logic [(NPROBES)-1:0] in_signals,
 `endif
     input logic [31:0] config_bits,
-    `ifdef value_compare_trigger
+    `ifdef VALUE_COMPARE_TRIGGER
 
     input logic [PROBE_WIDHT-1:0] reg_value,
     `endif
@@ -45,7 +45,7 @@ module trigger_control_unit #(
   logic out_trig1;
 
   logic in_sig1;
-  `ifdef value_compare_trigger
+  `ifdef VALUE_COMPARE_TRIGGER
 
   logic [PROBE_WIDHT-1:0] compare_value1;
 `endif
@@ -64,7 +64,7 @@ module trigger_control_unit #(
   //assign compare_value1 = in_signals[config_bits_ff[17+:`SELECT_MUX_WIDTH]+:`WIDTH];
   //assign in_sig1 = in_signals[config_bits_ff[17+:`SELECT_MUX_WIDTH]];
 
-`ifdef value_compare_trigger
+`ifdef VALUE_COMPARE_TRIGGER
   assign compare_value1 = trigger_select[config_bits_ff[17+:`SELECT_MUX_WIDTH]+:PROBE_WIDHT];
 `endif
  assign in_sig1 = trigger_select[config_bits_ff[17+:`SELECT_MUX_WIDTH]];
@@ -74,7 +74,7 @@ module trigger_control_unit #(
       .rstn(rstn),
       .in_sig(in_sig1),
       .config_bits(config_bits_ff[7:1]),
-      `ifdef value_compare_trigger
+      `ifdef VALUE_COMPARE_TRIGGER
       .reg_value(reg_value),
       .compare_value(compare_value1),
       `endif
@@ -86,14 +86,14 @@ module trigger_control_unit #(
   logic out_trig2;
   logic in_sig2;
   logic out_trig_bool;
-  `ifdef value_compare_trigger
+  `ifdef VALUE_COMPARE_TRIGGER
 
   logic [PROBE_WIDHT-1:0] compare_value2;
 `endif
   //  assign in_sig2 = in_signals[config_bits_ff[24+:`SELECT_MUX_WIDTH]];
   //  assign compare_value2 = in_signals[config_bits_ff[24+:`SELECT_MUX_WIDTH]+:`WIDTH];
   assign in_sig2 = trigger_select[config_bits_ff[24+:`SELECT_MUX_WIDTH]];
-`ifdef value_compare_trigger
+`ifdef VALUE_COMPARE_TRIGGER
   assign compare_value2 = trigger_select[config_bits_ff[24+:`SELECT_MUX_WIDTH]+:PROBE_WIDHT];
 `endif
 
@@ -103,7 +103,7 @@ module trigger_control_unit #(
       .rstn(rstn),
       .in_sig(in_sig2),
       .config_bits(config_bits_ff[14:8]),
-      `ifdef value_compare_trigger
+      `ifdef VALUE_COMPARE_TRIGGER
       .reg_value(reg_value),
       .compare_value(compare_value2),
       `endif

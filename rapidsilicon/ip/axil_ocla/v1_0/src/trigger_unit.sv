@@ -28,7 +28,7 @@ module trigger_unit #(parameter PROBE_WIDHT = 4 ) (
     input logic rstn,
     input logic in_sig,
     input logic [6:0] config_bits,
-    `ifdef value_compare_trigger
+    `ifdef VALUE_COMPARE_TRIGGER
     input logic [PROBE_WIDHT-1:0] reg_value,
     input logic [PROBE_WIDHT-1:0] compare_value,
     `endif
@@ -37,10 +37,10 @@ module trigger_unit #(parameter PROBE_WIDHT = 4 ) (
 );
 
   logic trigger_event_ed;
-  `ifdef value_compare_trigger
+  `ifdef VALUE_COMPARE_TRIGGER
 
   logic trigger_event_vc;
-`endif
+  `endif
   logic trigger_event_lvl;
   logic out_sig;
 
@@ -56,7 +56,7 @@ module trigger_unit #(parameter PROBE_WIDHT = 4 ) (
       2'b00:   out_sig = 1'b0;  // no trigger
       2'b01:   out_sig = trigger_event_ed;  //  edge detect
       2'b10:   out_sig = trigger_event_lvl;  // level detect
-      `ifdef value_compare_trigger
+      `ifdef VALUE_COMPARE_TRIGGER
       2'b11:   out_sig = trigger_event_vc;  // value compare
       `endif
       default: out_sig = 1'b0;  // default
@@ -80,7 +80,7 @@ module trigger_unit #(parameter PROBE_WIDHT = 4 ) (
       .config_bits(config_bits[4]),
       .lvl_trigger_event(trigger_event_lvl)
   );
-  `ifdef value_compare_trigger
+  `ifdef VALUE_COMPARE_TRIGGER
   value_compare #(.PROBE_WIDHT(PROBE_WIDHT))
   vc (
       .sample_clk(sample_clk),
@@ -92,7 +92,7 @@ module trigger_unit #(parameter PROBE_WIDHT = 4 ) (
       .vc_trigger_event(trigger_event_vc)
   );
 
-`endif
+  `endif
 
 endmodule
 

@@ -25,7 +25,7 @@
 `define TRIGGER_SIGNAL_SELECT_RANGE `NUM_OF_PROBES > 32 ? 32:`NUM_OF_PROBES              // range of trigger signals from probes 
 `define SELECT_MUX_WIDTH `NUM_OF_PROBES <= 1 ? 1 : $clog2(`TRIGGER_SIGNAL_SELECT_RANGE)                            // mux select line WIDTH to select trigger signal
 
-// `define value_compare_trigger                        // to enable value compare mode of trigger
+// `define VALUE_COMPARE_TRIGGER                        // to enable value compare mode of trigger
 // `define PROBE_WIDHT_BITS 4                           // probe WIDTH for value compare
 
 
@@ -85,12 +85,3 @@
 
 `define REG_WIDTH 1                                      // Dual synchronizer width
 
-
-
-// ---------------------------------------------------------------
-// MISC
-// ---------------------------------------------------------------
-/*
-`define memory_banks 2
-`define memory_banks `NUM_OF_PROBES > 32 ? (`NUM_OF_PROBES / 32) +((`NUM_OF_PROBES - $floor(`NUM_OF_PROBES / 32) * 32 )== 0 ? 0:1):1
-*/
