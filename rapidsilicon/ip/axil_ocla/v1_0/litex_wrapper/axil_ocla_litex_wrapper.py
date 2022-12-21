@@ -130,8 +130,9 @@ class AXILITEOCLA(Module):
 
             # sampling Clk / Rst.
             # ----------
-            i_sample_clk       = ClockSignal(),
-            i_rstn             = ResetSignal(),
+            i_sample_clk       = ClockSignal("i_sample_clk"),
+            i_rstn             = ResetSignal("i_rstn"),
+            
             
             # AXI Clk / Rst.
             # ----------
