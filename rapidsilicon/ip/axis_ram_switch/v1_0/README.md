@@ -32,9 +32,9 @@ These are the parameters for AXIS-SWITCH core along with their keyword and value
 |   17.  |   FIFO_DEPTH               |     fifo_depth             |    8,16,32...,32768|
 |   18.  |   CMD_FIFO_DEPTH           |     cmd_fifo_depth         |    8,16,32...,1024 |
 |   19.  |   USER_BAD_FRAME_VALUE     |     bad_frame_value        |    0 - 100         |
-|   20.  |   USER_BAD_FRAME_MASK      |     bad_frame_mask         |    0 / 1           |
-|   21.  |   M_TOP                    |     m_top                  |    0 - 36          |
-|   22.  |   M_BASE                   |     m_base                 |    0 - 36          |
+|   20.  |   USER_BAD_FRAME_MASK      |     bad_frame_mask         |    0 - 100         |
+|   21.  |   M_TOP                    |     m_top                  |    0 - 16          |
+|   22.  |   M_BASE                   |     m_base                 |    0 - 16          |
 
 
 To generate RTL with above parameters, run the following command:
