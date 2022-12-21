@@ -142,7 +142,6 @@ class VexriscvWrapper(Module):
                 ibus        = ibus_axi,
                 dbus        = dbus_axi
                 )
-
         platform.add_extension(get_jtag_ios())
         # Inputs
         self.comb += vexriscv.jtag_tms.eq(platform.request("jtag_tms"))
@@ -233,7 +232,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="vexriscv_wrapper",     help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="vexriscv_cpu_wrapper",     help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -242,13 +241,13 @@ def main():
 
     args = parser.parse_args()
     
-    # Providing a default value
-    if (not args.uncached and not args.cached_mmu and not args.plic_clint):
-        args.uncached = True
-
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+
+    # Providing a default value
+    if (not args.uncached and not args.cached_mmu and not args.plic_clint):
+        args.uncached = True
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:

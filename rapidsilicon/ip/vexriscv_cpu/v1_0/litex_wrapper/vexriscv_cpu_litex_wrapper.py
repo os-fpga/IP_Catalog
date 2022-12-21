@@ -44,8 +44,8 @@ class vexriscv_nocache_nommu(Module):
             i_reset                     = ResetSignal(),
 
             #Interrupts/Debug
-            i_externalInterrupt         = self.timerInterrupt,
-            i_timerInterrupt            = self.externalInterrupt,
+            i_externalInterrupt         = self.externalInterrupt,
+            i_timerInterrupt            = self.timerInterrupt,
             i_softwareInterrupt         = self.softwareInterrupt,
             i_debugReset                = self.debugReset,
             o_debug_resetOut            = self.debug_resetOut,  
@@ -179,8 +179,8 @@ class vexriscv_linux_mmu(Module):
             i_reset                     = ResetSignal(),
 
             #Interrupts/Debug
-            i_externalInterrupt         = self.timerInterrupt,
-            i_timerInterrupt            = self.externalInterrupt,
+            i_externalInterrupt         = self.externalInterrupt,
+            i_timerInterrupt            = self.timerInterrupt,
             i_softwareInterrupt         = self.softwareInterrupt,
             i_debugReset                = self.debugReset,
             o_debug_resetOut            = self.debug_resetOut,
