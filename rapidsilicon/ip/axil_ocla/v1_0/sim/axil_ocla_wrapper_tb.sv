@@ -28,9 +28,9 @@ module axil_ocla_wrapper_tb;
   reg s_axil_rready = 0;
   wire [1:0] s_axil_rresp;
   wire [31:0] s_axil_rdata;
-  reg [23:0] i_probes;
+  //reg [23:0] i_probes;
   
-  logic [NUM_OF_PROBE:0] gray_out, binary_out;
+  logic [NUM_OF_PROBE-1:0] gray_out, binary_out;
   // ---------------------------------------------------------------
   // OCLA Logic Analyzer
   // ---------------------------------------------------------------
@@ -80,19 +80,15 @@ module axil_ocla_wrapper_tb;
       repeat (2) @(posedge i_S_AXI_ACLK);
       RESET();
       repeat (2) @(posedge i_S_AXI_ACLK);
-      config_trig_in;
-      repeat (100) @(posedge i_S_AXI_ACLK);
-      do begin 
-        repeat (2) @(posedge i_S_AXI_ACLK);
-        axi_read_transaction(32'b0);
-      end
-      while(s_axil_rdata != 'hC0000001);
+       // ---------------------------------------------------------------
+       // Simple trigger mode
 
-      for(i = 0; i < 32; i = i +1) begin
-        axi_read_transaction(32'h04);
-
-      end
-      repeat (100) @(posedge i_S_AXI_ACLK);
+        config_trig_in_pre;
+        config_trig_in_post;
+        config_trig_in_cntr;
+        ad_config_trig_in_pre;
+        config_trig_vc;
+        
       #10;
       $finish;
     end
@@ -101,22 +97,144 @@ module axil_ocla_wrapper_tb;
   always #5 i_sample_clk = !i_sample_clk;
   always #5 i_S_AXI_ACLK = !i_S_AXI_ACLK;
 
+  // ---------------------------------------------------------------
+  // config_trig_in Value Compare trigger
+  // ---------------------------------------------------------------
+  task config_trig_vc;
+  begin
+    axi_write_transaction(32'h10, 32'h13);
+    @(posedge i_S_AXI_ACLK);
+    axi_write_transaction(32'h08,32'h14004E);
+    @(posedge i_S_AXI_ACLK);
+
+    axi_write_transaction(32'hC, 32'h7);
+    @(posedge i_S_AXI_ACLK);
+    repeat (10) @(posedge i_S_AXI_ACLK);
+    
+          repeat (100) @(posedge i_S_AXI_ACLK);
+    do begin 
+      repeat (2) @(posedge i_S_AXI_ACLK);
+      axi_read_transaction(32'b0);
+    end
+    while(s_axil_rdata != 'hC0000001);
+       for(i = 0; i < 64; i = i +1) begin
+                 axi_read_transaction(32'h04);
+         
+               end
+    repeat (2) @(posedge i_S_AXI_ACLK);
+  end
+
+  endtask
 
   // ---------------------------------------------------------------
-  // config_trig_in
+  // config_trig_in pre trigger
   // ---------------------------------------------------------------
-  task config_trig_in;
+  task ad_config_trig_in_pre;
   begin
-    axi_write_transaction(32'h08,32'h1E000A);
+    axi_write_transaction(32'h08,32'hA14922D);
     @(posedge i_S_AXI_ACLK);
 
     axi_write_transaction(32'hC, 32'h5);
     @(posedge i_S_AXI_ACLK);
     repeat (10) @(posedge i_S_AXI_ACLK);
+    
+          repeat (100) @(posedge i_S_AXI_ACLK);
+    do begin 
+      repeat (2) @(posedge i_S_AXI_ACLK);
+      axi_read_transaction(32'b0);
+    end
+    while(s_axil_rdata != 'hC0000001);
+       for(i = 0; i < 64; i = i +1) begin
+                 axi_read_transaction(32'h04);
+         
+               end
+    repeat (2) @(posedge i_S_AXI_ACLK);
+  end
+
+  endtask
+
+  // ---------------------------------------------------------------
+  // config_trig_in pre trigger
+  // ---------------------------------------------------------------
+  task config_trig_in_pre;
+  begin
+    axi_write_transaction(32'h08,32'h14000A);
+    @(posedge i_S_AXI_ACLK);
+
+    axi_write_transaction(32'hC, 32'h5);
+    @(posedge i_S_AXI_ACLK);
+    repeat (10) @(posedge i_S_AXI_ACLK);
+    
+          repeat (100) @(posedge i_S_AXI_ACLK);
+    do begin 
+      repeat (2) @(posedge i_S_AXI_ACLK);
+      axi_read_transaction(32'b0);
+    end
+    while(s_axil_rdata != 'hC0000001);
+       for(i = 0; i < 64; i = i +1) begin
+                 axi_read_transaction(32'h04);
+         
+               end
+    repeat (2) @(posedge i_S_AXI_ACLK);
   end
 
 endtask
 
+
+  // ---------------------------------------------------------------
+  // config_trig_in cntr trigger
+  // ---------------------------------------------------------------
+  task config_trig_in_cntr;
+  begin
+    axi_write_transaction(32'h08,32'h14000A);
+    @(posedge i_S_AXI_ACLK);
+
+    axi_write_transaction(32'hC, 32'h7);
+    @(posedge i_S_AXI_ACLK);
+    repeat (10) @(posedge i_S_AXI_ACLK);
+                repeat (100) @(posedge i_S_AXI_ACLK);
+    do begin 
+      repeat (2) @(posedge i_S_AXI_ACLK);
+      axi_read_transaction(32'b0);
+    end
+    while(s_axil_rdata != 'hC0000001);
+
+    for(i = 0; i < 64; i = i +1) begin
+      axi_read_transaction(32'h04);
+
+    end
+repeat (100) @(posedge i_S_AXI_ACLK);
+  end
+
+  endtask
+
+
+  // ---------------------------------------------------------------
+  // config_trig_in post trigger
+  // ---------------------------------------------------------------
+  task config_trig_in_post;
+  begin
+    axi_write_transaction(32'h08,32'h14000A);
+    @(posedge i_S_AXI_ACLK);
+
+    axi_write_transaction(32'hC, 32'h6);
+    @(posedge i_S_AXI_ACLK);
+    repeat (10) @(posedge i_S_AXI_ACLK);
+                repeat (100) @(posedge i_S_AXI_ACLK);
+    do begin 
+      repeat (2) @(posedge i_S_AXI_ACLK);
+      axi_read_transaction(32'b0);
+    end
+    while(s_axil_rdata != 'hC0000001);
+
+    for(i = 0; i < 64; i = i +1) begin
+      axi_read_transaction(32'h04);
+
+    end
+repeat (100) @(posedge i_S_AXI_ACLK);
+  end
+
+endtask
   // ---------------------------------------------------------------
   // AXI WRITE Transaction
   // ---------------------------------------------------------------
