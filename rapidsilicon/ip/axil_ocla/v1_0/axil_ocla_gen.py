@@ -51,9 +51,9 @@ class AXILITEOCLAWrapper(Module):
 
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_samplingclknrst_ios())
-        self.clock_domains.cd_sys  = ClockDomain()
+        self.clock_domains.cd_sys  = ClockDomain("i_sample_clk")
         self.comb += self.cd_sys.clk.eq(platform.request("i_sample_clk"))
-        # self.clock_domains.cd_sys  = ClockDomain()
+        self.clock_domains.cd_sys  = ClockDomain("i_rstn")
         self.comb += self.cd_sys.rst.eq(platform.request("i_rstn"))
 
         # AXI LITE --------------------------------------------------------------------------------------
@@ -109,14 +109,14 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="OCLA IP Core fix parameters")
     core_fix_param_group.add_argument("--mem_depth",       type=int,  default=32, choices=[32, 64, 128, 256, 512, 1024],          help="OCLA Trace Memory Depth.")
     core_fix_param_group.add_argument("--addr_width",      type=int,  default=32, choices=[8, 16, 32],     help="OCLA Address Width.")
-    core_fix_param_group.add_argument("--data_width",      type=int,  default=32, choices=[8, 16, 32, 64], help="OCLA Data Width.")
+    core_fix_param_group.add_argument("--data_width",      type=int,  default=32, choices=[32], help="OCLA Data Width.")
     
     # Core range value parameters.
 
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
     core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1, choices=range(1,1025),         help="Number of Probes.")
     core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,  choices=range(1,32),          help="Number of Input Triggers.")
-    core_range_param_group.add_argument("--probe_width",            type=int,  default=1,  choices=range(1, 32),         help="Width of probe for Value Compare.")
+    core_range_param_group.add_argument("--probe_width",            type=int,  default=1,  choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -193,11 +193,11 @@ def main():
         f.write("`define NUM_OF_TRIGGER_INPUTS  "+ str(ntrigger_inputs)+"\n")
         f.write("`define PROBE_WIDHT_BITS "+ str(nprobe_widht)+"\n")   
         if(value_compare):
-            f.write("`define value_compare_trigger  \n")
+            f.write("`define VALUE_COMPARE_TRIGGER   \n")
         if(triginpts_en):
             f.write("`define TRIGGER_INPUTS \n")
         if(advance_trigger):
-            f.write("`define advance_trigger \n\n")
+            f.write("`define ADVANCE_TRIGGER \n\n")
         f.write(content)
         f.close()
 

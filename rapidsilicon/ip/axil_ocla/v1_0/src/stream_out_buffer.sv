@@ -100,7 +100,7 @@ module stream_out_buffer #(
     end else begin
       if (state == data_out) begin
         if (word_count == 'b0 && !fetch_data) begin
-          read_data  <= {'b0, read_accumulated_data};
+          read_data  <= read_accumulated_data;
           //$display("PROBE_BITS chunk %d, %d, %d", NUM_OF_WORD_CHUNKS, PROBE_BITS,`REM_BITS );
           read_valid <= 'b1;
           if (read_ready) word_count <= word_count + 'b1;
@@ -108,7 +108,7 @@ module stream_out_buffer #(
           else fetch_data <= 'b0;
         end else if (word_count >= ((NUM_OF_WORD_CHUNKS) - 1)) begin
           if (read_data_en && !mem_empty && !read_valid && !fetch_data) begin
-            read_data  <= {'b0, mem_accumulated_data_reg[32*word_count+:PROBE_BITS]};
+            read_data  <= mem_accumulated_data_reg[32*word_count+:PROBE_BITS];
             read_valid <= 'b1;
             word_count <= 'b0;
             fetch_data <= 'b1;

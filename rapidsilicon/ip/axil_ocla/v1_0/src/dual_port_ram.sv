@@ -4,7 +4,7 @@
 //
 // Create Date: 10/17/2022 04:34:13 PM
 // Design Name: OCLA Top
-// Module Name:
+// Module Name: dual_port_ram
 // Project Name:
 // Target Devices: Gemini RS-75
 // Tool Versions: Raptor
