@@ -37,18 +37,18 @@ module ocla #(
 
     // AXI_BUS.slv_lite axi_slave /*,
 
-`ifdef TRIGGER_INPUTS
+    `ifdef TRIGGER_INPUTS
     input logic [NO_OF_TRIGGER_INPUTS-1:0] trigger_input,
-`endif
+    `endif
 
-`ifdef trigger_outputs
+    `ifdef trigger_outputs
     input logic [`Nooftriggeroutputs-1:0] trigger_output,
-`endif
+    `endif
 
     input logic S_AXI_ACLK,
     input logic S_AXI_ARESETN,
 
-`ifdef AXI_LITE_INTF
+    `ifdef AXI_LITE_INTF
 
 
     input wire [AXI_ADDR_WIDTH-1 : 0] S_AXI_AWADDR,
@@ -74,7 +74,7 @@ module ocla #(
     output wire [1 : 0] S_AXI_RRESP,
     output wire S_AXI_RVALID,
     input wire S_AXI_RREADY,
-`endif
+    `endif
     input logic [NO_OF_PROBES-1:0] probes
 );
 
@@ -205,16 +205,16 @@ module ocla #(
   ) trig_control_unit_inst (
       .sample_clk(sample_clk),
       .rstn(rstn),
-`ifdef TRIGGER_INPUTS
+      `ifdef TRIGGER_INPUTS
       .in_signals({probes, trigger_input[NO_OF_TRIGGER_INPUTS-1:0]}),
-`else
+      `else
       .in_signals(probes),
-`endif
+      `endif
       .config_bits(tcur_port),
-`ifdef value_compare_trigger
+      `ifdef VALUE_COMPARE_TRIGGER
 
       .reg_value(tdcr_port[PROBE_WIDHT-1:0]),
-`endif
+      `endif
       .trigger_event(trigger_event)
   );
 

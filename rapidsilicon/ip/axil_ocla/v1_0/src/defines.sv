@@ -21,11 +21,10 @@
 
 // `define ADVANCE_TRIGGER                              // to enable multi trigger capture mode
 `define WIDTH 32                                        // data WIDTH
-//`define SELECT_MUX_WIDTH int'($clog2(`NUM_OF_PROBES)) > 7 ? 7 : int'($clog2(`NUM_OF_PROBES));
 `define TRIGGER_SIGNAL_SELECT_RANGE `NUM_OF_PROBES > 32 ? 32:`NUM_OF_PROBES              // range of trigger signals from probes 
-`define SELECT_MUX_WIDTH `NUM_OF_PROBES <= 1 ? 1 : $clog2(`TRIGGER_SIGNAL_SELECT_RANGE)                            // mux select line WIDTH to select trigger signal
+`define SELECT_MUX_WIDTH `NUM_OF_PROBES <= 1 ? 1 : $clog2(`TRIGGER_SIGNAL_SELECT_RANGE)  // mux select line WIDTH to select trigger signal
 
-// `define value_compare_trigger                        // to enable value compare mode of trigger
+// `define VALUE_COMPARE_TRIGGER                        // to enable value compare mode of trigger
 // `define PROBE_WIDHT_BITS 4                           // probe WIDTH for value compare
 
 
@@ -67,7 +66,8 @@
 `define WORD_CHUNKS `NUM_OF_PROBES > 32 ? (`NUM_OF_PROBES / 32) +((`NUM_OF_PROBES - $floor(`NUM_OF_PROBES / 32) * 32 )== 0 ? 0:1):1  
                                                         // number of 32 bit words in which probes can be divided
 `define PROBE_BITS 32 - int'(`REM_BITS) 
-`define WORD_CHUNK_CNTR_WIDTH `WORD_CHUNKS > 1? int'($clog2(`WORD_CHUNKS)):1 // number of bits required to count number of word chunks
+`define WORD_CHUNK_CNTR_WIDTH `WORD_CHUNKS > 1? int'($clog2(`WORD_CHUNKS)):1 
+							// number of bits required to count number of word chunks
 
 
 
@@ -85,12 +85,3 @@
 
 `define REG_WIDTH 1                                      // Dual synchronizer width
 
-
-
-// ---------------------------------------------------------------
-// MISC
-// ---------------------------------------------------------------
-/*
-`define memory_banks 2
-`define memory_banks `NUM_OF_PROBES > 32 ? (`NUM_OF_PROBES / 32) +((`NUM_OF_PROBES - $floor(`NUM_OF_PROBES / 32) * 32 )== 0 ? 0:1):1
-*/
