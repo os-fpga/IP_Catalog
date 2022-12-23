@@ -182,7 +182,7 @@ class IP_Builder:
 
 
 
-    def prepare(self, build_dir, build_name, version="v1_0"):
+    def prepare(self, build_dir, build_name, version):
         # Remove build_name extension when specified.
         build_name = os.path.splitext(build_name)[0]
 
