@@ -277,8 +277,10 @@ def main():
     if args.build:
         rs_builder.prepare(
             build_dir  = args.build_dir,
-            build_name = args.build_name
+            build_name = args.build_name,
+            version    = "v1_0"
         )
+        
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
         rs_builder.generate_wrapper(
