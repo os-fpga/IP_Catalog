@@ -6,7 +6,6 @@
 
 import os
 import sys
-import json
 import argparse
 
 from litex_wrapper.axil_crossbar_litex_wrapper import AXILITECROSSBAR
@@ -124,7 +123,7 @@ def main():
     core_fix_param_group.add_argument("--sync_stages",   type=int,      default=2,      choices=[3, 4, 5, 6, 7, 8],         help="Number of Sync Stages")
     core_fix_param_group.add_argument("--fifo_depth",    type=int,      default=3,      choices=[4, 5, 6, 7, 8],            help="FIFO Depth")
 
-     # Core bool value parameters.
+    # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--bram",     type=bool,     default=False,      help="Memory type")
 
@@ -171,7 +170,7 @@ def main():
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
-            version    = "v1_0"
+            version    = "v2_0"
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
