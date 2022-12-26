@@ -36,19 +36,19 @@ DUT      = axi_crossbar
 TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_axi_crossbar
 
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/axi_crossbar.v 
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/axi_cdc.v 
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/axi_crossbar_addr.v 
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/axi_crossbar_rd.v 
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/axi_crossbar_wr.v 
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/axi_register_rd.v 
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/axi_register_wr.v 
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/arbiter.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/priority_encoder.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/dual_port_ram.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/afifo.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/synchronizer.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/$(TOPLEVEL).v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/axi_crossbar.v 
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/axi_cdc.v 
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/axi_crossbar_addr.v 
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/axi_crossbar_rd.v 
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/axi_crossbar_wr.v 
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/axi_register_rd.v 
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/axi_register_wr.v 
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/arbiter.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/priority_encoder.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/dual_port_ram.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/afifo.v
+VERILOG_SOURCES += ./rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_wrapper/src/synchronizer.v
 
 $(shell ../$(DUT)_gen.py --s_count=${PARAM_S_COUNT} --m_count=${PARAM_M_COUNT} --build)
 

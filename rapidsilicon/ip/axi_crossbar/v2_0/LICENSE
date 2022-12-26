@@ -23,6 +23,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 FILES:
 rapidsilicon/ip/axi_crossbar/v2_0/axi_crossbar_gen.py
 rapidsilicon/ip/axi_crossbar/v2_0/litex_wrapper/axi_crossbar_litex_wrapper.py
+rapidsilicon/ip/axi_crossbar/v2_0/src/afifo.v
+rapidsilicon/ip/axi_crossbar/v2_0/src/axi_cdc.v
+rapidsilicon/ip/axi_crossbar/v2_0/src/dual_port_ram.v
+rapidsilicon/ip/axi_crossbar/v2_0/src/synchronizer.v
 
 ---------------------------------------------------------------------------------------
 
@@ -58,10 +62,6 @@ rapidsilicon/ip/axi_crossbar/v2_0/src/axi_register_rd.v
 rapidsilicon/ip/axi_crossbar/v2_0/src/axi_register_wr.v
 rapidsilicon/ip/axi_crossbar/v2_0/src/arbiter.v
 rapidsilicon/ip/axi_crossbar/v2_0/src/priority_encoder.v
-rapidsilicon/ip/axi_crossbar/v2_0/src/afifo.v
-rapidsilicon/ip/axi_crossbar/v2_0/src/axi_cdc.v
-rapidsilicon/ip/axi_crossbar/v2_0/src/dual_port_ram.v
-rapidsilicon/ip/axi_crossbar/v2_0/src/synchronizer.v
 
 
 ---------------------------------------------------------------------------------------
