@@ -21,7 +21,7 @@
 module eio_top #
                (
                 // AXI-L related parameters
-                parameter integer C_S_AXI_DATA_WIDTH	= 64,
+                parameter integer C_S_AXI_DATA_WIDTH	= 32,
                 parameter integer C_S_AXI_ADDR_WIDTH    = 32, 
                 // width of in and out probes (max 512 probes each)
                 parameter integer INPUT_PROBE_WIDTH     = 100,
