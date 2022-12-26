@@ -36,7 +36,7 @@ module dual_port_ram #(
     /* Inferring Distributed memory */
 
     else begin 
-        (* ram_style = "distributed" *) reg [DATASIZE-1:0] mem    [(1<<ADDRSIZE)-1:0];
+        (* ram_style = "logic" *) reg [DATASIZE-1:0] mem    [(1<<ADDRSIZE)-1:0];
      
             always @(posedge rd_clk) begin
                 if (ren) 

@@ -220,10 +220,10 @@ def main():
     core_range_param_group.add_argument("--ram_pipeline",   type=int,   default=2,  choices=range(0,11),    help="RAM_SWITCH RAM Pipeline Stages")
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="RAM_SWITCH Slave Interfaces")
     core_range_param_group.add_argument("--m_count",        type=int,   default=4,  choices=range(1,17),    help="RAM_SWITCH Master Interfaces")
-    core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,37),    help="RAM_SWITCH Output interface routing base")
-    core_range_param_group.add_argument("--m_top",          type=int,   default=0,  choices=range(0,37),    help="RAM_SWITCH Output interface routing top")
-    core_range_param_group.add_argument("--bad_frame_value",type=int,   default=1,  choices=range(1,10),    help="RAM_SWITCH Value for bad frame marker")
-    core_range_param_group.add_argument("--bad_frame_mask", type=int,   default=1,  choices=range(1,10),    help="RAM_SWITCH Mask for bad frame marker")
+    core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,17),    help="RAM_SWITCH Output interface routing base")
+    core_range_param_group.add_argument("--m_top",          type=int,   default=0,  choices=range(0,17),    help="RAM_SWITCH Output interface routing top")
+    core_range_param_group.add_argument("--bad_frame_value",type=int,   default=1,  choices=range(1,100),    help="RAM_SWITCH Value for bad frame marker")
+    core_range_param_group.add_argument("--bad_frame_mask", type=int,   default=1,  choices=range(1,100),    help="RAM_SWITCH Mask for bad frame marker")
     
     # Build Parameters
     build_group = parser.add_argument_group(title="Build parameters")
@@ -277,8 +277,10 @@ def main():
     if args.build:
         rs_builder.prepare(
             build_dir  = args.build_dir,
-            build_name = args.build_name
+            build_name = args.build_name,
+            version    = "v1_0"
         )
+        
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
         rs_builder.generate_wrapper(

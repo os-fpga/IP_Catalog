@@ -56,5 +56,10 @@ IP Catalog is an IP library for Raptor toolchain.
 |           |
 │           ├── axis_width_converter
 |           |
-│           └── axi2axilite_bridge
+│           ├── axi2axilite_bridge
+|           |
+│           ├── axil_ocla
+|           |
+│           └── dsp
+
 ```
