@@ -43,7 +43,7 @@ def get_clkin_ios_m(j):
 # AXI CROSSBAR Wrapper ----------------------------------------------------------------------------------
 class AXICROSSBARWrapper(Module):
     def __init__(self, platform, m_count, s_count ,data_width, addr_width, s_id_width, aw_user_width, w_user_width, b_user_width, ar_user_width, r_user_width,
-                aw_user_en, w_user_en, b_user_en, ar_user_en, r_user_en,sync_stages,fifo_depth,bram):
+                aw_user_en, w_user_en, b_user_en, ar_user_en, r_user_en,sync_stages,lgfifo,bram):
         
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
@@ -112,7 +112,7 @@ class AXICROSSBARWrapper(Module):
             ar_user_en          = ar_user_en,
             r_user_en           = r_user_en,
             sync_stages         = sync_stages,
-            fifo_depth          = fifo_depth,
+            lgfifo              = lgfifo,
             bram                = bram,
             )
 
@@ -142,8 +142,8 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256],    help="AXI Data Width.")
     core_fix_param_group.add_argument("--addr_width",    type=int,      default=32,     choices=[32, 64],                     help="AXI Address Width.")
-    core_fix_param_group.add_argument("--sync_stages",   type=int,      default=2,      choices=[2,3, 4, 5, 6, 7, 8],         help="Number of Sync Stages")
-    core_fix_param_group.add_argument("--fifo_depth",    type=int,      default=3,      choices=[3,4, 5, 6, 7, 8],            help="FIFO Depth")
+    core_fix_param_group.add_argument("--sync_stages",   type=int,      default=2,      choices=[2, 3, 4, 5, 6, 7, 8],        help="Number of Sync Stages")
+    core_fix_param_group.add_argument("--lgfifo",        type=int,      default=3,      choices=[3, 4, 5, 6, 7, 8],           help="LGFIFO is the log based-two of the number of entries in the FIFO")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -208,7 +208,7 @@ def main():
         r_user_en     = args.r_user_en,
         r_user_width  = args.r_user_width,
         sync_stages   = args.sync_stages,
-        fifo_depth    = args.fifo_depth,
+        lgfifo        = args.lgfifo,
         bram          = args.bram,
     )
 

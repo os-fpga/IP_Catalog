@@ -41,7 +41,7 @@ def get_clkin_ios_m(j):
 
 # AXI LITE CROSSBAR ----------------------------------------------------------------------------------
 class AXILITECROSSBARWrapper(Module):
-    def __init__(self, platform, s_count, m_count, data_width, addr_width,sync_stages,fifo_depth,bram):
+    def __init__(self, platform, s_count, m_count, data_width, addr_width,sync_stages,lgfifo,bram):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
@@ -96,7 +96,7 @@ class AXILITECROSSBARWrapper(Module):
             s_count     = s_count,
             m_count     = m_count,
             sync_stages = sync_stages,
-            fifo_depth  = fifo_depth,
+            lgfifo      = lgfifo,
             bram        = bram,
             )
 
@@ -120,8 +120,8 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256],  help="Crossbar Data Width.")
     core_fix_param_group.add_argument("--addr_width",    type=int,      default=32,     choices=[32, 64, 128, 256],         help="Crossbar Address Width.")
-    core_fix_param_group.add_argument("--sync_stages",   type=int,      default=2,      choices=[2,3, 4, 5, 6, 7, 8],       help="Number of Sync Stages")
-    core_fix_param_group.add_argument("--fifo_depth",    type=int,      default=3,      choices=[3,4, 5, 6, 7, 8],          help="FIFO Depth")
+    core_fix_param_group.add_argument("--sync_stages",   type=int,      default=2,      choices=[2, 3, 4, 5, 6, 7, 8],      help="Number of Sync Stages")
+    core_fix_param_group.add_argument("--lgfifo",        type=int,      default=3,      choices=[3, 4, 5, 6, 7, 8],         help="LGFIFO is the log based-two of the number of entries in the FIFO")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -161,7 +161,7 @@ def main():
         data_width  = args.data_width,
         addr_width  = args.addr_width,
         sync_stages = args.sync_stages,
-        fifo_depth  = args.fifo_depth,
+        lgfifo      = args.lgfifo,
         bram        = args.bram,
     )
 
