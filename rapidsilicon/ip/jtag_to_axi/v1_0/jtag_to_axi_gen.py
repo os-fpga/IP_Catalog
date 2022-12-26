@@ -24,7 +24,6 @@ def get_clkin_ios():
     return [
         ("ACLK",    0, Pins(1)),
         ("ARESET",  0, Pins(1))
-
     ]
 
 def jtag_interface():
@@ -35,9 +34,7 @@ def jtag_interface():
         ("JTAG_TDI",   0, Pins(1)),
         ("JTAG_TDO",   0, Pins(1)),
         ("JTAG_TRST",  0, Pins(1)),
-
     ]
-
 
 # JTAG to AXI Wrapper ----------------------------------------------------------------------------------
 class JTAG2AXIWrapper(Module):
@@ -95,12 +92,12 @@ def main():
     
     # Core Range Value Parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--m_id_width",    type=int,  default=8,  choices=range(1, 8),               help="AXI SLAVE ID Width.")
-    core_range_param_group.add_argument("--aw_user_width", type=int,  default=1,  choices=range(1, 1025),            help="AW-Channel User Width.")
-    core_range_param_group.add_argument("--w_user_width",  type=int,  default=1,  choices=range(1, 1025),            help="W-Channel User Width.")
-    core_range_param_group.add_argument("--b_user_width",  type=int,  default=1,  choices=range(1, 1025),            help="B-Channel User Width.")
-    core_range_param_group.add_argument("--ar_user_width", type=int,  default=1,  choices=range(1, 1025),            help="AR-Channel User Width.")
-    core_range_param_group.add_argument("--r_user_width",  type=int,  default=1,  choices=range(1, 1025),            help="R-Channel User Width.")
+    core_range_param_group.add_argument("--m_id_width",    type=int,  default=4,  choices=range(1, 9),             help="AXI SLAVE ID Width.")
+    core_range_param_group.add_argument("--aw_user_width", type=int,  default=1,  choices=range(1, 33),            help="AW-Channel User Width.")
+    core_range_param_group.add_argument("--w_user_width",  type=int,  default=1,  choices=range(1, 33),            help="W-Channel User Width.")
+    core_range_param_group.add_argument("--b_user_width",  type=int,  default=1,  choices=range(1, 33),            help="B-Channel User Width.")
+    core_range_param_group.add_argument("--ar_user_width", type=int,  default=1,  choices=range(1, 33),            help="AR-Channel User Width.")
+    core_range_param_group.add_argument("--r_user_width",  type=int,  default=1,  choices=range(1, 33),            help="R-Channel User Width.")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
