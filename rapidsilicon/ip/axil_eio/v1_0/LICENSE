@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-rapidsilicon/ip/jtag_to_axi/v1_0/jtag_to_axi_gen.py
-rapidsilicon/ip/jtag_to_axi/v1_0/litex_wrapper/jtag_to_axi_litex_wrapper.py
+rapidsilicon/ip/axil_eio/v1_0/axil_eio_gen.py
+rapidsilicon/ip/axil_eio/v1_0/litex_wrapper/axil_eio_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -41,11 +41,8 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
 FILES:
-rapidsilicon/ip/jtag_to_axi/v1_0/src/bscell.sv
-rapidsilicon/ip/jtag_to_axi/v1_0/src/ff_sync.sv
-rapidsilicon/ip/jtag_to_axi/v1_0/src/jtag_axi_wrap.sv
-rapidsilicon/ip/jtag_to_axi/v1_0/src/jtagreg.sv
-rapidsilicon/ip/jtag_to_axi/v1_0/src/jtag_to_axi_top.sv
-rapidsilicon/ip/jtag_to_axi/v1_0/src/tap_top.sv
+rapidsilicon/ip/axil_eio/v1_0/src/axil_slave.v
+rapidsilicon/ip/axil_eio/v1_0/src/eio_top.v
+rapidsilicon/ip/axil_eio/v1_0/src/ff_sync.v
 
 ---------------------------------------------------------------------------------------
