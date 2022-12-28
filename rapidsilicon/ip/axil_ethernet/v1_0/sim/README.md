@@ -5,7 +5,7 @@ The simulation creates a LiteX SoC and integrates the generated axil_ethernet.v 
 
 To run the simulation, use the following command:
 ```
-./test_axil_ethernet.py
+make
 ```
 
 With the simulation running, you can interact with the firmware to verify that the Ethernet core is working properly. A simple TX/RX loopback test is provided, which allows you to generate a TX packet and receive it back on the RX (through a loopback at the PHY level):
