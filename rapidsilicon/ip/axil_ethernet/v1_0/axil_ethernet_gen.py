@@ -14,7 +14,7 @@ from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
 
-from liteeth.gen import *
+from liteeth_gen import *
 from liteeth import phy as liteeth_phys
 
 # IOs ----------------------------------------------------------------------------------------------
