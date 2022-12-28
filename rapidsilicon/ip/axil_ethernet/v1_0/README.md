@@ -76,7 +76,7 @@ obtain with `./axil_ethernet_gen.py --help` command:
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axil_ethernet_gen.py --core_phy=mii --core_bus-endianness=big --build
+python3 axil_ethernet_gen.py --core_phy=mii --core_bus_endianness=big --build
 ```
 
 ## TCL File
