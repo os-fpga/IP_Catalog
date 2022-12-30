@@ -23,8 +23,8 @@
 `define SLERR   2'b10
 `define DECERR  2'b11
 
-`include "uart_defines.vh"
-`include "timescale.v"
+`include "./uart_defines.vh"
+`include "./timescale.v"
 /* verilator lint_off ASSIGNDLY */
 /* verilator lint_off UNUSED */
 module axi4lite_slave #(
