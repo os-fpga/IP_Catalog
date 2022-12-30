@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT(Module):
-    def __init__(self, a_width, b_width, feature, reg_in, reg_out):
+    def __init__(self, a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b):
 
         # Get Parameters.
         # ---------------------        
@@ -24,13 +24,25 @@ class RS_DSP_MULT(Module):
         self.logger.propagate = False
 
         # Input A.
-        self.logger.info(f"INPUT_A  : {a_width}")
+        self.logger.info(f"INPUT_A      : {a_width}")
 
         # Input B.
-        self.logger.info(f"INPUT_B  : {b_width}")
+        self.logger.info(f"INPUT_B      : {b_width}")
+        
+        # Registered Input.
+        self.logger.info(f"REG_IN       : {reg_in}")
+        
+        # Registered Output.
+        self.logger.info(f"REG_OUT      : {reg_out}")
+        
+        # Unsigned Input A.
+        self.logger.info(f"UNSIGNED_A   : {unsigned_a}")
+        
+        # Unsigned Input B.
+        self.logger.info(f"UNSIGNED_B   : {unsigned_b}")
 
         # Equation.
-        self.logger.info(f"FEATURE  : {feature}")
+        self.logger.info(f"FEATURE      : {feature}")
 
         self.a = Signal(a_width)
         self.b = Signal(b_width)
@@ -55,8 +67,8 @@ class RS_DSP_MULT(Module):
                 i_b             = self.b,
                 o_z             = self.z,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b,
             )
             
         elif (reg_in == 0 and reg_out == 1):
@@ -66,7 +78,7 @@ class RS_DSP_MULT(Module):
 
                 # Parameters.
                 # -----------
-                # Mode Bits to configure DSP l
+                # Mode Bits to configure DSP
                 p_MODE_BITS     =  0,
                 
                 # Reset
@@ -78,8 +90,8 @@ class RS_DSP_MULT(Module):
                 i_b             = self.b,
                 o_z             = self.z,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b,
             )
             
         elif (reg_in == 1 and reg_out == 1):
@@ -101,8 +113,8 @@ class RS_DSP_MULT(Module):
                 i_b             = self.b,
                 o_z             = self.z,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b,
             )
             
         else:
@@ -120,13 +132,13 @@ class RS_DSP_MULT(Module):
                 i_b             = self.b,
                 o_z             = self.z,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b,
             )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT_ABCD(Module):
-    def __init__(self, a_width, b_width, c_width, d_width, feature, reg_in, reg_out):
+    def __init__(self, a_width, b_width, c_width, d_width, feature, reg_in, reg_out, unsigned_a, unsigned_b, unsigned_c, unsigned_d):
 
         # Get Parameters.
         # ---------------------        
@@ -177,8 +189,8 @@ class RS_DSP_MULT_ABCD(Module):
                 i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b,
             )
 
             self.specials += Instance("RS_DSP_MULT_REGIN",
@@ -197,8 +209,8 @@ class RS_DSP_MULT_ABCD(Module):
                 i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_c,
+                i_unsigned_b    = unsigned_d,
             )
             
         elif (reg_in == 0 and reg_out == 1):
@@ -220,8 +232,8 @@ class RS_DSP_MULT_ABCD(Module):
                 i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b,
             )
 
             self.specials += Instance("RS_DSP_MULT_REGOUT",
@@ -240,8 +252,8 @@ class RS_DSP_MULT_ABCD(Module):
                 i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_c,
+                i_unsigned_b    = unsigned_d,
             )
             
         elif (reg_in == 1 and reg_out == 1):
@@ -263,8 +275,8 @@ class RS_DSP_MULT_ABCD(Module):
                 i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b,
             )
 
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
@@ -283,8 +295,8 @@ class RS_DSP_MULT_ABCD(Module):
                 i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_c,
+                i_unsigned_b    = unsigned_d,
             )
             
         else:
@@ -302,8 +314,8 @@ class RS_DSP_MULT_ABCD(Module):
                 i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b,
             )
 
             self.specials += Instance("RS_DSP_MULT",
@@ -318,13 +330,13 @@ class RS_DSP_MULT_ABCD(Module):
                 i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_c,
+                i_unsigned_b    = unsigned_d,
             )
             
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT_ABCDEFGH(Module):
-    def __init__(self, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, reg_in, reg_out):
+    def __init__(self, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, reg_in, reg_out, unsigned_a, unsigned_b, unsigned_c, unsigned_d, unsigned_e, unsigned_f, unsigned_g, unsigned_h):
 
         # Get Parameters.
         # ---------------------        
@@ -402,8 +414,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
 
             self.specials += Instance("RS_DSP_MULT_REGIN",
@@ -422,8 +434,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_c,
+                i_unsigned_b    = unsigned_d
             )
             
             self.specials += Instance("RS_DSP_MULT_REGIN",
@@ -442,8 +454,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.f,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_e,
+                i_unsigned_b    = unsigned_f
             )
             
             self.specials += Instance("RS_DSP_MULT_REGIN",
@@ -462,8 +474,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.h,
                 o_z             = self.z4,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_g,
+                i_unsigned_b    = unsigned_h
             )
             
         elif (reg_in == 0 and reg_out == 1):
@@ -490,8 +502,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
 
             self.specials += Instance("RS_DSP_MULT_REGOUT",
@@ -510,8 +522,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_c,
+                i_unsigned_b    = unsigned_d
             )
             
             self.specials += Instance("RS_DSP_MULT_REGOUT",
@@ -530,8 +542,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.f,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_e,
+                i_unsigned_b    = unsigned_f
             )
             
             self.specials += Instance("RS_DSP_MULT_REGOUT",
@@ -550,8 +562,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.h,
                 o_z             = self.z4,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_g,
+                i_unsigned_b    = unsigned_h
             )
             
         elif (reg_in == 1 and reg_out == 1):
@@ -578,8 +590,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
 
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
@@ -598,8 +610,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_c,
+                i_unsigned_b    = unsigned_d
             )
             
             # Module instance.
@@ -620,8 +632,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.f,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_e,
+                i_unsigned_b    = unsigned_f
             )
 
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
@@ -640,8 +652,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.h,
                 o_z             = self.z4,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_g,
+                i_unsigned_b    = unsigned_h
             )
             
         else:
@@ -664,8 +676,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
 
             self.specials += Instance("RS_DSP_MULT",
@@ -680,8 +692,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_c,
+                i_unsigned_b    = unsigned_d
             )
             
             self.specials += Instance("RS_DSP_MULT",
@@ -696,8 +708,8 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.f,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_e,
+                i_unsigned_b    = unsigned_f
             )
 
             self.specials += Instance("RS_DSP_MULT",
@@ -712,13 +724,13 @@ class RS_DSP_MULT_ABCDEFGH(Module):
                 i_b             = self.h,
                 o_z             = self.z4,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_g,
+                i_unsigned_b    = unsigned_h
             )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT20(Module):
-    def __init__(self, a_width, b_width, feature, reg_in, reg_out):
+    def __init__(self, a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b):
 
         # Get Parameters.
         # ---------------------        
@@ -759,9 +771,9 @@ class RS_DSP_MULT20(Module):
         self.z4 = Signal(38)
         
         self.mult2 = Signal(38+1)
-        self.mult3 = Signal(39+1+k)
-        self.mult4 = Signal(38+1+2*(k))
-        self.z = Signal(38+1+2*(k))
+        self.mult3 = Signal(39+2+k)
+        self.mult4 = Signal(a_width + b_width)
+        self.z = Signal(a_width + b_width)
         
         # Registered Output
         if (reg_in == 0 and reg_out == 1):
@@ -786,8 +798,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b0,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             self.specials += Instance("RS_DSP_MULT_REGOUT",
                 # Parameters.
@@ -802,8 +814,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b1,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             
             # Module instance.
@@ -821,8 +833,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b0,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             self.specials += Instance("RS_DSP_MULT_REGOUT",
                 # Parameters.
@@ -837,8 +849,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b1,
                 o_z             = self.z4,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             
         elif (reg_in == 1 and reg_out == 1):
@@ -863,8 +875,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b0,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
                 # Parameters.
@@ -879,8 +891,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b1,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             
             # Module instance.
@@ -898,8 +910,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b0,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
                 # Parameters.
@@ -914,8 +926,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b1,
                 o_z             = self.z4,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             
         # Registered Input
@@ -940,8 +952,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b0,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             self.specials += Instance("RS_DSP_MULT_REGIN",
                 # Parameters.
@@ -956,8 +968,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b1,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             
             # Module instance.
@@ -975,8 +987,8 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b0,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
             self.specials += Instance("RS_DSP_MULT_REGIN",
                 # Parameters.
@@ -991,6 +1003,6 @@ class RS_DSP_MULT20(Module):
                 i_b             = self.b1,
                 o_z             = self.z4,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
+                i_unsigned_a    = unsigned_a,
+                i_unsigned_b    = unsigned_b
             )
