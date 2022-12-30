@@ -123,22 +123,22 @@ def main():
     
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="dsp", language="verilog")
+
+    # Core string parameters.
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
+    core_string_param_group.add_argument("--feature",     type=str,      default="A*B",      choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Features")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 37),                           help="A_Input")
-    core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 37),                           help="B_Input")
-    core_range_param_group.add_argument("--c_width",     type=int,       default=20,      choices=range(1, 21),                           help="C_Input")
-    core_range_param_group.add_argument("--d_width",     type=int,       default=18,      choices=range(1, 19),                           help="D_Input")
-    core_range_param_group.add_argument("--e_width",     type=int,       default=20,      choices=range(1, 21),                           help="E_Input")
-    core_range_param_group.add_argument("--f_width",     type=int,       default=18,      choices=range(1, 19),                           help="F_Input")
-    core_range_param_group.add_argument("--g_width",     type=int,       default=20,      choices=range(1, 21),                           help="G_Input")
-    core_range_param_group.add_argument("--h_width",     type=int,       default=18,      choices=range(1, 19),                           help="H_Input")
+    core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 37),       help="A_Input")
+    core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 37),       help="B_Input")
+    core_range_param_group.add_argument("--c_width",     type=int,       default=20,      choices=range(1, 21),       help="C_Input")
+    core_range_param_group.add_argument("--d_width",     type=int,       default=18,      choices=range(1, 19),       help="D_Input")
+    core_range_param_group.add_argument("--e_width",     type=int,       default=20,      choices=range(1, 21),       help="E_Input")
+    core_range_param_group.add_argument("--f_width",     type=int,       default=18,      choices=range(1, 19),       help="F_Input")
+    core_range_param_group.add_argument("--g_width",     type=int,       default=20,      choices=range(1, 21),       help="G_Input")
+    core_range_param_group.add_argument("--h_width",     type=int,       default=18,      choices=range(1, 19),       help="H_Input")
 
-    # Core string value parameters.
-    core_string_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_string_param_group.add_argument("--feature",     type=str,      default="A*B",      choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Features")
-    
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",  type=bool,    default=False,    help="Registered Inputs")
