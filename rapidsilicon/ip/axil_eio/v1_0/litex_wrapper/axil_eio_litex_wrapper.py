@@ -104,7 +104,7 @@ class AXILEIO(Module):
             o_S_AXI_RDATA    = s_axil.r.data,
             o_S_AXI_RRESP    = s_axil.r.resp,
             o_S_AXI_RVALID   = s_axil.r.valid,
-            i_S_AXI_RVALID   = s_axil.r.ready
+            i_S_AXI_RREADY   = s_axil.r.ready
         )
         
         # Add Sources.
