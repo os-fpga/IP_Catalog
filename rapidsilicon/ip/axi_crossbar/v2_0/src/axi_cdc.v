@@ -182,7 +182,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (AXI_ID_WIDTH + AXI_ADDR_WIDTH+ 8 + 3 + 2 + 2 + 4 + 3 + 4)
+    .DATASIZE (AXI_ID_WIDTH + AXI_ADDR_WIDTH+ 8 + 3 + 2 + 2 + 4 + 3 + 4),
+    .MEM_TYPE(MEM_TYPE)
     )
     awfifo(
         .wclk(S_AXI_ACLK),
@@ -207,7 +208,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (AXI_DATA_WIDTH + AXI_DATA_WIDTH/8 + 1)
+    .DATASIZE (AXI_DATA_WIDTH + AXI_DATA_WIDTH/8 + 1),
+    .MEM_TYPE(MEM_TYPE)
     )
     wfifo(
         .wclk(S_AXI_ACLK),
@@ -230,7 +232,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (AXI_ID_WIDTH + 2)
+    .DATASIZE (AXI_ID_WIDTH + 2),
+    .MEM_TYPE(MEM_TYPE)
     )
     bfifo(
         .wclk(M_AXI_ACLK),
@@ -251,7 +254,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (AXI_ID_WIDTH + AXI_ADDR_WIDTH + 8 + 3 + 2 + 2 + 4 + 3 + 4)
+    .DATASIZE (AXI_ID_WIDTH + AXI_ADDR_WIDTH + 8 + 3 + 2 + 2 + 4 + 3 + 4),
+    .MEM_TYPE(MEM_TYPE)
     )
     
     arfifo(
@@ -278,7 +282,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (AXI_ID_WIDTH + AXI_DATA_WIDTH+3)
+    .DATASIZE (AXI_ID_WIDTH + AXI_DATA_WIDTH+3),
+    .MEM_TYPE(MEM_TYPE)
     )
     
     rfifo(
@@ -302,7 +307,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (AXI_ADDR_WIDTH + 3)
+    .DATASIZE (AXI_ADDR_WIDTH + 3),
+    .MEM_TYPE(MEM_TYPE)
     )
     awfifo(
         .wclk(S_AXI_ACLK),
@@ -323,7 +329,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (AXI_DATA_WIDTH + AXI_DATA_WIDTH/8)
+    .DATASIZE (AXI_DATA_WIDTH + AXI_DATA_WIDTH/8),
+    .MEM_TYPE(MEM_TYPE)
     )
     wfifo(
         .wclk(S_AXI_ACLK),
@@ -346,7 +353,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (2)
+    .DATASIZE (2),
+    .MEM_TYPE(MEM_TYPE)
     )
     bfifo(
         .wclk(M_AXI_ACLK),
@@ -367,7 +375,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE ( AXI_ADDR_WIDTH + 3)
+    .DATASIZE ( AXI_ADDR_WIDTH + 3),
+    .MEM_TYPE(MEM_TYPE)
     )
     
     arfifo(
@@ -390,7 +399,8 @@ module axi_cdc #(
     afifo #(
     .ADDRSIZE (FIFO_LOG),
     .SYNC_STAGES (SYNC_STAGES),
-    .DATASIZE (AXI_DATA_WIDTH + 2)
+    .DATASIZE (AXI_DATA_WIDTH + 2),
+    .MEM_TYPE(MEM_TYPE)
     )
     
     rfifo(

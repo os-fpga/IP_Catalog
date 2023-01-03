@@ -23,8 +23,8 @@ module synchronizer #(
     assign wptr_reg = wr_sync_register[SYNC_STAGES-1];
     assign rptr_reg = rd_sync_register[SYNC_STAGES-1];
 
-    always @(posedge rd_clk or posedge rd_rst) begin
-        if (rd_rst) begin
+    always @(posedge wr_clk or posedge wr_rst) begin
+        if (wr_rst) begin
             wr_sync_register[0] <= 0;
         end
         else begin
@@ -32,8 +32,8 @@ module synchronizer #(
         end   
     end
 
-    always @(posedge wr_clk or posedge wr_rst) begin
-        if (wr_rst) begin
+    always @(posedge rd_clk or posedge rd_rst) begin
+        if (rd_rst) begin
             rd_sync_register[0] <= 0;
         end
         else begin
@@ -46,16 +46,16 @@ module synchronizer #(
 
     generate
         for(i=0; i<(SYNC_STAGES-1); i = i+1)begin
-            always@(posedge rd_clk or posedge rd_rst) begin
-                if(rd_rst) begin
+            always@(posedge wr_clk or posedge wr_rst) begin
+                if(wr_rst) begin
                     wr_sync_register[i+1] <= 0;
                 end
                 else begin
                     wr_sync_register[i+1] <= wr_sync_register[i];
                 end
             end     
-            always @(posedge wr_clk or posedge wr_rst) begin
-                if (wr_rst) begin
+            always @(posedge rd_clk or posedge rd_rst) begin
+                if (rd_rst) begin
                     rd_sync_register[i+1] <= 0;
                 end
                 else begin
