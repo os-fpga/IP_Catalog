@@ -20,7 +20,7 @@
 
 TOPLEVEL_LANG = verilog
 
-SIM ?= verilator
+SIM ?= vcs
 WAVES ?= 1
 
 COCOTB_HDL_TIMEUNIT = 1ns
@@ -60,6 +60,7 @@ else ifeq ($(SIM), verilator)
 endif
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
+$(shell cp -r ./rapidsilicon sim_build/)
 
 iverilog_dump.v:
 	echo 'module iverilog_dump();' > $@
