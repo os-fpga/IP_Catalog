@@ -43,13 +43,13 @@ class AXIASYNCFIFOWrapper(Module):
         # AXI
         m_axi = AXIInterface(
             data_width      = data_width,
-            address_width   = addr_width,
+            address_width   = (math.ceil(math.log2(fifo_depth))),
             id_width        = id_width,
         )
         
         s_axi = AXIInterface(
             data_width      = data_width,
-            address_width   = addr_width,
+            address_width   = (math.ceil(math.log2(fifo_depth))),
             id_width        = id_width,
         )
         
