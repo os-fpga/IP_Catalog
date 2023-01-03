@@ -219,7 +219,7 @@ class IP_Builder:
                 if os.path.isfile(full_file_path):
                     shutil.copy(full_file_path, self.src_path)
 
-        # Copy litex_sim files.
+        # Copy litex_wrapper file.
         litex_path  = os.path.join(gen_path, "litex_wrapper")
         if os.path.exists(litex_path):
             litex_files = os.listdir(litex_path)
@@ -227,6 +227,15 @@ class IP_Builder:
                 full_file_path = os.path.join(litex_path, file_name)
                 if os.path.isfile(full_file_path):
                     shutil.copy(full_file_path, self.litex_wrapper_path)
+        
+        # Copy sim files.
+        simulate_path  = os.path.join(gen_path, "sim")
+        if os.path.exists(simulate_path):
+            simulate_files = os.listdir(simulate_path)
+            for file_name in simulate_files:
+                full_file_path = os.path.join(simulate_path, file_name)
+                if os.path.isfile(full_file_path):
+                    shutil.copy(full_file_path, self.sim_path)
 
     def generate_tcl(self):
         assert self.prepared
