@@ -1,1 +1,8 @@
-Directory for Simulations
+# Simulation  
+
+This is a MyHDL based simulation for which `Icarus Verilog` is required.
+
+Run the following command for simulation:
+```
+make
+```  
