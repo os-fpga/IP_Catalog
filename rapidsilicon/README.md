@@ -1,3 +1,6 @@
+# IP_Catalog
+IP Catalog is an IP library for Raptor toolchain.
+
 	IP_Catalog
 		rapidsilicon
 			ip/
