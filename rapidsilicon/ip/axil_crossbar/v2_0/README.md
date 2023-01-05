@@ -14,15 +14,13 @@ There are four parameters for AXI-LITE-CROSSBAR core. These parameters, their ke
     |-------|------------------|---------------------|----------------------|
     |   1.  |   DATA_WIDTH     |     data_width      |  8,16,32,64,128,256  |
     |   2.  |   ADDR_WIDTH     |     addr_width      |  32,64,128,256       |
-    |   3.  |   S_COUNT        |     s_count         |  1-16                |
-    |   4.  |   M_COUNT        |     m_count         |  2-16                |
-    |   16. |   SYNC_STAGES    |     sync_stages     |  2-8                 |
-    |   17. |   FIFO_DEPTH     |     fifo_depth      |  3-8                 |
+    |   3.  |   S_COUNT        |     s_count         |  1-4                 |
+    |   4.  |   M_COUNT        |     m_count         |  2-4                 |
 
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axil_crossbar_gen.py --data_width=32 --addr_width=64 --s_count=5 --m_count=6 --build-name=crossbar_wrapper --build
+python3 axil_crossbar_gen.py --data_width=32 --addr_width=64 --s_count=1 --m_count=2 --build-name=crossbar_wrapper --build
 ```
 
 ## TCL File
