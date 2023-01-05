@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 # AXI CROSSBAR ---------------------------------------------------------------------------------
 class AXICROSSBAR(Module):
     def __init__(self, platform, s_axi, m_axi, s_count, m_count, aw_user_en, w_user_en,
-        b_user_en, ar_user_en, r_user_en, sync_stages, lgfifo,bram):
+        b_user_en, ar_user_en, r_user_en,bram):
 
         self.s_awid_internal 	  = [Signal(len(s_axi[0].aw.id)) for s_count in range(s_count+1)]
         self.s_awaddr_internal   = [Signal(len(s_axi[0].aw.addr)) for s_count in range(s_count+1)]
@@ -315,8 +315,8 @@ class AXICROSSBAR(Module):
             p_AXI_ID_WIDTH     = 	Instance.PreformattedParam(s_id_width),
             p_AXI_DATA_WIDTH   = 	Instance.PreformattedParam(data_width),
             p_AXI_ADDR_WIDTH   = 	Instance.PreformattedParam(address_width),
-            p_SYNC_STAGES      = 	Instance.PreformattedParam(sync_stages),
-            p_FIFO_LOG         = 	Instance.PreformattedParam(lgfifo),
+            p_SYNC_STAGES      = 	2,
+            p_FIFO_LOG         = 	3,
             p_MEM_TYPE		=       bram,
           
             i_S_AXI_ACLK 	= 	ClockSignal("s{}_axi_aclk".format(s_count)),
@@ -417,8 +417,8 @@ class AXICROSSBAR(Module):
             p_AXI_ID_WIDTH     = 	Instance.PreformattedParam(m_id_width),
             p_AXI_DATA_WIDTH   = 	Instance.PreformattedParam(data_width),
             p_AXI_ADDR_WIDTH   = 	Instance.PreformattedParam(address_width),
-            p_SYNC_STAGES      = 	Instance.PreformattedParam(sync_stages),
-            p_FIFO_LOG         = 	Instance.PreformattedParam(lgfifo),
+            p_SYNC_STAGES      = 	2,
+            p_FIFO_LOG         = 	3,
             p_MEM_TYPE		=       bram,
 
             i_S_AXI_ACLK 	= 	ClockSignal(),
