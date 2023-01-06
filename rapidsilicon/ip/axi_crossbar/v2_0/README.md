@@ -11,8 +11,8 @@ User can configure AXI_CROSSBAR CORE using following parameters:
 
 | Sr.No.|     Parameter      |      Keyword       |    Value             |
 |-------|--------------------|--------------------|----------------------|
-|   1.  |   S_COUNT          |   s_count          |  1-16                |
-|   2.  |   M_COUNT          |   m_count          |  2-16                |
+|   1.  |   S_COUNT          |   s_count          |  1-4                 |
+|   2.  |   M_COUNT          |   m_count          |  2-4                 |
 |   3.  |   DATA_WIDTH       |   data_width       |  8,16,32,64,128,256  |
 |   4.  |   ADDR_WIDTH       |   addr_width       |  32,64               |
 |   5.  |   S_ID_WIDTH       |   s_id_width       |  1-8                 |
@@ -26,13 +26,11 @@ User can configure AXI_CROSSBAR CORE using following parameters:
 |   13. |   ARUSER_WIDTH     |   ar_user_width    |  1-1024              |
 |   14. |   RUSER_ENABLE     |   r_user_en        |  0/1                 |
 |   15. |   RUSER_WIDTH      |   r_user_width     |  1-1024              |
-|   16. |   SYNC_STAGES      |   sync_stages      |  2-8                 |
-|   17. |   FIFO_DEPTH       |   fifo_depth       |  3-8                 |
 
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axi_crossbar_gen.py --data_width=32 --addr_width=32 --s_count=7 --m_count=4 --build-name=crossbar_wrapper --build
+python3 axi_crossbar_gen.py --data_width=32 --addr_width=32 --s_count=1 --m_count=4 --build-name=crossbar_wrapper --build
 ```
 
 ## TCL File
