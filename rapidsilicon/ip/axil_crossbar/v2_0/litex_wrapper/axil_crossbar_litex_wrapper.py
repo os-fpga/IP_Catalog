@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 
 # AXI LITE CROSSBAR ------------------------------------------------------------------------------------------
 class AXILITECROSSBAR(Module):
-    def __init__(self, platform, s_axil, m_axil, s_count, m_count,sync_stages,lgfifo,bram):
+    def __init__(self, platform, s_axil, m_axil, s_count, m_count,bram):
 
         self.s_awaddr_internal  = [Signal(len(s_axil[0].aw.addr)) for s_count in range(s_count+1)]
         self.s_awprot_internal  = [Signal(3) for s_count in range(s_count+1)]
@@ -183,8 +183,8 @@ class AXILITECROSSBAR(Module):
             p_AXI_ID_WIDTH      =   0,
             p_AXI_DATA_WIDTH    =   Instance.PreformattedParam(data_width),
             p_AXI_ADDR_WIDTH    =   Instance.PreformattedParam(addr_width),
-            p_SYNC_STAGES       =   Instance.PreformattedParam(sync_stages),
-            p_FIFO_LOG          =   Instance.PreformattedParam(lgfifo),
+            p_SYNC_STAGES       =   2,
+            p_FIFO_LOG          =   3,
             p_MEM_TYPE		 =   bram,
 
             i_S_AXI_ACLK        =   ClockSignal("s{}_axi_aclk".format(s_count)),
@@ -241,8 +241,8 @@ class AXILITECROSSBAR(Module):
             p_AXI_ID_WIDTH      =   0,
             p_AXI_DATA_WIDTH    =   Instance.PreformattedParam(data_width),
             p_AXI_ADDR_WIDTH    =   Instance.PreformattedParam(addr_width),
-            p_SYNC_STAGES       =   Instance.PreformattedParam(sync_stages),
-            p_FIFO_LOG          =   Instance.PreformattedParam(lgfifo),
+            p_SYNC_STAGES       =   2,
+            p_FIFO_LOG          =   3,
             p_MEM_TYPE		 =   bram,
 
             i_S_AXI_ACLK        =   ClockSignal(),

@@ -43,7 +43,7 @@ def get_clkin_ios_m(j):
 # AXI CROSSBAR Wrapper ----------------------------------------------------------------------------------
 class AXICROSSBARWrapper(Module):
     def __init__(self, platform, m_count, s_count ,data_width, addr_width, s_id_width, aw_user_width, w_user_width, b_user_width, ar_user_width, r_user_width,
-                aw_user_en, w_user_en, b_user_en, ar_user_en, r_user_en,sync_stages,lgfifo,bram):
+                aw_user_en, w_user_en, b_user_en, ar_user_en, r_user_en,bram):
         
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
@@ -111,8 +111,6 @@ class AXICROSSBARWrapper(Module):
             b_user_en           = b_user_en,
             ar_user_en          = ar_user_en,
             r_user_en           = r_user_en,
-            sync_stages         = sync_stages,
-            lgfifo              = lgfifo,
             bram                = bram,
             )
 
@@ -142,8 +140,7 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256],    help="AXI Data Width.")
     core_fix_param_group.add_argument("--addr_width",    type=int,      default=32,     choices=[32, 64],                     help="AXI Address Width.")
-    core_fix_param_group.add_argument("--sync_stages",   type=int,      default=2,      choices=[2, 3, 4, 5, 6, 7, 8],        help="Number of Sync Stages")
-    core_fix_param_group.add_argument("--lgfifo",        type=int,      default=3,      choices=[3, 4, 5, 6, 7, 8],           help="LGFIFO is the log based-two of the number of entries in the FIFO")
+
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -152,13 +149,13 @@ def main():
     core_bool_param_group.add_argument("--b_user_en",     type=bool,    default=False,     help="B-Channel User Enable.")
     core_bool_param_group.add_argument("--ar_user_en",    type=bool,    default=True,      help="AR-Channel User Enable.")
     core_bool_param_group.add_argument("--r_user_en",     type=bool,    default=False,     help="R-Channel User Enable.")  
-    core_bool_param_group.add_argument("--bram",          type=bool,    default=False,     help="Memory type")       
+    core_bool_param_group.add_argument("--bram",          type=bool,    default=True,      help="Memory type")       
 
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--m_count",            type=int,       default=4,      choices=range(2,17),         help="Crossbar Master Interfaces.")
-    core_range_param_group.add_argument("--s_count",            type=int,       default=4,      choices=range(1,17),         help="Crossbar SLAVE Interfaces.")
+    core_range_param_group.add_argument("--m_count",            type=int,       default=4,      choices=range(2,5),          help="Crossbar Master Interfaces.")
+    core_range_param_group.add_argument("--s_count",            type=int,       default=4,      choices=range(1,5),          help="Crossbar SLAVE Interfaces.")
     core_range_param_group.add_argument("--s_id_width",         type=int,       default=8,      choices=range(1, 9),         help="AXI SLAVE ID Width.")
     core_range_param_group.add_argument("--aw_user_width",      type=int,       default=1,      choices=range(1, 1025),      help="AW-Channel User Width.")
     core_range_param_group.add_argument("--w_user_width",       type=int,       default=1,      choices=range(1, 1025),      help="W-Channel User Width.")
@@ -207,8 +204,6 @@ def main():
         ar_user_width = args.ar_user_width,
         r_user_en     = args.r_user_en,
         r_user_width  = args.r_user_width,
-        sync_stages   = args.sync_stages,
-        lgfifo        = args.lgfifo,
         bram          = args.bram,
     )
 

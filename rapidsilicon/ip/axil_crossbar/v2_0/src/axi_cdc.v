@@ -1,4 +1,4 @@
-`define AXI4FULL 
+//`define AXI4FULL 
 
 
 module axi_cdc #(
@@ -9,11 +9,11 @@ module axi_cdc #(
 	/* Address width of axi bus */
 	parameter  	AXI_ADDR_WIDTH	= 	32,
 	 /* Total number of synchronization stages, to handle metastaibility. This value can be greater but minimum value is 2 */
-	parameter	SYNC_STAGES 	= 	4,
+	parameter	SYNC_STAGES 	= 	2,
 	/* The log value of total number of entries in FIFO */
-	parameter	FIFO_LOG        = 	5,
+	parameter	FIFO_LOG        = 	3,
 	/* For BRAM set MEM_TYPE=1, while for Distributed memory set MEM_TYPE=0 */
-        parameter   MEM_TYPE = 0
+    parameter   MEM_TYPE = 0
 		
 ) 
 (
@@ -48,8 +48,8 @@ module axi_cdc #(
     output  wire                            S_AXI_BVALID,
     input   wire                            S_AXI_BREADY,
     /* Address read channel */
-    input	wire [AXI_ID_WIDTH-1 : 0]		S_AXI_ARID,
-    input	wire [AXI_ADDR_WIDTH-1 : 0]		S_AXI_ARADDR,
+    input	wire [AXI_ID_WIDTH-1 : 0]       S_AXI_ARID,
+    input	wire [AXI_ADDR_WIDTH-1 : 0]     S_AXI_ARADDR,
     input	wire [7 : 0]                    S_AXI_ARLEN,
     input	wire [2 : 0]                    S_AXI_ARSIZE,
     input	wire [1 : 0]                    S_AXI_ARBURST,
