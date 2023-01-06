@@ -11,7 +11,6 @@ External flash memory is commonly used in FPGA designs to store the FPGA bitstre
 The core has  has the following features:
 
 **PHY:**
-
  - Portable/Generic.
  - Single/Dual/Quad/Octal SPI Bus support.
  - Dynamic Clk frequency configuration and auto-calibration.
