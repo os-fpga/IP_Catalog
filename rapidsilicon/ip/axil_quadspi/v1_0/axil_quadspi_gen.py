@@ -66,7 +66,7 @@ def main():
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create LiteSPI Core --------------------------------------------------------------------------
-    from litespi_gen import LiteSPICore, _io
+    from litespi import LiteSPICore, _io
     platform = OSFPGAPlatform(io=_io, toolchain="raptor", device="gemini")
 
     import logging
