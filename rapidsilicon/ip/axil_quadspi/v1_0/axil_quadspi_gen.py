@@ -35,7 +35,7 @@ def main():
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--core_module",         type=str,  default="S25FL128L",  choices=["S25FL128L"],     help="SPI Flash Module.")
-    core_string_param_group.add_argument("--core_mode",           type=str,  default="x1",         choices=["x1", "x4"],      help="SPI Mode.")
+    core_string_param_group.add_argument("--core_mode",           type=str,  default="x4",         choices=["x1", "x4"],      help="SPI Mode.")
     core_string_param_group.add_argument("--core_rate",           type=str,  default="1:1",        choices=["1:1", "1:2"],    help="SPI Flash Core rate.")
     core_string_param_group.add_argument("--core_bus_endianness", type=str,  default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
     core_string_param_group.add_argument("--core_phy",            type=str,  default="real",       choices=["real", "model"], help="Type or PHY (Real or Model (Sim)).")
@@ -66,7 +66,7 @@ def main():
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create LiteSPI Core --------------------------------------------------------------------------
-    from litespi.gen import LiteSPICore, _io
+    from litespi_gen import LiteSPICore, _io
     platform = OSFPGAPlatform(io=_io, toolchain="raptor", device="gemini")
 
     import logging
@@ -79,8 +79,10 @@ def main():
         divisor        = args.core_divisor,
         bus_standard   = "axi-lite",
         bus_endianness = args.core_bus_endianness,
+        with_master    = True,
         sim            = (args.core_phy == "model"),
     )
+    # Equivalent to ./litespi_gen.py --with-master --bus-standard=axi-lite --module=S25FL128L --mode=x4
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
