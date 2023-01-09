@@ -37,7 +37,7 @@ def get_jtag_ios():
         ]
 
 def get_other_ios(n):
-    if (n == "uncached"):
+    if (n == "base_variant"):
         return [
             ("debugReset",          0,  Pins(1)),
             ("debug_resetOut",      0,  Pins(1)),
@@ -45,7 +45,7 @@ def get_other_ios(n):
             ("externalInterrupt",   0,  Pins(1)),    
             ("softwareInterrupt",   0,  Pins(1))
         ]  
-    if (n == "cached_mmu"):
+    if (n == "cached_with_mmu"):
         return [
             ("debugReset",          0,  Pins(1)),
             ("debug_resetOut",      0,  Pins(1)),
@@ -55,7 +55,7 @@ def get_other_ios(n):
             ("externalInterruptS",  0,  Pins(1)),
             ("utime",               0,  Pins(64))
         ]      
-    if (n == "plic_clint"):
+    if (n == "cached_with_mmu_plic_clint"):
         return [
             ("debugReset",          0,  Pins(1)),
             ("debug_resetOut",      0,  Pins(1)),
@@ -103,7 +103,7 @@ def get_other_ios(n):
 
 # AXI-VEXRISCV Wrapper --------------------------------------------------------------------------------
 class VexriscvWrapper(Module):
-    def __init__(self, platform, uncached, cached_mmu, plic_clint):
+    def __init__(self, platform, base_variant, cached_with_mmu, cached_with_mmu_plic_clint):
         
         # Clocking
         platform.add_extension(get_clkin_ios())
@@ -121,22 +121,22 @@ class VexriscvWrapper(Module):
         platform.add_extension(dbus_axi.get_ios("dbus_axi"))
         self.comb += dbus_axi.connect_to_pads(platform.request("dbus_axi"), mode="master")
 
-        if (uncached):
-            cpu_type = "uncached"
+        if (base_variant):
+            cpu_type = "base_variant"
             # VEXRISCV without cache and MMU
             self.submodules.vexriscv = vexriscv = vexriscv_nocache_nommu(platform,
                 ibus        = ibus_axi,
                 dbus        = dbus_axi
                 )
-        elif (cached_mmu):
-            cpu_type = "cached_mmu"
+        elif (cached_with_mmu):
+            cpu_type = "cached_with_mmu"
             # VEXRISCV with Cache and MMU
             self.submodules.vexriscv = vexriscv = vexriscv_linux_mmu(platform,
                 ibus        = ibus_axi,
                 dbus        = dbus_axi
                 )
-        elif (plic_clint):
-            cpu_type = "plic_clint"
+        elif (cached_with_mmu_plic_clint):
+            cpu_type = "cached_with_mmu_plic_clint"
             # VEXRISCV with Cache, MMU, PLIC and Clint
             self.submodules.vexriscv = vexriscv = vexriscv_plic_clint(platform,
                 ibus        = ibus_axi,
@@ -154,14 +154,14 @@ class VexriscvWrapper(Module):
         platform.add_extension(get_other_ios(cpu_type))
         # Inputs
         self.comb += vexriscv.debugReset.eq(platform.request("debugReset"))
-        if (uncached or cached_mmu):
+        if (base_variant or cached_with_mmu):
             self.comb += vexriscv.timerInterrupt.eq(platform.request("timerInterrupt"))
             self.comb += vexriscv.externalInterrupt.eq(platform.request("externalInterrupt"))
             self.comb += vexriscv.softwareInterrupt.eq(platform.request("softwareInterrupt"))
-            if (cached_mmu):
+            if (cached_with_mmu):
                 self.comb += vexriscv.externalInterruptS.eq(platform.request("externalInterruptS"))
                 self.comb += vexriscv.utime.eq(platform.request("utime"))
-        if (plic_clint):
+        if (cached_with_mmu_plic_clint):
             self.comb += vexriscv.clint_awvalid.eq(platform.request("clint_awvalid"))
             self.comb += vexriscv.clint_awaddr.eq(platform.request("clint_awaddr"))
             self.comb += vexriscv.clint_awprot.eq(platform.request("clint_awprot"))
@@ -223,9 +223,9 @@ def main():
 
    # Core bool value parameters
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--uncached",    type=bool,  default=False,  help="VEXRISCV Uncached without MMU")
-    core_bool_param_group.add_argument("--cached_mmu",  type=bool,  default=False,  help="VEXRISCV Cached with MMU")
-    core_bool_param_group.add_argument("--plic_clint",  type=bool,  default=False,  help="VEXRISCV Cached with MMU, PLIC and CLINT")
+    core_bool_param_group.add_argument("--base_variant",   type=bool,  default=False,  help="VEXRISCV Uncached without MMU")
+    core_bool_param_group.add_argument("--cached_with_mmu",               type=bool,  default=False,  help="VEXRISCV Cached with MMU")
+    core_bool_param_group.add_argument("--cached_with_mmu_plic_clint",        type=bool,  default=False,  help="VEXRISCV Cached with MMU, PLIC and CLINT")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -245,8 +245,8 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Providing a default value
-    if (not args.uncached and not args.cached_mmu and not args.plic_clint):
-        args.uncached = True
+    if (not args.base_variant and not args.cached_with_mmu and not args.cached_with_mmu_plic_clint):
+        args.base_variant = True
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -254,7 +254,7 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = VexriscvWrapper(platform, uncached=args.uncached, cached_mmu=args.cached_mmu, plic_clint=args.plic_clint)
+    module   = VexriscvWrapper(platform, base_variant=args.base_variant, cached_with_mmu=args.cached_with_mmu, cached_with_mmu_plic_clint=args.cached_with_mmu_plic_clint)
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
