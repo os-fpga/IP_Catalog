@@ -13,9 +13,9 @@ These are the types of VexRiscv core that can be generated: -
 
 | Sr.No.|      CPU TYPE                      |       Keyword      |    Value        |
 |-------|------------------------------------|--------------------|-----------------|
-|   1.  | Uncached CPU without MMU           |     uncached       |    0 / 1        |
-|   2.  |   Cached CPU with MMU              |     cached_mmu     |    0 / 1        |
-|   3.  |Cached CPU with MMU, PLIC and CLINT |     plic_clint     |    0 / 1        |
+|   1.  | Uncached CPU without MMU           |     base_variant   |    0 / 1        |
+|   2.  |   Cached CPU with MMU              |     cached_with_mmu|    0 / 1        |
+|   3.  |Cached CPU with MMU, PLIC and CLINT |cached_with_mmu_plic_clint|    0 / 1        |
 
 To generate RTL with above parameters, run the following command:
 ```
