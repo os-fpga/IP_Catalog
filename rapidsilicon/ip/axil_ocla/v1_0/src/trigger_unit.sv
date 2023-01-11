@@ -19,227 +19,124 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 /* verilator lint_off DECLFILENAME */
-
- `include "defines.sv"
-
-module trigger_unit #(parameter PROBE_WIDHT = 4 ) (
-
-    input logic sample_clk,
-    input logic rstn,
-    input logic in_sig,
-    input logic [6:0] config_bits,
-    `ifdef VALUE_COMPARE_TRIGGER
-    input logic [PROBE_WIDHT-1:0] reg_value,
-    input logic [PROBE_WIDHT-1:0] compare_value,
-    `endif
-    output logic trigger_event
-
-);
-
-  logic trigger_event_ed;
-  `ifdef VALUE_COMPARE_TRIGGER
-
-  logic trigger_event_vc;
-  `endif
-  logic trigger_event_lvl;
-  logic out_sig;
-
-  dflop dff_out_sig (
-      .sample_clk(sample_clk),
-      .rstn(rstn),
-      .D(out_sig),
-      .Q(trigger_event)
-  );
-
-  always_comb begin
-    case (config_bits[1:0])
-      2'b00:   out_sig = 1'b0;  // no trigger
-      2'b01:   out_sig = trigger_event_ed;  //  edge detect
-      2'b10:   out_sig = trigger_event_lvl;  // level detect
-      `ifdef VALUE_COMPARE_TRIGGER
-      2'b11:   out_sig = trigger_event_vc;  // value compare
-      `endif
-      default: out_sig = 1'b0;  // default
-    endcase
-  end
-
-  edge_detector ed (
-      .sample_clk(sample_clk),
-      .rstn(rstn),
-      .en(config_bits[1:0] == 2'b01),
-      .in_sig(in_sig),
-      .config_bits(config_bits[3:2]),
-      .edge_trigger_event(trigger_event_ed)
-  );
-  level_detect lvld (
-      .sample_clk(sample_clk),
-
-      .rstn(rstn),
-      .in_sig(in_sig),
-      .en(config_bits[1:0] == 2'b10),
-      .config_bits(config_bits[4]),
-      .lvl_trigger_event(trigger_event_lvl)
-  );
-  `ifdef VALUE_COMPARE_TRIGGER
-  value_compare #(.PROBE_WIDHT(PROBE_WIDHT))
-  vc (
-      .sample_clk(sample_clk),
-      .rstn(rstn),
-      .en(config_bits[1:0] == 2'b11),
-      .in_sig(compare_value),
-      .reg_value(reg_value),
-      .config_bits(config_bits[6:5]),
-      .vc_trigger_event(trigger_event_vc)
-  );
-
-  `endif
-
-endmodule
-
-module edge_detector (
-    input logic sample_clk,
-    input logic rstn,
-    input logic en,
-    input logic in_sig,
-    input logic [1:0] config_bits,
-    output logic edge_trigger_event
-);
-
-  logic in_sig_ff;
-  logic out_sig;
-
-  dflop dff_in_sig (
-      .sample_clk(sample_clk),
-      .rstn(rstn),
-      .D(in_sig),
-      .Q(in_sig_ff)
-  );
-  dflop dff_out_sig (
-      .sample_clk(sample_clk),
-      .rstn(rstn),
-      .D(out_sig),
-      .Q(edge_trigger_event)
-  );
-
-  always_comb begin
-    if (en) begin
-      case (config_bits)
-        2'b00:   out_sig = 1'b0;  // no trigger
-        2'b01:   out_sig = in_sig & !(in_sig_ff);  // rising edge detect
-        2'b10:   out_sig = !(in_sig) & in_sig_ff;  // falling edge detect
-        2'b11:   out_sig = in_sig ^ in_sig_ff;  // either edge detec
-        default: out_sig = 1'b0;  // default
-      endcase
-    end else out_sig = 1'b0;
-  end
-
-endmodule
-
-
-
-module value_compare #(parameter PROBE_WIDHT = 4 ) (
-    input logic sample_clk,
-    input logic rstn,
-    input logic en,
-    input logic [PROBE_WIDHT-1:0] in_sig,
-    input logic [PROBE_WIDHT-1:0] reg_value,
-    input logic [1:0] config_bits,
-    output logic vc_trigger_event
-);
-
-  logic out_sig;
-
-  // dflop dff_out_sig (.sample_clk(sample_clk),.rstn(rstn),.D(out_sig),.Q(vc_trigger_event));
-
-  always_comb begin
-    if (en) begin
-      case (config_bits)
-        2'b00:   out_sig = 1'b0;  // no trigger
-        2'b01:   out_sig = reg_value == in_sig;  // equal to detect
-        2'b10:   out_sig = in_sig < reg_value;  // less than detect
-        2'b11:   out_sig = in_sig > reg_value;  // greater than detect
-        default: out_sig = 1'b0;  // default
-      endcase
-    end else out_sig = 1'b0;
-
-  end
-
-  lvl2pulse level2pulse (
-    .sample_clk(sample_clk),
-    .rstn(rstn),
-    .in_sig (out_sig),
-    .out_sig(vc_trigger_event)
-);
-
-endmodule
-
-module level_detect (
-    input  logic sample_clk,
-    input  logic rstn,
-    input  logic en,
-    input  logic in_sig,
-    input  logic config_bits,
-    output logic lvl_trigger_event
-);
-
-  logic in_sig_ff;
-  logic out_sig;
-
-  //dflop dff_out_sig (.sample_clk(sample_clk),.rstn(rstn),.D(out_sig),.Q(trigger_event));
-  always_comb begin
-    if (en) begin
-      case (config_bits)
-        1'b0:    out_sig = !in_sig;  // low level
-        1'b1:    out_sig = in_sig;  // high level
-        default: out_sig = 1'b0;  // default
-      endcase
-    end 
-    else out_sig = 1'b0;
-  end
-
-  lvl2pulse level2pulse (
-      .sample_clk(sample_clk),
-      .rstn(rstn),
-      .in_sig (out_sig),
-      .out_sig(lvl_trigger_event)
-  );
-endmodule
-
-
-module dflop(
-    input  logic sample_clk,
-    input  logic rstn,
-    input  logic D,
-    output logic Q
-);
-
-  always @(posedge sample_clk or negedge rstn) begin
-    if (!rstn) Q <= 1'b0;
-    else Q <= D;
-  end
-endmodule
-
-module lvl2pulse (
-    input  logic sample_clk,
-    input logic rstn,
-    input  logic in_sig,
-    output logic out_sig
-);
-  logic r1, r2, r3;
-
-  always @(posedge sample_clk or negedge rstn) begin
-    if (!rstn) begin
-      r1 <= 1'b0;
-      r2 <= 1'b0;
-      r3 <= 1'b0;
-      
-    end
-    else begin
-    r1 <= in_sig;  // first reg in synchronizer
-    r2 <= r1;  // second reg in synchronizer, output is in sync!
-    r3 <= r2;  // remembers previous state of button
-    end
-  end
-  // rising edge = old value is 0, new value is 1
-  assign out_sig = ~r3 & r2;
-endmodule
+`pragma protect begin_protected
+`pragma protect author = "Verific"
+`pragma protect author_info = "Verific Corporation"
+`pragma protect data_method = "aes128-cbc"
+`pragma protect key_keyowner = "Verific"
+`pragma protect key_keyname = "key1"
+`pragma protect key_method = "rsa"
+`pragma protect encoding = (enctype = "base64", line_length = 64, bytes = 128), key_block
+EQJM4wHfGzmmUmVlFX3XxIgsKkH30OHOY5l4+dWDdBrBLi1jtYY0nOBNrQcZEf3/
+1rpQk+9IpNqI5cOV7DhJEsf8siX4Sxzhh6MVMh4Rx4ss/rJOXr7smbX90px/KRCb
+mOMHlSJU/nR0UhgYwK93ixXHJYm4xqpdp9pfextuAy0=
+`pragma protect encoding = (enctype = "base64", line_length = 64, bytes = 128), data_block
+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
+`pragma protect end_protected

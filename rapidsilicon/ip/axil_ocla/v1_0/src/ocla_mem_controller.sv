@@ -19,229 +19,156 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 /* verilator lint_off WIDTH */
+`pragma protect begin_protected
+`pragma protect author = "Verific"
+`pragma protect author_info = "Verific Corporation"
+`pragma protect data_method = "aes128-cbc"
+`pragma protect key_keyowner = "Verific"
+`pragma protect key_keyname = "key1"
+`pragma protect key_method = "rsa"
+`pragma protect encoding = (enctype = "base64", line_length = 64, bytes = 128), key_block
+TZu0TuKPeHsQb3NTYf2GgpE/Wnz7wcBMSS36dmvsiUXVqbJClmefXBdEDfAnqfzr
+hUpHHXVKijiesuhUMJk8W8t6bWkKiC3800LIR1knQ7vQPcbhbUR93evdyy3JqUls
+TVHzOkJDmRrjShaAkWQKtjkcYCUYks0sIiLJ21e1dr0=
+`pragma protect encoding = (enctype = "base64", line_length = 64, bytes = 128), data_block
+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
+`pragma protect end_protected
 
-module ocla_mem_controller #(
-    parameter DATASIZE    = 32,
-    parameter ADDRSIZE    = 8,
-    parameter NOSAMPLE_WIDTH = 10,
-    parameter MEM_DEPTH = 256,
-    parameter SYNC_STAGES = 2
-) (
-    output     [DATASIZE-1:0] rd_data,
-    output reg                rd_empty,
-    output reg                wr_full,
-    input                     wr_clk,
-    input                     rd_clk,
-    input                     wr_rstn,
-    input                     rd_rstn,
-    input                     wr,
-    input      [DATASIZE-1:0] wr_data,
-    input                     rd,
-
-    input [NOSAMPLE_WIDTH-1:0] nosamples,  // to move the read pointer to the specified location
-    input fixnosamples_en,  // indicates fix number of samples sampling mode is enabled
-    input [1:0] trigger_mode,  // decides whether read pointer needs to be moved or not
-    input sampling_done_ff  // indicates sampling is done  
-
-
-);
-  wire                wen;
-  wire                ren;
-  wire [  ADDRSIZE:0] wr_gray_code;
-  wire [  ADDRSIZE:0] wr_binary_value;
-  wire [  ADDRSIZE:0] rptr_reg;
-  // reg                         wr_full;
-  reg  [  ADDRSIZE:0] wptr;
-  reg  [  ADDRSIZE:0] wr_cnt;
-  wire [ADDRSIZE-1:0] waddr;
-
-  wire [  ADDRSIZE:0] rd_gray_code;
-  wire [  ADDRSIZE:0] rd_binary_value;
-  wire [  ADDRSIZE:0] wptr_reg;
-  //reg                         rd_empty;
-  reg  [  ADDRSIZE:0] rptr;
-  reg  [  ADDRSIZE:0] rd_cnt;
-  wire [ADDRSIZE-1:0] rdaddr;
-
-  wire [  ADDRSIZE:0] wptr_bin;
-
-  wire                fifo_full;
-  reg                 fifo_full_ff;
-  reg                 rd_pntr_mvd;
-  wire                fifo_empty;
-
-  wire                rpntr_mv;
-
-  reg                 rd_ff;
-  /* write data to memory when wr is high  */
-  //assign wen              =   wr && (!wr_full);
-  assign wen = rpntr_mv ? wr && (!sampling_done_ff) : wr && (!wr_full);
-  assign ren = rd && (!rd_empty);
-
-  /* write counter will increment only when their is a write operation request and fifo is not 
-    full. Read counter will increment only when their is a request for read operation and fifo is 
-    not empty */
-  assign wr_binary_value = wr_cnt + wen;
-  assign rd_binary_value = rd_cnt + (rd && ~rd_empty);
-
-
-  /* Binary to Gray code conversion */
-  assign wr_gray_code = (wr_binary_value >> 1) ^ wr_binary_value;
-  assign rd_gray_code = (rd_binary_value >> 1) ^ rd_binary_value;
-
-  /* Memory address for write/read operation */
-  assign waddr = wr_cnt[ADDRSIZE-1:0];
-  assign rdaddr = rd_cnt[ADDRSIZE-1:0];
-
-  /* Checking condition for fifo full & empty */
-  assign fifo_full = rd_pntr_mvd? 1'b0:(wr_gray_code == {~rptr_reg[ADDRSIZE:ADDRSIZE-1], rptr_reg[ADDRSIZE-2 : 0]});
-  assign fifo_empty = fifo_full_ff? 1'b0: (rd_pntr_mvd & !rd_ff) ? 1'b0: (rd_gray_code == wptr_reg);
-
-  always @(posedge wr_clk or negedge wr_rstn) begin
-    if (!wr_rstn) begin
-      wptr    <= 0;
-      wr_cnt  <= 0;
-      wr_full <= 0;
-    end else begin
-      wptr    <= wr_gray_code;
-      wr_cnt  <= wr_binary_value;
-      wr_full <= fifo_full;
-    end
-  end
-
-  always @(posedge rd_clk or negedge rd_rstn) begin
-    if (!rd_rstn) begin
-      rptr    <= 0;
-      rd_empty <= 0;
-    end else begin
-      rptr <= rd_gray_code;
-      rd_empty <= fifo_empty;
-    end
-  end
-
-
-  // to indicate trigger mode is post triggered or centered triggered 
-  assign rpntr_mv = (trigger_mode == 2'b10 | trigger_mode == 2'b11);
-
-  // Read pointer relocation logic
-  always @(posedge rd_clk or negedge rd_rstn) begin
-    if (!rd_rstn) begin
-      rd_cnt <= 0;
-      rd_pntr_mvd <= 0;
-    end else begin
-      if (sampling_done_ff & rpntr_mv & !rd_pntr_mvd) begin
-        case ({
-          fifo_full_ff, fixnosamples_en
-        })
-          2'b00: begin
-            rd_cnt <= rd_binary_value;
-            rd_pntr_mvd <= 0;
-          end
-          2'b01: begin 
-            if (trigger_mode == 2'b10) begin                                          // data sampling till trigger event occurs 
-              if (wptr_bin > nosamples) rd_cnt <= wptr_bin - nosamples;
-              else rd_cnt <= rd_binary_value;
-            end else begin                                                            // center triggered condition
-              if (wptr_bin > 2 * nosamples) rd_cnt <= wptr_bin - (2 * nosamples);
-              else rd_cnt <= rd_binary_value;
-            end
-            rd_pntr_mvd <= 1;
-          end
-          2'b10: begin
-            rd_cnt <= wptr_bin + 1'b1;
-            rd_pntr_mvd <= 1;
-          end
-          2'b11: begin
-            if (trigger_mode == 2'b10) begin
-              if (wptr_bin > nosamples) rd_cnt <=  wptr_bin - nosamples;
-              else rd_cnt <=  (MEM_DEPTH + wptr_bin) - nosamples;
-            end else begin                                             
-              if (wptr_bin > 2 * nosamples) rd_cnt <= wptr_bin - (2 * nosamples);
-              else rd_cnt <=  (MEM_DEPTH + wptr_bin) - (2 * nosamples);
-            end
-            rd_pntr_mvd <= 1;
-          end
-          default: begin
-            rd_cnt <= rd_binary_value;
-            rd_pntr_mvd <= 0;
-          end
-
-        endcase
-      end else begin
-        rd_cnt <= rd_binary_value;
-        if(!sampling_done_ff)rd_pntr_mvd <= 0;
-      end
-    end
-  end
-
-
-  // Registered fifo full condition
-  always @(posedge rd_clk or negedge rd_rstn) begin
-    if (!rd_rstn) begin
-      fifo_full_ff <= 0;
-    end else begin
-      if (fifo_full & ~fifo_full_ff) begin
-        fifo_full_ff <= 1'b1;
-      end else if (rd_pntr_mvd) begin
-        fifo_full_ff <= 1'b0;
-      end
-
-    end
-  end
-
-  // Read operation started
-  always @(posedge rd_clk or negedge rd_rstn) begin
-    if (!rd_rstn) begin
-      rd_ff <= 0;
-    end else begin
-      if (rd_pntr_mvd & !rd_ff & rd) begin
-        rd_ff <= rd;
-      end
-      // end else if (fifo_empty) begin
-      //   rd_ff <= 1'b0;
-      // end
-
-    end
-  end
-
-  dual_port_ram #(
-      .DATASIZE(DATASIZE),
-      .ADDRSIZE(ADDRSIZE),
-      .DEPTH(MEM_DEPTH)
-  ) dual_port_ram (
-      .rdata (rd_data),
-      .wr_clk(wr_clk),
-      .rd_clk(rd_clk),
-      .wen   (wen),
-      .ren   (ren),
-      .wdata (wr_data),
-      .waddr (waddr),
-      .raddr (rdaddr)
-  );
-
-  synchronizer #(
-      .SYNC_STAGES(SYNC_STAGES),
-      .ADDRSIZE   (ADDRSIZE)
-  ) synchronizer (
-      .wptr_reg(wptr_reg),
-      .rptr_reg(rptr_reg),
-      .wr_clk  (wr_clk),
-      .rd_clk  (rd_clk),
-      .wr_rstn (wr_rstn),
-      .rd_rstn (rd_rstn),
-      .wptr    (wptr),
-      .rptr    (rptr)
-
-  );
-
-  gray2binary #(
-      .DATA_WIDTH(ADDRSIZE)
-  ) gray2binary_inst (
-      .clk(rd_clk),
-      .rstn(rd_rstn),
-      //.enable(sampling_done_ff ),
-      .gray(wptr_reg),
-      .binary(wptr_bin)
-  );
-
-endmodule
