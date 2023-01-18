@@ -24,7 +24,7 @@ class BRAM(Module):
         # ---------------------
         self.logger = logging.getLogger("\tBRAM")
         
-        self.logger.propagate = True
+        self.logger.propagate = False
         
         self.logger.info(f"\tMEMORY TYPE      : {memory_type}")
         
