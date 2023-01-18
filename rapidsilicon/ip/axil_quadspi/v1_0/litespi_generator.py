@@ -153,14 +153,14 @@ class LiteSPICore(SoCMini):
         # Wishbone.
         if bus_standard == "wishbone":
             # LiteSPI is already in Wishbone, just expose the Bus.
-            platform.add_extension(spiflash_core.bus.get_ios("bus"))
-            self.comb += spiflash_core.bus.connect_to_pads(platform.request("bus"), mode="slave")
+            platform.add_extension(spiflash_core.bus.get_ios("s_axi"))
+            self.comb += spiflash_core.bus.connect_to_pads(platform.request("s_axi"), mode="slave")
 
             # Expose Ctrl Bus.
             if with_master:
                 master_bus = wishbone.Interface(address_width=32, data_width=32)
-                platform.add_extension(master_bus.get_ios("master"))
-                self.comb += master_bus.connect_to_pads(self.platform.request("master"), mode="slave")
+                platform.add_extension(master_bus.get_ios("m_axi"))
+                self.comb += master_bus.connect_to_pads(self.platform.request("m_axi"), mode="slave")
                 self.bus.add_master(master=master_bus)
 
         # AXI-Lite.
