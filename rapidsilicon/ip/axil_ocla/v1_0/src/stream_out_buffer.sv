@@ -49,12 +49,14 @@ module stream_out_buffer #(
 );
   localparam mem_access = 1'b0;  // mem access state
   localparam data_out = 1'b1;    // data out state
+  localparam PROBES_WORDS_WIDTH = NUM_OFPROBES <= 32 ? AXI_DATA_WIDTH :  NUM_OF_WORD_CHUNKS * AXI_DATA_WIDTH; 
 
   reg                            fetch_data;  // fetch data from mem
   reg                            state;       // state variable 
   reg [WORD_CHUNK_COUNTER_WIDTH:0] word_count;  //  word chunk counter 
 
-  reg [       NUM_OFPROBES-1:0] mem_accumulated_data_reg;  // mem data hold registor
+
+  reg [       PROBES_WORDS_WIDTH-1:0] mem_accumulated_data_reg;  // mem data hold registor
   reg                            mem_read_ff;
 
   // simple state machine to handle data fetch from memory and send word chunks to the axi slave interface
@@ -106,7 +108,7 @@ module stream_out_buffer #(
           if (read_ready) word_count <= word_count + 'b1;
           if (word_count >= ((NUM_OF_WORD_CHUNKS) - 1)) fetch_data <= 'b1;
           else fetch_data <= 'b0;
-        end else if (word_count >= ((NUM_OF_WORD_CHUNKS) - 1)) begin
+        end else if (word_count >= ((NUM_OF_WORD_CHUNKS) - 1) ) begin
           if (read_data_en && !mem_empty && !read_valid && !fetch_data) begin
             read_data  <= mem_accumulated_data_reg[32*word_count+:PROBE_BITS];
             read_valid <= 'b1;
@@ -118,7 +120,7 @@ module stream_out_buffer #(
             fetch_data <= 'b0;
           end
         end else begin
-          if ((read_data_en && !mem_empty && !read_valid)) begin
+          if ((read_data_en && !mem_empty && !read_valid )) begin
             word_count <= word_count + 'b1;
             read_data  <= mem_accumulated_data_reg[32*word_count+:AXI_DATA_WIDTH];
             read_valid <= 'b1;

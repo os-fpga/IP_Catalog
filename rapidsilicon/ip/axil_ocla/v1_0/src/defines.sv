@@ -1,4 +1,11 @@
-
+// ---------------------------------------------------------------
+// User specified macros
+// ---------------------------------------------------------------
+`define NUM_OF_PROBES  28
+`define MEMORY_DEPTH  1024
+`define NUM_OF_TRIGGER_INPUTS  1
+`define PROBE_WIDHT_BITS 1
+`define TRIGGER_INPUTS  
 // ---------------------------------------------------------------
 // Common 
 // ---------------------------------------------------------------
@@ -10,8 +17,8 @@
 // OCLA TOP
 // ---------------------------------------------------------------
 
-// `define TRIGGER_INPUTS                                // to enable
-// `define NUM_OF_TRIGGER_INPUTS 1                       // Number of trigger inputs
+//`define TRIGGER_INPUTS                                // to enable
+//`define NUM_OF_TRIGGER_INPUTS 1                       // Number of trigger inputs
 `define AXI_LITE_INTF                                    // axi lite interface enable
 
 
@@ -21,9 +28,9 @@
 
 // `define ADVANCE_TRIGGER                              // to enable multi trigger capture mode
 `define WIDTH 32                                        // data WIDTH
-`define TRIGGER_SIGNAL_SELECT_RANGE `NUM_OF_PROBES > 32 ? 32:`NUM_OF_PROBES              // range of trigger signals from probes 
+//`define TRIGGER_SIGNAL_SELECT_RANGE `NUM_OF_PROBES > 32 ? 32:`NUM_OF_PROBES              // range of trigger signals from probes 
+`define TRIGGER_SIGNAL_SELECT_RANGE 32
 `define SELECT_MUX_WIDTH `NUM_OF_PROBES <= 1 ? 1 : $clog2(`TRIGGER_SIGNAL_SELECT_RANGE)  // mux select line WIDTH to select trigger signal
-
 // `define VALUE_COMPARE_TRIGGER                        // to enable value compare mode of trigger
 // `define PROBE_WIDHT_BITS 4                           // probe WIDTH for value compare
 
