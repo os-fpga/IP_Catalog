@@ -95,7 +95,7 @@ class SimSoC(SoCCore):
 
         # Platform.
         platform = Platform()
-        platform.add_debug(self, reset=0)
+        platform.add_debug(self, reset=1)
         #self.comb += platform.trace.eq(1)
 
         # CRG --------------------------------------------------------------------------------------
@@ -133,56 +133,56 @@ class SimSoC(SoCCore):
             # AXI-Lite Master.
             # ----------------
             # AW.
-            i_master_awvalid = axil_quadspi_master.aw.valid,
-            o_master_awready = axil_quadspi_master.aw.ready,
-            i_master_awaddr  = axil_quadspi_master.aw.addr[:28],
-            i_master_awprot  = axil_quadspi_master.aw.prot,
+            i_m_axi_awvalid = axil_quadspi_master.aw.valid,
+            o_m_axi_awready = axil_quadspi_master.aw.ready,
+            i_m_axi_awaddr  = axil_quadspi_master.aw.addr[:28],
+            i_m_axi_awprot  = axil_quadspi_master.aw.prot,
             # W.
-            i_master_wvalid  = axil_quadspi_master.w.valid,
-            o_master_wready  = axil_quadspi_master.w.ready,
-            i_master_wdata   = axil_quadspi_master.w.data,
-            i_master_wstrb   = axil_quadspi_master.w.strb,
+            i_m_axi_wvalid  = axil_quadspi_master.w.valid,
+            o_m_axi_wready  = axil_quadspi_master.w.ready,
+            i_m_axi_wdata   = axil_quadspi_master.w.data,
+            i_m_axi_wstrb   = axil_quadspi_master.w.strb,
             # B
-            o_master_bvalid  = axil_quadspi_master.b.valid,
-            i_master_bready  = axil_quadspi_master.b.ready,
-            o_master_bresp   = axil_quadspi_master.b.resp,
+            o_m_axi_bvalid  = axil_quadspi_master.b.valid,
+            i_m_axi_bready  = axil_quadspi_master.b.ready,
+            o_m_axi_bresp   = axil_quadspi_master.b.resp,
             # AR.
-            i_master_arvalid = axil_quadspi_master.ar.valid,
-            o_master_arready = axil_quadspi_master.ar.ready,
-            i_master_araddr  = axil_quadspi_master.ar.addr[:28],
-            i_master_arprot  = axil_quadspi_master.ar.prot,
+            i_m_axi_arvalid = axil_quadspi_master.ar.valid,
+            o_m_axi_arready = axil_quadspi_master.ar.ready,
+            i_m_axi_araddr  = axil_quadspi_master.ar.addr[:28],
+            i_m_axi_arprot  = axil_quadspi_master.ar.prot,
             # R.
-            o_master_rvalid  = axil_quadspi_master.r.valid,
-            i_master_rready  = axil_quadspi_master.r.ready,
-            o_master_rresp   = axil_quadspi_master.r.resp,
-            o_master_rdata   = axil_quadspi_master.r.data,
+            o_m_axi_rvalid  = axil_quadspi_master.r.valid,
+            i_m_axi_rready  = axil_quadspi_master.r.ready,
+            o_m_axi_rresp   = axil_quadspi_master.r.resp,
+            o_m_axi_rdata   = axil_quadspi_master.r.data,
 
             # AXI-Lite MMAP.
             # --------------
             # AW.
-            i_bus_awvalid = axil_quadspi_mmap.aw.valid,
-            o_bus_awready = axil_quadspi_mmap.aw.ready,
-            i_bus_awaddr  = axil_quadspi_mmap.aw.addr[:28],
-            i_bus_awprot  = axil_quadspi_mmap.aw.prot,
+            i_s_axi_awvalid = axil_quadspi_mmap.aw.valid,
+            o_s_axi_awready = axil_quadspi_mmap.aw.ready,
+            i_s_axi_awaddr  = axil_quadspi_mmap.aw.addr[:28],
+            i_s_axi_awprot  = axil_quadspi_mmap.aw.prot,
             # W.
-            i_bus_wvalid  = axil_quadspi_mmap.w.valid,
-            o_bus_wready  = axil_quadspi_mmap.w.ready,
-            i_bus_wdata   = axil_quadspi_mmap.w.data,
-            i_bus_wstrb   = axil_quadspi_mmap.w.strb,
+            i_s_axi_wvalid  = axil_quadspi_mmap.w.valid,
+            o_s_axi_wready  = axil_quadspi_mmap.w.ready,
+            i_s_axi_wdata   = axil_quadspi_mmap.w.data,
+            i_s_axi_wstrb   = axil_quadspi_mmap.w.strb,
             # B
-            o_bus_bvalid  = axil_quadspi_mmap.b.valid,
-            i_bus_bready  = axil_quadspi_mmap.b.ready,
-            o_bus_bresp   = axil_quadspi_mmap.b.resp,
+            o_s_axi_bvalid  = axil_quadspi_mmap.b.valid,
+            i_s_axi_bready  = axil_quadspi_mmap.b.ready,
+            o_s_axi_bresp   = axil_quadspi_mmap.b.resp,
             # AR.
-            i_bus_arvalid = axil_quadspi_mmap.ar.valid,
-            o_bus_arready = axil_quadspi_mmap.ar.ready,
-            i_bus_araddr  = axil_quadspi_mmap.ar.addr[:28],
-            i_bus_arprot  = axil_quadspi_mmap.ar.prot,
+            i_s_axi_arvalid = axil_quadspi_mmap.ar.valid,
+            o_s_axi_arready = axil_quadspi_mmap.ar.ready,
+            i_s_axi_araddr  = axil_quadspi_mmap.ar.addr[:28],
+            i_s_axi_arprot  = axil_quadspi_mmap.ar.prot,
             # R.
-            o_bus_rvalid  = axil_quadspi_mmap.r.valid,
-            i_bus_rready  = axil_quadspi_mmap.r.ready,
-            o_bus_rresp   = axil_quadspi_mmap.r.resp,
-            o_bus_rdata   = axil_quadspi_mmap.r.data,
+            o_s_axi_rvalid  = axil_quadspi_mmap.r.valid,
+            i_s_axi_rready  = axil_quadspi_mmap.r.ready,
+            o_s_axi_rresp   = axil_quadspi_mmap.r.resp,
+            o_s_axi_rdata   = axil_quadspi_mmap.r.data,
 
             # IOs.
             # ----
