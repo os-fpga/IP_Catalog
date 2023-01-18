@@ -107,16 +107,19 @@ def main():
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="OCLA IP Core fix parameters")
+
     core_fix_param_group.add_argument("--mem_depth",       type=int,  default=32, choices=[32, 64, 128, 256, 512, 1024],          help="OCLA Trace Memory Depth.")
-    core_fix_param_group.add_argument("--addr_width",      type=int,  default=32, choices=[8, 16, 32],     help="OCLA Address Width.")
-    core_fix_param_group.add_argument("--data_width",      type=int,  default=32, choices=[32], help="OCLA Data Width.")
+   
+    
+    core_fix_param_group.add_argument("--s_axi_addr_width",      type=int,  default=32, choices=[8, 16, 32],     help="OCLA Address Width.")
+    core_fix_param_group.add_argument("--s_axi_data_width",      type=int,  default=32, choices=[32], help="OCLA Data Width.")
     
     # Core range value parameters.
 
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
     core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1, choices=range(1,1025),         help="Number of Probes.")
-    core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,  choices=range(1,32),          help="Number of Input Triggers.")
-    core_range_param_group.add_argument("--probe_width",            type=int,  default=1,  choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
+
+ 
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -127,10 +130,11 @@ def main():
   # Core bool value macros.
     core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
     core_bool_param_group.add_argument("--value_compare",     type=bool, default=False,              help="To enable Value Compare feature")
-    core_bool_param_group.add_argument("--advance_trigger",     type=bool, default=False,              help="To enable Advance Trigger Mode")
+    core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,  choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
+
     core_bool_param_group.add_argument("--trigger_inputs_en",     type=bool, default=False,              help="To enable Trigger inputs")
-
-
+    core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,  choices=range(1,32),          help="Number of Input Triggers.")
+    core_bool_param_group.add_argument("--advance_trigger",     type=bool, default=False,              help="To enable Advance Trigger Mode")
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
@@ -149,11 +153,11 @@ def main():
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
     module     = AXILITEOCLAWrapper(platform,
-        address_width     = args.addr_width,
-        data_width        = args.data_width,
+        address_width     = args.s_axi_addr_width,
+        data_width        = args.s_axi_data_width,
         nprobes           = args.no_of_probes , 
         trigger_inputs    = args.no_of_trigger_inputs , 
-        probe_widht       = args.probe_width , 
+        probe_widht       = args.value_compare_probe_width , 
         mem_depth         = args.mem_depth,
         trigger_inputs_en = args.trigger_inputs_en
     )
@@ -163,7 +167,7 @@ def main():
     triginpts_en      = args.trigger_inputs_en
     nofprobes         = args.no_of_probes  
     ntrigger_inputs   = args.no_of_trigger_inputs  
-    nprobe_widht      = args.probe_width 
+    nprobe_widht      = args.value_compare_probe_width 
     memory_depth      = args.mem_depth
     
     # Build Project --------------------------------------------------------------------------------
@@ -180,9 +184,9 @@ def main():
             module     = module,
         )
         # Update the macro definition file ---------------------------------------------------------
-        #rtl_dir = os.path.join(os.path.dirname(__file__),rs_builder.src_path+"/defines.sv")
+        #rtl_dir = os.path.join(os.path.dirname(__file__),rs_builder.src_path+"/ocla.sv")
         rtl_dir = rs_builder.src_path
-        rtl_dir = rtl_dir + "/defines.sv"
+        rtl_dir = rtl_dir + "/ocla.sv"
         f = open(rtl_dir,"r+")
         content = f.read()
         f.seek(0, 0)
