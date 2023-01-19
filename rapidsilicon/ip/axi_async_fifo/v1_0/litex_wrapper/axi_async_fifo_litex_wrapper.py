@@ -9,6 +9,7 @@
 
 import os
 import logging
+import math
 
 from migen import *
 
@@ -54,15 +55,15 @@ class AXIASYNCFIFO(Module):
             p_DATA_WIDTH        = data_width,
             p_ADDR_WIDTH        = addr_width,
             p_ID_WIDTH          = id_width,
-            p_FIFO_DEPTH        = fifo_depth,
+            p_FIFO_LOG          = (math.ceil(math.log2(fifo_depth))),
 
 
             # Clk / Rst.
             # ----------
             i_M_AXI_ACLK             = self.m_clk,
-            i_M_AXI_ARESETN         = self.m_rst,
+            i_M_AXI_ARESET         = self.m_rst,
             i_S_AXI_ACLK             = self.s_clk,
-            i_S_AXI_ARESETN         = self.s_rst,
+            i_S_AXI_ARESET         = self.s_rst,
 
             # AXI Input
             # --------------------
