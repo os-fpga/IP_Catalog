@@ -128,7 +128,7 @@ def main():
         data_width   = args.data_width,
         id_width     = args.id_width,
         fifo_depth   = args.fifo_depth,
-        addr_width   = (math.ceil(math.log2(args.fifo_depth))),
+        addr_width   = args.address_width,
     )
     
 

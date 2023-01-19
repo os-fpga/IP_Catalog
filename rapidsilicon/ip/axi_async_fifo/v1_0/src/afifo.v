@@ -2,7 +2,7 @@
 
 module afifo #(
 	/* Defining depth of fifo */
-    parameter ADDRSIZE      = $clog2(DEPTH),
+	parameter	ADDRSIZE = 3,
 	//
 	// WIDTH is the number of data bits in each entry
 	parameter	DATASIZE  = 32,
@@ -99,7 +99,8 @@ module afifo #(
                 );
 	
    dual_port_ram # (.DATASIZE(DATASIZE),
-                    .ADDRSIZE (ADDRSIZE))
+                    .ADDRSIZE (ADDRSIZE),
+                    .MEM_TYPE(MEM_TYPE))
    dual_port_ram(
                  .rdata  (rd_data),
                  .wr_clk (wclk),

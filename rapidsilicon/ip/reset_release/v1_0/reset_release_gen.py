@@ -87,11 +87,11 @@ def main():
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--ext_reset_width",          type=int,    default=5,     choices=[4,5,6,7,8,9,10],  help="FIFO Data Width.")
-    core_fix_param_group.add_argument("--peripheral_aresetn",       type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],                     help="FIFO Write Depth.")
-    core_fix_param_group.add_argument("--interconnects",            type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],                     help="FIFO Read Depth.")
-    core_fix_param_group.add_argument("--bus_reset",                type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],                     help="FIFO Read Depth.")
-    core_fix_param_group.add_argument("--peripheral_reset",         type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],                     help="FIFO Read Depth.")
+    core_fix_param_group.add_argument("--ext_reset_width",          type=int,    default=5,     choices=[4,5,6,7,8,9,10],           help="External reset window.")
+    core_fix_param_group.add_argument("--peripheral_aresetn",       type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],     help="Number of peripheral resets N.")
+    core_fix_param_group.add_argument("--interconnects",            type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],     help="Number of Interconnects.")
+    core_fix_param_group.add_argument("--bus_reset",                type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],     help="Number of bus reserts.")
+    core_fix_param_group.add_argument("--peripheral_reset",         type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],     help="Number of peripheral resets.")
 
 
     # Build Parameters.
