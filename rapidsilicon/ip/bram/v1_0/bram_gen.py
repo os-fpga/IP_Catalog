@@ -111,7 +111,7 @@ def main():
     rs_builder = IP_Builder(device="gemini", ip_name="bram", language="verilog")
 
     # Core string value parameters.
-    core_string_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--memory_type",    type=str,   default="SP",   choices=["SP", "SDP", "TDP"],   help="RAM Type.")
     
     # Core fix value parameters.
@@ -125,10 +125,6 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth.")
-
-    # Core file path parameters.
-    core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--file_path",   type=argparse.FileType('r'),   help="File Path for memory initialization file")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
