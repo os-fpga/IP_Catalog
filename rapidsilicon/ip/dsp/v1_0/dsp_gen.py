@@ -52,12 +52,11 @@ class RS_DSP_Wrapper(Module):
         
         # A*B
         if (feature == "A*B"):
-            z_width = a_width + b_width
+            z_width = a_width + b_width + 1
             self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             self.comb += dsp.a.eq(platform.request("a"))
             self.comb += dsp.b.eq(platform.request("b"))
-            # self.comb += platform.request("z").eq(dsp.z)
             # Registered Output
             if (reg_out == 1):
                 self.sync += platform.request("z").eq(dsp.z)
@@ -66,7 +65,10 @@ class RS_DSP_Wrapper(Module):
 
         # (A*B)+(C*D)
         if (feature=="A*B+C*D"):
-            z_width = 39
+            if ((a_width + b_width) > (c_width + d_width)):
+                z_width = a_width + b_width + 1
+            else:
+                z_width = c_width + d_width + 1
             self.submodules.dsp = dsp = RS_DSP_MULT_ABCD(a_width, b_width, c_width, d_width, feature, reg_in, reg_out, unsigned_a, unsigned_b, unsigned_c, unsigned_d)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             self.comb += dsp.a.eq(platform.request("a"))
@@ -81,7 +83,22 @@ class RS_DSP_Wrapper(Module):
         
         # A*B+C*D+E*F+G*H
         elif (feature=="A*B+C*D+E*F+G*H"):
-            z_width = 40
+            
+            if ((a_width + b_width) > (c_width + d_width)):
+                z12_width = a_width + b_width + 1
+            else:
+                z12_width = c_width + d_width + 1
+                
+            if ((e_width + f_width) > (g_width + h_width)):
+                z34_width = e_width + f_width + 1
+            else:
+                z34_width = g_width + h_width + 1
+            
+            if (z12_width > z34_width):
+                z_width = z12_width
+            else:
+                z_width = z34_width
+                
             self.submodules.dsp = dsp = RS_DSP_MULT_ABCDEFGH(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, reg_in, reg_out, unsigned_a, unsigned_b, unsigned_c, unsigned_d, unsigned_e, unsigned_f, unsigned_g, unsigned_h)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             self.comb += dsp.a.eq(platform.request("a"))

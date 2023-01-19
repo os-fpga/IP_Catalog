@@ -46,7 +46,7 @@ class RS_DSP_MULT(Module):
 
         self.a = Signal(a_width)
         self.b = Signal(b_width)
-        self.z = Signal(38)
+        self.z = Signal(a_width + b_width + 1)
         
         if (reg_in == 1 and reg_out == 0):
             # Module instance.
@@ -161,13 +161,18 @@ class RS_DSP_MULT_ABCD(Module):
         # Equation.
         self.logger.info(f"FEATURE  : {feature}")
 
+        if ((a_width + b_width) > (c_width + d_width)):
+            z_width = a_width + b_width + 1
+        else:
+            z_width = c_width + d_width + 1
+        
         self.a  = Signal(a_width)
         self.b  = Signal(b_width)
         self.c  = Signal(c_width)
         self.d  = Signal(d_width)
-        self.z1 = Signal(38)
-        self.z2 = Signal(38)
-        self.z  = Signal(38+1)
+        self.z1 = Signal(a_width + b_width + 1)
+        self.z2 = Signal(c_width + d_width + 1)
+        self.z  = Signal(z_width)
         self.comb += self.z.eq(self.z1 + self.z2)
         
         if (reg_in == 1 and reg_out == 0):
@@ -381,14 +386,29 @@ class RS_DSP_MULT_ABCDEFGH(Module):
         self.g  = Signal(g_width)
         self.h  = Signal(h_width)
         
-        self.z1 = Signal(38)
-        self.z2 = Signal(38)
-        self.z3 = Signal(38)
-        self.z4 = Signal(38)
+        self.z1 = Signal(a_width + b_width + 1)
+        self.z2 = Signal(c_width + d_width + 1)
+        self.z3 = Signal(e_width + f_width + 1)
+        self.z4 = Signal(g_width + h_width + 1)
         
-        self.z12 = Signal(38+1)
-        self.z34 = Signal(38+1)
-        self.z  = Signal(39+1)
+        if ((a_width + b_width) > (c_width + d_width)):
+            z12_width = a_width + b_width + 1
+        else:
+            z12_width = c_width + d_width + 1
+        
+        if ((e_width + f_width) > (g_width + h_width)):
+            z34_width = e_width + f_width + 1
+        else:
+            z34_width = g_width + h_width + 1
+        
+        if (z12_width > z34_width):
+            z_width = z12_width
+        else:
+            z_width = z34_width
+        
+        self.z12 = Signal(z12_width)
+        self.z34 = Signal(z34_width)
+        self.z  = Signal(z_width)
         
         if (reg_in == 1 and reg_out == 0):
             
