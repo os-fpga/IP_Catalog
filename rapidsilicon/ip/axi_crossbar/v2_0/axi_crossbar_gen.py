@@ -154,7 +154,7 @@ def main():
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--m_count",            type=int,       default=4,      choices=range(2,5),          help="Crossbar Master Interfaces.")
+    core_range_param_group.add_argument("--m_count",            type=int,       default=4,      choices=range(1,5),          help="Crossbar Master Interfaces.")
     core_range_param_group.add_argument("--s_count",            type=int,       default=4,      choices=range(1,5),          help="Crossbar SLAVE Interfaces.")
     core_range_param_group.add_argument("--s_id_width",         type=int,       default=8,      choices=range(1, 9),         help="AXI SLAVE ID Width.")
     core_range_param_group.add_argument("--aw_user_width",      type=int,       default=1,      choices=range(1, 1025),      help="AW-Channel User Width.")

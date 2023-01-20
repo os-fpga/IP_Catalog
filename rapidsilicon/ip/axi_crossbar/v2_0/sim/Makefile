@@ -60,7 +60,7 @@ ifeq ($(SIM), icarus)
 		COMPILE_ARGS += -s iverilog_dump
 	endif
 else ifeq ($(SIM), verilator)
-	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-lint -Wno-fatal --coverage
+	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-lint -Wno-fatal
 
 	ifeq ($(WAVES), 1)
 		COMPILE_ARGS += --trace-fst
