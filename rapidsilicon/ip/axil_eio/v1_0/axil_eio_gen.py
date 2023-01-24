@@ -79,7 +79,7 @@ def main():
     dep_dict = {} 
 
     # IP Builder
-    rs_builder = IP_Builder(device="gemini", ip_name="axil_eio", language="sverilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="axil_eio", language="verilog")
 
     # Core fixed values parameters
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
