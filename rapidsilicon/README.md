@@ -32,7 +32,7 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── axis_switch
 			├── axis_uart
 			├── axis_width_converter
-			├── bram
+			├── on_chip_memory
 			├── dsp
 			├── i2c_master
 			├── i2c_slave
