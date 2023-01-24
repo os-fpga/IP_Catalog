@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-# LiteX wrapper around bram.
+# LiteX wrapper around on chip memory.
 
 import math
 import logging
@@ -16,13 +16,13 @@ from litex.soc.interconnect.axi import *
 
 logging.basicConfig(level=logging.INFO)
 
-# BRAM ------------------------------------------------------------------------------------------
-class BRAM(Module):
+# On Chip Memory ------------------------------------------------------------------------------------------
+class OCM(Module):
     def __init__(self, platform, data_width, memory_type, common_clk, write_depth):
 
         # Get/Check Parameters.
         # ---------------------
-        self.logger = logging.getLogger("\tBRAM")
+        self.logger = logging.getLogger("\ON CHIP MEMORY")
         
         self.logger.propagate = False
         
@@ -46,7 +46,7 @@ class BRAM(Module):
         self.din_B     = Signal(data_width)
         self.dout_B    = Signal(data_width)
         
-        # BRAM Instances.
+        # OCM Instances.
         if (write_depth > 1024):
             m = write_depth / 1024
             temp = int(m/1)
@@ -68,8 +68,8 @@ class BRAM(Module):
         else:
             n = data_width / 32
             n = math.ceil(n)
-            
-        self.logger.info(f"\tNO. OF BRAMS     : {n * m}")
+        
+        self.logger.info(f"\tNO. OF BRAMS     : {n*m}")
         
         # Internal Addresses
         self.address_A    = Signal(10)
