@@ -8,7 +8,7 @@ import os
 import sys
 import argparse
 
-from litex_wrapper.bram_litex_wrapper import *
+from litex_wrapper.on_chip_memory_litex_wrapper import *
 
 from migen import *
 
@@ -42,13 +42,13 @@ def get_clkin_ios(data_width, write_depth):
         ("ren_B",   0, Pins(1))
     ]
 
-# BRAM Wrapper ----------------------------------------------------------------------------------
-class BRAMWrapper(Module):
+# on_chip_memory Wrapper ----------------------------------------------------------------------------------
+class OCMWrapper(Module):
     def __init__(self, platform, data_width, memory_type, common_clk, write_depth):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(data_width, write_depth))
         self.clock_domains.cd_sys  = ClockDomain()
-        self.submodules.sp = ram = BRAM(platform, data_width, memory_type, common_clk, write_depth)
+        self.submodules.sp = ram = OCM(platform, data_width, memory_type, common_clk, write_depth)
         
         # Single Port RAM
         if (memory_type == "SP"):
@@ -95,7 +95,7 @@ class BRAMWrapper(Module):
             
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="BRAM CORE")
+    parser = argparse.ArgumentParser(description="ON CHIP MEMORY")
 
     # Import Common Modules.
     common_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib")
@@ -108,29 +108,29 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="bram", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="on_chip_memory", language="verilog")
 
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--memory_type",    type=str,   default="SP",   choices=["SP", "SDP", "TDP"],   help="RAM Type.")
+    core_string_param_group.add_argument("--memory_type",    type=str,   default="SP",   choices=["SP", "SDP", "TDP"],   help="RAM Type")
     
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",   type=int,       default=32,      choices=[32, 64, 96, 128],      help="RAM Write/Read Width")
-
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock.")
-
+    
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth.")
+    core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth")
+    
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
-    build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="bram_wrapper",         help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build",         action="store_true",                        help="Build Core")
+    build_group.add_argument("--build-dir",     default="./",                               help="Build Directory")
+    build_group.add_argument("--build-name",    default="on_chip_memory_wrapper",           help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -149,7 +149,7 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = BRAMWrapper(platform,
+    module   = OCMWrapper(platform,
         memory_type     = args.memory_type,
         data_width      = args.data_width,
         write_depth     = args.write_depth,
