@@ -22,7 +22,7 @@ class OCM(Module):
 
         # Get/Check Parameters.
         # ---------------------
-        self.logger = logging.getLogger("\ON CHIP MEMORY")
+        self.logger = logging.getLogger("\tON CHIP MEMORY")
         
         self.logger.propagate = False
         
