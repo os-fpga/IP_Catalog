@@ -496,7 +496,8 @@ module axi2axilite #(
 		// {{{
 		assign	M_AXI_AWVALID= m_axi_awvalid;
 		assign	M_AXI_AWADDR = axi_awaddr;
-		assign	M_AXI_AWPROT = 0;
+		//assign	M_AXI_AWPROT = 0;   //by me
+		assign	M_AXI_AWPROT = S_AXI_AWPROT;   //by me
 		// }}}
 
 		// skidm_bready, S_AXI_B*
@@ -689,6 +690,14 @@ module axi2axilite #(
 
 		assign	read_from_rdfifo = skidm_rvalid && skidm_rready
 					&& (rcounts <= 1) && !rfifo_empty;
+					// Make Verilator happy
+					// {{{
+					// Verilator lint_off UNUSED
+					wire	unused_write_signals;
+					assign	unused_write_signals = &{ 1'b0, M_AXI_AWREADY,
+							M_AXI_WREADY, S_AXI_BREADY };
+					// Verilator lint_on  UNUSED
+					// }}}
 
 		// Read ID FIFO
 		// {{{
@@ -785,7 +794,8 @@ module axi2axilite #(
 		// {{{
 		assign	M_AXI_ARVALID= m_axi_arvalid;
 		assign	M_AXI_ARADDR = axi_araddr;
-		assign	M_AXI_ARPROT = 0;
+		//assign	M_AXI_ARPROT = 0;  //by me
+		assign	M_AXI_ARPROT = S_AXI_ARPROT;
 		// }}}
 		// S_AXI_R*
 		// {{{
@@ -1173,3 +1183,4 @@ module axi2axilite #(
 `endif
 // }}}
 endmodule
+
