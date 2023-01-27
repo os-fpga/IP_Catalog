@@ -210,21 +210,21 @@ class IP_Builder:
         # Copy RTL files.
         rtl_path  = os.path.join(gen_path, "src")
         if os.path.exists(rtl_path):
-            shutil.copytree(rtl_path, self.src_path)
+            shutil.copytree(rtl_path, self.src_path, dirs_exist_ok=True)
         else:
             os.makedirs(self.src_path,           exist_ok=True)
 
         # Copy litex_wrapper file.
         litex_path  = os.path.join(gen_path, "litex_wrapper")
         if os.path.exists(litex_path):
-            shutil.copytree(litex_path, self.litex_wrapper_path)
+            shutil.copytree(litex_path, self.litex_wrapper_path, dirs_exist_ok=True)
         else:
             os.makedirs(self.litex_wrapper_path, exist_ok=True)
         
         # Copy sim files.
         simulate_path  = os.path.join(gen_path, "sim")
         if os.path.exists(simulate_path):
-            shutil.copytree(simulate_path, self.sim_path)
+            shutil.copytree(simulate_path, self.sim_path, dirs_exist_ok=True)
         else:
             os.makedirs(self.sim_path,           exist_ok=True)
 
