@@ -1,0 +1,286 @@
+\documentclass[phv, 11pt ]{SelfArx} % Document font size and equations flushed left
+
+\usepackage[english]{babel} % Specify a different language here - english by default
+
+\usepackage{lipsum} % Required to insert dummy text. To be removed otherwise
+\usepackage{xcolor} % Required for specifying custom colours
+\usepackage[T1]{fontenc}
+\usepackage{tgtermes}
+%\definecolor{grey}{rgb}{0.9,0.9,0.9} % Colour of the box surrounding the title
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{placeins}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage[absolute,overlay]{textpos}
+\usepackage[export]{adjustbox}
+\usepackage{titlesec}
+\usepackage{array}
+\usepackage{colortbl}
+
+\usepackage{geometry}
+\usepackage{tikz}
+\usetikzlibrary{backgrounds,calc}
+\usepackage{graphicx,lipsum}
+
+\usepackage{fancyheadings}
+\pagestyle{fancy}
+
+\usepackage{sectsty}
+\usepackage{ragged2e}
+\usepackage{caption} 
+\usepackage{hhline}
+
+\usepackage{amsmath}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+
+
+\sectionfont{\fontsize{24}{28}\selectfont}
+%----------------------------------------------------------------------------------------
+%	COLUMNS
+%----------------------------------------------------------------------------------------
+
+\setlength{\columnsep}{0.55cm} % Distance between the two columns of text
+\setlength{\fboxrule}{0.75pt} % Width of the border around the abstract
+
+%----------------------------------------------------------------------------------------
+%	COLORS
+%----------------------------------------------------------------------------------------
+
+\definecolor{color1}{RGB}{0,0,0} % Color of the article title and sections
+\definecolor{color2}{rgb}{0.97, 0.97, 1.0}
+%\definecolor{color2}{RGB}{0,0,0}
+%\definecolor{color2}{RGB}{0,20,20} % Color of the boxes behind the abstract and headings
+
+%----------------------------------------------------------------------------------------
+%	HYPERLINKS
+%----------------------------------------------------------------------------------------
+
+\usepackage{hyperref} % Required for hyperlinks
+
+
+
+
+%\hypersetup{
+%	hidelinks,
+%	colorlinks,
+%	breaklinks=true,
+%	urlcolor=color2,
+%	citecolor=color1,
+%	linkcolor=color1,
+%	bookmarksopen=false,
+%	pdftitle={Title},
+%	pdfauthor={Author},
+%}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+\fontfamily{phv}\selectfont
+%\JournalInfo{foo} % Journal information
+%\Archive{} % Additional notes (e.g. copyright, DOI, review/research article)
+ \lhead{\includegraphics[width=4cm]{rs_logo}}
+\rhead{\textbf{On-Chip Logic Analyzer v1.0}}
+ \lfoot{\textbf{\thepage\//\pageref{LastPage}}}
+\cfoot{ \url{https://www.rapidsilicon.com}}
+\rfoot{\href{https://rapidsilicon.com/contact-us/}{Feedback}}
+% \PaperTitle{On-Chip Logic Analyzer} % Article title
+\PaperTitle{}
+
+
+
+\Authors{ } % Authors
+%\Authors{Zafar Ali} % Authors
+
+%\affiliation{\textsuperscript{1}\textit{Department of Biology, University of Examples, London, United Kingdom}} % Author affiliation
+%\affiliation{\textsuperscript{2}\textit{Department of Chemistry, University of Examples, London, United Kingdom}} % Author affiliation
+%\affiliation{*\textbf{Corresponding author}: john@smith.com} % Corresponding author
+
+%\Keywords{Keyword1 --- Keyword2 --- Keyword3} % Keywords - if you don't want any simply remove all the text between the curly brackets
+\Keywords{} % Keywords - if you don't want any simply remove all the text between the curly brackets
+\newcommand{\keywordname}{Keywords} % Defines the keywords heading name
+
+%----------------------------------------------------------------------------------------
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+{
+
+\begin{titlepage} % Suppresses displaying the page number on the title page and the subsequent page counts as page 1
+
+	\begin{textblock*}{8cm}(3cm,4cm) % {block width} (coords) 
+		\fontsize{40pt}{50pt}\selectfont
+		\noindent \textbf{On-Chip Logic Analyzer v1.0} \\
+		\line(1,0){140}\\
+		% \raggedright% Right align the text
+		\fontsize{20pt}{30pt}\selectfont
+		\textbf{\textit{IP User Guide }}\textit{(\textcolor{blue}{Beta Release})}\\
+	\end{textblock*}
+	\begin{textblock*}{10cm}(3cm,11cm) % {block width} (coords) 
+		\raggedright% Right align the text
+		% \fontsize{18pt}{28pt}\selectfont
+		% \textbf{Raptor Design Suite}\\		
+		\includegraphics[width=6cm]{raptor_logo}\\
+		\fontsize{12pt}{20pt}\selectfont
+		\text{\today}
+
+	\end{textblock*}
+
+	\begin{tikzpicture}[remember picture,overlay]
+		\begin{pgfonlayer}{background}
+			\node[anchor=south east,outer sep=0pt,inner sep=0pt] at ($(current page.south east) +(-1in,1in)$) {\includegraphics[width=6cm]{rs_logo}};
+		\end{pgfonlayer}
+	\end{tikzpicture}
+
+
+	%  \begin{figure}[h]
+	%  \includegraphics[width=10cm, right]{main_rs_logo}\\
+
+	%  \end{figure}
+\end{titlepage}
+
+%\maketitle % Output the title and abstract box
+\tableofcontents % Output the contents section
+%\thispagestyle{empty} % Removes page numbering from the first page
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE CONTENTS
+%----------------------------------------------------------------------------------------
+
+\newpage
+\section*{\hfill \fontsize{24}{28}\selectfont IP Summary}
+\addcontentsline{toc}{section}{IP Summary}
+\markboth{section}{IP Summary}
+
+% \vskip 1mm
+% \hskip 2mm
+%\addcontentsline{toc}{section{}}{{tocdepth}{3}} % Adds this section to the table of contents
+% \begin{multicols}{2}
+	\subsection*{\fontsize{14}{16}\selectfont Introduction}
+	%  \paragraph{}
+	% \vskip 1mm
+	% \hskip 2mm
+	The On Chip Logic Analyzer (OCLA) core is a customizable logic analyzer that conforms to the AXI4-Lite specification and is intended for use in applications that necessitate verification or debugging through the monitoring of internal signals within a design on field-programmable gate arrays (FPGAs). 
+	\\ \\The OCLA core boasts a variety of features commonly found in modern logic analyzers, such as edge transition triggering, multi-trigger options, and configurable parameters such as the number of probes and trace memory depth. 
+	\\ \\Additionally, the OCLA offers several modes for data capturing operations during debugging, including continuous, pre-trigger, post-trigger, and center-trigger options.
+	\noindent
+	%----------------------------------------------------------------------------------------\\
+	%TODO: \\
+	%----------------------------------------------------------------------------------------
+	%  % \lipsum[1-3] % Dummy text
+	% and some mathematics $\cos\pi=-1$ and $\alpha$ in the text\footnote{And some mathematics $\cos\pi=-1$ and $\alpha$ in the text.}.
+	%\columnbreak
+
+	\subsection*{\fontsize{14}{16}\selectfont  Features}
+	% \vskip 1mm
+	% \hskip 2mm
+	\begin{itemize}[noitemsep]
+		\item Configurable number of probes
+		\item Configurable trigger condition
+		\item Configurable trigger mode
+		\item Configurable number of input triggers
+		\item Configurable data depth
+		\item Configurable simple or advance trigger mode
+		\item Configurable data sampling mode
+	\end{itemize}
+	% Please add the following required packages to your document preamble:
+	% \usepackage{graphicx}
+	% \vfill\null
+	% \columnbreak
+	% \vfill\null
+% \end{multicols}
+% \begin{textblock*}{12cm}(10cm,4cm)
+	% \subsection*{\fontsize{14}{16}\selectfont\fontsize{14}{16}\selectfont Summary}
+
+
+
+\newpage
+%------------------------------------------------
+\section*{\hfill \fontsize{24}{28} Overview} % The \section{} command stops section numbering
+\addcontentsline{toc}{section}{Overview}
+
+\subsection*{\fontsize{14}{16}\selectfont On-Chip Logic Analyzer}
+\addcontentsline{toc}{subsection}{On-Chip Logic Analyzer}
+The OCLA is an IP core that can be used to monitor and capture the behavior of signals that are connected to its "probe port." The OCLA is configured through an AXI-lite slave interface, which allows the user to set up the OCLA's modes and controls.
+\\ \\The OCLA captures the behavior of the signals by performing a synchronous sampling operation. This means that the OCLA samples the signals at the clock of edge that is as the design that is being monitored, ensuring that the captured data is accurate and in sync with the behavior of the design.
+\\ \\The figure \ref{fig:ocla_wrpr} shows the top-level interface diagram of the OCLA IP core, which is a customizable building block that can be integrated into a debug system.
+
+\begin{figure}[h]\centering % Using \begin{figure*} makes the figure take up the entire width of the page
+	\includegraphics[width=.5\linewidth]{ocla_wrpr}
+	\caption{OCLA Top}
+	\label{fig:ocla_wrpr}
+\end{figure}
+% \lipsum
+\newpage
+\subsection*{\fontsize{14}{16}\selectfont Licensing}
+\addcontentsline{toc}{subsection}{Licensing}
+% COPYRIGHT TEXT:\\
+% \line(1,0){100}\\
+
+Copyright (c) 2022 RapidSilicon \\ \\
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions: The above copyright notice and this
+permission notice shall be included in all copies or substantial portions of the
+Software.
+\\ \\
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+\par\noindent\rule{\textwidth}{0.4pt}
+\input{ocla_sec1}
+\input{ocla_sec2}
+\input{ocla_sec3}
+% \input{ocla_sec4}
+\input{ocla_sec5}
+
+
+
+\raggedright% Right align the text
+
+
+\newpage
+\section*{\hfill  Revision History}
+\addcontentsline{toc}{section}{Release} % Adds this section to the table of contents
+
+\addcontentsline{toc}{subsection}{Revision History}
+
+
+
+
+\noindent\begin{minipage}{\linewidth}
+	% \centering
+	% \captionof{table}{Parameters}\label{tab:param_tab}
+	\resizebox{\linewidth}{!}{%
+	\begin{tabular}{|l|l|l|} 
+	\hline
+	\textbf{Date}~                                                               & \textbf{ Version}         & \textbf{ Revisions}                       \\ 
+	\hline
+	\today & \multicolumn{1}{r|}{0.01} & Initial version OCLA User Guide Document  \\
+	\hline
+	\end{tabular}
+	}
+	\end{minipage}
+
+%----------------------------------------------------------------------------------------
+}
+\end{document}
+
