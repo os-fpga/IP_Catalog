@@ -196,9 +196,6 @@ class IP_Builder:
 
         # Create paths.
         os.makedirs(self.build_path,         exist_ok=True)
-        os.makedirs(self.litex_wrapper_path, exist_ok=True)
-        os.makedirs(self.sim_path,           exist_ok=True)
-        os.makedirs(self.src_path,           exist_ok=True)
         os.makedirs(self.synth_path,         exist_ok=True)
 
         self.prepared = True
@@ -213,29 +210,23 @@ class IP_Builder:
         # Copy RTL files.
         rtl_path  = os.path.join(gen_path, "src")
         if os.path.exists(rtl_path):
-            rtl_files = os.listdir(rtl_path)
-            for file_name in rtl_files:
-                full_file_path = os.path.join(rtl_path, file_name)
-                if os.path.isfile(full_file_path):
-                    shutil.copy(full_file_path, self.src_path)
+            shutil.copytree(rtl_path, self.src_path)
+        else:
+            os.makedirs(self.src_path,           exist_ok=True)
 
         # Copy litex_wrapper file.
         litex_path  = os.path.join(gen_path, "litex_wrapper")
         if os.path.exists(litex_path):
-            litex_files = os.listdir(litex_path)
-            for file_name in litex_files:
-                full_file_path = os.path.join(litex_path, file_name)
-                if os.path.isfile(full_file_path):
-                    shutil.copy(full_file_path, self.litex_wrapper_path)
+            shutil.copytree(litex_path, self.litex_wrapper_path)
+        else:
+            os.makedirs(self.litex_wrapper_path, exist_ok=True)
         
         # Copy sim files.
         simulate_path  = os.path.join(gen_path, "sim")
         if os.path.exists(simulate_path):
-            simulate_files = os.listdir(simulate_path)
-            for file_name in simulate_files:
-                full_file_path = os.path.join(simulate_path, file_name)
-                if os.path.isfile(full_file_path):
-                    shutil.copy(full_file_path, self.sim_path)
+            shutil.copytree(simulate_path, self.sim_path)
+        else:
+            os.makedirs(self.sim_path,           exist_ok=True)
 
     def generate_tcl(self):
         assert self.prepared
