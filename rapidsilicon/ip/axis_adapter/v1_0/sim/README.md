@@ -15,5 +15,5 @@ python3 ../axis_adapter_gen.py --build
 
 Run the following command for simulation:
 ```
-make
+./sim.sh
 ``` 

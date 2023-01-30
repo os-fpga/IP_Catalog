@@ -10,5 +10,5 @@ For simulation, you have to install either of the simulators `Icarus Verilog` or
 
 Run the following command for simulation:
 ```
-make
+./sim.sh
 ``` 
