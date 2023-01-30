@@ -496,8 +496,7 @@ module axi2axilite #(
 		// {{{
 		assign	M_AXI_AWVALID= m_axi_awvalid;
 		assign	M_AXI_AWADDR = axi_awaddr;
-		//assign	M_AXI_AWPROT = 0;   //by me
-		assign	M_AXI_AWPROT = S_AXI_AWPROT;   //by me
+		assign	M_AXI_AWPROT = S_AXI_AWPROT;
 		// }}}
 
 		// skidm_bready, S_AXI_B*
@@ -794,7 +793,6 @@ module axi2axilite #(
 		// {{{
 		assign	M_AXI_ARVALID= m_axi_arvalid;
 		assign	M_AXI_ARADDR = axi_araddr;
-		//assign	M_AXI_ARPROT = 0;  //by me
 		assign	M_AXI_ARPROT = S_AXI_ARPROT;
 		// }}}
 		// S_AXI_R*
