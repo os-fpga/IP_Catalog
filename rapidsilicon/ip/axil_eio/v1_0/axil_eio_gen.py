@@ -88,7 +88,7 @@ def main():
     
     # Core Range Value Parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--inout_probe_width",   type=int,  default=8,  choices=range(1, 513),  help="No. of input probes.")
+    core_range_param_group.add_argument("--input_probe_width",   type=int,  default=8,  choices=range(1, 513),  help="No. of input probes.")
     core_range_param_group.add_argument("--output_probe_width",  type=int,  default=8,  choices=range(1, 513),  help="No. of output probes.")
     
     # Core bool value parameters.
@@ -122,7 +122,7 @@ def main():
     module   = AXILEIOWrapper(platform,
                             data_width          = args.data_width,
                             addr_width          = args.addr_width,
-                            input_probe_width   = args.inout_probe_width, 
+                            input_probe_width   = args.input_probe_width, 
                             output_probe_width  = args.output_probe_width, 
                             axi_input_clk_sync  = args.axi_input_clk_sync, 
                             axi_output_clk_sync = args.axi_output_clk_sync
