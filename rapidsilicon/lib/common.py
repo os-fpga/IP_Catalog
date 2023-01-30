@@ -236,6 +236,8 @@ class IP_Builder:
                 full_file_path = os.path.join(simulate_path, file_name)
                 if os.path.isfile(full_file_path):
                     shutil.copy(full_file_path, self.sim_path)
+                elif os.path.isdir(full_file_path):
+                    shutil.copytree(simulate_path, self.sim_path, ignore=shutil.ignore_patterns('rapidsilicon'), dirs_exist_ok=True)
 
     def generate_tcl(self):
         assert self.prepared
