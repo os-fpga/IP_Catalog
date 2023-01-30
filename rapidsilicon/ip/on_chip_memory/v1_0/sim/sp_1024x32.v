@@ -31,7 +31,7 @@ reg          ren_A;
 integer mismatch=0;
 reg [6:0]cycle;
 
-bram_wrapper wrapper(.*, .dout_A(dout_wrap));
+on_chip_memory_wrapper wrapper(.*, .dout_A(dout_wrap));
 
 rams_sp_1024x32 dut (
 .addr_A(addr_A),

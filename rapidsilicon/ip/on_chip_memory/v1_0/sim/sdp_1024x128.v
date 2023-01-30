@@ -31,7 +31,7 @@ reg          ren_B;
 integer mismatch=0;
 reg [6:0]cycle;
 
-bram_wrapper wrapper(
+on_chip_memory_wrapper wrapper(
 .addr_A(addr_A),
 .din_A(din_A),
 .addr_B(addr_A),
