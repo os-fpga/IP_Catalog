@@ -97,7 +97,7 @@ async def run_test_write(dut, data_in=None, idle_inserter=None, backpressure_ins
     for length in list(range(1, byte_lanes*2))+[1024]:  #1024
         for offset in list(range(byte_lanes, byte_lanes*2))+list(range(4096-byte_lanes, 4096)):
             tb.log.info("length %d, offset %d, size %d", length, offset, size)
-            addr = offset+0x10000000
+            addr = offset+0x1000
             test_data = bytearray([x % 256 for x in range(length)])
 
             tb.axil_ram.write(addr-128, b'\xaa'*(length+256))  #b'\xaa'*(length+256)
@@ -135,7 +135,7 @@ async def run_test_read(dut, data_in=None, idle_inserter=None, backpressure_inse
     for length in list(range(1, byte_lanes*2))+[1024]: #1024
         for offset in list(range(byte_lanes, byte_lanes*2))+list(range(4096-byte_lanes, 4096)):
             tb.log.info("length %d, offset %d, size %d", length, offset, size)
-            addr = offset+0x10000000
+            addr = offset+0x1000
             test_data = bytearray([x % 256 for x in range(length)])
 
             tb.axil_ram.write(addr, test_data)
