@@ -14,6 +14,8 @@ DUT      = axi2axilite_wrapper
 TOPLEVEL = $(DUT)
 MODULE   = test_$(DUT)
 
+$(shell ../$(DUT)_gen.py --build)
+
 SIM = vcs
 SIM_BUILD = ./
 #RTL_LIBRARY = work
