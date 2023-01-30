@@ -15,5 +15,5 @@ python3 ../axis_pipeline_register_gen.py --build --id_en=1 --dest_en=1
 
 Run the following command for simulation:
 ```
-make
+./sim.sh
 ``` 
