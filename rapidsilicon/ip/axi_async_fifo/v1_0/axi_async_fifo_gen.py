@@ -90,7 +90,7 @@ def main():
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--fifo_depth",          type=int,     default=4096,   choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192],   help="FIFO Depth.")
+    core_fix_param_group.add_argument("--fifo_depth",          type=int,     default=4096,   choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192,16384,32768],   help="FIFO Depth.")
     core_fix_param_group.add_argument("--data_width",          type=int,     default=32,   choices=[8, 16, 32, 64, 128],   help="Data width.")
 
 
