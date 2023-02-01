@@ -57,7 +57,7 @@ class AXISTREAMINTERCONNECT(Module):
         self.logger.info(f"USER_WIDTH       : {user_width}")
 
         # Control Signal
-        self.select             = Signal(select_width)
+        self.select = [Signal(select_width) for m_count in range(m_count)]
         
         # Module instance.
         # ----------------
@@ -103,7 +103,7 @@ class AXISTREAMINTERCONNECT(Module):
             o_m_axis_tuser      = Cat(*[m_axis.user      for m_axis in m_axis]),
             
             # Control
-            i_select            = self.select
+            i_select            = Cat(*[self.select])
         )
 
         # Add Sources.
