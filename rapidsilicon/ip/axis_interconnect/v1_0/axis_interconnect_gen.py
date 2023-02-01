@@ -26,9 +26,9 @@ def get_clkin_ios():
         ("rst",  0, Pins(1)),
     ]
 
-def get_control_ios(select_width):
+def get_control_ios(select_width, m_count):
     return [
-        ("select", 0, Pins(select_width))
+        ("m{}_select".format(m_count), 0, Pins(select_width))
     ]
     
 # AXIS_INTERCONNECT Wrapper ----------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ class AXISTREAMINTERCONNECTWrapper(Module):
         
         # Keep Width, Select_width Calculation
         keep_width      = int((data_width+7)/8)
-        select_width    = (m_count*(math.ceil(math.log2(s_count))))-1
+        select_width    = math.ceil(math.log2(s_count))
         
         # Slave Interfaces
         s_axiss = []
@@ -86,8 +86,9 @@ class AXISTREAMINTERCONNECTWrapper(Module):
             )
         
         # Interconnect Control Signal ----------------------------------------------------------------------
-        platform.add_extension(get_control_ios(select_width))
-        self.comb += interconnect.select.eq(platform.request("select"))
+        for m_count in range(m_count+1):
+            platform.add_extension(get_control_ios(select_width, m_count))
+            self.comb += interconnect.select[m_count].eq(platform.request("m{}_select".format(m_count)))
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -119,7 +120,7 @@ def main():
     # Core Range Value Parameters.
     core_range_param_group = parser.add_argument_group(title="Core Range Parameters")
     core_range_param_group.add_argument("--s_count",     type=int,   default=4,    choices=range(2,17),       help="Slave Interfaces.")
-    core_range_param_group.add_argument("--m_count",     type=int,   default=4,    choices=range(2,17),       help="Master Interfaces.")
+    core_range_param_group.add_argument("--m_count",     type=int,   default=4,    choices=range(1,17),       help="Master Interfaces.")
     core_range_param_group.add_argument("--data_width",  type=int,   default=8,    choices=range(1,4097),     help="Data Width.")
     core_range_param_group.add_argument("--id_width",    type=int,   default=8,    choices=range(1, 33),      help="ID Width.")
     core_range_param_group.add_argument("--dest_width",  type=int,   default=8,    choices=range(1, 33),      help="Destination Width.")
