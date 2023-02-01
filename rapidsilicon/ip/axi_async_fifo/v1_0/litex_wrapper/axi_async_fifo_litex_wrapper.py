@@ -52,9 +52,9 @@ class AXIASYNCFIFO(Module):
             # Parameters.
             # -----------
             # Global.
-            p_DATA_WIDTH        = data_width,
-            p_ADDR_WIDTH        = addr_width,
-            p_ID_WIDTH          = id_width,
+            p_AXI_DATA_WIDTH        = data_width,
+            p_AXI_ADDR_WIDTH        = addr_width,
+            p_AXI_ID_WIDTH          = id_width,
             p_FIFO_LOG          = (math.ceil(math.log2(fifo_depth))),
 
 
