@@ -482,7 +482,7 @@ axi_ram ram_inst(
 //-----------Peripheral AXI RAM---------------
 
 axi_ram_per ram_periph(
-    .clk					    (clock_1),
+	.clk					    (clock_2),
     .rst					    (reset),
     .s_axi_awid					(fifo_awid),
     .s_axi_awaddr				(fifo_awaddr),
