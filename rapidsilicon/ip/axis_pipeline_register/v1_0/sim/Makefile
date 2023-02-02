@@ -47,6 +47,8 @@ export PARAM_USER_WIDTH ?= 1
 export PARAM_REG_TYPE ?= 2
 export PARAM_LENGTH ?= 2
 
+$(shell ../$(DUT)_gen.py --build)
+
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
 
