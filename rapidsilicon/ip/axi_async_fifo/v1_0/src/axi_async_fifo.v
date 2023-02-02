@@ -19,9 +19,9 @@ module axi_async_fifo #(
 
 
     input   wire                            S_AXI_ACLK,
-    input   wire                            S_AXI_ARESET,
+    input   wire                            S_AXI_ARESETN,
     input   wire                            M_AXI_ACLK,
-    input   wire                            M_AXI_ARESET,
+    input   wire                            M_AXI_ARESETN,
     /* Address write channel */
     input   wire [AXI_ID_WIDTH-1 : 0]       S_AXI_AWID,
     input   wire [AXI_ADDR_WIDTH-1 : 0]     S_AXI_AWADDR,

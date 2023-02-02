@@ -61,9 +61,9 @@ class AXIASYNCFIFO(Module):
             # Clk / Rst.
             # ----------
             i_M_AXI_ACLK             = self.m_clk,
-            i_M_AXI_ARESET         = self.m_rst,
+            i_M_AXI_ARESETN         = self.m_rst,
             i_S_AXI_ACLK             = self.s_clk,
-            i_S_AXI_ARESET         = self.s_rst,
+            i_S_AXI_ARESETN         = self.s_rst,
 
             # AXI Input
             # --------------------
