@@ -310,7 +310,7 @@ axi_async_fifo #(
 	.FIFO_LOG(3'd7)
 ) axi_async_fifo (
 	.M_AXI_ACLK(m_clk_1),
-	.M_AXI_ARESET(m_rst_1),
+	.M_AXI_ARESETN(m_rst_1),
 	.M_AXI_ARREADY(m_axi_ar_ready),
 	.M_AXI_AWREADY(m_axi_aw_ready),
 	.M_AXI_BID(m_axi_b_param_id),
@@ -326,7 +326,7 @@ axi_async_fifo #(
 	.S_AXI_ARADDR(s_axi_ar_payload_addr),
 	.S_AXI_ARBURST(s_axi_ar_payload_burst),
 	.S_AXI_ARCACHE(s_axi_ar_payload_cache),
-	.S_AXI_ARESET(s_rst_1),
+	.S_AXI_ARESETN(s_rst_1),
 	.S_AXI_ARID(s_axi_ar_param_id),
 	.S_AXI_ARLEN(s_axi_ar_payload_len),
 	.S_AXI_ARLOCK(s_axi_ar_payload_lock),
