@@ -10,7 +10,7 @@ module afifo #(
 	/* Total number of syn stages. The number of stages can be greater than 2 but not less than 2 */
 	parameter	SYNC_STAGES    = 2,
 	/* For BRAM set MEM_TYPE=1, while for Distributed memory set MEM_TYPE=0 */
-	parameter MEM_TYPE = 0,
+	parameter MEM_TYPE = 1,
 
     parameter DEPTH         = 8
 	) 
