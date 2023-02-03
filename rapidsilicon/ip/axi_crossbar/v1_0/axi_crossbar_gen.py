@@ -40,15 +40,15 @@ class AXICROSSBARWrapper(Module):
 
         # Slave Interfaces
         s_axis = []
-        for s_count in range(s_count):
+        for si_count in range(s_count):
             s_axi = AXIInterface(data_width = data_width , address_width = addr_width, id_width = s_id_width, aw_user_width = aw_user_width,
             w_user_width = w_user_width, b_user_width = b_user_width, ar_user_width = ar_user_width, r_user_width = r_user_width)
-            if s_count>9:
-                platform.add_extension(s_axi.get_ios("s{}_axi".format(s_count)))
-                self.comb += s_axi.connect_to_pads(platform.request("s{}_axi".format(s_count)), mode="slave")
+            if si_count>9:
+                platform.add_extension(s_axi.get_ios("s{}_axi".format(si_count)))
+                self.comb += s_axi.connect_to_pads(platform.request("s{}_axi".format(si_count)), mode="slave")
             else:
-                platform.add_extension(s_axi.get_ios("s0{}_axi".format(s_count)))
-                self.comb += s_axi.connect_to_pads(platform.request("s0{}_axi".format(s_count)), mode="slave")
+                platform.add_extension(s_axi.get_ios("s0{}_axi".format(si_count)))
+                self.comb += s_axi.connect_to_pads(platform.request("s0{}_axi".format(si_count)), mode="slave")
                 
             s_axis.append(s_axi)
         
