@@ -5,7 +5,7 @@ module dual_port_ram #(
     /* Define depth of memory */
     parameter ADDRSIZE = 4,
     /* For BRAM set MEM_TYPE=1, while for Distributed memory set MEM_TYPE=0 */
-    parameter MEM_TYPE = 0
+    parameter MEM_TYPE = 1
 )
 (
     output reg [DATASIZE-1:0]   rdata,
