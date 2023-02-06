@@ -1,5 +1,4 @@
 // start of the code
-`timescale 1ns / 1ps
 
 // Length of the Instruction register
 `define	IR_LENGTH	5
