@@ -140,8 +140,8 @@ module jtag_axi_wrap #
       // constant signals
       aw_burst = 1'b0;  // incremental burst           // modified
       ar_burst = 1'b0;  // incremental burst           // modified
-      aw_size  = 3'b011; // store 8 bytes
-      ar_size  = 3'b011; // read 8 bytes
+      aw_size  = (C_S_AXI_DATA_WIDTH == 'd64) ? 3'b011 : 3'b010; // store 8 bytes
+      ar_size  = (C_S_AXI_DATA_WIDTH == 'd64) ? 3'b011 : 3'b010; // read 8 bytes
       aw_len   = 4'b0;    // single burst
       ar_len   = 4'b0;    // single burst
 
