@@ -8,7 +8,8 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-`timescale 1ns / 1ps
+
+//typedef enum        logic [2:0]       {idle, request, readdata, storedata, ack} FSMState;
 
 module jtag_axi_wrap #
   (
