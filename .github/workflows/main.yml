@@ -46,7 +46,7 @@ jobs:
       shell: bash
       run: |
         cd Raptor_Tools/python_tools
-        make build  
+        make build && cd build && make  
 
     - name: Sanity Check
       shell: bash
@@ -147,7 +147,7 @@ jobs:
           export LC_ALL=en_US.utf-8
           export LANG=en_US.utf-8
           cd Raptor_Tools/python_tools
-          make build 
+          make build && cd build && make
 
 
       - name: Sanity Check
