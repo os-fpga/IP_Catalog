@@ -52,15 +52,25 @@ class RS_DSP_Wrapper(Module):
         
         # A*B
         if (feature == "A*B"):
-            z_width = a_width + b_width + 1
-            self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
-            platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-            self.comb += dsp.a.eq(platform.request("a"))
-            self.comb += dsp.b.eq(platform.request("b"))
-            # Registered Output
-            if (reg_out == 1):
-                self.sync += platform.request("z").eq(dsp.z)
+            if (a_width > 20 or b_width > 18):
+                z_width = a_width + b_width 
+                self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
+                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
+                self.comb += dsp.a.eq(platform.request("a"))
+                self.comb += dsp.b.eq(platform.request("b"))
+                
+                # Registered Output
+                if (reg_out == 1):
+                    self.sync += platform.request("z").eq(dsp.z)
+                else:
+                    self.comb += platform.request("z").eq(dsp.z)
+                
             else:
+                z_width = a_width + b_width 
+                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
+                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
+                self.comb += dsp.a.eq(platform.request("a"))
+                self.comb += dsp.b.eq(platform.request("b"))
                 self.comb += platform.request("z").eq(dsp.z)
 
         # (A*B)+(C*D)
@@ -133,8 +143,8 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 21),     help="A_Input")
-    core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 19),     help="B_Input")
+    core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 41),     help="A_Input")
+    core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 37),     help="B_Input")
     core_range_param_group.add_argument("--c_width",     type=int,       default=20,      choices=range(1, 21),     help="C_Input")
     core_range_param_group.add_argument("--d_width",     type=int,       default=18,      choices=range(1, 19),     help="D_Input")
     core_range_param_group.add_argument("--e_width",     type=int,       default=20,      choices=range(1, 21),     help="E_Input")
@@ -146,14 +156,14 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned_a",  type=bool,    default=False,    help="Unsigned Input A")
-    core_bool_param_group.add_argument("--unsigned_b",  type=bool,    default=False,    help="Unsigned Input B")
-    core_bool_param_group.add_argument("--unsigned_c",  type=bool,    default=False,    help="Unsigned Input C")
-    core_bool_param_group.add_argument("--unsigned_d",  type=bool,    default=False,    help="Unsigned Input D")
-    core_bool_param_group.add_argument("--unsigned_e",  type=bool,    default=False,    help="Unsigned Input E")
-    core_bool_param_group.add_argument("--unsigned_f",  type=bool,    default=False,    help="Unsigned Input F")
-    core_bool_param_group.add_argument("--unsigned_g",  type=bool,    default=False,    help="Unsigned Input G")
-    core_bool_param_group.add_argument("--unsigned_h",  type=bool,    default=False,    help="Unsigned Input H")
+    core_bool_param_group.add_argument("--unsigned_a",  type=bool,    default=True,     help="Unsigned Input A")
+    core_bool_param_group.add_argument("--unsigned_b",  type=bool,    default=True,     help="Unsigned Input B")
+    core_bool_param_group.add_argument("--unsigned_c",  type=bool,    default=True,     help="Unsigned Input C")
+    core_bool_param_group.add_argument("--unsigned_d",  type=bool,    default=True,     help="Unsigned Input D")
+    core_bool_param_group.add_argument("--unsigned_e",  type=bool,    default=True,     help="Unsigned Input E")
+    core_bool_param_group.add_argument("--unsigned_f",  type=bool,    default=True,     help="Unsigned Input F")
+    core_bool_param_group.add_argument("--unsigned_g",  type=bool,    default=True,     help="Unsigned Input G")
+    core_bool_param_group.add_argument("--unsigned_h",  type=bool,    default=True,     help="Unsigned Input H")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
