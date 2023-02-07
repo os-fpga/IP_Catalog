@@ -21,10 +21,14 @@
 
 
 module tb_dsp;
-reg [11:0]a;
-reg [9:0]b;
-wire [22:0]z1, z2;
+reg [34:0]a;
+reg [18:0]b;
+wire [53:0]z1, z2;
 reg clk;
+
+integer i;
+integer mismatch=0;
+reg [6:0]cycle;
 
 dsp_wrapper dut1(
 .a(a),
@@ -44,19 +48,17 @@ clk = 1'b0;
 forever #10 clk = ~clk;
 end
 
-integer i, mismatch=0;
-reg [6:0]cycle;
-
 initial
 begin
-for (i=0; i<=100; i=i+1)
+for (i=0; i<=1000; i=i+1)
 begin
-repeat (1) @ (negedge clk)
+repeat (1) @ (posedge clk);
 a <= $random;
 b <= $random;
+compare(cycle);
 end
 
-if(mismatch == 0)
+if(mismatch==0)
         $display("\n**** All Comparison Matched ***\n**** Simulation Passed ****");
     else
         $display("%0d comparison(s) mismatched\nERROR: SIM: Simulation Failed", mismatch);
@@ -78,8 +80,8 @@ endmodule
 
 
 module dsp(a, b, z);
-input wire [11:0]a;
-input wire [9:0]b;
-output wire [22:0]z;
-assign z = a*b;
+input wire [35:0]a;
+input wire [19:0]b;
+output wire [53:0]z;
+assign z= a*b;
 endmodule
