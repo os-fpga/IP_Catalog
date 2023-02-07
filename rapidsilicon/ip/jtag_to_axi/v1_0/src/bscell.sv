@@ -1,7 +1,5 @@
 // start of the boundry scan cell code
 
-`timescale 1ns / 1ps
-
 module bscell
   (
     // inputs 

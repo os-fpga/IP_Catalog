@@ -17,7 +17,6 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-`timescale 1ns / 1ps
 
 module jtag_to_axi_top #(
                          parameter integer C_S_AXI_ID_WIDTH      = 4,
@@ -160,8 +159,11 @@ module jtag_to_axi_top #(
     reg  [REG_AXI_OUT_LENGTH - 1 : 0] pi_axi_data_out_temp;
     reg                               first_read_done;
     
-    wire [1:0] burst_type;
-    assign  burst_type = po_axi_data_in[REG_AXI_IN_LENGTH-1 : REG_AXI_IN_LENGTH-2];
+    wire                      [1:0] burst_type;
+    wire [C_S_AXI_DATA_WIDTH-1 : 0] jtag_to_axi_data;
+    
+    assign        burst_type = po_axi_data_in[REG_AXI_IN_LENGTH-1 : REG_AXI_IN_LENGTH-2];
+    assign  jtag_to_axi_data = po_axi_data_in[(C_S_AXI_DATA_WIDTH+34)-1 : 34];
     
     // AXI-Master trigger gen    
     wire      axi_m_trans_trig_edge;
@@ -177,7 +179,9 @@ module jtag_to_axi_top #(
     wire      axi_out_read_edge;
     
     // ---------------------------------------- assigns ---------------------------------------
+    // transaction trigger: generate as soon as the axi_in register is updated (to initiate the r/w transaction)
     assign axi_m_trans_trig          =  sync_updatedr_falling & sync_tapc_axi_in_sel;
+    // trigger edge detector: keep track of rising edge of axi transaction trigger, the 'trig' is manual trigger generated in the "GENERATE_TRIGGER" state
     assign axi_m_trans_trig_edge     =  ((axi_m_trans_trig_prev == 0) & (axi_m_trans_trig == 1)) | trig;
     assign axi_rw                    =  po_axi_data_in[1];
     assign axi_trans_done_detect     =  (axi_state == idle) & ((axi_state_prev == ack) | (axi_state_prev == readdata));
@@ -438,18 +442,18 @@ module jtag_to_axi_top #(
                 begin
                     trig <= 0;
                     
-                    if (!sync_tapc_axi_in_cta)
+                    if (!sync_tapc_axi_in_cta)   // if axi-in is being accessed externally
                     begin
                         top_state <= IDLE;
                     end
-                    else if (axi_trans_done_detect)
+                    else if (axi_trans_done_detect)   // wait till the ongoing axi transaction completes 
                     begin
                         top_state       <= STORE_IN_JTAG_REG;  
                                                                     
                         if (!axi_rw)    // if read op                         
-                            pi_axi_data_out_temp  <=  axi_slave_dat;                        
+                            pi_axi_data_out_temp  <=  axi_slave_dat;    // store received read data and response in temp register                        
                         else           // if write op                       
-                            pi_axi_data_out_temp  <=  {{axi_slave_dat[(C_S_AXI_DATA_WIDTH + 2) - 1 : (C_S_AXI_DATA_WIDTH + 2) - 2]}, {C_S_AXI_DATA_WIDTH{1'b0}}};
+                            pi_axi_data_out_temp  <=  {{axi_slave_dat[(C_S_AXI_DATA_WIDTH + 2) - 1 : (C_S_AXI_DATA_WIDTH + 2) - 2]}, {C_S_AXI_DATA_WIDTH{1'b0}}};   // store write data and response in temp register
                     end
                     else            
                         top_state <= WAIT_AND_STORE;                    
@@ -458,13 +462,17 @@ module jtag_to_axi_top #(
                 // storing the read data/response when axi_out is clear to access
                 STORE_IN_JTAG_REG:
                 begin
-                    if(!sync_tapc_axi_in_cta | axi_rw)
+                    pi_axi_data_out  <=  pi_axi_data_out_temp;   // :mod_n2:
+                    if(!sync_tapc_axi_in_cta | axi_rw)   // if write op or axi-in is being externally accessed
                     begin
                         top_state <= IDLE;
                     end
-                    else if((sync_tapc_axi_out_cta & axi_out_read_edge) | (first_read_done == 1'b0) | (burst_type == 2'b00 | burst_type == 2'b11))
+                    // if a read op on axi-out has been made through jtag -OR- first read has not been done -OR- there is not burst mode selected 
+//                    else if((sync_tapc_axi_out_cta & axi_out_read_edge) | (first_read_done == 1'b0) | (burst_type == 2'b00 | burst_type == 2'b11))   // :mod_o1:
+                    else if((sync_tapc_axi_out_cta & axi_out_read_edge) | (burst_type == 2'b00 | burst_type == 2'b11))   // :mod_n1:
                     begin
-                        pi_axi_data_out  <=  pi_axi_data_out_temp;
+                        // store the temporary value from temp to axi-out register
+//                        pi_axi_data_out  <=  pi_axi_data_out_temp;    // :mod_o2:
                         top_state        <=  GENERATE_TRIGGER;  
                     end
                     else            
@@ -474,19 +482,19 @@ module jtag_to_axi_top #(
                 // forcing a trigger to start another read in case of burst
                 GENERATE_TRIGGER:
                 begin
-                    if(!axi_rw & sync_tapc_axi_in_cta)    // if read op
+                    if(!axi_rw & sync_tapc_axi_in_cta)    // if read op and axi-in reg is not being accessed by JTAG
                     begin
-                        if(burst_type == 3'b00 | burst_type == 3'b11) // no burst
+                        if(burst_type == 3'b00 | burst_type == 3'b11) // if no burst
                         begin
                             top_state        <=  IDLE;
                         end
-                        else if(burst_type == 3'b01)     // fixed burst
+                        else if(burst_type == 3'b01)     // if fixed burst
                         begin
                             trig      <= 1;
                             top_state <= WAIT_AND_STORE;
                             first_read_done    <= 1'b1;
                         end
-                        else                             // incr burst
+                        else                             // if incremental burst
                         begin
                             trig               <= 1;
                             top_state          <= WAIT_AND_STORE;
