@@ -34,10 +34,7 @@ testbench = 'test_%s' % module
 
 srcs = []
 
-srcs.append("rapidsilicon/ip/i2c_master/v1_0/i2c_master_wrapper/src/i2c_master_wrapper.v")
-srcs.append("rapidsilicon/ip/i2c_master/v1_0/i2c_master_wrapper/src/%s.v" % module)
-srcs.append("rapidsilicon/ip/i2c_master/v1_0/i2c_master_wrapper/src/i2c_master.v")
-srcs.append("rapidsilicon/ip/i2c_master/v1_0/i2c_master_wrapper/src/axis_fifo.v")
+srcs.append("../src/*.v")
 srcs.append("%s.v" % testbench)
 
 src = ' '.join(srcs)

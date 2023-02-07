@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MIT
 DUT = axis_interconnect
 
-$(shell ../$(DUT)_gen.py --build)
-
 all:
 	python3 test_axis_crosspoint_4x4.py
 	@echo "TEST 1 PASSED"
