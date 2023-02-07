@@ -72,6 +72,7 @@ module jtag_to_axi_top #(
                          input  logic                                 w_ready,
                          
                          // read data channel
+                         output logic        [C_S_AXI_ID_WIDTH-1 : 0] r_id,
                          input  logic      [C_S_AXI_DATA_WIDTH-1 : 0] r_data,
                          input  logic                                 r_last,
                          input  logic                                 r_valid,
@@ -80,7 +81,8 @@ module jtag_to_axi_top #(
                          input  logic     [C_S_AXI_RUSER_WIDTH-1 : 0] r_user,
                           
                          // write response channel
-                         input  logic                          [1:0]  b_resp,
+                         output logic        [C_S_AXI_ID_WIDTH-1 : 0] b_id,
+                         input  logic                           [1:0] b_resp,
                          input  logic                                 b_valid,
                          output logic                                 b_ready,
                          input  logic     [C_S_AXI_BUSER_WIDTH-1 : 0] b_user,
