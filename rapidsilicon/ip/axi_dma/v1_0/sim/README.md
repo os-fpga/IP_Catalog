@@ -1,1 +1,8 @@
-Directory for Simulation files
+# Simulation  
+
+This is a Cocotb based simulation for which either `Icarus Verilog` or `Verilator` is required.
+
+Run the following command for simulation:
+```
+./sim.sh
+```  
