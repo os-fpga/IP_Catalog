@@ -30,19 +30,13 @@ DUT      = axis_switch
 WRAPPER  = $(DUT)_wrapper
 TOPLEVEL = $(WRAPPER)
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/axis_register.v
-VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/arbiter.v
-VERILOG_SOURCES += ./rapidsilicon/ip/$(DUT)/v1_0/$(WRAPPER)/src/priority_encoder.v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_ID_ENABLE ?= 1
 export PARAM_S_ID_WIDTH ?= 16
 export PARAM_M_DEST_WIDTH ?= 8
 export PARAM_UPDATE_TID ?= 1
-
-$(shell ../$(DUT)_gen.py --id_en=$(PARAM_ID_ENABLE) --tid=$(PARAM_UPDATE_TID) --s_id_width=$(PARAM_S_ID_WIDTH) --m_dest_width=$(PARAM_M_DEST_WIDTH) --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
@@ -60,7 +54,7 @@ else ifeq ($(SIM), verilator)
 endif
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
-$(shell cp -r ./rapidsilicon sim_build/)
+# $(shell cp -r ./rapidsilicon sim_build/)
 
 iverilog_dump.v:
 	echo 'module iverilog_dump();' > $@

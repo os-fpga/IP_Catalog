@@ -33,10 +33,7 @@ DUT      = axi_interconnect
 WRAPPER	 = $(DUT)_wrapper
 TOPLEVEL = $(WRAPPER)
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_interconnect/v1_0/axi_interconnect_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_interconnect/v1_0/axi_interconnect_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_interconnect/v1_0/axi_interconnect_wrapper/src/arbiter.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_interconnect/v1_0/axi_interconnect_wrapper/src/priority_encoder.v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_DATA_WIDTH ?= 32
@@ -55,8 +52,6 @@ export PARAM_RUSER_ENABLE ?= 0
 export PARAM_RUSER_WIDTH ?= 1
 export PARAM_FORWARD_ID ?= 1
 export PARAM_M_REGIONS ?= 1
-
-$(shell ../$(DUT)_gen.py --s_count=${PARAM_S_COUNT} --m_count=${PARAM_M_COUNT} --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst

@@ -34,8 +34,7 @@ testbench = 'test_%s_4x4_64' % module
 
 srcs = []
 
-srcs.append("rapidsilicon/ip/axis_interconnect/v1_0/axis_interconnect_wrapper/src/axis_interconnect_wrapper.v")
-srcs.append("rapidsilicon/ip/axis_interconnect/v1_0/axis_interconnect_wrapper/src/%s.v" % module)
+srcs.append("../src/*.v")
 srcs.append("%s.v" % testbench)
 
 src = ' '.join(srcs)

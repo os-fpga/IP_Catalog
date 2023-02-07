@@ -190,7 +190,7 @@ class SimSoC(SoCCore):
             o_spiflash4x_cs_n = spiflash4x_cs_n,
             o_spiflash4x_dq   = spiflash4x_dq,
         )
-        platform.add_source("../rapidsilicon/ip/axil_quadspi/v1_0/axil_quadspi/src/axil_quadspi.v")
+        platform.add_source("../src/axil_quadspi.v")
         self.bus.add_slave("axil_quadspi_master", axil_quadspi_master, region=SoCRegion(origin=0x8100_0000, size=0x10000, cached=False))
         self.bus.add_slave("axil_quadspi_mmap",   axil_quadspi_mmap,   region=SoCRegion(origin=0x3000_0000, size=0x10000))
 

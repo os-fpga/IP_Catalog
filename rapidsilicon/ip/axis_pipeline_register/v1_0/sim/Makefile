@@ -29,9 +29,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axis_pipeline_register
 TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_pipeline_register/v1_0/axis_pipeline_register_wrapper/src/$(DUT)_wrapper.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_pipeline_register/v1_0/axis_pipeline_register_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_pipeline_register/v1_0/axis_pipeline_register_wrapper/src/axis_register.v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_DATA_WIDTH ?= 8
@@ -46,8 +44,6 @@ export PARAM_USER_ENABLE ?= 1
 export PARAM_USER_WIDTH ?= 1
 export PARAM_REG_TYPE ?= 2
 export PARAM_LENGTH ?= 2
-
-$(shell ../$(DUT)_gen.py --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst

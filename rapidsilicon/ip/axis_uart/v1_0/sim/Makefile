@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MIT
 DUT = axis_uart
 
-$(shell ../$(DUT)_gen.py --build)
-
 all:
 	python3 test_uart_tx.py
 	@echo "TEST 1 PASSED"
