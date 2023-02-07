@@ -86,7 +86,8 @@ class OCM(Module):
         self.ren_B        = Signal(1)
         
         # Number of Data Out Ports from BRAMS
-        self.bram_out = [Signal(32*n) for i in range(m)]
+        self.bram_out_A = [Signal(32*n) for i in range(m)]
+        self.bram_out_B = [Signal(32*n) for i in range(m)]
         msb = math.ceil(math.log2(write_depth))
         self.comb += self.address_A[0:10].eq(self.addr_A[0:10])
         
@@ -94,7 +95,7 @@ class OCM(Module):
         if (memory_type == "SP"):
             if (write_depth <= 1024):
                 self.comb += If((self.wen_A == 1), self.wen_A1[0].eq(1)).Else(self.wen_A1[0].eq(0))
-                self.comb += self.dout_A.eq(self.bram_out[0])
+                self.comb += self.dout_A.eq(self.bram_out_A[0])
             else:
                 cases = {}
                 for i in range(m):
@@ -103,7 +104,7 @@ class OCM(Module):
                 
                 case_output = {}
                 for i in range(m):
-                    case_output[i] = self.dout_A.eq(self.bram_out[i])
+                    case_output[i] = self.dout_A.eq(self.bram_out_A[i])
                 self.comb += Case(self.addr_A[10:msb], case_output)
                 
         # Simple Dual Port RAM
@@ -111,7 +112,7 @@ class OCM(Module):
             self.comb += self.address_B[0:10].eq(self.addr_B[0:10])
             if (write_depth <= 1024):
                 self.comb += If((self.wen_A == 1), self.wen_A1[0].eq(1)).Else(self.wen_A1[0].eq(0))
-                self.comb += self.dout_B.eq(self.bram_out[0])
+                self.comb += self.dout_B.eq(self.bram_out_B[0])
             else:
                 case1 = {}
                 for i in range(m):
@@ -120,7 +121,7 @@ class OCM(Module):
                 
                 case2 = {}
                 for i in range(m):
-                    case2[i] = self.dout_B.eq(self.bram_out[i])
+                    case2[i] = self.dout_B.eq(self.bram_out_B[i])
                 self.comb += Case(self.addr_B[10:msb], case2)
                 
         # True Dual Port RAM
@@ -129,20 +130,20 @@ class OCM(Module):
             if (write_depth <= 1024):
                 self.comb += If((self.wen_A == 1), self.wen_A1[0].eq(1)).Else(self.wen_A1[0].eq(0))
                 self.comb += If((self.wen_B == 1), self.wen_B1[0].eq(1)).Else(self.wen_B1[0].eq(0))
-                self.comb += self.dout_A.eq(self.bram_out[0])
-                self.comb += self.dout_B.eq(self.bram_out[0])
+                self.comb += self.dout_A.eq(self.bram_out_A[0])
+                self.comb += self.dout_B.eq(self.bram_out_B[0])
 
             else:
                 case1 = {}
                 for i in range(m):
                     case1[i] = (If((self.wen_A == 1), self.wen_A1.eq(1 << i)).Else(self.wen_A1.eq(0)),
-                                self.dout_A.eq(self.bram_out[i]))
+                                self.dout_A.eq(self.bram_out_A[i]))
                 self.comb += Case(self.addr_A[10:msb], case1)
                 
                 case2 = {}
                 for i in range(m):
                     case2[i] = (If((self.wen_B == 1), self.wen_B1.eq(1 << i)).Else(self.wen_B1[i].eq(0)),
-                                self.dout_B.eq(self.bram_out[i]))
+                                self.dout_B.eq(self.bram_out_B[i]))
                 self.comb += Case(self.addr_B[10:msb], case2)
         
         # Single Port RAM
@@ -229,8 +230,8 @@ class OCM(Module):
                 init_i = Instance.PreformattedParam("36864'hx")
                 
                 for j in range(m):
-                    read_data_A1   = self.bram_out[j][(i*32):((i*32)+16)]
-                    read_data_A2   = self.bram_out[j][((i*32)+16):((i*32)+32)]
+                    read_data_A1   = self.bram_out_A[j][(i*32):((i*32)+16)]
+                    read_data_A2   = self.bram_out_A[j][((i*32)+16):((i*32)+32)]
                     # Module instance.
                     # ----------------
                     self.specials += Instance("RS_TDP36K",
@@ -366,8 +367,8 @@ class OCM(Module):
                     ben_B = 1
                 
                 for j in range(m): 
-                    read_data_B1   = self.bram_out[j][(i*32):((i*32)+16)]
-                    read_data_B2   = self.bram_out[j][((i*32)+16):((i*32)+32)]
+                    read_data_B1   = self.bram_out_B[j][(i*32):((i*32)+16)]
+                    read_data_B2   = self.bram_out_B[j][((i*32)+16):((i*32)+32)]
                     
                     if (common_clk == 1):
                         # Module instance.
@@ -566,10 +567,10 @@ class OCM(Module):
                     ben_B = 1
                 
                 for j in range(m): 
-                    read_data_A1    = self.bram_out[j][(i*32):((i*32)+16)]
-                    read_data_A2    = self.bram_out[j][(((i*32)+16)):((i*32)+32)]
-                    read_data_B1    = self.bram_out[j][(i*32):((i*32)+16)]
-                    read_data_B2    = self.bram_out[j][(((i*32)+16)):((i*32)+32)]
+                    read_data_A1    = self.bram_out_A[j][(i*32):((i*32)+16)]
+                    read_data_A2    = self.bram_out_A[j][(((i*32)+16)):((i*32)+32)]
+                    read_data_B1    = self.bram_out_B[j][(i*32):((i*32)+16)]
+                    read_data_B2    = self.bram_out_B[j][(((i*32)+16)):((i*32)+32)]
                     if (common_clk == 1):
                         # Module instance.
                         # ----------------
