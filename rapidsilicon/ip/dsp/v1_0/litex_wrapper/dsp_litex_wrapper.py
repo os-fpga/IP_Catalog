@@ -789,19 +789,17 @@ class RS_DSP_MULT20(Module):
         self.z4 = Signal(38)
         
         self.mult2 = Signal(38+1)
-        self.mult3 = Signal(39+2+k)
+        self.mult3 = Signal(39+k)
         self.mult4 = Signal(a_width + b_width)
         self.z = Signal(a_width + b_width)
         
         
         # Registered Output
         if (reg_in == 0 and reg_out == 1):
-            
-            self.comb += self.mult4.eq(self.z4 * (2**(2*(k))))
+            self.comb += self.mult4.eq(self.z4 << 36)
             self.comb += self.mult2.eq(self.z2 + self.z3)
-            self.comb += self.mult3.eq(self.mult2 * (2**k))
-            self.sync += self.z.eq(self.mult4 + self.mult3 + self.z1)
-            
+            self.comb += self.mult3.eq(self.mult2 << 18)
+            self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
             
             # Module instance.
             # ----------------
@@ -874,11 +872,11 @@ class RS_DSP_MULT20(Module):
             )
             
         elif (reg_in == 1 and reg_out == 1):
-            
-            self.sync += self.mult4.eq(self.z4 * (2**(2*(k))))
-            self.sync += self.mult2.eq(self.z2 + self.z3)
-            self.sync += self.mult3.eq(self.mult2 * (2**k))
-            self.sync += self.z.eq(self.mult4 + self.mult3 + self.z1)
+            self.comb += self.mult4.eq(self.z4 << 36)
+            self.comb += self.mult2.eq(self.z2 + self.z3)
+            self.comb += self.mult3.eq(self.mult2 << 18)
+            self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
+
             
             # Module instance.
             # ----------------
@@ -952,9 +950,9 @@ class RS_DSP_MULT20(Module):
             
         # Registered Input
         elif (reg_in == 1 and reg_out == 0):
-            self.comb += self.mult4.eq(self.z4 * (2**(2*(k))))
+            self.comb += self.mult4.eq(self.z4 << 36)
             self.comb += self.mult2.eq(self.z2 + self.z3)
-            self.comb += self.mult3.eq(self.mult2 * (2**k))
+            self.comb += self.mult3.eq(self.mult2 << 18)
             self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
             
             # Module instance.
@@ -1029,9 +1027,9 @@ class RS_DSP_MULT20(Module):
             
         
         else:
-            self.comb += self.mult4.eq(self.z4 * (2**(2*(k))))
+            self.comb += self.mult4.eq(self.z4 << 36)
             self.comb += self.mult2.eq(self.z2 + self.z3)
-            self.comb += self.mult3.eq(self.mult2 * (2**k))
+            self.comb += self.mult3.eq(self.mult2 << 18)
             self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
             
             # Module instance.
