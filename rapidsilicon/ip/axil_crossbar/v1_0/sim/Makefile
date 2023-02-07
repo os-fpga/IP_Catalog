@@ -32,23 +32,13 @@ export PARAM_M_COUNT ?= 4
 DUT      = axil_crossbar
 TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/$(DUT)_addr.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/$(DUT)_rd.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/$(DUT)_wr.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/axil_register_rd.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/axil_register_wr.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/arbiter.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axil_crossbar/v1_0/axil_crossbar_wrapper/src/priority_encoder.v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_DATA_WIDTH ?= 32
 export PARAM_ADDR_WIDTH ?= 32
 export PARAM_STRB_WIDTH ?= $(shell expr $(PARAM_DATA_WIDTH) / 8 )
 export PARAM_M_REGIONS ?= 1
-
-$(shell ../$(DUT)_gen.py --s_count=${PARAM_S_COUNT} --m_count=${PARAM_M_COUNT} --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
