@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: MIT
 DUT = i2c_slave
 
-$(shell ../$(DUT)_gen.py --build)
-
 all:
 	python3 test_i2c.py
 	@echo "TEST 1 PASSED"

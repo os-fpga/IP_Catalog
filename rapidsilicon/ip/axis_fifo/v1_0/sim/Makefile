@@ -29,8 +29,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axis_fifo
 TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_fifo/v1_0/axis_fifo_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_fifo/v1_0/axis_fifo_wrapper/src/$(DUT).v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_DEPTH ?= 4096
@@ -51,8 +50,6 @@ export PARAM_USER_BAD_FRAME_MASK ?= 1
 export PARAM_DROP_OVERSIZE_FRAME ?= $(PARAM_FRAME_FIFO)
 export PARAM_DROP_BAD_FRAME ?= $(PARAM_DROP_OVERSIZE_FRAME)
 export PARAM_DROP_WHEN_FULL ?= 0
-
-$(shell ../$(DUT)_gen.py --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst

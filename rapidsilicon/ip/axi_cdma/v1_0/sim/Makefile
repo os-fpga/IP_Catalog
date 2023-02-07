@@ -29,11 +29,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axi_cdma
 TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/$(DUT)_desc_mux.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/priority_encoder.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_wrapper/src/arbiter.v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_AXI_DATA_WIDTH = 32
@@ -44,8 +40,6 @@ export PARAM_AXI_MAX_BURST_LEN = 16
 export PARAM_LEN_WIDTH = 20
 export PARAM_TAG_WIDTH = 8
 export PARAM_ENABLE_UNALIGNED = 0
-
-$(shell ../$(DUT)_gen.py --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
