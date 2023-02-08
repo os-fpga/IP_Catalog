@@ -84,6 +84,7 @@ class RS_DSP_Wrapper(Module):
             self.comb += dsp.b.eq(platform.request("b"))
             self.comb += dsp.c.eq(platform.request("c"))
             self.comb += dsp.d.eq(platform.request("d"))
+            
             # Registered Output
             if (reg_out == 1):
                 self.sync += platform.request("z").eq(dsp.z)
@@ -118,7 +119,12 @@ class RS_DSP_Wrapper(Module):
             self.comb += dsp.f.eq(platform.request("f"))
             self.comb += dsp.g.eq(platform.request("g"))
             self.comb += dsp.h.eq(platform.request("h"))
-            self.comb += platform.request("z").eq(dsp.z)
+            
+            # Registered Output
+            if (reg_out == 1):
+                self.sync += platform.request("z").eq(dsp.z)
+            else:
+                self.comb += platform.request("z").eq(dsp.z)
 
 def main():
     # DSP CORE -------------------------------------------------------------------------------------
