@@ -59,18 +59,17 @@ class RS_DSP_Wrapper(Module):
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
                 
-                # Registered Output
-                if (reg_out == 1):
-                    self.sync += platform.request("z").eq(dsp.z)
-                else:
-                    self.comb += platform.request("z").eq(dsp.z)
-                
             else:
                 z_width = a_width + b_width 
                 self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
                 platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
+            
+            # Registered Output
+            if (reg_out == 1):
+                self.sync += platform.request("z").eq(dsp.z)
+            else:
                 self.comb += platform.request("z").eq(dsp.z)
 
         # (A*B)+(C*D)

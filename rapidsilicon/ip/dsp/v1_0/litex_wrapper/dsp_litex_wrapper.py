@@ -46,7 +46,7 @@ class RS_DSP_MULT(Module):
 
         self.a = Signal(a_width)
         self.b = Signal(b_width)
-        self.z = Signal(a_width + b_width + 1)
+        self.z = Signal(a_width + b_width)
         
         if (reg_in == 1 and reg_out == 0):
             # Module instance.
@@ -500,9 +500,9 @@ class RS_DSP_MULT_ABCDEFGH(Module):
             
         elif (reg_in == 0 and reg_out == 1):
             
-            self.sync += self.z12.eq(self.z1 + self.z2)
-            self.sync += self.z34.eq(self.z3 + self.z4)
-            self.sync += self.z.eq(self.z12 + self.z34)
+            self.comb += self.z12.eq(self.z1 + self.z2)
+            self.comb += self.z34.eq(self.z3 + self.z4)
+            self.comb += self.z.eq(self.z12 + self.z34)
             
             # Module instance.
             # ----------------
@@ -588,9 +588,9 @@ class RS_DSP_MULT_ABCDEFGH(Module):
             
         elif (reg_in == 1 and reg_out == 1):
             
-            self.sync += self.z12.eq(self.z1 + self.z2)
-            self.sync += self.z34.eq(self.z3 + self.z4)
-            self.sync += self.z.eq(self.z12 + self.z34)
+            self.comb += self.z12.eq(self.z1 + self.z2)
+            self.comb += self.z34.eq(self.z3 + self.z4)
+            self.comb += self.z.eq(self.z12 + self.z34)
             
             # Module instance.
             # ----------------
