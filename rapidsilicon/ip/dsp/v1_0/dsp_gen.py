@@ -52,9 +52,9 @@ class RS_DSP_Wrapper(Module):
         
         # A*B
         if (feature == "A*B"):
-            if ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
+            if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
                 z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
+                self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
                 platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
@@ -62,6 +62,12 @@ class RS_DSP_Wrapper(Module):
             elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
                 z_width = a_width + b_width 
                 self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
+                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
+                self.comb += dsp.a.eq(platform.request("a"))
+                self.comb += dsp.b.eq(platform.request("b"))
+            elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
+                z_width = a_width + b_width 
+                self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
                 platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
@@ -154,8 +160,8 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 55),     help="A_Input")
-    core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 55),     help="B_Input")
+    core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 73),     help="A_Input")
+    core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 73),     help="B_Input")
     core_range_param_group.add_argument("--c_width",     type=int,       default=20,      choices=range(1, 21),     help="C_Input")
     core_range_param_group.add_argument("--d_width",     type=int,       default=18,      choices=range(1, 19),     help="D_Input")
     core_range_param_group.add_argument("--e_width",     type=int,       default=20,      choices=range(1, 21),     help="E_Input")
