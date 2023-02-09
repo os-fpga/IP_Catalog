@@ -8,10 +8,6 @@ import os
 import sys
 import argparse
 
-from litex_wrapper.vexriscv_cpu_litex_wrapper import vexriscv_nocache_nommu
-from litex_wrapper.vexriscv_cpu_litex_wrapper import vexriscv_linux_mmu
-from litex_wrapper.vexriscv_cpu_litex_wrapper import vexriscv_plic_clint
-
 from migen import *
 
 from litex.build.generic_platform import *
@@ -102,7 +98,7 @@ def get_other_ios(n):
             
 
 # AXI-VEXRISCV Wrapper --------------------------------------------------------------------------------
-class VexriscvWrapper(Module):
+class GeminiPSSWrapper(Module):
     def __init__(self, platform, base_variant, cached_with_mmu, cached_with_mmu_plic_clint):
         
         # Clocking
@@ -206,7 +202,7 @@ class VexriscvWrapper(Module):
 
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="Vexriscv CORE")
+    parser = argparse.ArgumentParser(description="Rapid Silicon Gemini PSS")
 
     # Import Common Modules.
     common_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib")
@@ -219,20 +215,15 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="vexriscv_cpu", language="verilog")
-
-   # Core bool value parameters
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--base_variant",   type=bool,  default=False,  help="VEXRISCV Uncached without MMU")
-    core_bool_param_group.add_argument("--cached_with_mmu",               type=bool,  default=False,  help="VEXRISCV Cached with MMU")
-    core_bool_param_group.add_argument("--cached_with_mmu_plic_clint",        type=bool,  default=False,  help="VEXRISCV Cached with MMU, PLIC and CLINT")
+    rs_builder = IP_Builder(device="gemini", ip_name="gemini_pss", language="verilog")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="vexriscv_cpu_wrapper",     help="Build Folder Name, Build RTL File Name and Module Name")
-
+    build_group.add_argument("--build-name",    default="gemini_pss_wrapper",     help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--lang",   default="verilog",  help="Gemini PSS wrapper RTL language")
+    
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                    help="Generate Core from JSON File")
@@ -254,7 +245,7 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = VexriscvWrapper(platform, base_variant=args.base_variant, cached_with_mmu=args.cached_with_mmu, cached_with_mmu_plic_clint=args.cached_with_mmu_plic_clint)
+    module   = GeminiPSSWrapper(platform, base_variant=args.base_variant, cached_with_mmu=args.cached_with_mmu, cached_with_mmu_plic_clint=args.cached_with_mmu_plic_clint)
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
