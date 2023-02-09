@@ -664,6 +664,7 @@ set_pin_loc "fpga_axi_m1_w_strb[3]"	"m1_wstrb_3_o"
 set_pin_loc "fpga_axi_m1_w_valid"	"m1_wvalid_o"
 set_pin_loc "rst_n_fpga1"	"m1_aresetn_i"
 
+## IRQ requests from FPGA to SoC
 set_pin_loc "fpga_irq_src[0]"	"cpu_irq_0_o"
 set_pin_loc "fpga_irq_src[1]"	"cpu_irq_1_o"
 set_pin_loc "fpga_irq_src[2]"	"cpu_irq_2_o"
@@ -681,21 +682,24 @@ set_pin_loc "fpga_irq_src[13]"	"cpu_irq_13_o"
 set_pin_loc "fpga_irq_src[14]"	"cpu_irq_14_o"
 set_pin_loc "fpga_irq_src[15]"	"cpu_irq_15_o"
 
-set_pin_loc "rst_n_fpga_fabric_irq"	"irq_rst_n_o"
-
+## DMA Acknowledgement from SoC to FPGA
 set_pin_loc "dma_ack_fpga[0]"	"dma_ack_0_i"
 set_pin_loc "dma_ack_fpga[1]"	"dma_ack_1_i"
 set_pin_loc "dma_ack_fpga[2]"	"dma_ack_2_i"
 set_pin_loc "dma_ack_fpga[3]"	"dma_ack_3_i"
 
+## DMA Requests from FPGA to SoC
 set_pin_loc "dma_req_fpga[0]"	"dma_req_0_o"
 set_pin_loc "dma_req_fpga[1]"	"dma_req_1_o"
 set_pin_loc "dma_req_fpga[2]"	"dma_req_2_o"
 set_pin_loc "dma_req_fpga[3]"	"dma_req_3_o"
 
+## Reset signals from FPGA to SoC
 set_pin_loc "rst_n_fpga_fabric_dma"	"dma_rst_n_o"
-set_pin_loc "rst_n_fpga_fabric_gpio	gpio_rst_n_o"
+set_pin_loc "rst_n_fpga_fabric_gpio"	"gpio_rst_n_o"
+set_pin_loc "rst_n_fpga_fabric_irq"	"irq_rst_n_o"
 
+## IRQ Signals from SoC-to-FPGA
 set_pin_loc "fpga_irq_set[0]"	"rsvd_3_irq_i"
 set_pin_loc "fpga_irq_set[1]"	"timer_irq_i"
 set_pin_loc "fpga_irq_set[2]"	"usb_irq_i"
@@ -711,5 +715,4 @@ set_pin_loc "fpga_irq_set[11]"	"rsvd_0_irq_i"
 set_pin_loc "fpga_irq_set[12]"	"rsvd_1_irq_i"
 set_pin_loc "fpga_irq_set[13]"	"fpga0_mb_irq_i"
 set_pin_loc "fpga_irq_set[14]"	"fpga1_mb_irq_i"
-set_pin_loc "fpga_irq_set[15]"	"pufcc_irq_i"
 set_pin_loc "fpga_irq_set[15]"	"pufcc_irq_i"
