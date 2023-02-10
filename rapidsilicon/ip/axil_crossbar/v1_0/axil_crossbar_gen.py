@@ -87,7 +87,7 @@ def main():
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width",     default=32,   choices=[8, 16, 32, 64, 128, 256],  type=int,   help="Crossbar Data Width.")
+    core_fix_param_group.add_argument("--data_width",     default=32,   choices=[32, 64],  type=int,   help="Crossbar Data Width.")
     core_fix_param_group.add_argument("--addr_width",     default=32,   choices=[32, 64, 128, 256],         type=int,   help="Crossbar Address Width.")
 
     # Core range value parameters.

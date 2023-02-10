@@ -77,7 +77,7 @@ def main():
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[8, 16, 32],   help="GPIO Data Width.")
+    core_fix_param_group.add_argument("--data_width", type=int, default=32, choices=[32,64],   help="GPIO Data Width.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
