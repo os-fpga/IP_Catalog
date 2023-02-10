@@ -67,7 +67,7 @@ jobs:
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8  --build-name=dpram_wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --build-name=ram_wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_register/v1_0/axi_register_gen.py --data_width=64 --addr_width=32 --build-name=register_wrapper --build
-        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8  --build-name=gpio_wrapper --build
+        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_gpio/v1_0/axil_gpio_gen.py --data_width=32 --addr_width=8  --build-name=gpio_wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_uart16550/v1_0/axil_uart16550_gen.py --addr_width=8 --data_width=32  --build-name=uart_wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_gen.py --addr_width=8 --data_width=32  --build-name=cdma --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_dma/v1_0/axi_dma_gen.py --axi_data_width=32 --axi_addr_width=8  --build-name=dma --build
@@ -89,6 +89,8 @@ jobs:
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_bridge_gen.py --data_width=256 --addr_width=8 --build-name=wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_quadspi/v1_0/axil_quadspi_gen.py --build-name=wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_ocla/v1_0/axil_ocla_gen.py --build-name=axil_ocla_wrapper --build
+        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_async_fifo/v1_0/axi_async_fifo_gen.py --data_width=32 --depth=64 --build
+        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_async_fifo/v1_0/axis_async_fifo_gen.py --data_width=32 --depth=64 --build
 
 #--------------------------CentOS------------------------------------
   centos7-gcc:
@@ -171,7 +173,7 @@ jobs:
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_gen.py --data_width=32 --addr_width=8 --json-template --build-name=dpram_wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_ram/v1_0/axi_ram_gen.py --data_width=32 --addr_width=8 --json-template --build-name=ram_wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_register/v1_0/axi_register_gen.py --data_width=64 --addr_width=32 --json-template --build-name=register_wrapper --build
-           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_gpio/v1_0/axil_gpio_gen.py --data_width=16 --addr_width=8 --json-template --build-name=gpio_wrapper --build
+           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_gpio/v1_0/axil_gpio_gen.py --data_width=32 --addr_width=8 --json-template --build-name=gpio_wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_uart16550/v1_0/axil_uart16550_gen.py --addr_width=8 --data_width=32 --json-template --build-name=uart_wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_cdma/v1_0/axi_cdma_gen.py --addr_width=8 --data_width=32 --json-template --build-name=cdma --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_dma/v1_0/axi_dma_gen.py --axi_data_width=32 --axi_addr_width=8 --json-template --build-name=dma --build
