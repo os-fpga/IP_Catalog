@@ -98,7 +98,7 @@ def main():
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--addr_width",       type=int,       default=16,     choices=[8, 16, 32],        help="UART Address Width.")
-    core_fix_param_group.add_argument("--data_width",       type=int,       default=32,     choices=[8, 16, 32, 64],    help="UART Data Width.")
+    core_fix_param_group.add_argument("--data_width",       type=int,       default=32,     choices=[32, 64],    help="UART Data Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
