@@ -44,11 +44,13 @@ def get_clkin_ios(data_width, write_depth):
 
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
-    def __init__(self, platform, data_width, memory_type, common_clk, write_depth):
+    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(data_width, write_depth))
         self.clock_domains.cd_sys  = ClockDomain()
-        self.submodules.sp = ram = OCM(platform, data_width, memory_type, common_clk, write_depth)
+        self.clock_domains.cd_clk1  = ClockDomain()
+        self.clock_domains.cd_clk2  = ClockDomain()
+        self.submodules.sp = ram = OCM(platform, data_width, memory_type, common_clk, write_depth, bram)
         
         # Single Port RAM
         if (memory_type == "SP"):
@@ -71,8 +73,8 @@ class OCMWrapper(Module):
             if (common_clk == 1):
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
             else:
-                self.comb += ram.clk_A.eq(platform.request("clk_A"))
-                self.comb += ram.clk_B.eq(platform.request("clk_B"))
+                self.comb += self.cd_clk1.clk.eq(platform.request("clk_A"))
+                self.comb += self.cd_clk2.clk.eq(platform.request("clk_B"))
                 
         # True Dual Port
         elif (memory_type == "TDP"):
@@ -90,8 +92,8 @@ class OCMWrapper(Module):
             if (common_clk == 1):
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
             else:
-                self.comb += ram.clk_A.eq(platform.request("clk_A"))
-                self.comb += ram.clk_B.eq(platform.request("clk_B"))
+                self.comb += self.cd_clk1.clk.eq(platform.request("clk_A"))
+                self.comb += self.cd_clk2.clk.eq(platform.request("clk_B"))
             
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -121,10 +123,11 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth")
-    
+
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock")
+    core_bool_param_group.add_argument("--bram",        type=bool,   default=False,     help="BRAM vs Distributed Memory")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -153,7 +156,8 @@ def main():
         memory_type     = args.memory_type,
         data_width      = args.data_width,
         write_depth     = args.write_depth,
-        common_clk      = args.common_clk
+        common_clk      = args.common_clk,
+        bram            = args.bram
     )
 
     # Build Project --------------------------------------------------------------------------------
@@ -169,6 +173,20 @@ def main():
             platform   = platform,
             module     = module
         )
+        
+        # DRAM
+        if (args.bram == 0):
+            wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
+            with open (wrapper, "r") as file:
+                lines = file.readlines()
+                for i, line in enumerate(lines):
+                    if "Port" in line:
+                        lines.insert(i, "(* ram_style = \"logic\" *)\n\n")
+                        break
+
+            with open(os.path.join(wrapper), "w") as file:
+                file.writelines(lines)
 
 if __name__ == "__main__":
     main()
+    
