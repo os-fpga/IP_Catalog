@@ -14,7 +14,12 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
+logging.info("IP GENERATION for AXI CDMA V1_0")
 
 # AXI CDMA ---------------------------------------------------------------------------------------
 class AXICDMA(Module):
