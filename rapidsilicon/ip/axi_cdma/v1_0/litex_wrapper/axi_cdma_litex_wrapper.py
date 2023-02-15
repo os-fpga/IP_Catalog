@@ -8,6 +8,7 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_cdma.v
 
 import os
+import datetime
 import logging
 
 from migen import *
