@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-# LiteX wrapper around Alex Forencich Verilog-AXI's axicdma.v
+# LiteX wrapper around ZipCPU Verilog-AXI's axicdma.v
 
 import os
 import logging
@@ -94,7 +94,7 @@ class AXICDMA(Module):
             i_M_AXI_BID                 = axi.b.id,
             i_M_AXI_BREADY              = axi.b.resp,
             i_M_AXI_BVALID              = axi.b.valid,
-         #   o_M_AXI_BREADY              = axi.b.ready,
+            o_M_AXI_BREADY              = axi.b.ready,
 
             # AR.
             o_M_AXI_ARID               = axi.ar.id,
