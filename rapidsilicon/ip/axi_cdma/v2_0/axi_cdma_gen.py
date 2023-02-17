@@ -88,15 +88,15 @@ def main():
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--axi_data_width",        type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
-    core_fix_param_group.add_argument("--axi_addr_width",        type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
-    core_fix_param_group.add_argument("--axil_data_width",       type=int,      default=32,     choices=[32],                      help="DMA Data Width.")
-    core_fix_param_group.add_argument("--axil_addr_width",       type=int,      default=5,      choices=range(1, 65),              help="DMA Data Width.")
+    core_fix_param_group.add_argument("--axi_data_width",        type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256], help="CDMA AXI4 full Data Width.")
+    core_fix_param_group.add_argument("--axi_addr_width",        type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256], help="CDMA AXI4 full addr Width.")
+    core_fix_param_group.add_argument("--axil_data_width",       type=int,      default=32,     choices=[32],                      help="CDMA AXI4 lite Data Width.")
+    core_fix_param_group.add_argument("--axil_addr_width",       type=int,      default=5,      choices=range(1, 65),              help="CDMA AXI4 lite addr Width.")
 
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--id_width",          type=int,    default=8,      choices=range(1, 33),    help="DMA ID Width.")
+    core_range_param_group.add_argument("--id_width",          type=int,    default=8,      choices=range(1, 33),    help="CDMA ID Width.")
     
     
     # Build Parameters.
