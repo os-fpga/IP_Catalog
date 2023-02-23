@@ -92,7 +92,7 @@ class AXICDMA(Module):
 
             # B.
             i_M_AXI_BID                 = axi.b.id,
-            i_M_AXI_BREADY              = axi.b.resp,
+            i_M_AXI_BRESP              = axi.b.resp,
             i_M_AXI_BVALID              = axi.b.valid,
             o_M_AXI_BREADY              = axi.b.ready,
 
