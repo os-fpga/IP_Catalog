@@ -160,8 +160,8 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 69),     help="A_Input")
-    core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 69),     help="B_Input")
+    core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 73),     help="A_Input")
+    core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 73),     help="B_Input")
     core_range_param_group.add_argument("--c_width",     type=int,       default=20,      choices=range(1, 21),     help="C_Input")
     core_range_param_group.add_argument("--d_width",     type=int,       default=18,      choices=range(1, 19),     help="D_Input")
     core_range_param_group.add_argument("--e_width",     type=int,       default=20,      choices=range(1, 21),     help="E_Input")
@@ -173,8 +173,8 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned_a",  type=bool,    default=False,     help="Unsigned Input A")
-    core_bool_param_group.add_argument("--unsigned_b",  type=bool,    default=False,     help="Unsigned Input B")
+    core_bool_param_group.add_argument("--unsigned_a",  type=bool,    default=True,     help="Unsigned Input A")
+    core_bool_param_group.add_argument("--unsigned_b",  type=bool,    default=True,     help="Unsigned Input B")
     core_bool_param_group.add_argument("--unsigned_c",  type=bool,    default=True,     help="Unsigned Input C")
     core_bool_param_group.add_argument("--unsigned_d",  type=bool,    default=True,     help="Unsigned Input D")
     core_bool_param_group.add_argument("--unsigned_e",  type=bool,    default=True,     help="Unsigned Input E")
