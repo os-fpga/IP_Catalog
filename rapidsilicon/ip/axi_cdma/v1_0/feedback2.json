@@ -1,0 +1,14 @@
+{
+    "data_width": 32,
+    "enable_unaligned": 1,
+    "addr_width": 51,
+    "id_width": 8,
+    "axi_max_burst_len": 16,
+    "len_width": 20,
+    "tag_width": 8,
+    "build_dir": "/nfs_home/iparapid/bahmed/project_21/project_21.IPs",
+    "build_name": "axi_cdma_wrapper",
+    "build": true,
+    "json": "axi_cdma_v1_0_axi_cdma_wrapper.json",
+    "json_template": false
+ }

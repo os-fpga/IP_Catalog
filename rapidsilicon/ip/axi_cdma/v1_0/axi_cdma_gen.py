@@ -142,7 +142,23 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        print(type(args_1))
+        print(args_1)
+        for key, value in vars(args).items():
+            if args_1.addr_width < 50:
+#                print(parser._actions[1].choices)
+                parser._actions[1].choices = [1, 2, 3, 4]
+                args = parser.parse_args()
+#                print(parser._actions[1].choices)
+
+#                print("Addr_width is less than 50 so capping data width to 32")
+
+        #    print(f"{key}: {value}")
+        args = parser.parse_args()
+#        print(parser._actions[1].choices)
+
+#        print("Parsing args again ----------------------------------------------")
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
