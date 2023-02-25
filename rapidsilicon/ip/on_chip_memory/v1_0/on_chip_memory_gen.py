@@ -117,12 +117,13 @@ def main():
     core_string_param_group.add_argument("--memory_type",    type=str,   default="SP",   choices=["SP", "SDP", "TDP"],   help="RAM Type")
     
     # Core fix value parameters.
-    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width",   type=int,       default=32,      choices=[32, 64, 96, 128],      help="RAM Write/Read Width")
+    # core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    # core_fix_param_group.add_argument("--data_width",   type=int,       default=32,      choices=[32, 64, 96, 128],      help="RAM Write/Read Width")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth")
+    core_range_param_group.add_argument("--data_width",    type=int,   default=32,         choices=range(1,129),         help="RAM Write/Read Width")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
