@@ -94,15 +94,15 @@ class OCM(Module):
 
             if (MEMORY_SIZE <= 36864):
                 # Single Port RAM
-                if (memory_type == "SP"):
+                if (memory_type == "Single_Port"):
                     self.comb += If((self.wen_A == 1), self.wen_A1[0].eq(1)).Else(self.wen_A1[0].eq(0))
                     self.comb += self.dout_A.eq(self.bram_out_A[0])
                 # Simple Dual Port RAM
-                elif (memory_type == "SDP"):
+                elif (memory_type == "Simple_Dual_Port"):
                     self.comb += If((self.wen_A == 1), self.wen_A1[0].eq(1)).Else(self.wen_A1[0].eq(0))
                     self.comb += self.dout_B.eq(self.bram_out_B[0])
                 # True Dual Port RAM
-                elif (memory_type == "TDP"):
+                elif (memory_type == "True_Dual_Port"):
                     self.comb += If((self.wen_A == 1), self.wen_A1[0].eq(1)).Else(self.wen_A1[0].eq(0))
                     self.comb += If((self.wen_B == 1), self.wen_B1[0].eq(1)).Else(self.wen_B1[0].eq(0))
                     self.comb += self.dout_A.eq(self.bram_out_A[0])
@@ -110,7 +110,7 @@ class OCM(Module):
                     
             else:
                 # Single Port RAM
-                if (memory_type == "SP"):
+                if (memory_type == "Single_Port"):
                     self.comb += self.address_A[0:10].eq(self.addr_A[0:10])
                     cases = {}
                     for i in range(m):
@@ -126,7 +126,7 @@ class OCM(Module):
                         self.comb += self.dout_A.eq(self.bram_out_A[0])
                         
                 # Simple Dual Port RAM
-                elif (memory_type == "SDP"):
+                elif (memory_type == "Simple_Dual_Port"):
                     self.comb += self.address_A[0:10].eq(self.addr_A[0:10])
                     self.comb += self.address_B[0:10].eq(self.addr_B[0:10])
                     case1 = {}
@@ -142,7 +142,7 @@ class OCM(Module):
                     if (write_depth > 1024):
                         self.comb += Case(self.addr_B[10:msb], case2)
                 # True Dual Port RAM
-                elif (memory_type == "TDP"):
+                elif (memory_type == "True_Dual_Port"):
                     self.comb += self.address_A[0:10].eq(self.addr_A[0:10])
                     self.comb += self.address_B[0:10].eq(self.addr_B[0:10])
                     case1 = {}
@@ -163,7 +163,7 @@ class OCM(Module):
                         self.comb += self.dout_B.eq(self.bram_out_B[0])
 
             # Single Port RAM
-            if (memory_type == "SP"):
+            if (memory_type == "Single_Port"):
                 y = data_width - 36*(n-1)
                 # Number of BRAMS
                 for i in range(n):
@@ -317,7 +317,7 @@ class OCM(Module):
                 )
 
             # Simple Dual Port RAM
-            elif (memory_type == "SDP"):
+            elif (memory_type == "Simple_Dual_Port"):
                 y = data_width - 36*(n-1)
                 for i in range(n):
                     if (n == (i+1)):
@@ -538,7 +538,7 @@ class OCM(Module):
                         )
 
             # True Dual Port RAM
-            elif (memory_type == "TDP"):
+            elif (memory_type == "True_Dual_Port"):
                 y = data_width - 36*(n-1)
                 for i in range(n):
                     if (n == (i+1)):
@@ -793,7 +793,7 @@ class OCM(Module):
         # DRAM
         else:
             self.specials.memory = Memory(width=data_width, depth=write_depth)
-            if (memory_type == "SP"):
+            if (memory_type == "Single_Port"):
                 self.port = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True)
                 self.specials += self.port
 
@@ -805,7 +805,7 @@ class OCM(Module):
                 self.dout_A.eq(self.port.dat_r),
                 ]
 
-            elif (memory_type == "SDP"):
+            elif (memory_type == "Simple_Dual_Port"):
                 if (common_clk == 1):
                     self.port_A = self.memory.get_port(write_capable=True, async_read=True, mode=WRITE_FIRST, has_re=False, clock_domain="sys")
                     self.specials += self.port_A
@@ -826,7 +826,7 @@ class OCM(Module):
                 self.dout_B.eq(self.port_B.dat_r),
                 ]
                 
-            elif (memory_type == "TDP"):
+            elif (memory_type == "True_Dual_Port"):
                 if (common_clk == 1):
                     self.port_A = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="sys")
                     self.specials += self.port_A

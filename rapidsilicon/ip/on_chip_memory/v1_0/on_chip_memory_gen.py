@@ -53,7 +53,7 @@ class OCMWrapper(Module):
         self.submodules.sp = ram = OCM(platform, data_width, memory_type, common_clk, write_depth, bram)
         
         # Single Port RAM
-        if (memory_type == "SP"):
+        if (memory_type == "Single_Port"):
             self.comb += ram.addr_A.eq(platform.request("addr_A"))
             self.comb += ram.din_A.eq(platform.request("din_A"))
             self.comb += platform.request("dout_A").eq(ram.dout_A)
@@ -62,7 +62,7 @@ class OCMWrapper(Module):
             self.comb += ram.ren_A.eq(platform.request("ren_A"))
         
         # Simple Dual Port RAM
-        elif (memory_type == "SDP"):
+        elif (memory_type == "Simple_Dual_Port"):
             self.comb += ram.addr_A.eq(platform.request("addr_A"))
             self.comb += ram.din_A.eq(platform.request("din_A"))
             self.comb += ram.addr_B.eq(platform.request("addr_B"))
@@ -77,7 +77,7 @@ class OCMWrapper(Module):
                 self.comb += self.cd_clk2.clk.eq(platform.request("clk_B"))
                 
         # True Dual Port
-        elif (memory_type == "TDP"):
+        elif (memory_type == "True_Dual_Port"):
             self.comb += ram.addr_A.eq(platform.request("addr_A"))
             self.comb += ram.din_A.eq(platform.request("din_A"))
             self.comb += ram.addr_B.eq(platform.request("addr_B"))
@@ -114,7 +114,7 @@ def main():
 
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--memory_type",    type=str,   default="SP",   choices=["SP", "SDP", "TDP"],   help="RAM Type")
+    core_string_param_group.add_argument("--memory_type",    type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
     
     # Core fix value parameters.
     # core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
