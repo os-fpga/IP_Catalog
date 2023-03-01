@@ -34,10 +34,7 @@ testbench = 'test_%s' % module
 
 srcs = []
 
-srcs.append("rapidsilicon/ip/axis_uart/v1_0/axis_uart_wrapper/src/axis_uart_wrapper.v")
-srcs.append("rapidsilicon/ip/axis_uart/v1_0/axis_uart_wrapper/src/uart.v")
-srcs.append("rapidsilicon/ip/axis_uart/v1_0/axis_uart_wrapper/src/uart_tx.v")
-srcs.append("rapidsilicon/ip/axis_uart/v1_0/axis_uart_wrapper/src/%s.v" % module)
+srcs.append("../src/*.v")
 srcs.append("%s.v" % testbench)
 
 src = ' '.join(srcs)

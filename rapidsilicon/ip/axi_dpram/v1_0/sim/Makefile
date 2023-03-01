@@ -29,11 +29,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axi_dp_ram
 TOPLEVEL = axi_dpram_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_ram_wr_rd_if.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_ram_wr_if.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_dpram/v1_0/axi_dpram_wrapper/src/axi_ram_rd_if.v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_DATA_WIDTH ?= 32
@@ -41,8 +37,6 @@ export PARAM_ADDR_WIDTH ?= 16
 export PARAM_STRB_WIDTH ?= $(shell expr $(PARAM_DATA_WIDTH) / 8 )
 export PARAM_ID_WIDTH ?= 8
 export PARAM_PIPELINE_OUTPUT ?= 0
-
-$(shell ../axi_dpram_gen.py --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst

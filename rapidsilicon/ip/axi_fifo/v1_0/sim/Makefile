@@ -29,10 +29,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axi_fifo
 TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_fifo/v1_0/axi_fifo_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_fifo/v1_0/axi_fifo_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_fifo/v1_0/axi_fifo_wrapper/src/$(DUT)_wr.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_fifo/v1_0/axi_fifo_wrapper/src/$(DUT)_rd.v
+VERILOG_SOURCES += ../src/*.v
 
 REG_TYPE ?= 2
 
@@ -55,8 +52,6 @@ export PARAM_WRITE_FIFO_DEPTH ?= 32
 export PARAM_READ_FIFO_DEPTH ?= 32
 export PARAM_WRITE_FIFO_DELAY ?= 0
 export PARAM_READ_FIFO_DELAY ?= 0
-
-$(shell ../$(DUT)_gen.py --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst

@@ -29,11 +29,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axi_register
 TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_register/v1_0/axi_register_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_register/v1_0/axi_register_wrapper/src/$(DUT).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_register/v1_0/axi_register_wrapper/src/$(DUT)_wr.v
-VERILOG_SOURCES += ./rapidsilicon/ip/axi_register/v1_0/axi_register_wrapper/src/$(DUT)_rd.v
-
+VERILOG_SOURCES += ../src/*.v
 REG_TYPE ?= 2
 
 # module parameters
@@ -56,8 +52,6 @@ export PARAM_W_REG_TYPE ?= $(REG_TYPE)
 export PARAM_B_REG_TYPE ?= $(REG_TYPE)
 export PARAM_AR_REG_TYPE ?= $(REG_TYPE)
 export PARAM_R_REG_TYPE ?= $(REG_TYPE)
-
-$(shell ../$(DUT)_gen.py --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
