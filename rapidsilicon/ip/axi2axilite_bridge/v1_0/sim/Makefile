@@ -32,14 +32,8 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axi2axilite_bridge
 TOPLEVEL = axi2axilite_wrapper
 MODULE   = test_$(TOPLEVEL)
-VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_wrapper/src/axi2axilite_wrapper.v
-VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_wrapper/src/axi2axilite.v
-VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_wrapper/src/axi_addr.v
-VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_wrapper/src/sfifo.v
-VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_wrapper/src/skidbuffer.v
+VERILOG_SOURCES += ../src/*.v
 
-
-$(shell ../$(DUT)_gen.py --data_width=32 --addr_width=16 --id_width=2 --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst

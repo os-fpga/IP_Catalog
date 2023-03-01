@@ -29,8 +29,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 DUT      = axis_adapter
 TOPLEVEL = $(DUT)_wrapper
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_adapter/v1_0/axis_adapter_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_adapter/v1_0/axis_adapter_wrapper/src/$(DUT).v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_S_DATA_WIDTH ?= 8
@@ -46,8 +45,6 @@ export PARAM_DEST_ENABLE ?= 1
 export PARAM_DEST_WIDTH ?= 8
 export PARAM_USER_ENABLE ?= 1
 export PARAM_USER_WIDTH ?= 1
-
-$(shell ../$(DUT)_gen.py --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst

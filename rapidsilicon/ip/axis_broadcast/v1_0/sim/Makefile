@@ -32,8 +32,7 @@ DUT      = axis_broadcast
 WRAPPER  = $(DUT)_wrapper
 TOPLEVEL = $(WRAPPER)
 MODULE   = test_$(DUT)
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_wrapper/src/$(TOPLEVEL).v
-VERILOG_SOURCES += ./rapidsilicon/ip/axis_broadcast/v1_0/axis_broadcast_wrapper/src/$(DUT).v
+VERILOG_SOURCES += ../src/*.v
 
 # module parameters
 export PARAM_DATA_WIDTH ?= 8
@@ -46,8 +45,6 @@ export PARAM_DEST_ENABLE ?= 1
 export PARAM_DEST_WIDTH ?= 8
 export PARAM_USER_ENABLE ?= 1
 export PARAM_USER_WIDTH ?= 1
-
-$(shell ../$(DUT)_gen.py --m_count=${M_COUNT} --build)
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
