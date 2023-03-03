@@ -39,7 +39,7 @@ def get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_wid
     ]
 
 class RS_DSP_Wrapper(Module):
-    def __init__(self, platform, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, unsigned_a, unsigned_b, unsigned_c, unsigned_d, unsigned_e, unsigned_f, unsigned_g, unsigned_h):
+    def __init__(self, platform, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, unsigned):
     
     # Clocking
         self.clock_domains.cd_sys = ClockDomain()
@@ -54,7 +54,7 @@ class RS_DSP_Wrapper(Module):
         if (feature == "A*B"):
             if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
                 z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, feature, unsigned_a, unsigned_b)
+                self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, feature, unsigned, )
                 platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
@@ -64,7 +64,7 @@ class RS_DSP_Wrapper(Module):
 
             elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
                 z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, feature, unsigned_a, unsigned_b)
+                self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, feature, unsigned, )
                 platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
@@ -73,7 +73,7 @@ class RS_DSP_Wrapper(Module):
                 self.comb += platform.request("z").eq(dsp.z)
             elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
                 z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, feature, unsigned_a, unsigned_b)
+                self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, feature, unsigned, )
                 platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
@@ -82,7 +82,7 @@ class RS_DSP_Wrapper(Module):
                 self.comb += platform.request("z").eq(dsp.z)
             else:
                 z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, feature, unsigned_a, unsigned_b)
+                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, feature, unsigned, )
                 platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
@@ -99,7 +99,7 @@ class RS_DSP_Wrapper(Module):
                 z_width = a_width + b_width
             else:
                 z_width = c_width + d_width
-            self.submodules.dsp = dsp = RS_DSP_MULT_ABCD(a_width, b_width, c_width, d_width, feature, reg_in, reg_out, unsigned_a, unsigned_b, unsigned_c, unsigned_d)
+            self.submodules.dsp = dsp = RS_DSP_MULT_ABCD(a_width, b_width, c_width, d_width, feature, reg_in, reg_out, unsigned)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             self.comb += dsp.a.eq(platform.request("a"))
             self.comb += dsp.b.eq(platform.request("b"))
@@ -130,7 +130,7 @@ class RS_DSP_Wrapper(Module):
             else:
                 z_width = z34_width
                 
-            self.submodules.dsp = dsp = RS_DSP_MULT_ABCDEFGH(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, unsigned_a, unsigned_b, unsigned_c, unsigned_d, unsigned_e, unsigned_f, unsigned_g, unsigned_h)
+            self.submodules.dsp = dsp = RS_DSP_MULT_ABCDEFGH(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, unsigned)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             self.comb += dsp.a.eq(platform.request("a"))
             self.comb += dsp.b.eq(platform.request("b"))
@@ -180,14 +180,7 @@ def main():
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--unsigned_a",  type=bool,    default=True,     help="Unsigned Input A")
-    core_bool_param_group.add_argument("--unsigned_b",  type=bool,    default=True,     help="Unsigned Input B")
-    core_bool_param_group.add_argument("--unsigned_c",  type=bool,    default=True,     help="Unsigned Input C")
-    core_bool_param_group.add_argument("--unsigned_d",  type=bool,    default=True,     help="Unsigned Input D")
-    core_bool_param_group.add_argument("--unsigned_e",  type=bool,    default=True,     help="Unsigned Input E")
-    core_bool_param_group.add_argument("--unsigned_f",  type=bool,    default=True,     help="Unsigned Input F")
-    core_bool_param_group.add_argument("--unsigned_g",  type=bool,    default=True,     help="Unsigned Input G")
-    core_bool_param_group.add_argument("--unsigned_h",  type=bool,    default=True,     help="Unsigned Input H")
+    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=False,     help="Unsigned Input")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -222,14 +215,7 @@ def main():
         g_width     = args.g_width,
         h_width     = args.h_width,
         feature     = args.feature,
-        unsigned_a  = args.unsigned_a,
-        unsigned_b  = args.unsigned_b,
-        unsigned_c  = args.unsigned_c,
-        unsigned_d  = args.unsigned_d,
-        unsigned_e  = args.unsigned_e,
-        unsigned_f  = args.unsigned_f,
-        unsigned_g  = args.unsigned_g,
-        unsigned_h  = args.unsigned_h
+        unsigned  = args.unsigned
     )
     
     # Build Project --------------------------------------------------------------------------------
