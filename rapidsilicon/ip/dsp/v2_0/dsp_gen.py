@@ -126,6 +126,7 @@ def main():
     module   = RS_DSP_Wrapper(platform,
         a_width     = args.a_width,
         b_width     = args.b_width,
+        feature     = args.feature,
         unsigned  = args.unsigned
     )
     
