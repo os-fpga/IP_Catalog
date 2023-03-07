@@ -25,37 +25,27 @@ def get_clkin_ios():
         ("reset",    0, Pins(1))
     ]
 
-def get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width):
+def get_ios(a_width, b_width, z_width):
     return [
         ("a",   0, Pins(a_width)),
         ("b",   0, Pins(b_width)),
-        ("c",   0, Pins(c_width)),
-        ("d",   0, Pins(d_width)),
-        ("e",   0, Pins(e_width)),
-        ("f",   0, Pins(f_width)),
-        ("g",   0, Pins(g_width)),
-        ("h",   0, Pins(h_width)),
-        ("z",   0, Pins(z_width)),
+        ("z",   0, Pins(z_width))
     ]
 
 class RS_DSP_Wrapper(Module):
-    def __init__(self, platform, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, unsigned):
+    def __init__(self, platform, a_width, b_width, feature, unsigned):
     
     # Clocking
         self.clock_domains.cd_sys = ClockDomain()
         platform.add_extension(get_clkin_ios())
-        
-        # Clock/Reset
-        # if (reg_in == 1 or reg_out == 1):
-        #     self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        #     self.comb += self.cd_sys.rst.eq(platform.request("reset"))
+
         
         # A*B
         if (feature == "A*B"):
             if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
                 z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, feature, unsigned, )
-                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
+                self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, feature, unsigned)
+                platform.add_extension(get_ios(a_width, b_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
@@ -64,8 +54,8 @@ class RS_DSP_Wrapper(Module):
 
             elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
                 z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, feature, unsigned, )
-                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
+                self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, feature, unsigned)
+                platform.add_extension(get_ios(a_width, b_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
@@ -73,79 +63,13 @@ class RS_DSP_Wrapper(Module):
                 self.comb += platform.request("z").eq(dsp.z)
             elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
                 z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, feature, unsigned, )
-                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
+                self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, feature, unsigned)
+                platform.add_extension(get_ios(a_width, b_width, z_width))
                 self.comb += dsp.a.eq(platform.request("a"))
                 self.comb += dsp.b.eq(platform.request("b"))
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
                 self.comb += self.cd_sys.rst.eq(platform.request("reset"))
                 self.comb += platform.request("z").eq(dsp.z)
-            else:
-                z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, feature, unsigned, )
-                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-                self.comb += dsp.a.eq(platform.request("a"))
-                self.comb += dsp.b.eq(platform.request("b"))
-            
-            # Registered Output
-            # if (reg_out == 1):
-            #     self.sync += platform.request("z").eq(dsp.z)
-            # else:
-            #     self.comb += platform.request("z").eq(dsp.z)
-
-        # (A*B)+(C*D)
-        if (feature=="A*B+C*D"):
-            if ((a_width + b_width) > (c_width + d_width)):
-                z_width = a_width + b_width
-            else:
-                z_width = c_width + d_width
-            self.submodules.dsp = dsp = RS_DSP_MULT_ABCD(a_width, b_width, c_width, d_width, feature, reg_in, reg_out, unsigned)
-            platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-            self.comb += dsp.a.eq(platform.request("a"))
-            self.comb += dsp.b.eq(platform.request("b"))
-            self.comb += dsp.c.eq(platform.request("c"))
-            self.comb += dsp.d.eq(platform.request("d"))
-            
-            # Registered Output
-            # if (reg_out == 1):
-            #     self.sync += platform.request("z").eq(dsp.z)
-            # else:
-            #     self.comb += platform.request("z").eq(dsp.z)
-        
-        # A*B+C*D+E*F+G*H
-        elif (feature=="A*B+C*D+E*F+G*H"):
-            
-            if ((a_width + b_width) > (c_width + d_width)):
-                z12_width = a_width + b_width + 1
-            else:
-                z12_width = c_width + d_width + 1
-                
-            if ((e_width + f_width) > (g_width + h_width)):
-                z34_width = e_width + f_width + 1
-            else:
-                z34_width = g_width + h_width + 1
-            
-            if (z12_width > z34_width):
-                z_width = z12_width
-            else:
-                z_width = z34_width
-                
-            self.submodules.dsp = dsp = RS_DSP_MULT_ABCDEFGH(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, unsigned)
-            platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-            self.comb += dsp.a.eq(platform.request("a"))
-            self.comb += dsp.b.eq(platform.request("b"))
-            self.comb += dsp.c.eq(platform.request("c"))
-            self.comb += dsp.d.eq(platform.request("d"))
-            self.comb += dsp.e.eq(platform.request("e"))
-            self.comb += dsp.f.eq(platform.request("f"))
-            self.comb += dsp.g.eq(platform.request("g"))
-            self.comb += dsp.h.eq(platform.request("h"))
-            
-            # Registered Output
-            # if (reg_out == 1):
-            #     self.sync += platform.request("z").eq(dsp.z)
-            # else:
-            #     self.comb += platform.request("z").eq(dsp.z)
 
 def main():
     # DSP CORE -------------------------------------------------------------------------------------
@@ -165,18 +89,12 @@ def main():
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--feature",     type=str,      default="A*B",      choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Features")
+    core_string_param_group.add_argument("--feature",     type=str,      default="A*B",      choices=["A*B"],    help="Features")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 73),     help="A_Input")
     core_range_param_group.add_argument("--b_width",     type=int,       default=18,      choices=range(1, 73),     help="B_Input")
-    core_range_param_group.add_argument("--c_width",     type=int,       default=20,      choices=range(1, 21),     help="C_Input")
-    core_range_param_group.add_argument("--d_width",     type=int,       default=18,      choices=range(1, 19),     help="D_Input")
-    core_range_param_group.add_argument("--e_width",     type=int,       default=20,      choices=range(1, 21),     help="E_Input")
-    core_range_param_group.add_argument("--f_width",     type=int,       default=18,      choices=range(1, 19),     help="F_Input")
-    core_range_param_group.add_argument("--g_width",     type=int,       default=20,      choices=range(1, 21),     help="G_Input")
-    core_range_param_group.add_argument("--h_width",     type=int,       default=18,      choices=range(1, 19),     help="H_Input")
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -208,13 +126,6 @@ def main():
     module   = RS_DSP_Wrapper(platform,
         a_width     = args.a_width,
         b_width     = args.b_width,
-        c_width     = args.c_width, 
-        d_width     = args.d_width,
-        e_width     = args.e_width,
-        f_width     = args.f_width,
-        g_width     = args.g_width,
-        h_width     = args.h_width,
-        feature     = args.feature,
         unsigned  = args.unsigned
     )
     
