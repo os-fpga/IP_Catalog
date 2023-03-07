@@ -180,7 +180,7 @@ def main():
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=False,     help="Unsigned Input")
+    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
