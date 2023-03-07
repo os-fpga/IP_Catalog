@@ -200,8 +200,8 @@ class RS_DSP_MULT20(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a1, Replicate(self.a[31], 4)),
-                    i_b             = Cat(self.b1, Replicate(self.b[31], 2)),
+                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], 4)),
+                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], 2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -275,8 +275,8 @@ class RS_DSP_MULT20(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a1, Replicate(self.a[31], 4)),
-                    i_b             = Cat(self.b1, Replicate(self.b[31], 2)),
+                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], 4)),
+                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], 2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -340,8 +340,8 @@ class RS_DSP_MULT20(Module):
                     # Mode Bits to configure DSP 
                     p_MODE_BITS     =  0,
                     # IOs
-                    i_a             = Cat(self.a1, Replicate(self.a[31], 4)),
-                    i_b             = Cat(self.b1, Replicate(self.b[31], 2)),
+                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], 4)),
+                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], 2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
