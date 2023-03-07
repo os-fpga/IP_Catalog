@@ -22,7 +22,7 @@ class RS_DSP_MULT(Module):
         # ---------------------        
         self.logger = logging.getLogger("\tRS_DSP_MULT")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
 
         # Input A.
         self.logger.info(f"INPUT_A      : {a_width}")
@@ -766,7 +766,10 @@ class RS_DSP_MULT20(Module):
         # Equation.
         self.logger.info(f"FEATURE  : {feature}")
         
-        k = 18
+        if(unsigned == 1):
+            k = 18
+        else:
+            k = 17
         
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
@@ -775,17 +778,20 @@ class RS_DSP_MULT20(Module):
         
         self.comb += self.fb.eq(Mux(self.sum != 2, 0b001, 0b000))
 
-        self.a0 = self.a[0:18]
-        if (a_width > 18):
+        self.a0 = self.a[0:k]
+        if (a_width > k):
             if (unsigned == 1):
-                self.a1 = self.a[18:36]
+                self.a1 = self.a[k:k*2]
             else:
-                self.a1 = Cat(self.a[18:36], Replicate(self.a[35], 2))
+                self.a1 = Cat(self.a[k:k*2], Replicate(self.a[(a_width)-1], 3))
         else:
             self.a1 = Replicate(0,18)
-        self.b0 = self.b[0:18]
-        if (b_width > 18):
-            self.b1 = self.b[18:36]
+        self.b0 = self.b[0:k]
+        if (b_width > k):
+            if (unsigned == 1):
+                self.b1 = self.b[k:k*2]
+            else:
+                self.b3 = Cat(self.b[k:k*2], Replicate(self.b[(b_width)-1], 1))
         else:
             self.b1 = Replicate (0,18)
         
@@ -936,7 +942,10 @@ class RS_DSP_MULT36(Module):
         # Equation.
         self.logger.info(f"FEATURE  : {feature}")
         
-        k = 18
+        if (unsigned == False):
+            k = 17
+        else:
+            k = 18
 
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
@@ -952,25 +961,28 @@ class RS_DSP_MULT36(Module):
         self.fb = Signal(3, reset = 1)
         self.fb_del = Signal(3)
         
-        self.a1 = self.a[0:18]
-        if (a_width > 18):
-            self.a2 = self.a[18:36]
+        self.a1 = self.a[0:k]
+        if (a_width > k):
+            self.a2 = self.a[k:k*2]
         else:
             self.a2 = Replicate(0,18)
-        if (a_width > 36):
+        if (a_width > k*2):
             if(unsigned == 1):
-                self.a3 = self.a[36:54]
+                self.a3 = self.a[k*2:k*3]
             else:
-                self.a3 = Cat(self.a[36:54], Replicate(self.a[53], 2))
+                self.a3 = Cat(self.a[k*2:k*3], Replicate(self.a[(a_width)-1], 3))
         else:
             self.a3 = Replicate (0,18)
-        self.b1 = self.b[0:18]
-        if (b_width > 18):
-            self.b2 = self.b[18:36]
+        self.b1 = self.b[0:k]
+        if (b_width > k):
+            self.b2 = self.b[k:k*2]
         else:
             self.b2 = Replicate (0,18)
-        if (b_width > 36):
-            self.b3 = self.b[36:54]
+        if (b_width > k*3):
+            if (unsigned == 1):
+                self.b3 = self.b[k*2:k*3]
+            else:
+                self.b3 = Cat(self.b[k*2:k*3], Replicate(self.b[(b_width)-1], 1))
         else:
             self.b3 = Replicate(0,18)
 
@@ -1259,7 +1271,10 @@ class RS_DSP_MULT54(Module):
         # Equation.
         self.logger.info(f"FEATURE  : {feature}")
         
-        k = 18
+        if(unsigned == False):
+            k = 17
+        else:
+            k = 18
 
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
@@ -1270,33 +1285,36 @@ class RS_DSP_MULT54(Module):
         self.fb2 = Signal(3)
         self.comb += self.fb2.eq(Mux(self.sum != 4, 1, 0))
 
-        self.a0 = self.a[0:18]
-        if (a_width > 18):
-            self.a1 = self.a[18:36]
+        self.a0 = self.a[0:k]
+        if (a_width > k):
+            self.a1 = self.a[k:k*2]
         else:
             self.a1 = Replicate(0,18)
-        if (a_width > 36):
-            self.a2 = self.a[36:54]
+        if (a_width > k*2):
+            self.a2 = self.a[k*2:k*3]
         else:
             self.a2 = Replicate (0,18)
-        if (a_width > 54):
+        if (a_width > k*3):
             if (unsigned == 1):
-                self.a3 = self.a[54:72]
+                self.a3 = self.a[k*3:k*4]
             else:
-                self.a3 = Cat(self.a[54:72], Replicate(self.a[71], 2))
+                self.a3 = Cat(self.a[k*3:k*4], Replicate(self.a[(a_width)-1], 3))
         else:
             self.a3 = Replicate(0,18)
-        self.b0 = self.b[0:18]
-        if (b_width > 18):
-            self.b1 = self.b[18:36]
+        self.b0 = self.b[0:k]
+        if (b_width > k):
+            self.b1 = self.b[k:k*2]
         else:
             self.b1 = Replicate (0,18)
-        if (b_width > 36):
-            self.b2 = self.b[36:54]
+        if (b_width > k*2):
+            self.b2 = self.b[k*2:k*3]
         else:
             self.b2 = Replicate(0,18)
-        if (b_width > 54):
-            self.b3 = self.b[54:72]
+        if (b_width > k*3):
+            if (unsigned == 1):
+                self.b3 = self.b[k*3:k*4]
+            else:
+                self.b3 = Cat(self.b[k*3:k*4], Replicate(self.b[(b_width)-1], 1))
         else:
             self.b3 = Replicate(0,18)
 
