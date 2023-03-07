@@ -40,9 +40,12 @@ class RS_DSP_MULT(Module):
 
         # Equation.
         self.logger.info(f"FEATURE      : {feature}")
-
-        self.a = Signal(a_width)
-        self.b = Signal(b_width)
+        if (unsigned == 0):
+            self.a = Signal(bits_sign=(a_width, True))
+            self.b = Signal(bits_sign=(b_width, True))
+        else:
+            self.a = Signal(a_width)
+            self.b = Signal(b_width)
         self.z = Signal(a_width + b_width)
         
         if (reg_in == 1 and reg_out == 0):
@@ -162,13 +165,23 @@ class RS_DSP_MULT_ABCD(Module):
             z_width = a_width + b_width + 1
         else:
             z_width = c_width + d_width + 1
+        if(unsigned == 1):
+            self.a  = Signal(a_width)
+            self.b  = Signal(b_width)
+            self.c  = Signal(c_width)
+            self.d  = Signal(d_width)
+
+            self.z1 = Signal(a_width + b_width)
+            self.z2 = Signal(c_width + d_width)
+        else:
+            self.a  = Signal(bits_sign=(a_width, True))
+            self.b  = Signal(bits_sign=(b_width, True))
+            self.c  = Signal(bits_sign=(c_width, True))
+            self.d  = Signal(bits_sign=(d_width, True))
+
+            self.z1 = Signal(bits_sign=(a_width + b_width, True))
+            self.z2 = Signal(bits_sign=(c_width + d_width, True))
         
-        self.a  = Signal(a_width)
-        self.b  = Signal(b_width)
-        self.c  = Signal(c_width)
-        self.d  = Signal(d_width)
-        self.z1 = Signal(a_width + b_width + 1)
-        self.z2 = Signal(c_width + d_width + 1)
         self.z  = Signal(z_width)
         self.comb += self.z.eq(self.z1 + self.z2)
         
@@ -372,21 +385,35 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
         # Equation.
         self.logger.info(f"FEATURE  : {feature}")
+        if (unsigned):
+            self.a  = Signal(a_width)
+            self.b  = Signal(b_width)
+            self.c  = Signal(c_width)
+            self.d  = Signal(d_width)
 
-        self.a  = Signal(a_width)
-        self.b  = Signal(b_width)
-        self.c  = Signal(c_width)
-        self.d  = Signal(d_width)
+            self.e  = Signal(e_width)
+            self.f  = Signal(f_width)
+            self.g  = Signal(g_width)
+            self.h  = Signal(h_width)
+
+            self.z1 = Signal(a_width + b_width)
+            self.z2 = Signal(c_width + d_width)
+            self.z3 = Signal(e_width + f_width)
+            self.z4 = Signal(g_width + h_width)
+        else:
+            self.a  = Signal(bits_sign=(a_width, True))
+            self.b  = Signal(bits_sign=(b_width, True))
+            self.c  = Signal(bits_sign=(c_width, True))
+            self.d  = Signal(bits_sign=(d_width, True))
+            self.e  = Signal(bits_sign=(e_width, True))
+            self.f  = Signal(bits_sign=(f_width, True))
+            self.g  = Signal(bits_sign=(g_width, True))
+            self.h  = Signal(bits_sign=(h_width, True))
         
-        self.e  = Signal(e_width)
-        self.f  = Signal(f_width)
-        self.g  = Signal(g_width)
-        self.h  = Signal(h_width)
-        
-        self.z1 = Signal(a_width + b_width + 1)
-        self.z2 = Signal(c_width + d_width + 1)
-        self.z3 = Signal(e_width + f_width + 1)
-        self.z4 = Signal(g_width + h_width + 1)
+            self.z1 = Signal(bits_sign=(a_width + b_width, True))
+            self.z2 = Signal(bits_sign=(c_width + d_width, True))
+            self.z3 = Signal(bits_sign=(e_width + f_width, True))
+            self.z4 = Signal(bits_sign=(g_width + h_width, True))
         
         if ((a_width + b_width) > (c_width + d_width)):
             z12_width = a_width + b_width + 1
@@ -402,16 +429,11 @@ class RS_DSP_MULT_ABCDEFGH(Module):
             z_width = z12_width
         else:
             z_width = z34_width
-        
-        self.z12 = Signal(z12_width)
-        self.z34 = Signal(z34_width)
-        self.z  = Signal(z_width)
+        self.z  = Signal(z_width + 1)
+        self.comb += self.z.eq(self.z1 + self.z2 + self.z3 + self.z4)
         
         if (reg_in == 1 and reg_out == 0):
             
-            self.comb += self.z12.eq(self.z1 + self.z2)
-            self.comb += self.z34.eq(self.z3 + self.z4)
-            self.comb += self.z.eq(self.z12 + self.z34)
             
             # Module instance.
             # ----------------
@@ -497,10 +519,6 @@ class RS_DSP_MULT_ABCDEFGH(Module):
             
         elif (reg_in == 0 and reg_out == 1):
             
-            self.comb += self.z12.eq(self.z1 + self.z2)
-            self.comb += self.z34.eq(self.z3 + self.z4)
-            self.comb += self.z.eq(self.z12 + self.z34)
-            
             # Module instance.
             # ----------------
             self.specials += Instance("RS_DSP_MULT_REGOUT",
@@ -584,10 +602,6 @@ class RS_DSP_MULT_ABCDEFGH(Module):
             )
             
         elif (reg_in == 1 and reg_out == 1):
-            
-            self.comb += self.z12.eq(self.z1 + self.z2)
-            self.comb += self.z34.eq(self.z3 + self.z4)
-            self.comb += self.z.eq(self.z12 + self.z34)
             
             # Module instance.
             # ----------------
@@ -674,10 +688,6 @@ class RS_DSP_MULT_ABCDEFGH(Module):
             )
             
         else:
-            
-            self.comb += self.z12.eq(self.z1 + self.z2)
-            self.comb += self.z34.eq(self.z3 + self.z4)
-            self.comb += self.z.eq(self.z12 + self.z34)
             
             # Module instance.
             # ----------------

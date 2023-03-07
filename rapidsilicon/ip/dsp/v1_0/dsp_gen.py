@@ -87,9 +87,9 @@ class RS_DSP_Wrapper(Module):
         # (A*B)+(C*D)
         if (feature=="A*B+C*D"):
             if ((a_width + b_width) > (c_width + d_width)):
-                z_width = a_width + b_width
+                z_width = a_width + b_width + 1
             else:
-                z_width = c_width + d_width
+                z_width = c_width + d_width + 1
             self.submodules.dsp = dsp = RS_DSP_MULT_ABCD(a_width, b_width, c_width, d_width, feature, reg_in, reg_out, unsigned)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             self.comb += dsp.a.eq(platform.request("a"))
@@ -117,9 +117,9 @@ class RS_DSP_Wrapper(Module):
                 z34_width = g_width + h_width + 1
             
             if (z12_width > z34_width):
-                z_width = z12_width
+                z_width = z12_width + 1
             else:
-                z_width = z34_width
+                z_width = z34_width + 1
                 
             self.submodules.dsp = dsp = RS_DSP_MULT_ABCDEFGH(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, reg_in, reg_out, unsigned)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
