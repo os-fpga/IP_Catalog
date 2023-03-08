@@ -1,7 +1,10 @@
 # DSP Core Generation 
 ## Introduction
 
-This is a customizable DSP Core module with Karatsuba Algorithm for DSP Decomposition with k = 18 for both signed and unsigned.
+This is a customizable DSP Core module with various algorithms for DSP Decomposition listed below with their respective multiplicand bit widths:
+1. Karatsuba Algoritm with k = 18 for both signed and unsigned multiplications.
+2. Pipelined Karatsuba Algorithm with k = 18 for unsigned and k = 17 for signed multiplications.
+3. Karatsuba-Ofman Algorithm with k = 17 for unsigned and k = 16 for signed multiplications.
 
 For more information, refer to the included documentation.
 
@@ -13,18 +16,19 @@ These are the parameters for DSP core along with their keyword and values: -
 
 | Sr.No. |      Parameter             |       Keyword   |    Value                              |
 |--------|----------------------------|-----------------|---------------------------------------|
-|   1.   |   FEATURE                  |     feature     | A\*B / A\*B+C\*D / A\*B+C\*D+E\*F+G*H |
-|   2.   |   A_WIDTH                  |     a_width     |               1 - 72                  |
-|   3.   |   B_WIDTH                  |     b_width     |               1 - 72                  |
-|   4.   |   C_COUNT                  |     c_count     |               1 - 20                  |
-|   5.   |   D_COUNT                  |     d_count     |               1 - 18                  |
-|   6.   |   E_COUNT                  |     e_count     |               1 - 20                  |
-|   7.   |   F_COUNT                  |     f_count     |               1 - 18                  |
-|   8.   |   G_COUNT                  |     g_count     |               1 - 20                  |
-|   9.   |   H_COUNT                  |     h_count     |               1 - 18                  |
+|   1.   |   EQUATION                 |     equation    | A\*B / A\*B+C\*D / A\*B+C\*D+E\*F+G*H |
+|   2.   |   A_WIDTH                  |     a_width     | 1 - 72 (1. and 2. unsigned) / 1 - 68 (2. signed and 3. unsigned) / 1 - 64 (3. signed)|
+|   3.   |   B_WIDTH                  |     b_width     | 1 - 72 (1. and 2. unsigned) / 1 - 68 (2. signed and 3. unsigned) / 1 - 64 (3. signed)|
+|   4.   |   C_WIDTH                  |     c_width     |               1 - 20                  |
+|   5.   |   D_WIDTH                  |     d_width     |               1 - 18                  |
+|   6.   |   E_WIDTH                  |     e_width     |               1 - 20                  |
+|   7.   |   F_WIDTH                  |     f_width     |               1 - 18                  |
+|   8.   |   G_WIDTH                  |     g_width     |               1 - 20                  |
+|   9.   |   H_WIDTH                  |     h_width     |               1 - 18                  |
 |   10.  |   REG_IN                   |     reg_in      |                0 / 1                  |
 |   11.  |   REG_OUT                  |     reg_out     |                0 / 1                  |
 |   12.  |   UNSIGNED                 |     unsigned    |                0 / 1                  |
+|   13.  |   FEATURE                  |     feature     |      base / enhanced / pipeline       |
 
 
 To generate RTL with above parameters, run the following command:
