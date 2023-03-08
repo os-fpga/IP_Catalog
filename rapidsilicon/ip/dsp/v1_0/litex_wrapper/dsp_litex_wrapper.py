@@ -3781,26 +3781,9 @@ class RS_DSP_MULT54(Module):
                     i_unsigned_b    = 1
                 )
 
-#
-# This file is part of RapidSilicon's IP_Catalog.
-#
-# This file is Copyright (c) 2022 RapidSilicon.
-#
-# SPDX-License-Identifier: MIT
-
-import logging
-import math
-
-from migen import *
-
-from litex.soc.interconnect.axi import *
-
-logging.basicConfig(level=logging.INFO)
-
-
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT20_pipeline(Module):
-    def __init__(self, a_width, b_width, equation, unsigned, reg_in, reg_out):
+    def __init__(self, a_width, b_width, equation, unsigned):
 
         # Get Parameters.
         # ---------------------        
@@ -3815,13 +3798,13 @@ class RS_DSP_MULT20_pipeline(Module):
         self.logger.info(f"INPUT_B  : {b_width}")
 
         # Equation.
-        self.logger.info(f"FEATURE  : {equation}")
+        self.logger.info(f"EQUATION  : {equation}")
         
         if(unsigned == 1):
             k = 18
         else:
             k = 17
-        
+        print(unsigned)
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
         self.sum = Signal(3, reset=2)
@@ -3976,7 +3959,7 @@ class RS_DSP_MULT20_pipeline(Module):
             )
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT36_pipeline(Module):
-    def __init__(self, a_width, b_width, equation,unsigned, reg_in, reg_out):
+    def __init__(self, a_width, b_width, equation,unsigned):
 
         # Get Parameters.
         # ---------------------        
@@ -3991,7 +3974,7 @@ class RS_DSP_MULT36_pipeline(Module):
         self.logger.info(f"INPUT_B  : {b_width}")
 
         # Equation.
-        self.logger.info(f"FEATURE  : {equation}")
+        self.logger.info(f"EQUATION  : {equation}")
         
         if (unsigned == False):
             k = 17
@@ -4305,7 +4288,7 @@ class RS_DSP_MULT36_pipeline(Module):
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT54_pipeline(Module):
-    def __init__(self, a_width, b_width, equation, unsigned, reg_in, reg_out):
+    def __init__(self, a_width, b_width, equation, unsigned):
 
         # Get Parameters.
         # ---------------------        
@@ -4320,7 +4303,7 @@ class RS_DSP_MULT54_pipeline(Module):
         self.logger.info(f"INPUT_B  : {b_width}")
 
         # Equation.
-        self.logger.info(f"FEATURE  : {equation}")
+        self.logger.info(f"EQUATION  : {equation}")
         
         if(unsigned == False):
             k = 17
@@ -4756,22 +4739,6 @@ class RS_DSP_MULT54_pipeline(Module):
                 i_unsigned_b    = 1
             )
 
-#
-# This file is part of RapidSilicon's IP_Catalog.
-#
-# This file is Copyright (c) 2022 RapidSilicon.
-#
-# SPDX-License-Identifier: MIT
-
-import logging
-import math
-
-from migen import *
-
-from litex.soc.interconnect.axi import *
-
-logging.basicConfig(level=logging.INFO)
-
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT20_enhance(Module):
     def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned):
@@ -4789,7 +4756,7 @@ class RS_DSP_MULT20_enhance(Module):
         self.logger.info(f"INPUT_B  : {b_width}")
 
         # Equation.
-        self.logger.info(f"FEATURE  : {equation}")
+        self.logger.info(f"EQUATION  : {equation}")
         
         if (unsigned == True):
             k = 17
@@ -5138,7 +5105,7 @@ class RS_DSP_MULT36_enhance(Module):
         self.logger.info(f"INPUT_B  : {b_width}")
 
         # Equation.
-        self.logger.info(f"FEATURE  : {equation}")
+        self.logger.info(f"EQUATION  : {equation}")
         if(unsigned == True):
             k = 17
         else:
@@ -5676,7 +5643,7 @@ class RS_DSP_MULT54_enhance(Module):
         self.logger.info(f"INPUT_B  : {b_width}")
 
         # Equation.
-        self.logger.info(f"FEATURE  : {equation}")
+        self.logger.info(f"EQUATION  : {equation}")
         
         if(unsigned == True):
             k = 17

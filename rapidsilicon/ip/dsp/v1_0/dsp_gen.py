@@ -58,7 +58,7 @@ class RS_DSP_Wrapper(Module):
                     elif (feature == "enhanced"):
                         self.submodules.dsp = dsp = RS_DSP_MULT54_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
                     elif (feature == "pipeline"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, reg_in, reg_out, equation, unsigned)
+                        self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
                         reg_in = True
 
                 elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
@@ -67,7 +67,7 @@ class RS_DSP_Wrapper(Module):
                     elif (feature == "enhanced"):
                         self.submodules.dsp = dsp = RS_DSP_MULT36_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
                     elif (feature == "pipeline"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
                         reg_in = True
 
                 elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
@@ -76,7 +76,7 @@ class RS_DSP_Wrapper(Module):
                     elif (feature == "enhanced"):
                         self.submodules.dsp = dsp = RS_DSP_MULT20_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
                     elif (feature == "pipeline"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
                         reg_in = True
 
         # (A*B)+(C*D)
