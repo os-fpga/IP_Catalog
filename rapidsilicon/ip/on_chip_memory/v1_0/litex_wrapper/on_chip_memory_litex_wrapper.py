@@ -46,7 +46,7 @@ class OCM(Module):
         MEMORY_SIZE = data_width * write_depth
         
         # OCM Instances.
-        if (MEMORY_SIZE <= 36864 and data_width <= 36):
+        if MEMORY_SIZE <= 36864 and (not(32 <= data_width < 36 and write_depth > 1024)):
             n = 1
             m = 1
         else:
