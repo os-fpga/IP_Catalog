@@ -78,18 +78,6 @@ class RS_DSP_Wrapper(Module):
                     elif (feature == "pipeline"):
                         self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, reg_in, reg_out, unsigned)
                         reg_in = True
-                        
-                self.comb += dsp.a.eq(platform.request("a"))
-                self.comb += dsp.b.eq(platform.request("b"))
-                # Clock/Reset
-                if (reg_in == 1 or reg_out == 1):
-                    self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-                    self.comb += self.cd_sys.rst.eq(platform.request("reset"))
-                # Registered Output
-                if (reg_out == 1):
-                    self.sync += platform.request("z").eq(dsp.z)
-                else:
-                    self.comb += platform.request("z").eq(dsp.z)
 
         # (A*B)+(C*D)
         elif (equation=="A*B+C*D"):
@@ -99,15 +87,8 @@ class RS_DSP_Wrapper(Module):
                 z_width = c_width + d_width + 1
             self.submodules.dsp = dsp = RS_DSP_MULT_ABCD(a_width, b_width, c_width, d_width, equation, reg_in, reg_out, unsigned)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-            self.comb += dsp.a.eq(platform.request("a"))
-            self.comb += dsp.b.eq(platform.request("b"))
             self.comb += dsp.c.eq(platform.request("c"))
             self.comb += dsp.d.eq(platform.request("d"))
-            # Registered Output
-            if (reg_out == 1):
-                self.sync += platform.request("z").eq(dsp.z)
-            else:
-                self.comb += platform.request("z").eq(dsp.z)
         # A*B+C*D+E*F+G*H
         elif (equation=="A*B+C*D+E*F+G*H"):
             if ((a_width + b_width) > (c_width + d_width)):
@@ -124,19 +105,24 @@ class RS_DSP_Wrapper(Module):
                 z_width = z34_width + 1
             self.submodules.dsp = dsp = RS_DSP_MULT_ABCDEFGH(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, equation, reg_in, reg_out, unsigned)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-            self.comb += dsp.a.eq(platform.request("a"))
-            self.comb += dsp.b.eq(platform.request("b"))
             self.comb += dsp.c.eq(platform.request("c"))
             self.comb += dsp.d.eq(platform.request("d"))
             self.comb += dsp.e.eq(platform.request("e"))
             self.comb += dsp.f.eq(platform.request("f"))
             self.comb += dsp.g.eq(platform.request("g"))
             self.comb += dsp.h.eq(platform.request("h"))
-            # Registered Output
-            if (reg_out == 1):
-                self.sync += platform.request("z").eq(dsp.z)
-            else:
-                self.comb += platform.request("z").eq(dsp.z)
+            
+        self.comb += dsp.a.eq(platform.request("a"))
+        self.comb += dsp.b.eq(platform.request("b"))
+        # Clock/Reset
+        if (reg_in == 1 or reg_out == 1):
+            self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+            self.comb += self.cd_sys.rst.eq(platform.request("reset"))
+        # Registered Output
+        if (reg_out == 1 and feature == "pipeline"):
+            self.sync += platform.request("z").eq(dsp.z)
+        else:
+            self.comb += platform.request("z").eq(dsp.z)
         
 def main():
     # DSP CORE -------------------------------------------------------------------------------------
