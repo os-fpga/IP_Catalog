@@ -152,14 +152,13 @@ class IP_Builder:
 
             if name.startswith("json"):
                 build_param_list.append({name : str(_vars[name])})
-        print(list(dep_dict['disable'].keys()))
+
+
         dep_list=[]        
         if 'enable' in dep_dict:
             dep_list.extend(list(dep_dict['enable'].keys()))
-            print(dep_list)
         if 'disable' in dep_dict:
             dep_list.extend(list(dep_dict['disable'].keys()))
-            print(dep_list)
         param_temp = {"parameters": core_param_list}
         param_json.update(param_temp)
 
