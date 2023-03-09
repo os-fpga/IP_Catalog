@@ -1,0 +1,11 @@
+{
+    "memory_type": "SP",
+    "data_width": 64,
+    "write_depth": 32769,
+    "common_clk": 0,
+    "bram": 0,
+    "build_dir": "./",
+    "build_name": "on_chip_memory_wrapper",
+    "build": true,
+    "json_template": false
+}

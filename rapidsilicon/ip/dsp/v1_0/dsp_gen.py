@@ -197,6 +197,15 @@ def main():
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
+        args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+
+        if (args_1.feature == "A*B"):
+            for i in range(6):
+                parser._actions.pop(4)
+        if (args_1.feature == "A*B+C*D"):
+            for i in range(4):
+                parser._actions.pop(6)
+ 
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
