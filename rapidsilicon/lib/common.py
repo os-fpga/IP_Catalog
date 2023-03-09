@@ -152,9 +152,13 @@ class IP_Builder:
 
             if name.startswith("json"):
                 build_param_list.append({name : str(_vars[name])})
-
- 
-        dep_list= list(dep_dict.keys())
+        dep_list=[]        
+        if 'enable' in dep_dict:
+            dep_list.extend(list(dep_dict['enable'].keys()))
+            print(dep_list)
+        if 'disable' in dep_dict:
+            dep_list.extend(list(dep_dict['disable'].keys()))
+            print(dep_list)
         param_temp = {"parameters": core_param_list}
         param_json.update(param_temp)
 
@@ -163,7 +167,10 @@ class IP_Builder:
 
         for i in range(len(core_param_list)):
             if param_json["parameters"][i]['parameter'] in dep_list:
-                param_json["parameters"][i].update(dependency = dep_dict[param_json["parameters"][i]['parameter']])
+                if 'enable' in dep_dict:
+                    param_json["parameters"][i].update(enable = dep_dict['enable'][param_json["parameters"][i]['parameter']])
+                if 'disable' in dep_dict:
+                    param_json["parameters"][i].update(disbale = dep_dict['disable'][param_json["parameters"][i]['parameter']])
 
     # Append Build and Json params to final json
         for i in range(len(build_param_list)):
