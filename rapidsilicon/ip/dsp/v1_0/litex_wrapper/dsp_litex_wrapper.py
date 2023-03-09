@@ -785,20 +785,34 @@ class RS_DSP_MULT20(Module):
         self.comb += self.a3.eq(self.a)
         self.comb += self.b3.eq(self.b)
         
-        self.a0 = Cat(self.a3[0:18],  Replicate(0,2))
-        if (a_width > 18):
+        self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
+        if (a_width > k):
             if (unsigned == 1):
-                self.a1 = self.a3[18:36]
+                self.a1 = self.a3[k:a_width]
             else:
-                self.a1 = Cat(self.a3[18:36], Replicate(self.a3[35], 2))
+                self.a1 = Cat(self.a3[k:a_width], Replicate(self.a3[a_width-1], k*2-a_width+2))
+        elif (a_width == k):
+            if(unsigned == 0):
+                self.a1 = Cat(self.a3[a_width-1], Replicate(self.a3[(a_width)-1], k*2-a_width+1))
+            else:
+                self.a1 = self.a3[a_width-1]
         else:
-            self.a1 = Replicate(0,22)
-        self.b0 = self.b3[0:18]
-        if (b_width > 18):
-            self.b1 = self.b3[18:36]
-        else:
-            self.b1 = Replicate (0,18)
+            self.a1 = Replicate(0,20)
         
+        self.b0 = self.b3[0:k]
+        if (b_width > k):
+            if(unsigned == 1):
+                self.b1 = self.b3[k:b_width]
+            else:
+                self.b1 = Cat(self.b3[k:b_width], Replicate(self.b3[(b_width)-1], k*2-b_width))
+        elif (b_width == k):
+            if(unsigned == 0):
+                self.b1 = Cat(self.b3[b_width-1], Replicate(self.b3[(b_width)-1], k*2-b_width+1))
+            else:
+                self.b1 = self.b3[b_width-1]
+        else:
+            self.b1 = Replicate(0,18)
+
         self.z1 = Signal(bits_sign=(38,True))
         self.z2 = Signal(bits_sign=(38,True))
         self.z3 = Signal(bits_sign=(38,True))
@@ -808,14 +822,16 @@ class RS_DSP_MULT20(Module):
         self.mult3 = Signal(bits_sign=(39+k,True))
         self.mult4 = Signal(bits_sign=(a_width + b_width,True))
         self.z = Signal(a_width + b_width)
+
+
+        self.comb += self.mult4.eq(self.z4 << 36)
+        self.comb += self.mult2.eq(self.z2 + self.z3)
+        self.comb += self.mult3.eq(self.mult2 << 18)
+        self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
         
         
         # Registered Output
         if (reg_in == 0 and reg_out == 1):
-            self.comb += self.mult4.eq(self.z4 << 36)
-            self.comb += self.mult2.eq(self.z2 + self.z3)
-            self.comb += self.mult3.eq(self.mult2 << 18)
-            self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
             
             # Module instance.
             # ----------------
@@ -940,10 +956,6 @@ class RS_DSP_MULT20(Module):
                     i_unsigned_b    = 1
                 )
         elif (reg_in == 1 and reg_out == 1):
-            self.comb += self.mult4.eq(self.z4 << 36)
-            self.comb += self.mult2.eq(self.z2 + self.z3)
-            self.comb += self.mult3.eq(self.mult2 << 18)
-            self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
 
             
             # Module instance.
@@ -1071,10 +1083,6 @@ class RS_DSP_MULT20(Module):
             
         # Registered Input
         elif (reg_in == 1 and reg_out == 0):
-            self.comb += self.mult4.eq(self.z4 << 36)
-            self.comb += self.mult2.eq(self.z2 + self.z3)
-            self.comb += self.mult3.eq(self.mult2 << 18)
-            self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
             
             # Module instance.
             # ----------------
@@ -1200,10 +1208,6 @@ class RS_DSP_MULT20(Module):
                 )
         
         else:
-            self.comb += self.mult4.eq(self.z4 << 36)
-            self.comb += self.mult2.eq(self.z2 + self.z3)
-            self.comb += self.mult3.eq(self.mult2 << 18)
-            self.comb += self.z.eq(self.mult4 + self.mult3 + self.z1)
             
             # Module instance.
             # ----------------
@@ -1332,28 +1336,98 @@ class RS_DSP_MULT36(Module):
         
         self.comb += self.a3.eq(self.a)
         self.comb += self.b3.eq(self.b)
-        
-        self.a0 = Cat(self.a3[0:18],  Replicate(0,2))
-        if (a_width > 18):
-            self.a1 = Cat(self.a3[18:36], Replicate(0,2))
-        else:
-            self.a1 = Replicate(0,22)
-        if (a_width > 36):
-            if (unsigned == 1):
-                self.a2 = Cat(self.a3[36:54], Replicate(0,2))
+
+        a0_sign = 1
+        a1_sign = 1
+        a2_sign = 1
+        b0_sign = 1
+        b1_sign = 1
+        b2_sign = 1
+
+        if (a_width <= k):
+            self.a1 =  Replicate(0,20)
+            self.a2 =  Replicate(0,20)
+            if(unsigned):
+                self.a0 = Cat(self.a3[0:a_width],  Replicate(0,2))
             else:
-                self.a2 = Cat(self.a3[36:54], Replicate(self.a3[53], 2))
-        else:
-            self.a2 = Replicate (0,24)
-        self.b0 = self.b3[0:18]
-        if (b_width > 18):
-            self.b1 = self.b3[18:36]
-        else:
-            self.b1 = Replicate (0,18)
-        if (b_width > 36):
-            self.b2 = self.b3[36:54]
-        else:
-            self.b2 = Replicate(0,18)
+                self.a0 = Cat(self.a3[0:a_width],  Replicate(self.a3[a_width - 1],k-a_width+2))
+                a0_sign = 0
+        if (a_width > k and a_width < k*2):
+          self.a2 =  Replicate(0,20)
+          self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
+          if(unsigned):
+              self.a1 = Cat(self.a3[k:a_width], Replicate(0,2))
+          else:
+              a1_sign = 0
+              self.a1 = Cat(self.a3[k:a_width], Replicate(self.a3[a_width - 1],k*2-a_width+2))
+        if (a_width == k*2):
+          self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
+          self.a1 = Cat(self.a3[k:k*2], Replicate(0,2))
+          if(unsigned == 0):
+              a2_sign = 0
+              self.a2 = Cat(self.a3[a_width-1], Replicate(self.a3[(a_width)-1], k*3-a_width+1))
+          else:
+              self.a2 = self.a3[a_width-1]
+        if(a_width > k and a_width > k*2):
+          self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
+          self.a1 = Cat(self.a3[k:k*2], Replicate(0,2))
+          if (unsigned):
+              self.a2 = Cat(self.a3[k*2:a_width], Replicate(0,2))
+          else:
+              a2_sign = 0
+              self.a2 = Cat(self.a3[k*2:a_width], Replicate(self.a3[a_width - 1],k*3-a_width+2))
+        if (a_width == k*3):
+            self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
+            self.a1 = Cat(self.a3[k:k*2], Replicate(0,2))
+            if(unsigned == 0):
+                a2_sign = 0
+                self.a2 = Cat(self.a3[a_width-1], Replicate(self.a3[(a_width)-1], k*4-a_width+1))
+            else:
+                self.a2 = self.a3[a_width-1]
+        
+
+
+        if (b_width <= k):
+            self.b1 =  Replicate(0,20)
+            self.b2 =  Replicate(0,20)
+            if(unsigned):
+                self.b0 = Cat(self.b3[0:b_width],  Replicate(0,2))
+            else:
+                self.b0 = Cat(self.b3[0:b_width],  Replicate(self.b3[b_width - 1],k-b_width+2))
+                b0_sign = 0
+        if (b_width > k and b_width < k*2):
+          self.b2 =  Replicate(0,20)
+          self.b0 = Cat(self.b3[0:k],  Replicate(0,2))
+          if(unsigned):
+              self.b1 = Cat(self.b3[k:b_width], Replicate(0,2))
+          else:
+              b1_sign = 0
+              self.b1 = Cat(self.b3[k:b_width], Replicate(self.b3[b_width - 1],k*2-b_width+2))
+        if (b_width == k*2):
+          self.b0 = Cat(self.b3[0:k],  Replicate(0,2))
+          self.b1 = Cat(self.b3[k:k*2], Replicate(0,2))
+          if(unsigned == 0):
+              b2_sign = 0
+              self.b2 = Cat(self.b3[b_width-1], Replicate(self.b3[(b_width)-1], k*3-b_width+1))
+          else:
+              self.b2 = self.b3[b_width-1]
+        if(b_width > k and b_width > k*2):
+          self.b0 = Cat(self.b3[0:k],  Replicate(0,2))
+          self.b1 = Cat(self.b3[k:k*2], Replicate(0,2))
+          if (unsigned):
+              self.b2 = Cat(self.b3[k*2:b_width], Replicate(0,2))
+          else:
+              b2_sign = 0
+              self.b2 = Cat(self.b3[k*2:b_width], Replicate(self.b3[b_width - 1],k*3-b_width+2))
+        if (b_width == k*3):
+            self.b0 = Cat(self.b3[0:k],  Replicate(0,2))
+            self.b1 = Cat(self.b3[k:k*2], Replicate(0,2))
+            if(unsigned == 0):
+                b2_sign = 0
+                self.b2 = Cat(self.b3[b_width-1], Replicate(self.b3[(b_width)-1], k*4-b_width+1))
+            else:
+                self.b2 = self.b3[b_width-1]
+        
 
         self.z1 = Signal(bits_sign=(38,True))
         self.z2 = Signal(bits_sign=(38,True))
@@ -1393,8 +1467,8 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b0,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT_REGOUT",
                 # Parameters.
@@ -1409,8 +1483,8 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b0,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT_REGOUT",
                 # Parameters.
@@ -1425,43 +1499,25 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b1,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b1_sign
             )
-            if (unsigned == 0):
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b0,
-                    o_z             = self.z4,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 1
-                )
-            else:
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b0,
-                    o_z             = self.z4,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
+            self.specials += Instance("RS_DSP_MULT_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b0,
+                o_z             = self.z4,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b0_sign
+            )
             self.specials += Instance("RS_DSP_MULT_REGOUT",
                 # Parameters.
                 # -----------
@@ -1475,139 +1531,73 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b1,
                 o_z             = self.z5,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b1_sign
             )
-            if (unsigned == 0):
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b2,
-                    o_z             = self.z6,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 0
-                )
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b1,
-                    o_z             = self.z7,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b2,
-                    o_z             = self.z8,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 0
-                )
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b2,
-                    o_z             = self.z9,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 0
-                )
-            else:
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b2,
-                    o_z             = self.z6,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b1,
-                    o_z             = self.z7,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b2,
-                    o_z             = self.z8,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b2,
-                    o_z             = self.z9,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
+            self.specials += Instance("RS_DSP_MULT_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a0,
+                i_b             = self.b2,
+                o_z             = self.z6,  
+                i_feedback      = 0,
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b2_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b1,
+                o_z             = self.z7,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b1_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a1,
+                i_b             = self.b2,
+                o_z             = self.z8,  
+                i_feedback      = 0,
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b2_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b2,
+                o_z             = self.z9,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b2_sign
+            )
         elif (reg_in == 1 and reg_out == 1):
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
                 # Parameters.
@@ -1622,8 +1612,8 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b0,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
                 # Parameters.
@@ -1638,8 +1628,8 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b0,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
                 # Parameters.
@@ -1654,43 +1644,25 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b1,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b1_sign
             )
-            if (unsigned == 0):
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b0,
-                    o_z             = self.z4,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 1
-                )
-            else:
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b0,
-                    o_z             = self.z4,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
+            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b0,
+                o_z             = self.z4,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b0_sign
+            )
             self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
                 # Parameters.
                 # -----------
@@ -1704,139 +1676,73 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b1,
                 o_z             = self.z5,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b1_sign
             )
-            if (unsigned == 0):
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b2,
-                    o_z             = self.z6,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 0
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b1,
-                    o_z             = self.z7,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b2,
-                    o_z             = self.z8,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 0
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b2,
-                    o_z             = self.z9,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 0
-                )
-            else:
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b2,
-                    o_z             = self.z6,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b1,
-                    o_z             = self.z7,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b2,
-                    o_z             = self.z8,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b2,
-                    o_z             = self.z9,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
+            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a0,
+                i_b             = self.b2,
+                o_z             = self.z6,  
+                i_feedback      = 0,
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b2_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b1,
+                o_z             = self.z7,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b1_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a1,
+                i_b             = self.b2,
+                o_z             = self.z8,  
+                i_feedback      = 0,
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b2_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b2,
+                o_z             = self.z9,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b2_sign
+            )
         elif (reg_in == 1 and reg_out == 0):
             self.specials += Instance("RS_DSP_MULT_REGIN",
                 # Parameters.
@@ -1851,8 +1757,8 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b0,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT_REGIN",
                 # Parameters.
@@ -1867,8 +1773,8 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b0,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT_REGIN",
                 # Parameters.
@@ -1883,43 +1789,25 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b1,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b1_sign
             )
-            if(unsigned == 0):
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b0,
-                    o_z             = self.z4,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 1
-                )
-            else:
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b0,
-                    o_z             = self.z4,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
+            self.specials += Instance("RS_DSP_MULT_REGIN",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b0,
+                o_z             = self.z4,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b0_sign
+            )
             self.specials += Instance("RS_DSP_MULT_REGIN",
                 # Parameters.
                 # -----------
@@ -1933,139 +1821,73 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b1,
                 o_z             = self.z5,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b1_sign
             )
-            if(unsigned == 0):
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b2,
-                    o_z             = self.z6,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 0
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b1,
-                    o_z             = self.z7,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b2,
-                    o_z             = self.z8,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 0
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b2,
-                    o_z             = self.z9,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 0
-                )
-            else:
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b2,
-                    o_z             = self.z6,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b1,
-                    o_z             = self.z7,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b2,
-                    o_z             = self.z8,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT_REGIN",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # Reset
-                    i_clk           = ClockSignal(),
-                    i_lreset        = ResetSignal(),
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b2,
-                    o_z             = self.z9,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
+            self.specials += Instance("RS_DSP_MULT_REGIN",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a0,
+                i_b             = self.b2,
+                o_z             = self.z6,  
+                i_feedback      = 0,
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b2_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGIN",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b1,
+                o_z             = self.z7,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b1_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGIN",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a1,
+                i_b             = self.b2,
+                o_z             = self.z8,  
+                i_feedback      = 0,
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b2_sign
+            )
+            self.specials += Instance("RS_DSP_MULT_REGIN",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # Reset
+                i_clk           = ClockSignal(),
+                i_lreset        = ResetSignal(),
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b2,
+                o_z             = self.z9,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b2_sign
+            )
         else:
             self.specials += Instance("RS_DSP_MULT",
                 # Parameters.
@@ -2077,8 +1899,8 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b0,
                 o_z             = self.z1,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT",
                 # Parameters.
@@ -2090,8 +1912,8 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b0,
                 o_z             = self.z2,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT",
                 # Parameters.
@@ -2103,37 +1925,22 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b1,
                 o_z             = self.z3,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b1_sign
             )
-            if (unsigned == 0):
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b0,
-                    o_z             = self.z4,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 1
-                )
-            else:
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b0,
-                    o_z             = self.z4,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
+            self.specials += Instance("RS_DSP_MULT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b0,
+                o_z             = self.z4,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b0_sign
+            )
             self.specials += Instance("RS_DSP_MULT",
                 # Parameters.
                 # -----------
@@ -2144,115 +1951,61 @@ class RS_DSP_MULT36(Module):
                 i_b             = self.b1,
                 o_z             = self.z5,  
                 i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b1_sign
             )
-            if (unsigned == 0):
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b2,
-                    o_z             = self.z6,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 0
-                )
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b1,
-                    o_z             = self.z7,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b2,
-                    o_z             = self.z8,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 0
-                )
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b2,
-                    o_z             = self.z9,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 0,
-                    i_unsigned_b    = 0
-                )
-            else:
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b2,
-                    o_z             = self.z6,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b1,
-                    o_z             = self.z7,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b2,
-                    o_z             = self.z8,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
-                self.specials += Instance("RS_DSP_MULT",
-                    # Parameters.
-                    # -----------
-                    # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
-                    # IOs
-                    i_a             = self.a2,
-                    i_b             = self.b2,
-                    o_z             = self.z9,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = 1,
-                    i_unsigned_b    = 1
-                )
+            self.specials += Instance("RS_DSP_MULT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # IOs
+                i_a             = self.a0,
+                i_b             = self.b2,
+                o_z             = self.z6,  
+                i_feedback      = 0,
+                i_unsigned_a    = a0_sign,
+                i_unsigned_b    = b2_sign
+            )
+            self.specials += Instance("RS_DSP_MULT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b1,
+                o_z             = self.z7,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b1_sign
+            )
+            self.specials += Instance("RS_DSP_MULT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # IOs
+                i_a             = self.a1,
+                i_b             = self.b2,
+                o_z             = self.z8,  
+                i_feedback      = 0,
+                i_unsigned_a    = a1_sign,
+                i_unsigned_b    = b2_sign
+            )
+            self.specials += Instance("RS_DSP_MULT",
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_MODE_BITS     =  0,
+                # IOs
+                i_a             = self.a2,
+                i_b             = self.b2,
+                o_z             = self.z9,  
+                i_feedback      = 0,
+                i_unsigned_a    = a2_sign,
+                i_unsigned_b    = b2_sign
+            )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT54(Module):
@@ -2283,33 +2036,35 @@ class RS_DSP_MULT54(Module):
         self.comb += self.a3.eq(self.a)
         self.comb += self.b3.eq(self.b)
         
-        self.a0 = Cat(self.a3[0:18],  Replicate(0,2))
-        if (a_width > 18):
-            self.a1 = Cat(self.a3[18:36], Replicate(0,2))
-        else:
-            self.a1 = Replicate(0,22)
-        if (a_width > 36):
-            self.a2 = Cat(self.a3[36:54], Replicate(0,2))
-        else:
-            self.a2 = Replicate (0,24)
-        if (a_width > 54):
+        self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
+        self.a1 = Cat(self.a3[k:k*2], Replicate(0,2))
+        self.a2 = Cat(self.a3[k*2:k*3], Replicate(0,2))
+        if (a_width > k*3):
             if (unsigned == 1):
-                self.a4 = Cat(self.a3[54:72], Replicate(0,2))
+                self.a4 = Cat(self.a3[k*3:k*4], Replicate(0,2))
             else:
-                self.a4 = Cat(self.a3[54:72], Replicate(self.a3[71], 2))
+                self.a4 = Cat(self.a3[k*3:a_width], Replicate(self.a3[a_width-1], k*4-a_width+2))
+        elif (a_width == k*3):
+            if(unsigned == 0):
+                self.a4 = Cat(self.a3[a_width-1], Replicate(self.a3[(a_width)-1], k*4-a_width+1))
+            else:
+                self.a4 = self.a3[a_width-1]
         else:
             self.a4 = Replicate(0,20)
-        self.b0 = self.b3[0:18]
-        if (b_width > 18):
-            self.b1 = self.b3[18:36]
-        else:
-            self.b1 = Replicate (0,18)
-        if (b_width > 36):
-            self.b2 = self.b3[36:54]
-        else:
-            self.b2 = Replicate(0,18)
-        if (b_width > 54):
-            self.b4 = self.b3[54:72]
+
+        self.b0 = self.b3[0:k]
+        self.b1 = self.b3[k:k*2]
+        self.b2 = self.b3[k*2:k*3]
+        if (b_width > k*3):
+            if(unsigned == 1):
+                self.b4 = self.b3[k*3:k*4]
+            else:
+                self.b4 = Cat(self.b3[k*3:b_width], Replicate(self.b3[(b_width)-1], k*4-b_width))
+        elif (b_width == k*3):
+            if (unsigned == 0):
+                self.b4 = Cat(self.b3[b_width-1], Replicate(self.b3[(b_width)-1], k*4-b_width-1))
+            else:
+                self.b4 = self.b3[b_width-1]
         else:
             self.b4 = Replicate(0,18)
 
@@ -3804,7 +3559,7 @@ class RS_DSP_MULT20_pipeline(Module):
             k = 18
         else:
             k = 17
-        print(unsigned)
+            
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
         self.sum = Signal(3, reset=2)
@@ -3817,15 +3572,26 @@ class RS_DSP_MULT20_pipeline(Module):
             if (unsigned == 1):
                 self.a1 = self.a[k:k*2]
             else:
-                self.a1 = Cat(self.a[k:k*2], Replicate(self.a[(a_width)-1], 3))
+                self.a1 = Cat(self.a[k:a_width], Replicate(self.a[(a_width)-1], k*2-a_width+3))
+        elif (a_width == k):
+            if(unsigned == 0):
+                self.a1 = Cat(self.a[a_width-1], Replicate(self.a[(a_width)-1], k*2-a_width+2))
+            else:
+                self.a1 = self.a[a_width-1]
         else:
             self.a1 = Replicate(0,18)
+
         self.b0 = self.b[0:k]
         if (b_width > k):
             if (unsigned == 1):
                 self.b1 = self.b[k:k*2]
             else:
-                self.b1 = Cat(self.b[k:k*2], Replicate(self.b[(b_width)-1], 1))
+                self.b1 = Cat(self.b[k:b_width], Replicate(self.b[(b_width)-1], k*2-b_width+1))
+        elif (b_width == k):
+            if(unsigned == 0):
+                self.b1 = Cat(self.b[b_width-1], Replicate(self.b[(b_width)-1], k*2-b_width+2))
+            else:
+                self.b1 = self.b[b_width-1]
         else:
             self.b1 = Replicate (0,18)
         
@@ -3996,27 +3762,32 @@ class RS_DSP_MULT36_pipeline(Module):
         self.fb_del = Signal(3)
         
         self.a1 = self.a[0:k]
-        if (a_width > k):
-            self.a2 = self.a[k:k*2]
-        else:
-            self.a2 = Replicate(0,18)
+        self.a2 = self.a[k:k*2]
         if (a_width > k*2):
             if(unsigned == 1):
                 self.a3 = self.a[k*2:k*3]
             else:
-                self.a3 = Cat(self.a[k*2:k*3], Replicate(self.a[(a_width)-1], 3))
+                self.a3 = Cat(self.a[k*2:a_width], Replicate(self.a[(a_width)-1], k*3-a_width+3))
+        elif (a_width == k*2):
+            if(unsigned == 0):
+                self.a3 = Cat(self.a[a_width-1], Replicate(self.a[(a_width)-1], k*3-a_width+2))
+            else:
+                self.a3 = self.a[a_width-1]
         else:
             self.a3 = Replicate (0,18)
+
         self.b1 = self.b[0:k]
-        if (b_width > k):
-            self.b2 = self.b[k:k*2]
-        else:
-            self.b2 = Replicate (0,18)
-        if (b_width > k*3):
+        self.b2 = self.b[k:k*2]
+        if (b_width > k*2):
             if (unsigned == 1):
                 self.b3 = self.b[k*2:k*3]
             else:
-                self.b3 = Cat(self.b[k*2:k*3], Replicate(self.b[(b_width)-1], 1))
+                self.b3 = Cat(self.b[k*2:b_width], Replicate(self.b[(b_width)-1], k*3-b_width+1))
+        elif (b_width == k*2):
+            if(unsigned == 0):
+                self.b3 = Cat(self.b[b_width-1], Replicate(self.b[(b_width)-1], k*3-b_width+2))
+            else:
+                self.b3 = self.b[b_width-1]
         else:
             self.b3 = Replicate(0,18)
 
@@ -4320,35 +4091,34 @@ class RS_DSP_MULT54_pipeline(Module):
         self.comb += self.fb2.eq(Mux(self.sum != 4, 1, 0))
 
         self.a0 = self.a[0:k]
-        if (a_width > k):
-            self.a1 = self.a[k:k*2]
-        else:
-            self.a1 = Replicate(0,18)
-        if (a_width > k*2):
-            self.a2 = self.a[k*2:k*3]
-        else:
-            self.a2 = Replicate (0,18)
+        self.a1 = self.a[k:k*2]
+        self.a2 = self.a[k*2:k*3]
         if (a_width > k*3):
             if (unsigned == 1):
                 self.a3 = self.a[k*3:k*4]
             else:
-                self.a3 = Cat(self.a[k*3:k*4], Replicate(self.a[(a_width)-1], 3))
+                self.a3 = Cat(self.a[k*3:a_width], Replicate(self.a[(a_width)-1], k*4-a_width+3))
+        elif (a_width == k*3):
+            if(unsigned == 0):
+                self.a3 = Cat(self.a[a_width-1], Replicate(self.a[(a_width)-1], k*4-a_width+2))
+            else:
+                self.a3 = self.a[a_width-1]
         else:
             self.a3 = Replicate(0,18)
+
         self.b0 = self.b[0:k]
-        if (b_width > k):
-            self.b1 = self.b[k:k*2]
-        else:
-            self.b1 = Replicate (0,18)
-        if (b_width > k*2):
-            self.b2 = self.b[k*2:k*3]
-        else:
-            self.b2 = Replicate(0,18)
+        self.b1 = self.b[k:k*2]
+        self.b2 = self.b[k*2:k*3]
         if (b_width > k*3):
             if (unsigned == 1):
                 self.b3 = self.b[k*3:k*4]
             else:
-                self.b3 = Cat(self.b[k*3:k*4], Replicate(self.b[(b_width)-1], 1))
+                self.b3 = Cat(self.b[k*3:b_width], Replicate(self.b[(b_width)-1], k*4-b_width+1))
+        elif (b_width == k*3):
+            if(unsigned == 0):
+                self.b3 = Cat(self.b[b_width-1], Replicate(self.b[(b_width)-1], k*4-b_width+2))
+            else:
+                self.b3 = self.b[b_width-1]
         else:
             self.b3 = Replicate(0,18)
 
@@ -4762,7 +4532,7 @@ class RS_DSP_MULT20_enhance(Module):
             k = 17
         else:
             k = 16
-        
+
         self.a = Signal(bits_sign=(a_width, True))
         self.b = Signal(bits_sign=(b_width, True))
 
@@ -4771,6 +4541,7 @@ class RS_DSP_MULT20_enhance(Module):
             self.a1 = self.a[k:k*2]
         else:
             self.a1 = Replicate(0,20)
+
         self.b0 = self.b[0:k]
         if (b_width > k):
             self.b1 = self.b[k:k*2]
@@ -4786,10 +4557,15 @@ class RS_DSP_MULT20_enhance(Module):
             self.a__0 = Signal(bits_sign=(17, True))
             self.b__0 = Signal(bits_sign=(17, True))
 
-            self.comb += self.a__1.eq(Cat(self.a1, Replicate(self.a[a_width - 1], 1)))
-            self.comb += self.b__1.eq(Cat(self.b1, Replicate(self.b[b_width - 1], 1)))
+            self.comb += self.a__1.eq(Cat(self.a1, Replicate(self.a[a_width - 1], k*2-a_width+1)))
+            if (b_width != k):
+                self.comb += self.b__1.eq(Cat(self.b1, Replicate(self.b[b_width - 1], k*2-b_width+1)))
+                self.comb += self.b__0.eq(Cat(self.b0, Replicate(0,1)))
+            else:
+                self.comb += self.b__1.eq(self.b1)
+                self.comb += self.b__0.eq(Cat(self.b0, Replicate(self.b[b_width - 1],1)))
             self.comb += self.a__0.eq(Cat(self.a0, Replicate(0,1)))
-            self.comb += self.b__0.eq(Cat(self.b0, Replicate(0,1)))
+            
 
             self.comb += self.dx.eq(self.a__1 - self.a__0)
             self.comb += self.dy.eq(self.b__1 - self.b__0)
@@ -4851,8 +4627,8 @@ class RS_DSP_MULT20_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], k*2-a_width+4)),
+                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], k*2-b_width+2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -4925,8 +4701,8 @@ class RS_DSP_MULT20_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], k*2-a_width+4)),
+                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], k*2-b_width+2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -5000,8 +4776,8 @@ class RS_DSP_MULT20_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], k*2-a_width+4)),
+                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], k*2-b_width+2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -5037,7 +4813,7 @@ class RS_DSP_MULT20_enhance(Module):
                 p_MODE_BITS     =  0,
                 # IOs
                 i_a             = self.a0,
-                i_b             = self.b0,
+                i_b             = self.b__0,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = 1,
@@ -5065,8 +4841,8 @@ class RS_DSP_MULT20_enhance(Module):
                     # Mode Bits to configure DSP 
                     p_MODE_BITS     =  0,
                     # IOs
-                    i_a             = Cat(self.a1, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b1, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a__1, Replicate(self.a__1[len(self.a__1)-1], k*2-a_width+4)),
+                    i_b             = Cat(self.b__1, Replicate(self.b__1[b_width - 1], k*2-b_width+2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -5163,8 +4939,8 @@ class RS_DSP_MULT36_enhance(Module):
             self.a__0 = Signal(bits_sign=(17, True))
             self.b__0 = Signal(bits_sign=(17, True))
 
-            self.comb += self.a__2.eq(Cat(self.a2, Replicate(self.a[a_width - 1], 1)))
-            self.comb += self.b__2.eq(Cat(self.b2, Replicate(self.b[b_width - 1], 1)))
+            self.comb += self.a__2.eq(Cat(self.a2, Replicate(self.a[a_width - 1], k*3-a_width+1)))
+            self.comb += self.b__2.eq(Cat(self.b2, Replicate(self.b[b_width - 1], k*3-b_width+1)))
             self.comb += self.a__1.eq(Cat(self.a1, Replicate(0,1)))
             self.comb += self.b__1.eq(Cat(self.b1, Replicate(0,1)))
             self.comb += self.a__0.eq(Cat(self.a0, Replicate(0,1)))
@@ -5229,8 +5005,8 @@ class RS_DSP_MULT36_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a2, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b2, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a2, Replicate(self.a[a_width - 1], k*3-a_width+4)),
+                    i_b             = Cat(self.b2, Replicate(self.b[b_width - 1], k*3-b_width+2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -5344,8 +5120,8 @@ class RS_DSP_MULT36_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a2, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b2, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a2, Replicate(self.a[a_width - 1], k*3-a_width+4)),
+                    i_b             = Cat(self.b2, Replicate(self.b[b_width - 1], k*3-b_width+2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -5459,8 +5235,8 @@ class RS_DSP_MULT36_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a2, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b2, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a2, Replicate(self.a[a_width - 1], k*3-a_width+4)),
+                    i_b             = Cat(self.b2, Replicate(self.b[b_width - 1], k*3-b_width+2)),
                     o_z             = self.z3,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -5565,8 +5341,8 @@ class RS_DSP_MULT36_enhance(Module):
                     # Mode Bits to configure DSP 
                     p_MODE_BITS     =  0,
                     # IOs
-                    i_a             = Cat(self.a2, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b2, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a2, Replicate(self.a[a_width - 1], k*3-a_width+4)),
+                    i_b             = Cat(self.b2, Replicate(self.b[b_width - 1], k*3-b_width+2)),
                     o_z             = self.z3,
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -5729,8 +5505,8 @@ class RS_DSP_MULT54_enhance(Module):
             self.a__4 = Signal(bits_sign=(17, True))
             self.b__4 = Signal(bits_sign=(17, True))
 
-            self.comb += self.a__4.eq(Cat(self.a4, Replicate(self.a[a_width - 1], 1)))
-            self.comb += self.b__4.eq(Cat(self.b4, Replicate(self.b[b_width - 1], 1)))
+            self.comb += self.a__4.eq(Cat(self.a4, Replicate(self.a[a_width - 1], k*4-a_width+1)))
+            self.comb += self.b__4.eq(Cat(self.b4, Replicate(self.b[b_width - 1], k*4-b_width+1)))
             self.comb += self.a__3.eq(Cat(self.a3, Replicate(0,1)))
             self.comb += self.b__3.eq(Cat(self.b3, Replicate(0,1)))
             self.comb += self.a__2.eq(Cat(self.a2, Replicate(0,1)))
@@ -5816,8 +5592,8 @@ class RS_DSP_MULT54_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a4, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b4, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a4, Replicate(self.a[a_width - 1], k*4-a_width+4)),
+                    i_b             = Cat(self.b4, Replicate(self.b[b_width - 1], k*4-b_width+2)),
                     o_z             = self.z4,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -5995,8 +5771,8 @@ class RS_DSP_MULT54_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a4, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b4, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a4, Replicate(self.a[a_width - 1], k*4-a_width+4)),
+                    i_b             = Cat(self.b4, Replicate(self.b[b_width - 1], k*4-b_width+2)),
                     o_z             = self.z4,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -6174,8 +5950,8 @@ class RS_DSP_MULT54_enhance(Module):
                     i_clk           = ClockSignal(),
                     i_lreset        = ResetSignal(),
                     # IOs
-                    i_a             = Cat(self.a4, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b4, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a4, Replicate(self.a[a_width - 1], k*4-a_width+4)),
+                    i_b             = Cat(self.b4, Replicate(self.b[b_width - 1], k*4-b_width+2)),
                     o_z             = self.z4,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
@@ -6341,8 +6117,8 @@ class RS_DSP_MULT54_enhance(Module):
                     # Mode Bits to configure DSP 
                     p_MODE_BITS     =  0,
                     # IOs
-                    i_a             = Cat(self.a4, Replicate(self.a[a_width - 1], 4)),
-                    i_b             = Cat(self.b4, Replicate(self.b[b_width - 1], 2)),
+                    i_a             = Cat(self.a4, Replicate(self.a[a_width - 1], k*4-a_width+4)),
+                    i_b             = Cat(self.b4, Replicate(self.b[b_width - 1], k*4-b_width+2)),
                     o_z             = self.z4,  
                     i_feedback      = 0,
                     i_unsigned_a    = 0,
