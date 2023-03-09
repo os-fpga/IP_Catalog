@@ -99,12 +99,6 @@ def main():
                 'w_user_en'  :  'w_user_width' ,
                 'b_user_en'  :  'b_user_width' ,
                 'ar_user_en' :  'ar_user_width',
-                'r_user_en'  :  'r_user_width' },
-                'disable' : {
-                'aw_user_en' :  'aw_user_width',
-                'w_user_en'  :  'w_user_width' ,
-                'b_user_en'  :  'b_user_width' ,
-                'ar_user_en' :  'ar_user_width',
                 'r_user_en'  :  'r_user_width' }
         }            
 

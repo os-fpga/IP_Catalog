@@ -216,8 +216,11 @@ def main():
 
     # Parameter Dependency dictionary
     #                Ports     :    Dependency
-    dep_dict = {}            
-
+    dep_dict = { 'disable' : {
+                'base_variant' :  ['cached_with_mmu', 'cached_with_mmu_plic_clint' ],
+                'cached_with_mmu'  : ['base_variant', 'cached_with_mmu_plic_clint' ],
+                'cached_with_mmu_plic_clint' : ['base_variant', 'cached_with_mmu'] }
+        }            
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="vexriscv_cpu", language="verilog")
 
