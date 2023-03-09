@@ -160,7 +160,7 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
+    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=False,     help="Unsigned Input")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
