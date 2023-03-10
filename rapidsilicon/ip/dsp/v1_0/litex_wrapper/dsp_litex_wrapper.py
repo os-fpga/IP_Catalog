@@ -791,16 +791,16 @@ class RS_DSP_MULT20(Module):
         b1_sign = 1
 
         if (a_width > k and a_width <= k*2):
-          self.a0 = self.a3[0:k]
+          self.a0 = Cat(self.a3[0:k], Replicate(0,2))
           if(unsigned):
-              self.a1 = self.a3[k:a_width]
+              self.a1 = Cat(self.a3[k:a_width], Replicate(0,k*2-a_width+1))
           else:
               a1_sign = 0
               self.a1 = Cat(self.a3[k:a_width], Replicate(self.a3[a_width - 1],k*2-a_width+2))
         if (a_width <= k):
             self.a1 =  Replicate(0,20)
             if(unsigned):
-                self.a0 = self.a3[0:a_width]
+                self.a0 = Cat(self.a3[0:a_width], Replicate(0,k-a_width+1))
             else:
                 self.a0 = Cat(self.a3[0:a_width],  Replicate(self.a3[a_width - 1],k-a_width+2))
                 a0_sign = 0
@@ -808,14 +808,14 @@ class RS_DSP_MULT20(Module):
         if (b_width > k and b_width <= k*2):
           self.b0 = self.b3[0:k]
           if(unsigned):
-              self.b1 = self.b3[k:b_width]
+              self.b1 = Cat(self.b3[k:b_width], Replicate(0,k*2-b_width+1))
           else:
               b1_sign = 0
               self.b1 = Cat(self.b3[k:b_width], Replicate(self.b3[b_width - 1],k*2-b_width+2))
         if (b_width <= k):
             self.b1 =  Replicate(0,18)
             if(unsigned):
-                self.b0 = self.b3[0:b_width]
+                self.b0 = Cat(self.b3[0:b_width], Replicate(0,k-a_width+1))
             else:
                 self.b0 = Cat(self.b3[0:b_width],  Replicate(self.b3[b_width - 1],k-b_width+2))
                 b0_sign = 0
@@ -1149,18 +1149,18 @@ class RS_DSP_MULT36(Module):
         b2_sign = 1
   
         if(a_width > k*2 and a_width <= k*3):
-          self.a0 = self.a3[0:k],  
-          self.a1 = self.a3[k:k*2]
+          self.a0 = Cat(self.a3[0:k], Replicate(0,2))
+          self.a1 = Cat(self.a3[k:k*2], Replicate(0,2))
           if (unsigned):
-              self.a2 = self.a3[k*2:a_width]
+              self.a2 = Cat(self.a3[k*2:a_width], Replicate(0,k*3-a_width+1))
           else:
               a2_sign = 0
               self.a2 = Cat(self.a3[k*2:a_width], Replicate(self.a3[a_width - 1],k*3-a_width+2))
         elif (a_width > k and a_width <= k*2):
           self.a2 =  Replicate(0,20)
-          self.a0 = self.a3[0:k]
+          self.a0 = Cat(self.a3[0:k], Replicate(0,2))
           if(unsigned):
-              self.a1 = self.a3[k:a_width]
+              self.a1 = Cat(self.a3[k:a_width], Replicate(0,k*2-a_width+1))
           else:
               a1_sign = 0
               self.a1 = Cat(self.a3[k:a_width], Replicate(self.a3[a_width - 1],k*2-a_width+2))
@@ -1168,7 +1168,7 @@ class RS_DSP_MULT36(Module):
             self.a1 =  Replicate(0,20)
             self.a2 =  Replicate(0,20)
             if(unsigned):
-                self.a0 = self.a3[0:a_width]
+                self.a0 = Cat(self.a3[0:a_width], Replicate(0,k-a_width+1))
             else:
                 self.a0 = Cat(self.a3[0:a_width],  Replicate(self.a3[a_width - 1],k-a_width+2))
                 a0_sign = 0
@@ -1177,23 +1177,23 @@ class RS_DSP_MULT36(Module):
           self.b0 = self.b3[0:k]
           self.b1 = self.b3[k:k*2]
           if (unsigned):
-              self.b2 = self.b3[k*2:b_width]
+              self.b2 = Cat(self.b3[k*2:b_width], Replicate(0,k*3-b_width+1))
           else:
               b2_sign = 0
               self.b2 = Cat(self.b3[k*2:b_width], Replicate(self.b3[b_width - 1],k*3-b_width))
         elif (b_width > k and b_width <= k*2):
-          self.b2 = Replicate(0,20)
+          self.b2 = Replicate(0,18)
           self.b0 = self.b3[0:k]
           if(unsigned):
-              self.b1 = self.b3[k:b_width]
+              self.b1 = Cat(self.b3[k:b_width], Replicate(0,k*2-b_width+1))
           else:
               b1_sign = 0
               self.b1 = Cat(self.b3[k:b_width], Replicate(self.b3[b_width - 1],k*2-b_width))
         elif (b_width <= k):
-            self.b1 =  Replicate(0,20)
-            self.b2 =  Replicate(0,20)
+            self.b1 =  Replicate(0,18)
+            self.b2 =  Replicate(0,18)
             if(unsigned):
-                self.b0 = self.b3[0:b_width]
+                self.b0 = Cat(self.b3[0:b_width], Replicate(0,k-b_width+1))
             else:
                 self.b0 = Cat(self.b3[0:b_width],  Replicate(self.b3[b_width - 1],k-b_width))
                 b0_sign = 0
@@ -1816,11 +1816,11 @@ class RS_DSP_MULT54(Module):
         b3_sign = 1     
         
         if(a_width > k*3 and a_width <= k*4):
-            self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
+            self.a0 = Cat(self.a3[0:k], Replicate(0,2))
             self.a1 = Cat(self.a3[k:k*2], Replicate(0,2))
             self.a2 = Cat(self.a3[k*2:k*3], Replicate(0,2))
             if (unsigned):
-              self.a4 = Cat(self.a3[k*3:a_width], Replicate(0,2))
+              self.a4 = Cat(self.a3[k*3:a_width], Replicate(0,k*4-a_width+1))
             else:
               a3_sign = 0
               self.a4 = Cat(self.a3[k*3:a_width], Replicate(self.a3[a_width - 1],k*4-a_width+2))
@@ -1829,25 +1829,16 @@ class RS_DSP_MULT54(Module):
             self.a1 = Cat(self.a3[k:k*2], Replicate(0,2))
             self.a4 = Replicate(0,20)
             if (unsigned):
-              self.a2 = Cat(self.a3[k*2:a_width], Replicate(0,2))
+              self.a2 = Cat(self.a3[k*2:a_width], Replicate(0,k*3-a_width+1))
             else:
-              a3_sign = 0
-              self.a2 = Cat(self.a3[k*2:a_width], Replicate(self.a3[a_width - 1],k*3-a_width+2))
-        elif(a_width > k and a_width >= k*2):
-          self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
-          self.a4 = Replicate(0,20)
-          self.a1 = Cat(self.a3[k:k*2], Replicate(0,2))
-          if (unsigned):
-              self.a2 = Cat(self.a3[k*2:k*3], Replicate(0,2))
-          else:
               a2_sign = 0
-              self.a2 = Cat(self.a3[k*2:k*3], Replicate(self.a3[(k*3)-1],k*3-a_width+2))
+              self.a2 = Cat(self.a3[k*2:a_width], Replicate(self.a3[a_width - 1],k*3-a_width+2))
         elif (a_width > k and a_width <= k*2):
           self.a2 =  Replicate(0,20)
           self.a4 = Replicate(0,20)
           self.a0 = Cat(self.a3[0:k],  Replicate(0,2))
           if(unsigned):
-              self.a1 = Cat(self.a3[k:a_width], Replicate(0,2))
+              self.a1 = Cat(self.a3[k:a_width], Replicate(0,k*2-a_width+1))
           else:
               a1_sign = 0
               self.a1 = Cat(self.a3[k:a_width], Replicate(self.a3[a_width - 1],k*2-a_width+2))
@@ -1856,7 +1847,7 @@ class RS_DSP_MULT54(Module):
             self.a2 =  Replicate(0,20)
             self.a4 = Replicate(0,20)
             if(unsigned):
-                self.a0 = Cat(self.a3[0:a_width],  Replicate(0,2))
+                self.a0 = Cat(self.a3[0:a_width], Replicate(0,k-a_width+1))
             else:
                 self.a0 = Cat(self.a3[0:a_width],  Replicate(self.a3[a_width - 1],k-a_width+2))
                 a0_sign = 0
@@ -1866,34 +1857,25 @@ class RS_DSP_MULT54(Module):
             self.b1 = self.b3[k:k*2]
             self.b2 = self.b3[k*2:k*3]
             if (unsigned):
-              self.b4 = self.b3[k*3:b_width]
+              self.b4 = Cat(self.b3[k*3:b_width], Replicate(0,k*4-b_width+1))
             else:
               b3_sign = 0
               self.b4 = Cat(self.b3[k*3:b_width], Replicate(self.b3[b_width - 1],k*4-b_width))
         elif(b_width > k*2 and b_width <= k*3):
             self.b0 = self.b3[0:k]
             self.b1 = self.b3[k:k*2]
-            self.b4 = Replicate(0,20)
+            self.b4 = Replicate(0,18)
             if (unsigned):
-              self.b2 = self.b3[k*2:b_width]
+              self.b2 = Cat(self.b3[k*2:b_width], Replicate(0,k*3-b_width+1))
             else:
-              b3_sign = 0
-              self.b2 = Cat(self.b3[k*2:b_width], Replicate(self.b3[b_width - 1],k*3-b_width))
-        elif(b_width > k and b_width >= k*2):
-          self.b0 = self.b3[0:k]
-          self.b4 = Replicate(0,20)
-          self.b1 = self.b3[k:k*2]
-          if (unsigned):
-              self.b2 = self.b3[k*2:k*3]
-          else:
               b2_sign = 0
-              self.b2 = Cat(self.b3[k*2:k*3], Replicate(self.b3[1],k*3-b_width))
+              self.b2 = Cat(self.b3[k*2:b_width], Replicate(self.b3[b_width - 1],k*3-b_width))
         elif (b_width > k and b_width <= k*2):
           self.b2 =  Replicate(0,18)
           self.b4 = Replicate(0,18)
           self.b0 = self.b3[0:k]
           if(unsigned):
-              self.b1 = self.b3[k:b_width]
+              self.b1 = Cat(self.b3[k:b_width], Replicate(0,k*2-b_width+1))
           else:
               b1_sign = 0
               self.b1 = Cat(self.b3[k:b_width], Replicate(self.b3[b_width - 1],k*2-b_width))
@@ -1902,7 +1884,7 @@ class RS_DSP_MULT54(Module):
             self.b2 =  Replicate(0,18)
             self.b4 = Replicate(0,18)
             if(unsigned):
-                self.b0 = self.b3[0:b_width]
+                self.b0 = Cat(self.b3[0:b_width], Replicate(0,k-b_width+1))
             else:
                 self.b0 = Cat(self.b3[0:b_width],  Replicate(self.b3[b_width - 1],k-b_width))
                 b0_sign = 0
@@ -2959,43 +2941,51 @@ class RS_DSP_MULT20_pipeline(Module):
         
         self.comb += self.fb.eq(Mux(self.sum != 2, 0b001, 0b000))
 
-        self.a0 = self.a[0:k]
-        if (a_width > k):
-            if (unsigned == 1):
-                self.a1 = self.a[k:k*2]
-            else:
-                self.a1 = Cat(self.a[k:a_width], Replicate(self.a[(a_width)-1], k*2-a_width+3))
-        elif (a_width == k):
-            if(unsigned == 0):
-                self.a1 = Cat(self.a[a_width-1], Replicate(self.a[(a_width)-1], k*2-a_width+2))
-            else:
-                self.a1 = self.a[a_width-1]
-        else:
-            self.a1 = Replicate(0,18)
+        a0_sign = 1
+        a1_sign = 1
+        b0_sign = 1
+        b1_sign = 1
 
-        self.b0 = self.b[0:k]
-        if (b_width > k):
-            if (unsigned == 1):
-                self.b1 = self.b[k:k*2]
+        if (a_width > k and a_width <= k*2):
+          if(unsigned):
+              self.a0 = Cat(self.a[0:k], Replicate(0, 2))
+              self.a1 = Cat(self.a[k:a_width], Replicate(0,k*2-a_width+1))
+          else:
+              self.a0 = Cat(self.a[0:k], Replicate(0, 3))
+              a1_sign = 0
+              self.a1 = Cat(self.a[k:a_width], Replicate(self.a[a_width - 1],k*2-a_width+3))
+        if (a_width <= k):
+            self.a1 =  Replicate(0,20)
+            if(unsigned):
+                self.a0 = Cat(self.a[0:a_width], Replicate(0,k-a_width+1))
             else:
-                self.b1 = Cat(self.b[k:b_width], Replicate(self.b[(b_width)-1], k*2-b_width+1))
-        elif (b_width == k):
-            if(unsigned == 0):
-                self.b1 = Cat(self.b[b_width-1], Replicate(self.b[(b_width)-1], k*2-b_width+2))
+                self.a0 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+3))
+                a0_sign = 0
+              
+        if (b_width > k and b_width <= k*2):
+          if(unsigned):
+              self.b0 = self.b[0:k]
+              self.b1 = Cat(self.b[k:b_width], Replicate(0,k*2-b_width+1))
+          else:
+              self.b0 = Cat(self.b[0:k], Replicate(0,1))
+              b1_sign = 0
+              self.b1 = Cat(self.b[k:b_width], Replicate(self.b[b_width - 1],k*2-b_width+1))
+        if (b_width <= k):
+            self.b1 =  Replicate(0,18)
+            if(unsigned):
+                self.b0 = Cat(self.b[0:b_width], Replicate(0,k-b_width+1))
             else:
-                self.b1 = self.b[b_width-1]
-        else:
-            self.b1 = Replicate (0,18)
+                self.b0 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+1))
+                b0_sign = 0
         
         self.a3 = Signal(bits_sign=(19,True))
         self.b3 = Signal(bits_sign=(19,True))
         self.comb += self.a3.eq(Mux(self.sum != 2, self.a0, self.a1))
         self.comb += self.b3.eq(Mux(self.sum != 2, self.b1, self.b0))
-        if (unsigned == 0):
-            self.unsigneda = Signal(1)
-            self.unsignedb = Signal(1)
-            self.comb += self.unsigneda.eq(Mux(self.sum != 2, 1, 0))
-            self.comb += self.unsignedb.eq(Mux(self.sum != 2, 0, 1))
+        self.unsigneda = Signal(1)
+        self.unsignedb = Signal(1)
+        self.comb += self.unsigneda.eq(Mux(self.sum != 2, a0_sign, a1_sign))
+        self.comb += self.unsignedb.eq(Mux(self.sum != 2, b1_sign, b0_sign))
 
         self.z1 = Signal(bits_sign=(38,True))
         self.z2 = Signal(bits_sign=(38,True))
@@ -3030,11 +3020,10 @@ class RS_DSP_MULT20_pipeline(Module):
             i_b             = self.b0,
             o_z             = self.z1,  
             i_feedback      = 0,
-            i_unsigned_a    = 1,
-            i_unsigned_b    = 1
+            i_unsigned_a    = a0_sign,
+            i_unsigned_b    = b0_sign
         )
-        if(unsigned == 0):
-            self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("RS_DSP_MULTACC",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
@@ -3054,67 +3043,26 @@ class RS_DSP_MULT20_pipeline(Module):
             i_unsigned_a    = self.unsigneda,
             i_unsigned_b    = self.unsignedb,
             i_subtract      = 0
-            )
-        
-            # Module instance.
-            # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
-            )
-        else:
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z3,  
-                i_feedback      = self.fb,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
-                i_subtract      = 0
-            )
+        )
+        # Module instance.
+        # ----------------
+        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            # Parameters.
+            # -----------
+            # Mode Bits to configure DSP 
+            p_MODE_BITS     =  0,
+            # Reset
+            i_clk           = ClockSignal(),
+            i_lreset        = ResetSignal(),
+            # IOs
+            i_a             = self.a1,
+            i_b             = self.b1,
+            o_z             = self.z2,  
+            i_feedback      = 0,
+            i_unsigned_a    = a1_sign,
+            i_unsigned_b    = b1_sign
+        )
 
-            # Module instance.
-            # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
-            )
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT36_pipeline(Module):
     def __init__(self, a_width, b_width, equation,unsigned):
@@ -3153,35 +3101,68 @@ class RS_DSP_MULT36_pipeline(Module):
         self.fb = Signal(3, reset = 1)
         self.fb_del = Signal(3)
         
-        self.a1 = self.a[0:k]
-        self.a2 = self.a[k:k*2]
-        if (a_width > k*2):
-            if(unsigned == 1):
-                self.a3 = self.a[k*2:k*3]
+        a0_sign = 1
+        a1_sign = 1
+        a2_sign = 1
+        b0_sign = 1
+        b1_sign = 1
+        b2_sign = 1
+  
+        if(a_width > k*2 and a_width <= k*3):
+            if (unsigned):
+                self.a1 = Cat(self.a[0:k], Replicate(0,2))
+                self.a2 = Cat(self.a[k:k*2], Replicate(0,2))
+                self.a3 = Cat(self.a[k*2:a_width], Replicate(0,k*3-a_width+1))
             else:
-                self.a3 = Cat(self.a[k*2:a_width], Replicate(self.a[(a_width)-1], k*3-a_width+3))
-        elif (a_width == k*2):
-            if(unsigned == 0):
-                self.a3 = Cat(self.a[a_width-1], Replicate(self.a[(a_width)-1], k*3-a_width+2))
+                self.a1 = Cat(self.a[0:k], Replicate(0,3))
+                self.a2 = Cat(self.a[k:k*2], Replicate(0,3))
+                a2_sign = 0
+                self.a3 = Cat(self.a[k*2:a_width], Replicate(self.a[a_width - 1],k*3-a_width+3))
+        elif (a_width > k and a_width <= k*2):
+            self.a3 =  Replicate(0,20)
+            if(unsigned):
+                self.a1 = Cat(self.a[0:k], Replicate(0,2))
+                self.a2 = Cat(self.a[k:a_width], Replicate(0,k*2-a_width+1))
             else:
-                self.a3 = self.a[a_width-1]
-        else:
-            self.a3 = Replicate (0,18)
-
-        self.b1 = self.b[0:k]
-        self.b2 = self.b[k:k*2]
-        if (b_width > k*2):
-            if (unsigned == 1):
-                self.b3 = self.b[k*2:k*3]
+                self.a1 = Cat(self.a[0:k], Replicate(0,3))
+                a1_sign = 0
+                self.a2 = Cat(self.a[k:a_width], Replicate(self.a[a_width - 1],k*2-a_width+3))
+        elif (a_width <= k):
+            self.a2 =  Replicate(0,20)
+            self.a3 =  Replicate(0,20)
+            if(unsigned):
+                self.a1 = Cat(self.a[0:a_width], Replicate(0,k-a_width+1))
             else:
-                self.b3 = Cat(self.b[k*2:b_width], Replicate(self.b[(b_width)-1], k*3-b_width+1))
-        elif (b_width == k*2):
-            if(unsigned == 0):
-                self.b3 = Cat(self.b[b_width-1], Replicate(self.b[(b_width)-1], k*3-b_width+2))
+                self.a1 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+3))
+                a0_sign = 0
+        
+        if(b_width > k*2 and b_width <= k*3):
+            if (unsigned):
+                self.b1 = self.b[0:k]
+                self.b2 = self.b[k:k*2]
+                self.b3 = Cat(self.b[k*2:b_width], Replicate(0,k*3-b_width+1))
             else:
-                self.b3 = self.b[b_width-1]
-        else:
-            self.b3 = Replicate(0,18)
+                self.b1 = Cat(self.b[0:k], Replicate (0, 1))
+                self.b2 = Cat(self.b[k:k*2], Replicate (0, 1))
+                b2_sign = 0
+                self.b3 = Cat(self.b[k*2:b_width], Replicate(self.b[b_width - 1],k*3-b_width+1))
+        elif (b_width > k and b_width <= k*2):
+            self.b3 = Replicate(0,20)
+            if(unsigned):
+                self.b1 = self.b[0:k]
+                self.b2 = Cat(self.b[k:b_width], Replicate(0,k*2-b_width+1))
+            else:
+                self.b1 = Cat(self.b[0:k], Replicate(0 , 1))
+                b1_sign = 0
+                self.b2 = Cat(self.b[k:b_width], Replicate(self.b[b_width - 1],k*2-b_width+1))
+        elif (b_width <= k):
+            self.b2 =  Replicate(0,18)
+            self.b3 =  Replicate(0,18)
+            if(unsigned):
+                self.b1 = Cat(self.b[0:b_width], Replicate(0,k-b_width+1))
+            else:
+                self.b1 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+1))
+                b0_sign = 0
 
         if (unsigned == 0):
             self.z1 = Signal(bits_sign=(38,True))
@@ -3196,10 +3177,14 @@ class RS_DSP_MULT36_pipeline(Module):
             self.z4 = Signal(38)
             self.z5 = Signal(38)
         
+        self.a_2_sign = Signal(1, reset = 1)
         self.a_2 = Signal(bits_sign=(k+1,True))
         self.comb += self.a_2.eq(Mux(self.sum == 3, self.a1, self.a2))
+        self.comb += self.a_2_sign.eq(Mux(self.sum == 3, a0_sign, a1_sign))
         self.b_2 = Signal(bits_sign=(k+1,True))
+        self.b_2_sign = Signal(1, reset = 1)
         self.comb += self.b_2.eq(Mux(self.sum == 3, self.b2, self.b1))
+        self.comb += self.b_2_sign.eq(Mux(self.sum == 3, b1_sign, b0_sign))
         self.a_4 = Signal(bits_sign=(k+1,True))
         self.comb += self.a_4.eq(Mux(self.sum == 3, self.a2, self.a3))
         self.b_4 = Signal(bits_sign=(k+1,True))
@@ -3208,68 +3193,43 @@ class RS_DSP_MULT36_pipeline(Module):
         self.a_3 = Signal(bits_sign=(k+1,True))
         self.b_3 = Signal(bits_sign=(k+1,True))
 
-        if (unsigned == 0):
-            self.unsigneda_3 = Signal(1, reset = 1)
-            self.unsignedb_3 = Signal(1, reset = 1)
-
-            self.unsigneda_4 = Signal(1, reset = 1)
-            self.unsignedb_4 = Signal(1, reset = 1)
-            self.comb += self.unsigneda_4.eq(Mux(self.sum == 3, 1, 0))
-            self.comb += self.unsignedb_4.eq(Mux(self.sum == 3, 0, 1))
-        if (unsigned == 1):
-            self.comb += [
-                If(self.sum == 4,
-                    self.fb.eq(1)
-                ).Elif(self.sum == 1,
-                    self.fb.eq(1)
-                ).Else(
-                    self.fb.eq(0)
-                ),
-                If(self.sum < 2,
-                    self.a_3.eq(self.a1),
-                    self.b_3.eq(self.b3),
-                ).Elif(self.sum == 4,
-                    self.a_3.eq(self.a1),
-                    self.b_3.eq(self.b3),
-                ).Elif(self.sum == 2,
-                    self.a_3.eq(self.a2),
-                    self.b_3.eq(self.b2),
-                ).Else(
-                    self.a_3.eq(self.a3),
-                    self.b_3.eq(self.b1),
-                )
-            ]
-        else:
-            self.comb += [
-                If(self.sum == 4,
-                    self.fb.eq(1)
-                ).Elif(self.sum == 1,
-                    self.fb.eq(1)
-                ).Else(
-                    self.fb.eq(0)
-                ),
-                If(self.sum < 2,
-                    self.a_3.eq(self.a1),
-                    self.unsigneda_3.eq(1),
-                    self.b_3.eq(self.b3),
-                    self.unsignedb_3.eq(0),
-                ).Elif(self.sum == 4,
-                    self.a_3.eq(self.a1),
-                    self.unsigneda_3.eq(1),
-                    self.b_3.eq(self.b3),
-                    self.unsignedb_3.eq(0),
-                ).Elif(self.sum == 2,
-                    self.a_3.eq(self.a2),
-                    self.unsigneda_3.eq(1),
-                    self.b_3.eq(self.b2),
-                    self.unsignedb_3.eq(1),
-                ).Else(
-                    self.a_3.eq(self.a3),
-                    self.unsigneda_3.eq(0),
-                    self.b_3.eq(self.b1),
-                    self.unsignedb_3.eq(1),
-                )
-            ]
+        
+        self.unsigneda_3 = Signal(1, reset = 1)
+        self.unsignedb_3 = Signal(1, reset = 1)
+        self.unsigneda_4 = Signal(1, reset = 1)
+        self.unsignedb_4 = Signal(1, reset = 1)
+        self.comb += self.unsigneda_4.eq(Mux(self.sum == 3, a1_sign, a2_sign))
+        self.comb += self.unsignedb_4.eq(Mux(self.sum == 3, b2_sign, b1_sign))
+        self.comb += [
+            If(self.sum == 4,
+                self.fb.eq(1)
+            ).Elif(self.sum == 1,
+                self.fb.eq(1)
+            ).Else(
+                self.fb.eq(0)
+            ),
+            If(self.sum < 2,
+                self.a_3.eq(self.a1),
+                self.unsigneda_3.eq(a0_sign),
+                self.b_3.eq(self.b3),
+                self.unsignedb_3.eq(b2_sign),
+            ).Elif(self.sum == 4,
+                self.a_3.eq(self.a1),
+                self.unsigneda_3.eq(a0_sign),
+                self.b_3.eq(self.b3),
+                self.unsignedb_3.eq(b2_sign),
+            ).Elif(self.sum == 2,
+                self.a_3.eq(self.a2),
+                self.unsigneda_3.eq(a1_sign),
+                self.b_3.eq(self.b2),
+                self.unsignedb_3.eq(b1_sign),
+            ).Else(
+                self.a_3.eq(self.a3),
+                self.unsigneda_3.eq(a2_sign),
+                self.b_3.eq(self.b1),
+                self.unsignedb_3.eq(b0_sign),
+            )
+        ]
 
 
         self.z = Signal(a_width + b_width)
@@ -3306,8 +3266,8 @@ class RS_DSP_MULT36_pipeline(Module):
             i_b             = self.b1,
             o_z             = self.z1,  
             i_feedback      = 0,
-            i_unsigned_a    = 1,
-            i_unsigned_b    = 1
+            i_unsigned_a    = a0_sign,
+            i_unsigned_b    = b0_sign
         )
         self.specials += Instance("RS_DSP_MULTACC",
             # Parameters.
@@ -3326,128 +3286,69 @@ class RS_DSP_MULT36_pipeline(Module):
             i_round         = 0,
             i_saturate_enable = 0,
             i_shift_right   = 0,
-            i_unsigned_a    = 1,
-            i_unsigned_b    = 1,
+            i_unsigned_a    = self.a_2_sign,
+            i_unsigned_b    = self.b_2_sign,
             i_subtract      = 0
         )
-        if (unsigned == 0):
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_3,
-                i_b             = self.b_3,
-                o_z             = self.z3,  
-                i_feedback      = self.fb,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = self.unsigneda_3,
-                i_unsigned_b    = self.unsignedb_3,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_4,
-                i_b             = self.b_4,
-                o_z             = self.z4,  
-                i_feedback      = self.fb_del,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = self.unsigneda_4,
-                i_unsigned_b    = self.unsignedb_4,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
-            )
-        else:
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_3,
-                i_b             = self.b_3,
-                o_z             = self.z3,  
-                i_feedback      = self.fb,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_4,
-                i_b             = self.b_4,
-                o_z             = self.z4,  
-                i_feedback      = self.fb_del,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
-            )
+        self.specials += Instance("RS_DSP_MULTACC",
+            # Parameters.
+            # -----------
+            # Mode Bits to configure DSP 
+            p_MODE_BITS     =  0,
+            # Reset
+            i_clk           = ClockSignal(),
+            i_lreset        = ResetSignal(),
+            # IOs
+            i_a             = self.a_3,
+            i_b             = self.b_3,
+            o_z             = self.z3,  
+            i_feedback      = self.fb,
+            i_load_acc      = 1,
+            i_round         = 0,
+            i_saturate_enable = 0,
+            i_shift_right   = 0,
+            i_unsigned_a    = self.unsigneda_3,
+            i_unsigned_b    = self.unsignedb_3,
+            i_subtract      = 0
+        )
+        self.specials += Instance("RS_DSP_MULTACC",
+            # Parameters.
+            # -----------
+            # Mode Bits to configure DSP 
+            p_MODE_BITS     =  0,
+            # Reset
+            i_clk           = ClockSignal(),
+            i_lreset        = ResetSignal(),
+            # IOs
+            i_a             = self.a_4,
+            i_b             = self.b_4,
+            o_z             = self.z4,  
+            i_feedback      = self.fb_del,
+            i_load_acc      = 1,
+            i_round         = 0,
+            i_saturate_enable = 0,
+            i_shift_right   = 0,
+            i_unsigned_a    = self.unsigneda_4,
+            i_unsigned_b    = self.unsignedb_4,
+            i_subtract      = 0
+        )
+        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            # Parameters.
+            # -----------
+            # Mode Bits to configure DSP 
+            p_MODE_BITS     =  0,
+            # Reset
+            i_clk           = ClockSignal(),
+            i_lreset        = ResetSignal(),
+            # IOs
+            i_a             = self.a3,
+            i_b             = self.b3,
+            o_z             = self.z5,  
+            i_feedback      = 0,
+            i_unsigned_a    = a2_sign,
+            i_unsigned_b    = b2_sign
+        )
+        
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT54_pipeline(Module):
@@ -3482,37 +3383,100 @@ class RS_DSP_MULT54_pipeline(Module):
         self.fb2 = Signal(3)
         self.comb += self.fb2.eq(Mux(self.sum != 4, 1, 0))
 
-        self.a0 = self.a[0:k]
-        self.a1 = self.a[k:k*2]
-        self.a2 = self.a[k*2:k*3]
-        if (a_width > k*3):
-            if (unsigned == 1):
-                self.a3 = self.a[k*3:k*4]
+        a0_sign = 1
+        a1_sign = 1
+        a2_sign = 1
+        a3_sign = 1
+        b0_sign = 1
+        b1_sign = 1
+        b2_sign = 1
+        b3_sign = 1     
+        
+        if(a_width > k*3 and a_width <= k*4):
+            if (unsigned):
+                self.a0 = Cat(self.a[0:k], Replicate (0, 2))
+                self.a1 = Cat(self.a[k:k*2], Replicate (0, 2))
+                self.a2 = Cat(self.a[k*2:k*3], Replicate (0, 2))
+                self.a3 = Cat(self.a[k*3:a_width], Replicate(0,k*4-a_width+1))
             else:
-                self.a3 = Cat(self.a[k*3:a_width], Replicate(self.a[(a_width)-1], k*4-a_width+3))
-        elif (a_width == k*3):
-            if(unsigned == 0):
-                self.a3 = Cat(self.a[a_width-1], Replicate(self.a[(a_width)-1], k*4-a_width+2))
+                self.a0 = Cat(self.a[0:k], Replicate (0, 3))
+                self.a1 = Cat(self.a[k:k*2], Replicate (0, 3))
+                self.a2 = Cat(self.a[k*2:k*3], Replicate (0, 3))
+                a3_sign = 0
+                self.a3 = Cat(self.a[k*3:a_width], Replicate(self.a[a_width - 1],k*4-a_width+3))
+        elif(a_width > k*2 and a_width <= k*3):
+            self.a3 = Replicate(0,20)
+            if (unsigned):
+                self.a0 = Cat(self.a[0:k], Replicate(0, 2))
+                self.a1 = Cat(self.a[k:k*2], Replicate(0, 2))
+                self.a2 = Cat(self.a[k*2:a_width], Replicate(0,k*3-a_width+1))
             else:
-                self.a3 = self.a[a_width-1]
-        else:
-            self.a3 = Replicate(0,18)
+                self.a0 = Cat(self.a[0:k], Replicate(0, 3))
+                self.a1 = Cat(self.a[k:k*2], Replicate(0, 3))
+                a2_sign = 0
+                self.a2 = Cat(self.a[k*2:a_width], Replicate(self.a[a_width - 1],k*3-a_width+3))
+        elif (a_width > k and a_width <= k*2):
+            self.a2 =  Replicate(0,20)
+            self.a3 = Replicate(0,20)
+            if(unsigned):
+                self.a0 = (self.a[0:k], Replicate(0 ,2))
+                self.a1 = Cat(self.a[k:a_width], Replicate(0,k*2-a_width+1))
+            else:
+                self.a0 = (self.a[0:k], Replicate(0 ,3))
+                a1_sign = 0
+                self.a1 = Cat(self.a[k:a_width], Replicate(self.a[a_width - 1],k*2-a_width+3))
+        elif (a_width <= k):
+            self.a1 =  Replicate(0,20)
+            self.a2 =  Replicate(0,20)
+            self.a3 = Replicate(0,20)
+            if(unsigned):
+                self.a0 = Cat(self.a[0:a_width], Replicate(0,k-a_width+1))
+            else:
+                self.a0 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+3))
+                a0_sign = 0
 
-        self.b0 = self.b[0:k]
-        self.b1 = self.b[k:k*2]
-        self.b2 = self.b[k*2:k*3]
-        if (b_width > k*3):
-            if (unsigned == 1):
-                self.b3 = self.b[k*3:k*4]
+        if(b_width > k*3 and b_width <= k*4):
+            if (unsigned):
+                self.b0 = self.b[0:k]
+                self.b1 = self.b[k:k*2]
+                self.b2 = self.b[k*2:k*3]
+                self.b3 = Cat(self.b[k*3:b_width], Replicate(0,k*4-b_width+1))
             else:
-                self.b3 = Cat(self.b[k*3:b_width], Replicate(self.b[(b_width)-1], k*4-b_width+1))
-        elif (b_width == k*3):
-            if(unsigned == 0):
-                self.b3 = Cat(self.b[b_width-1], Replicate(self.b[(b_width)-1], k*4-b_width+2))
+                self.b0 = Cat(self.b[0:k], Replicate(0, 1))
+                self.b1 = Cat(self.b[k:k*2], Replicate(0, 1))
+                self.b2 = Cat(self.b[k*2:k*3], Replicate(0, 1))
+                b3_sign = 0
+                self.b3 = Cat(self.b[k*3:b_width], Replicate(self.b[b_width - 1],k*4-b_width+1))
+        elif(b_width > k*2 and b_width <= k*3):
+            self.b3 = Replicate(0,20)
+            if (unsigned):
+                self.b0 = self.b[0:k]
+                self.b1 = self.b[k:k*2]
+                self.b2 = Cat(self.b[k*2:b_width], Replicate(0,k*3-b_width+1))
             else:
-                self.b3 = self.b[b_width-1]
-        else:
+                self.b0 = Cat(self.b[0:k], Replicate (0, 1))
+                self.b1 = Cat(self.b[k:k*2], Replicate (0, 1))
+                b2_sign = 0
+                self.b2 = Cat(self.b[k*2:b_width], Replicate(self.b[b_width - 1],k*3-b_width+1))
+        elif (b_width > k and b_width <= k*2):
+          self.b2 =  Replicate(0,18)
+          self.b3 = Replicate(0,18)
+          if(unsigned):
+              self.b0 = self.b[0:k]
+              self.b1 = Cat(self.b[k:b_width], Replicate(0,k*2-b_width+1))
+          else:
+              self.b0 = Cat(self.b[0:k], Replicate(0 ,1))
+              b1_sign = 0
+              self.b1 = Cat(self.b[k:b_width], Replicate(self.b[b_width - 1],k*2-b_width+1))
+        elif (b_width <= k):
+            self.b1 =  Replicate(0,18)
+            self.b2 =  Replicate(0,18)
             self.b3 = Replicate(0,18)
+            if(unsigned):
+                self.b0 = Cat(self.b[0:b_width], Replicate(0,k-b_width+1))
+            else:
+                self.b0 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+1))
+                b0_sign = 0
 
         if (unsigned == 1):
             self.z1 = Signal(38)
@@ -3533,20 +3497,23 @@ class RS_DSP_MULT54_pipeline(Module):
 
         self.a_2 = Signal(bits_sign=(k+1,True))
         self.comb += self.a_2.eq(Mux(self.sum < 4, self.a1, self.a0))
+        self.a_2_sign = Signal(1, reset = 1)
+        self.comb += self.a_2_sign.eq(Mux(self.sum < 4, a1_sign, a0_sign))
         self.b_2 = Signal(bits_sign=(k+1,True))
         self.comb += self.b_2.eq(Mux(self.sum < 4, self.b0, self.b1))
+        self.b_2_sign = Signal(1, reset = 1)
+        self.comb += self.b_2_sign.eq(Mux(self.sum < 4, b0_sign, b1_sign))
         self.a_6 = Signal(bits_sign=(k+1,True))
         self.comb += self.a_6.eq(Mux(self.sum < 4, self.a2, self.a3))
         self.b_6 = Signal(bits_sign=(k+1,True))
-        if(unsigned == 0):
-            self.unsigned_a4 = Signal(1, reset = 1)
-            self.unsigned_a5 = Signal(1, reset = 1)
-            self.unsigned_b4 = Signal(1, reset = 1)
-            self.unsigned_b5 = Signal(1, reset = 1)
-            self.unsigned_a6 = Signal(1, reset = 1)
-            self.comb += self.unsigned_a6.eq(Mux(self.sum < 4, 1, 0))
-            self.unsigned_b6 = Signal(1, reset = 1)
-            self.comb += self.unsigned_b6.eq(Mux(self.sum < 4, 0, 1))
+        self.unsigned_a4 = Signal(1, reset = 1)
+        self.unsigned_a5 = Signal(1, reset = 1)
+        self.unsigned_b4 = Signal(1, reset = 1)
+        self.unsigned_b5 = Signal(1, reset = 1)
+        self.unsigned_a6 = Signal(1, reset = 1)
+        self.comb += self.unsigned_a6.eq(Mux(self.sum < 4, a2_sign, a3_sign))
+        self.unsigned_b6 = Signal(1, reset = 1)
+        self.comb += self.unsigned_b6.eq(Mux(self.sum < 4, b3_sign, b2_sign))
         self.comb += self.b_6.eq(Mux(self.sum < 4, self.b3, self.b2))
         self.a_3 = Signal(bits_sign=(k+1,True))
         self.b_3 = Signal(bits_sign=(k+1,True))
@@ -3554,112 +3521,72 @@ class RS_DSP_MULT54_pipeline(Module):
         self.b_4 = Signal(bits_sign=(k+1,True))
         self.a_5 = Signal(bits_sign=(k+1,True))
         self.b_5 = Signal(bits_sign=(k+1,True))
-        if (unsigned == 1):
-            self.comb += [
-                If(self.sum == 5,
-                    self.fb.eq(1)
-                ).Elif(self.sum == 1,
-                    self.fb.eq(1)
-                ).Else(
-                    self.fb.eq(0)
-                ),If(self.sum != 3,
-                    If(self.sum != 4,
-                        self.fb1.eq(1))
-                ).Else(
-                    self.fb1.eq(0)
-                ),If(self.sum < 3,
-                    self.a_3.eq(self.a0),
-                    self.b_3.eq(self.b2),
-                    self.a_5.eq(self.a1),
-                    self.b_5.eq(self.b3)
-                ).Elif(self.sum == 3,
-                    self.a_3.eq(self.a1),
-                    self.b_3.eq(self.b1),
-                    self.a_5.eq(self.a2),
-                    self.b_5.eq(self.b2)
-                ).Else(
-                    self.a_3.eq(self.a2),
-                    self.b_3.eq(self.b0),
-                    self.a_5.eq(self.a3),
-                    self.b_5.eq(self.b1)
-                ),If(self.sum < 2,
-                    self.a_4.eq(self.a0),
-                    self.b_4.eq(self.b3)
-                ).Elif(self.sum == 5,
-                    self.a_4.eq(self.a0),
-                    self.b_4.eq(self.b3)
-                ).Elif(self.sum == 2,
-                    self.a_4.eq(self.a1),
-                    self.b_4.eq(self.b2)
-                ).Elif(self.sum == 3,
-                    self.a_4.eq(self.a2),
-                    self.b_4.eq(self.b1)
-                ).Else(
-                    self.a_4.eq(self.a3),
-                    self.b_4.eq(self.b0)
-                )
-            ]
-        else:
-            self.comb += [
-                If(self.sum == 5,
-                    self.fb.eq(1)
-                ).Elif(self.sum == 1,
-                    self.fb.eq(1)
-                ).Else(
-                    self.fb.eq(0)
-                ),If(self.sum != 3,
-                    If(self.sum != 4,
-                        self.fb1.eq(1))
-                ).Else(
-                    self.fb1.eq(0)
-                ),If(self.sum < 3,
-                    self.a_3.eq(self.a0),
-                    self.b_3.eq(self.b2),
-                    self.a_5.eq(self.a1),
-                    self.b_5.eq(self.b3),
-                    self.unsigned_b5.eq(0),
-                    self.unsigned_a5.eq(1)
-                ).Elif(self.sum == 3,
-                    self.a_3.eq(self.a1),
-                    self.b_3.eq(self.b1),
-                    self.a_5.eq(self.a2),
-                    self.b_5.eq(self.b2),
-                    self.unsigned_b5.eq(1),
-                    self.unsigned_a5.eq(1)
-                ).Else(
-                    self.a_3.eq(self.a2),
-                    self.b_3.eq(self.b0),
-                    self.a_5.eq(self.a3),
-                    self.b_5.eq(self.b1),
-                    self.unsigned_b5.eq(1),
-                    self.unsigned_a5.eq(0)
-                ),If(self.sum < 2,
-                    self.a_4.eq(self.a0),
-                    self.b_4.eq(self.b3),
-                    self.unsigned_a4.eq(1),
-                    self.unsigned_b4.eq(0)
-                ).Elif(self.sum == 5,
-                    self.a_4.eq(self.a0),
-                    self.b_4.eq(self.b3),
-                    self.unsigned_a4.eq(1),
-                    self.unsigned_b4.eq(0)
-                ).Elif(self.sum == 2,
-                    self.a_4.eq(self.a1),
-                    self.b_4.eq(self.b2),
-                    self.unsigned_a4.eq(1),
-                    self.unsigned_b4.eq(1)
-                ).Elif(self.sum == 3,
-                    self.a_4.eq(self.a2),
-                    self.b_4.eq(self.b1),
-                    self.unsigned_a4.eq(1),
-                    self.unsigned_b4.eq(1)
-                ).Else(
-                    self.a_4.eq(self.a3),
-                    self.b_4.eq(self.b0),
-                    self.unsigned_a4.eq(0),
-                    self.unsigned_b4.eq(1)
-                )
-            ]
+        self.a_3_sign = Signal(1, reset = 1)
+        self.b_3_sign = Signal(1, reset = 1)
+        self.comb += [
+            If(self.sum == 5,
+                self.fb.eq(1)
+            ).Elif(self.sum == 1,
+                self.fb.eq(1)
+            ).Else(
+                self.fb.eq(0)
+            ),If(self.sum != 3,
+                If(self.sum != 4,
+                    self.fb1.eq(1))
+            ).Else(
+                self.fb1.eq(0)
+            ),If(self.sum < 3,
+                self.a_3.eq(self.a0),
+                self.a_3_sign.eq(a0_sign),
+                self.b_3.eq(self.b2),
+                self.b_3_sign.eq(b2_sign),
+                self.a_5.eq(self.a1),
+                self.b_5.eq(self.b3),
+                self.unsigned_b5.eq(b3_sign),
+                self.unsigned_a5.eq(a1_sign)
+            ).Elif(self.sum == 3,
+                self.a_3.eq(self.a1),
+                self.b_3.eq(self.b1),
+                self.a_5.eq(self.a2),
+                self.b_5.eq(self.b2),
+                self.unsigned_b5.eq(b2_sign),
+                self.unsigned_a5.eq(a2_sign)
+            ).Else(
+                self.a_3.eq(self.a2),
+                self.a_3_sign.eq(a2_sign),
+                self.b_3.eq(self.b0),
+                self.b_3_sign.eq(b0_sign),
+                self.a_5.eq(self.a3),
+                self.b_5.eq(self.b1),
+                self.unsigned_b5.eq(b1_sign),
+                self.unsigned_a5.eq(a3_sign)
+            ),If(self.sum < 2,
+                self.a_4.eq(self.a0),
+                self.b_4.eq(self.b3),
+                self.unsigned_a4.eq(a0_sign),
+                self.unsigned_b4.eq(b3_sign)
+            ).Elif(self.sum == 5,
+                self.a_4.eq(self.a0),
+                self.b_4.eq(self.b3),
+                self.unsigned_a4.eq(a0_sign),
+                self.unsigned_b4.eq(b3_sign)
+            ).Elif(self.sum == 2,
+                self.a_4.eq(self.a1),
+                self.b_4.eq(self.b2),
+                self.unsigned_a4.eq(a1_sign),
+                self.unsigned_b4.eq(b2_sign)
+            ).Elif(self.sum == 3,
+                self.a_4.eq(self.a2),
+                self.b_4.eq(self.b1),
+                self.unsigned_a4.eq(a2_sign),
+                self.unsigned_b4.eq(b1_sign)
+            ).Else(
+                self.a_4.eq(self.a3),
+                self.b_4.eq(self.b0),
+                self.unsigned_a4.eq(a3_sign),
+                self.unsigned_b4.eq(b0_sign)
+            )
+        ]
 
         self.z = Signal(a_width + b_width)
         if (unsigned == 1):
@@ -3695,8 +3622,8 @@ class RS_DSP_MULT54_pipeline(Module):
             i_b             = self.b0,
             o_z             = self.z1,  
             i_feedback      = 0,
-            i_unsigned_a    = 1,
-            i_unsigned_b    = 1
+            i_unsigned_a    = a0_sign,
+            i_unsigned_b    = b0_sign
         )
         self.specials += Instance("RS_DSP_MULTACC",
             # Parameters.
@@ -3715,8 +3642,8 @@ class RS_DSP_MULT54_pipeline(Module):
             i_round         = 0,
             i_saturate_enable = 0,
             i_shift_right   = 0,
-            i_unsigned_a    = 1,
-            i_unsigned_b    = 1,
+            i_unsigned_a    = self.a_2_sign,
+            i_unsigned_b    = self.b_2_sign,
             i_subtract      = 0
         )
         self.specials += Instance("RS_DSP_MULTACC",
@@ -3736,170 +3663,89 @@ class RS_DSP_MULT54_pipeline(Module):
             i_round         = 0,
             i_saturate_enable = 0,
             i_shift_right   = 0,
-            i_unsigned_a    = 1,
-            i_unsigned_b    = 1,
+            i_unsigned_a    = self.a_3_sign,
+            i_unsigned_b    = self.b_3_sign,
             i_subtract      = 0
         )
-        if (unsigned == 0):
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_4,
-                i_b             = self.b_4,
-                o_z             = self.z4,  
-                i_feedback      = self.fb,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = self.unsigned_a4,
-                i_unsigned_b    = self.unsigned_b4,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_5,
-                i_b             = self.b_5,
-                o_z             = self.z5,  
-                i_feedback      = self.fb1,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = self.unsigned_a5,
-                i_unsigned_b    = self.unsigned_b5,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_6,
-                i_b             = self.b_6,
-                o_z             = self.z6,  
-                i_feedback      = self.fb2,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = self.unsigned_a6,
-                i_unsigned_b    = self.unsigned_b6,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
-            )
-        else:
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_4,
-                i_b             = self.b_4,
-                o_z             = self.z4,  
-                i_feedback      = self.fb,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_5,
-                i_b             = self.b_5,
-                o_z             = self.z5,  
-                i_feedback      = self.fb1,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULTACC",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a_6,
-                i_b             = self.b_6,
-                o_z             = self.z6,  
-                i_feedback      = self.fb2,
-                i_load_acc      = 1,
-                i_round         = 0,
-                i_saturate_enable = 0,
-                i_shift_right   = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1,
-                i_subtract      = 0
-            )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-                # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = 1,
-                i_unsigned_b    = 1
-            )
+        self.specials += Instance("RS_DSP_MULTACC",
+            # Parameters.
+            # -----------
+            # Mode Bits to configure DSP 
+            p_MODE_BITS     =  0,
+            # Reset
+            i_clk           = ClockSignal(),
+            i_lreset        = ResetSignal(),
+            # IOs
+            i_a             = self.a_4,
+            i_b             = self.b_4,
+            o_z             = self.z4,  
+            i_feedback      = self.fb,
+            i_load_acc      = 1,
+            i_round         = 0,
+            i_saturate_enable = 0,
+            i_shift_right   = 0,
+            i_unsigned_a    = self.unsigned_a4,
+            i_unsigned_b    = self.unsigned_b4,
+            i_subtract      = 0
+        )
+        self.specials += Instance("RS_DSP_MULTACC",
+            # Parameters.
+            # -----------
+            # Mode Bits to configure DSP 
+            p_MODE_BITS     =  0,
+            # Reset
+            i_clk           = ClockSignal(),
+            i_lreset        = ResetSignal(),
+            # IOs
+            i_a             = self.a_5,
+            i_b             = self.b_5,
+            o_z             = self.z5,  
+            i_feedback      = self.fb1,
+            i_load_acc      = 1,
+            i_round         = 0,
+            i_saturate_enable = 0,
+            i_shift_right   = 0,
+            i_unsigned_a    = self.unsigned_a5,
+            i_unsigned_b    = self.unsigned_b5,
+            i_subtract      = 0
+        )
+        self.specials += Instance("RS_DSP_MULTACC",
+            # Parameters.
+            # -----------
+            # Mode Bits to configure DSP 
+            p_MODE_BITS     =  0,
+            # Reset
+            i_clk           = ClockSignal(),
+            i_lreset        = ResetSignal(),
+            # IOs
+            i_a             = self.a_6,
+            i_b             = self.b_6,
+            o_z             = self.z6,  
+            i_feedback      = self.fb2,
+            i_load_acc      = 1,
+            i_round         = 0,
+            i_saturate_enable = 0,
+            i_shift_right   = 0,
+            i_unsigned_a    = self.unsigned_a6,
+            i_unsigned_b    = self.unsigned_b6,
+            i_subtract      = 0
+        )
+        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            # Parameters.
+            # -----------
+            # Mode Bits to configure DSP 
+            p_MODE_BITS     =  0,
+            # Reset
+            i_clk           = ClockSignal(),
+            i_lreset        = ResetSignal(),
+            # IOs
+            i_a             = self.a3,
+            i_b             = self.b3,
+            o_z             = self.z7,  
+            i_feedback      = 0,
+            i_unsigned_a    = a3_sign,
+            i_unsigned_b    = b3_sign
+        )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT20_enhance(Module):
