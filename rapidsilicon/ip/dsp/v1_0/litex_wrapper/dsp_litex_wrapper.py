@@ -4153,36 +4153,13 @@ class RS_DSP_MULT36_enhance(Module):
         self.dy2 = Signal(bits_sign=(18,True))
         self.dy3 = Signal(bits_sign=(18,True))
 
-        if (unsigned):
-            self.comb += self.dx1.eq(self.a2 - self.a1)
-            self.comb += self.dx2.eq(self.a1 - self.a0)
-            self.comb += self.dx3.eq(self.a2 - self.a0)
+        self.comb += self.dx1.eq(self.a2 - self.a1)
+        self.comb += self.dx2.eq(self.a1 - self.a0)
+        self.comb += self.dx3.eq(self.a2 - self.a0)
 
-            self.comb += self.dy1.eq(self.b2 - self.b1)
-            self.comb += self.dy2.eq(self.b1 - self.b0)
-            self.comb += self.dy3.eq(self.b2 - self.b0)
-        else:
-            self.a__2 = Signal(bits_sign=(17, True))
-            self.b__2 = Signal(bits_sign=(17, True))
-            self.a__1 = Signal(bits_sign=(17, True))
-            self.b__1 = Signal(bits_sign=(17, True))
-            self.a__0 = Signal(bits_sign=(17, True))
-            self.b__0 = Signal(bits_sign=(17, True))
-
-            self.comb += self.a__2.eq(self.a2)
-            self.comb += self.b__2.eq(self.b2)
-            self.comb += self.a__1.eq(self.a1)
-            self.comb += self.b__1.eq(self.b1)
-            self.comb += self.a__0.eq(self.a0)
-            self.comb += self.b__0.eq(self.b0)
-
-            self.comb += self.dx1.eq(self.a__2 - self.a__1)
-            self.comb += self.dx2.eq(self.a__1 - self.a__0)
-            self.comb += self.dx3.eq(self.a__2 - self.a__0)
-
-            self.comb += self.dy1.eq(self.b__2 - self.b__1)
-            self.comb += self.dy2.eq(self.b__1 - self.b__0)
-            self.comb += self.dy3.eq(self.b__2 - self.b__0)
+        self.comb += self.dy1.eq(self.b2 - self.b1)
+        self.comb += self.dy2.eq(self.b1 - self.b0)
+        self.comb += self.dy3.eq(self.b2 - self.b0)
 
         self.z = Signal(a_width + b_width)
 

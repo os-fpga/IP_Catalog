@@ -52,32 +52,49 @@ class RS_DSP_Wrapper(Module):
             if ((a_width >= 0 and a_width <=20) and (b_width >= 0 and b_width <=18)):
                 self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, equation, reg_in, reg_out, unsigned)
             else:
-                if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
-                    if(feature == "base"):
+                if(feature == "base"):
+                    if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
                         self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, equation, reg_in, reg_out, unsigned)
-                    elif (feature == "enhanced"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT54_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
-                    elif (feature == "pipeline"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
-                        reg_in = True
-
-                elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
-                    if (feature == "base"):
+                    elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
                         self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, equation, reg_in, reg_out, unsigned)
-                    elif (feature == "enhanced"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT36_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
-                    elif (feature == "pipeline"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
-                        reg_in = True
-
-                elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
-                    if (feature == "base"):
+                    elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
                         self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, equation, reg_in, reg_out, unsigned)
-                    elif (feature == "enhanced"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT20_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
-                    elif (feature == "pipeline"):
-                        self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
-                        reg_in = True
+                elif (feature == "enhanced"):
+                    if (unsigned):
+                        if ((a_width > 51 and a_width <=68) or (b_width > 51 and b_width <=68)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        elif ((a_width > 34 and a_width <=51) or (b_width > 34 and b_width <=51)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        elif ((a_width > 20 and a_width <=34) or (b_width > 18 and b_width <=34)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                    elif (not unsigned):
+                        if ((a_width > 48 and a_width <=64) or (b_width > 48 and b_width <=64)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        elif ((a_width > 32 and a_width <=48) or (b_width > 32 and b_width <=48)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        elif ((a_width > 20 and a_width <=32) or (b_width > 18 and b_width <=32)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                elif (feature == "pipeline"):
+                    if (unsigned):
+                        if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                        elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                        elif ((a_width > 20 and a_width <=34) or (b_width > 18 and b_width <=34)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                    elif (not unsigned):
+                        if ((a_width > 51 and a_width <=68) or (b_width > 51 and b_width <=68)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                        elif ((a_width > 34 and a_width <=51) or (b_width > 34 and b_width <=51)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                        elif ((a_width > 20 and a_width <=34) or (b_width > 18 and b_width <=34)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
 
         # (A*B)+(C*D)
         elif (equation=="A*B+C*D"):
