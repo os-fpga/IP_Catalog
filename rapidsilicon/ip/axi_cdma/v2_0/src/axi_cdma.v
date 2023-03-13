@@ -1036,7 +1036,7 @@ module	axi_cdma #(
 			// {{{
 			.BW(C_AXI_DATA_WIDTH),
 			.LGFLEN(LGFIFO),
-			.OPT_ASYNC_READ(1'b1)
+			.OPT_ASYNC_READ(1'b0)
 			// }}}
 		) middata(
 			// {{{
@@ -1187,7 +1187,7 @@ module	axi_cdma #(
 			// {{{
 			.BW(C_AXI_DATA_WIDTH),
 			.LGFLEN(LGFIFO),
-			.OPT_ASYNC_READ(1'b1)
+			.OPT_ASYNC_READ(1'b0)
 			// }}}
 		) middata(
 			// {{{
