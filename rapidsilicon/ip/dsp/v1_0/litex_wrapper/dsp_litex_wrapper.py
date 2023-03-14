@@ -815,7 +815,7 @@ class RS_DSP_MULT20(Module):
         if (b_width <= k):
             self.b1 =  Replicate(0,18)
             if(unsigned):
-                self.b0 = Cat(self.b3[0:b_width], Replicate(0,k-a_width+1))
+                self.b0 = Cat(self.b3[0:b_width], Replicate(0,k-b_width+1))
             else:
                 self.b0 = Cat(self.b3[0:b_width],  Replicate(self.b3[b_width - 1],k-b_width+2))
                 b0_sign = 0
@@ -3419,10 +3419,10 @@ class RS_DSP_MULT54_pipeline(Module):
             self.a2 =  Replicate(0,20)
             self.a3 = Replicate(0,20)
             if(unsigned):
-                self.a0 = (self.a[0:k], Replicate(0 ,2))
+                self.a0 = Cat(self.a[0:k], Replicate(0 ,2))
                 self.a1 = Cat(self.a[k:a_width], Replicate(0,k*2-a_width+1))
             else:
-                self.a0 = (self.a[0:k], Replicate(0 ,3))
+                self.a0 = Cat(self.a[0:k], Replicate(0 ,3))
                 a1_sign = 0
                 self.a1 = Cat(self.a[k:a_width], Replicate(self.a[a_width - 1],k*2-a_width+3))
         elif (a_width <= k):
@@ -3448,7 +3448,7 @@ class RS_DSP_MULT54_pipeline(Module):
                 b3_sign = 0
                 self.b3 = Cat(self.b[k*3:b_width], Replicate(self.b[b_width - 1],k*4-b_width+1))
         elif(b_width > k*2 and b_width <= k*3):
-            self.b3 = Replicate(0,20)
+            self.b3 = Replicate(0,18)
             if (unsigned):
                 self.b0 = self.b[0:k]
                 self.b1 = self.b[k:k*2]
@@ -3547,6 +3547,8 @@ class RS_DSP_MULT54_pipeline(Module):
             ).Elif(self.sum == 3,
                 self.a_3.eq(self.a1),
                 self.b_3.eq(self.b1),
+                self.a_3_sign.eq(a1_sign),
+                self.b_3_sign.eq(b1_sign),
                 self.a_5.eq(self.a2),
                 self.b_5.eq(self.b2),
                 self.unsigned_b5.eq(b2_sign),
@@ -3806,7 +3808,7 @@ class RS_DSP_MULT20_enhance(Module):
         if (b_width <= k):
             self.b1 =  Replicate(0,18)
             if(unsigned):
-                self.b0 = Cat(self.b[0:b_width], Replicate(0,k-a_width+1))
+                self.b0 = Cat(self.b[0:b_width], Replicate(0,k-b_width+1))
             else:
                 self.b0 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+2))
                 b0_sign = 0

@@ -82,7 +82,7 @@ class RS_DSP_Wrapper(Module):
                         elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
                             self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
-                        elif ((a_width > 20 and a_width <=34) or (b_width > 18 and b_width <=34)):
+                        elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
                             self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                     elif (not unsigned):
@@ -177,7 +177,7 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=False,     help="Unsigned Input")
+    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
