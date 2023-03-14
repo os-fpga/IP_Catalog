@@ -5,7 +5,7 @@ This is a customizable DSP Core module with various algorithms for DSP Decomposi
 1. Karatsuba Algoritm with k = 18 for both signed and unsigned multiplications.
 2. Pipelined Karatsuba Algorithm with k = 18 for unsigned and k = 17 for signed multiplications.
     * Multiplications between 18 (17 for signed) and 36 (34 for signed) bit wide numbers will take 2 clock cycles to compute.
-    * Multiplications between 36 (34 for signed) and 54 bit (51 for signed) wide numbers will take 3 clock cycles to compute.
+    * Multiplications between 36 (34 for signed) and 54 (51 for signed) bit wide numbers will take 3 clock cycles to compute.
     * Multiplications between 54 (51 for signed) and 72 (68 for signed) bit wide numbers will take 4 clock cycles to compute.
 3. Karatsuba-Ofman Algorithm with k = 17 for unsigned and k = 16 for signed multiplications.
 
