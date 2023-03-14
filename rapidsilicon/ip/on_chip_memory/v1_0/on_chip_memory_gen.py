@@ -155,19 +155,19 @@ def main():
                 parser._actions[3].default = int(fabric_mem/128)
             elif args_1.data_width <= 64 and args_1.data_width > 32:
                 parser._actions[3].choices = [2,int(fabric_mem/64)]
-                parser._actions[3].default = int(fabric_mem/128)
+                parser._actions[3].default = int(fabric_mem/64)
             elif args_1.data_width <= 32 and args_1.data_width > 16:
                 parser._actions[3].choices = [2,int(fabric_mem/32)]
-                parser._actions[3].default = int(fabric_mem/128)
+                parser._actions[3].default = int(fabric_mem/32)
             elif args_1.data_width <= 16 and args_1.data_width > 8 :
                 parser._actions[3].choices = [2,int(fabric_mem/16)]
-                parser._actions[3].default = int(fabric_mem/128)
+                parser._actions[3].default = int(fabric_mem/16)
             elif args_1.data_width <= 8 and args_1.data_width > 4 :
                 parser._actions[3].choices = [2,int(fabric_mem/8)]
-                parser._actions[3].default = int(fabric_mem/128)
+                parser._actions[3].default = int(fabric_mem/8)
             elif args_1.data_width <= 4 and args_1.data_width > 2 :
-                parser._actions[3].default = [2,int(fabric_mem/128)]
-                parser._actions[3].default = int(fabric_mem/128)
+                parser._actions[3].default = [2,int(fabric_mem/4)]
+                parser._actions[3].default = int(fabric_mem/4)
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
