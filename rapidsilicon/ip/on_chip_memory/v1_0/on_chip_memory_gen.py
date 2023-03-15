@@ -159,7 +159,7 @@ def main():
                 parser._actions[3].choices = [2,int(fabric_mem/8)]
                 parser._actions[3].default = int(fabric_mem/8)
             elif args_1.data_width <= 4 and args_1.data_width > 2 :
-                parser._actions[3].default = [2,int(fabric_mem/4)]
+                parser._actions[3].choices = [2,int(fabric_mem/4)]
                 parser._actions[3].default = int(fabric_mem/4)
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
