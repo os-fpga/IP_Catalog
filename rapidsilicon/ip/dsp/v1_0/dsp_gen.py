@@ -39,92 +39,89 @@ def get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_wid
     ]
 
 class RS_DSP_Wrapper(Module):
-    def __init__(self, platform, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, reg_in, reg_out, unsigned_a, unsigned_b, unsigned_c, unsigned_d, unsigned_e, unsigned_f, unsigned_g, unsigned_h):
+    def __init__(self, platform, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, equation, reg_in, reg_out, unsigned, feature):
     
     # Clocking
         self.clock_domains.cd_sys = ClockDomain()
         platform.add_extension(get_clkin_ios())
         
-        # Clock/Reset
-        if (reg_in == 1 or reg_out == 1):
-            self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-            self.comb += self.cd_sys.rst.eq(platform.request("reset"))
-        
-        # A*B
-        if (feature == "A*B"):
-            if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
-                z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
-                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-                self.comb += dsp.a.eq(platform.request("a"))
-                self.comb += dsp.b.eq(platform.request("b"))
-
-            elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
-                z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
-                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-                self.comb += dsp.a.eq(platform.request("a"))
-                self.comb += dsp.b.eq(platform.request("b"))
-            elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
-                z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
-                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-                self.comb += dsp.a.eq(platform.request("a"))
-                self.comb += dsp.b.eq(platform.request("b"))
+            # A*B
+        if (equation == "A*B"):
+            z_width = a_width + b_width
+            platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
+            if ((a_width >= 0 and a_width <=20) and (b_width >= 0 and b_width <=18)):
+                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, equation, reg_in, reg_out, unsigned)
             else:
-                z_width = a_width + b_width 
-                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, feature, reg_in, reg_out, unsigned_a, unsigned_b)
-                platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-                self.comb += dsp.a.eq(platform.request("a"))
-                self.comb += dsp.b.eq(platform.request("b"))
-            
-            # Registered Output
-            if (reg_out == 1):
-                self.sync += platform.request("z").eq(dsp.z)
-            else:
-                self.comb += platform.request("z").eq(dsp.z)
+                if(feature == "Base"):
+                    if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
+                        self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                    elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
+                        self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                    elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
+                        self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                elif (feature == "Enhanced"):
+                    if (unsigned):
+                        if ((a_width > 51 and a_width <=68) or (b_width > 51 and b_width <=68)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        elif ((a_width > 34 and a_width <=51) or (b_width > 34 and b_width <=51)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        elif ((a_width > 20 and a_width <=34) or (b_width > 18 and b_width <=34)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                    elif (not unsigned):
+                        if ((a_width > 48 and a_width <=64) or (b_width > 48 and b_width <=64)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        elif ((a_width > 32 and a_width <=48) or (b_width > 32 and b_width <=48)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                        elif ((a_width > 20 and a_width <=32) or (b_width > 18 and b_width <=32)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                elif (feature == "Pipeline"):
+                    if (unsigned):
+                        if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                        elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                        elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                    elif (not unsigned):
+                        if ((a_width > 51 and a_width <=68) or (b_width > 51 and b_width <=68)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                        elif ((a_width > 34 and a_width <=51) or (b_width > 34 and b_width <=51)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
+                        elif ((a_width > 20 and a_width <=34) or (b_width > 18 and b_width <=34)):
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
+                            reg_in = True
 
         # (A*B)+(C*D)
-        if (feature=="A*B+C*D"):
+        elif (equation=="A*B+C*D"):
             if ((a_width + b_width) > (c_width + d_width)):
-                z_width = a_width + b_width
+                z_width = a_width + b_width + 1
             else:
-                z_width = c_width + d_width
-            self.submodules.dsp = dsp = RS_DSP_MULT_ABCD(a_width, b_width, c_width, d_width, feature, reg_in, reg_out, unsigned_a, unsigned_b, unsigned_c, unsigned_d)
+                z_width = c_width + d_width + 1
+            self.submodules.dsp = dsp = RS_DSP_MULT_ABCD(a_width, b_width, c_width, d_width, equation, reg_in, reg_out, unsigned)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-            self.comb += dsp.a.eq(platform.request("a"))
-            self.comb += dsp.b.eq(platform.request("b"))
             self.comb += dsp.c.eq(platform.request("c"))
             self.comb += dsp.d.eq(platform.request("d"))
-            
-            # Registered Output
-            if (reg_out == 1):
-                self.sync += platform.request("z").eq(dsp.z)
-            else:
-                self.comb += platform.request("z").eq(dsp.z)
-        
         # A*B+C*D+E*F+G*H
-        elif (feature=="A*B+C*D+E*F+G*H"):
-            
+        elif (equation=="A*B+C*D+E*F+G*H"):
             if ((a_width + b_width) > (c_width + d_width)):
                 z12_width = a_width + b_width + 1
             else:
                 z12_width = c_width + d_width + 1
-                
             if ((e_width + f_width) > (g_width + h_width)):
                 z34_width = e_width + f_width + 1
             else:
                 z34_width = g_width + h_width + 1
-            
             if (z12_width > z34_width):
-                z_width = z12_width
+                z_width = z12_width + 1
             else:
-                z_width = z34_width
-                
-            self.submodules.dsp = dsp = RS_DSP_MULT_ABCDEFGH(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, feature, reg_in, reg_out, unsigned_a, unsigned_b, unsigned_c, unsigned_d, unsigned_e, unsigned_f, unsigned_g, unsigned_h)
+                z_width = z34_width + 1
+            self.submodules.dsp = dsp = RS_DSP_MULT_ABCDEFGH(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, equation, reg_in, reg_out, unsigned)
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
-            self.comb += dsp.a.eq(platform.request("a"))
-            self.comb += dsp.b.eq(platform.request("b"))
             self.comb += dsp.c.eq(platform.request("c"))
             self.comb += dsp.d.eq(platform.request("d"))
             self.comb += dsp.e.eq(platform.request("e"))
@@ -132,12 +129,18 @@ class RS_DSP_Wrapper(Module):
             self.comb += dsp.g.eq(platform.request("g"))
             self.comb += dsp.h.eq(platform.request("h"))
             
-            # Registered Output
-            if (reg_out == 1):
-                self.sync += platform.request("z").eq(dsp.z)
-            else:
-                self.comb += platform.request("z").eq(dsp.z)
-
+        self.comb += dsp.a.eq(platform.request("a"))
+        self.comb += dsp.b.eq(platform.request("b"))
+        # Clock/Reset
+        if (reg_in == 1 or reg_out == 1):
+            self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+            self.comb += self.cd_sys.rst.eq(platform.request("reset"))
+        # Registered Output
+        if (reg_out == 1 and feature == "Pipeline"):
+            self.sync += platform.request("z").eq(dsp.z)
+        else:
+            self.comb += platform.request("z").eq(dsp.z)
+        
 def main():
     # DSP CORE -------------------------------------------------------------------------------------
     parser = argparse.ArgumentParser(description="DSP CORE")
@@ -156,7 +159,8 @@ def main():
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--feature",     type=str,      default="A*B",      choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Features")
+    core_string_param_group.add_argument("--equation",     type=str,      default="A*B",      choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Select Equation")
+    core_string_param_group.add_argument("--feature",  type=str,   default="Base", choices=["Base", "Enhanced", "Pipeline"],    help="Select Feature")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -173,15 +177,8 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned_a",  type=bool,    default=True,     help="Unsigned Input A")
-    core_bool_param_group.add_argument("--unsigned_b",  type=bool,    default=True,     help="Unsigned Input B")
-    core_bool_param_group.add_argument("--unsigned_c",  type=bool,    default=True,     help="Unsigned Input C")
-    core_bool_param_group.add_argument("--unsigned_d",  type=bool,    default=True,     help="Unsigned Input D")
-    core_bool_param_group.add_argument("--unsigned_e",  type=bool,    default=True,     help="Unsigned Input E")
-    core_bool_param_group.add_argument("--unsigned_f",  type=bool,    default=True,     help="Unsigned Input F")
-    core_bool_param_group.add_argument("--unsigned_g",  type=bool,    default=True,     help="Unsigned Input G")
-    core_bool_param_group.add_argument("--unsigned_h",  type=bool,    default=True,     help="Unsigned Input H")
-
+    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
+    
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
@@ -197,6 +194,26 @@ def main():
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        if (args.equation == "A*B"):
+            parser._actions[2].choices = ["Base", "Enhanced", "Pipeline"]
+            if (args.feature == "Base") or (args.feature == "Pipeline" and args.unsigned == True):
+                if(args.feature == "Pipeline"):
+                    parser._actions[11].default = True
+                parser._actions[3].choices = range(1, 73)
+                parser._actions[4].choices = range(1, 73)
+            elif (args.feature == "Pipeline" and args.unsigned == False) or (args.feature == "Enhanced" and args.unsigned == True):
+                if(args.feature == "Pipeline"):
+                    parser._actions[11].default = True
+                parser._actions[3].choices = range(1, 69)
+                parser._actions[4].choices = range(1, 69)
+            elif args.feature == "Enhanced" and args.unsigned == False:
+                parser._actions[3].choices = range(1, 65)
+                parser._actions[4].choices = range(1, 65)
+        else:
+            parser._actions[2].choices = ["Base"]
+            parser._actions[3].choices = range(1, 21)
+            parser._actions[4].choices = range(1, 19)
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
@@ -217,14 +234,8 @@ def main():
         feature     = args.feature,
         reg_in      = args.reg_in,
         reg_out     = args.reg_out,
-        unsigned_a  = args.unsigned_a,
-        unsigned_b  = args.unsigned_b,
-        unsigned_c  = args.unsigned_c,
-        unsigned_d  = args.unsigned_d,
-        unsigned_e  = args.unsigned_e,
-        unsigned_f  = args.unsigned_f,
-        unsigned_g  = args.unsigned_g,
-        unsigned_h  = args.unsigned_h
+        unsigned    = args.unsigned,
+        equation    = args.equation
     )
     
     # Build Project --------------------------------------------------------------------------------
