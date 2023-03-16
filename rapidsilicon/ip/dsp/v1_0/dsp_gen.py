@@ -77,23 +77,23 @@ class RS_DSP_Wrapper(Module):
                 elif (feature == "Pipeline"):
                     if (unsigned):
                         if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT54_Pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                         elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT36_Pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                         elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT20_Pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                     elif (not unsigned):
                         if ((a_width > 51 and a_width <=68) or (b_width > 51 and b_width <=68)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT54_Pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                         elif ((a_width > 34 and a_width <=51) or (b_width > 34 and b_width <=51)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT36_Pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                         elif ((a_width > 20 and a_width <=34) or (b_width > 18 and b_width <=34)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT20_Pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
 
         # (A*B)+(C*D)
