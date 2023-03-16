@@ -31,7 +31,7 @@ These are the parameters for DSP core along with their keyword and values: -
 |   10.  |   REG_IN                   |     reg_in      |                0 / 1                  |
 |   11.  |   REG_OUT                  |     reg_out     |                0 / 1                  |
 |   12.  |   UNSIGNED                 |     unsigned    |                0 / 1                  |
-|   13.  |   FEATURE                  |     feature     |      base / enhanced / pipeline       |
+|   13.  |   FEATURE                  |     feature     |      Base / Enhanced / Pipeline       |
 
 
 To generate RTL with above parameters, run the following command:

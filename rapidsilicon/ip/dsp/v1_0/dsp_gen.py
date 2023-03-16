@@ -52,14 +52,14 @@ class RS_DSP_Wrapper(Module):
             if ((a_width >= 0 and a_width <=20) and (b_width >= 0 and b_width <=18)):
                 self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, equation, reg_in, reg_out, unsigned)
             else:
-                if(feature == "base"):
+                if(feature == "Base"):
                     if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
                         self.submodules.dsp = dsp = RS_DSP_MULT54(a_width, b_width, equation, reg_in, reg_out, unsigned)
                     elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
                         self.submodules.dsp = dsp = RS_DSP_MULT36(a_width, b_width, equation, reg_in, reg_out, unsigned)
                     elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
                         self.submodules.dsp = dsp = RS_DSP_MULT20(a_width, b_width, equation, reg_in, reg_out, unsigned)
-                elif (feature == "enhanced"):
+                elif (feature == "Enhanced"):
                     if (unsigned):
                         if ((a_width > 51 and a_width <=68) or (b_width > 51 and b_width <=68)):
                             self.submodules.dsp = dsp = RS_DSP_MULT54_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
@@ -74,26 +74,26 @@ class RS_DSP_Wrapper(Module):
                             self.submodules.dsp = dsp = RS_DSP_MULT36_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
                         elif ((a_width > 20 and a_width <=32) or (b_width > 18 and b_width <=32)):
                             self.submodules.dsp = dsp = RS_DSP_MULT20_enhance(a_width, b_width, equation, reg_in, reg_out, unsigned)
-                elif (feature == "pipeline"):
+                elif (feature == "Pipeline"):
                     if (unsigned):
                         if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_Pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                         elif ((a_width > 36 and a_width <=54) or (b_width > 36 and b_width <=54)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_Pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                         elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_Pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                     elif (not unsigned):
                         if ((a_width > 51 and a_width <=68) or (b_width > 51 and b_width <=68)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT54_Pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                         elif ((a_width > 34 and a_width <=51) or (b_width > 34 and b_width <=51)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT36_pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT36_Pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
                         elif ((a_width > 20 and a_width <=34) or (b_width > 18 and b_width <=34)):
-                            self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
+                            self.submodules.dsp = dsp = RS_DSP_MULT20_Pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
 
         # (A*B)+(C*D)
@@ -136,7 +136,7 @@ class RS_DSP_Wrapper(Module):
             self.comb += self.cd_sys.clk.eq(platform.request("clk"))
             self.comb += self.cd_sys.rst.eq(platform.request("reset"))
         # Registered Output
-        if (reg_out == 1 and feature == "pipeline"):
+        if (reg_out == 1 and feature == "Pipeline"):
             self.sync += platform.request("z").eq(dsp.z)
         else:
             self.comb += platform.request("z").eq(dsp.z)
@@ -160,7 +160,7 @@ def main():
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--equation",     type=str,      default="A*B",      choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Select Equation")
-    core_string_param_group.add_argument("--feature",  type=str,   default="base", choices=["base", "enhanced", "pipeline"],    help="Select Feature")
+    core_string_param_group.add_argument("--feature",  type=str,   default="Base", choices=["Base", "Enhanced", "Pipeline"],    help="Select Feature")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -194,6 +194,25 @@ def main():
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        if (args.equation == "A*B"):
+            if (args.feature == "Base") or (args.feature == "Pipeline" and args.unsigned == True):
+                if(args.feature == "Pipeline"):
+                    parser._actions[11].default = True
+                parser._actions[3].choices = range(1, 73)
+                parser._actions[4].choices = range(1, 73)
+            elif (args.feature == "Pipeline" and args.unsigned == False) or (args.feature == "Enhanced" and args.unsigned == True):
+                if(args.feature == "Pipeline"):
+                    parser._actions[11].default = True
+                parser._actions[3].choices = range(1, 69)
+                parser._actions[4].choices = range(1, 69)
+            elif args.feature == "Enhanced" and args.unsigned == False:
+                parser._actions[3].choices = range(1, 65)
+                parser._actions[4].choices = range(1, 65)
+        else:
+            parser._actions[2].choices = ["Base"]
+            parser._actions[3].choices = range(1, 21)
+            parser._actions[4].choices = range(1, 19)
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
