@@ -196,6 +196,7 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         if (args.equation == "A*B"):
+            parser._actions[2].choices = ["Base", "Enhanced", "Pipeline"]
             if (args.feature == "Base") or (args.feature == "Pipeline" and args.unsigned == True):
                 if(args.feature == "Pipeline"):
                     parser._actions[11].default = True
