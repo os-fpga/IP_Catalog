@@ -168,9 +168,7 @@ class IP_Builder:
 
         for i in range(len(core_param_list)):
             if param_json["parameters"][i]['parameter'] in dep_list:
-                print(param_json["parameters"][i]['parameter'])
-#                param_json["parameters"][i].update(disable = dep_dict[param_json["parameters"][i]['parameter']])
-#                param_json["parameters"][i].update(disable = dep_dict[param_json["parameters"][i]['parameter']])
+                param_json["parameters"][i].update(disable = dep_dict[param_json["parameters"][i]['parameter']])
 
 
 
