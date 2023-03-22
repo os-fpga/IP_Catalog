@@ -94,13 +94,7 @@ def main():
     from common import IP_Builder
 
     # Parameter Dependency dictionary
-    dep_dict = { 'enable' : {
-                'aw_user_en' :  'aw_user_width',
-                'w_user_en'  :  'w_user_width' ,
-                'b_user_en'  :  'b_user_width' ,
-                'ar_user_en' :  'ar_user_width',
-                'r_user_en'  :  'r_user_width' }
-        }            
+    dep_dict = {}            
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_fifo", language="verilog")
@@ -145,6 +139,57 @@ def main():
     args = parser.parse_args()
     
     # Import JSON (Optional) -----------------------------------------------------------------------
+    if args.json:
+        args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+#        for key, value in vars(args).items():
+#
+        if (args_1.aw_user_en == False):
+            dep_dict.update({
+                'aw_user_width' :   'True',
+            })
+        else:
+            dep_dict.update({
+                'aw_user_width' :   'False',
+            })
+        if (args_1.w_user_en == False):
+            dep_dict.update({
+                'w_user_width' :   'True',
+            })
+        else:
+            dep_dict.update({
+                'w_user_width' :   'False',
+            })
+        if (args_1.b_user_en == False):
+            dep_dict.update({
+                'b_user_width' :   'True',
+            })
+        else:
+            dep_dict.update({
+                'b_user_width' :   'False',
+            })        
+        if (args_1.ar_user_en == False):
+            dep_dict.update({
+                'ar_user_width' :   'True',
+            })
+        else:
+            dep_dict.update({
+                'ar_user_width' :   'False',
+            })
+        if (args_1.r_user_en == False):
+            dep_dict.update({
+                'r_user_width' :   'True',
+            })
+        else:
+            dep_dict.update({
+                'r_user_width' :   'False',
+            })
+
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+
+
+
+
+
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 

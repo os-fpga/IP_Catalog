@@ -100,6 +100,7 @@ class IP_Builder:
                             "default"       : str(core_action.default),
                             "type"          : str("int"),
                             "description"   : str(core_action.help),
+                            "disable"       : str("False"),
                         })
 
             if core_bool_param_group is not None:
@@ -111,6 +112,7 @@ class IP_Builder:
                             "default"       : str(core_action.default),
                             "type"          : str("bool"),
                             "description"   : str(core_action.help),
+                            "disable"       : str("False"),
                         })
             if core_range_param_group is not None:
                 for core_action in core_range_param_group._group_actions:
@@ -123,6 +125,7 @@ class IP_Builder:
                             "type"          : str("int"),
                             "default"       : str(core_action.default),
                             "description"   : str(core_action.help),
+                            "disable"       : str("False"),
                         })
             if core_str_param_group is not None:
                 for core_action in core_str_param_group._group_actions:
@@ -134,6 +137,7 @@ class IP_Builder:
                             "default"       : str(core_action.default),
                             "type"          : str("str"),
                             "description"   : str(core_action.help),
+                            "disable"       : str("False"),
                         })
 
             if core_file_path_group is not None:
@@ -145,6 +149,7 @@ class IP_Builder:
                             "default"       : str(core_action.default),
                             "type"          : str("str"),
                             "description"   : str(core_action.help),
+                            "disable"       : str("False"),
                         })
 
             if name.startswith("build"):
@@ -153,12 +158,8 @@ class IP_Builder:
             if name.startswith("json"):
                 build_param_list.append({name : str(_vars[name])})
 
-
-        dep_list=[]        
-        if 'enable' in dep_dict:
-            dep_list.extend(list(dep_dict['enable'].keys()))
-        if 'disable' in dep_dict:
-            dep_list.extend(list(dep_dict['disable'].keys()))
+ 
+        dep_list= list(dep_dict.keys())
         param_temp = {"parameters": core_param_list}
         param_json.update(param_temp)
 
@@ -167,10 +168,11 @@ class IP_Builder:
 
         for i in range(len(core_param_list)):
             if param_json["parameters"][i]['parameter'] in dep_list:
-                if 'enable' in dep_dict:
-                    param_json["parameters"][i].update(enable = dep_dict['enable'][param_json["parameters"][i]['parameter']])
-                if 'disable' in dep_dict:
-                    param_json["parameters"][i].update(disbale = dep_dict['disable'][param_json["parameters"][i]['parameter']])
+                print(param_json["parameters"][i]['parameter'])
+#                param_json["parameters"][i].update(disable = dep_dict[param_json["parameters"][i]['parameter']])
+#                param_json["parameters"][i].update(disable = dep_dict[param_json["parameters"][i]['parameter']])
+
+
 
     # Append Build and Json params to final json
         for i in range(len(build_param_list)):

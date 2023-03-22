@@ -156,8 +156,11 @@ def main():
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--feature",     type=str,      default="A*B",      choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Features")
     
+    core_string_param_group.add_argument("--equation", type=str,    default="A*B",  choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Select Equation")
+    core_string_param_group.add_argument("--feature", type=str, default="base", choices=["base", "enhanced", "pipeline"],   help="Select Feature")
+
+
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--a_width",     type=int,       default=20,      choices=range(1, 73),     help="A_Input")
@@ -199,13 +202,25 @@ def main():
     if args.json:
         args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-        if (args_1.feature == "A*B"):
-            for i in range(6):
-                parser._actions.pop(4)
-        if (args_1.feature == "A*B+C*D"):
-            for i in range(4):
-                parser._actions.pop(6)
- 
+        if (args_1.equation == "A*B"):
+            dep_dict.update({
+                'c_width'     :     'True',
+                'd_width'     :     'True',
+                'e_width'     :     'True',
+                'f_width'     :     'True',
+                'g_width'     :     'True',
+                'h_width'     :     'True'
+            })
+
+        if (args_1.equation == "A*B+C*D"):
+            dep_dict.update({
+                'e_width'     :     'True',
+                'f_width'     :     'True',
+                'g_width'     :     'True',
+                'h_width'     :     'True'
+            })
+
+
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
