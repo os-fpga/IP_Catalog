@@ -116,14 +116,10 @@ def main():
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--memory_type",    type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
     
-    # Core fix value parameters.
-    # core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    # core_fix_param_group.add_argument("--data_width",   type=int,       default=32,      choices=[32, 64, 96, 128],      help="RAM Write/Read Width")
-    
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--data_width",   type=int,       default=32,      choices=range(2,129),      help="RAM Write/Read Width")
     core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth")
-    core_range_param_group.add_argument("--data_width",    type=int,   default=32,         choices=range(1,129),         help="RAM Write/Read Width")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -144,7 +140,30 @@ def main():
     args = parser.parse_args()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
+
+
+    fabric_mem = 4194432
     if args.json:
+        args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        for key, value in vars(args).items():
+            if args_1.data_width <= 128 and args_1.data_width > 64 :
+                parser._actions[3].choices = [2,int(fabric_mem/128)]
+                parser._actions[3].default = int(fabric_mem/128)
+            elif args_1.data_width <= 64 and args_1.data_width > 32:
+                parser._actions[3].choices = [2,int(fabric_mem/64)]
+                parser._actions[3].default = int(fabric_mem/64)
+            elif args_1.data_width <= 32 and args_1.data_width > 16:
+                parser._actions[3].choices = [2,int(fabric_mem/32)]
+                parser._actions[3].default = int(fabric_mem/32)
+            elif args_1.data_width <= 16 and args_1.data_width > 8 :
+                parser._actions[3].choices = [2,int(fabric_mem/16)]
+                parser._actions[3].default = int(fabric_mem/16)
+            elif args_1.data_width <= 8 and args_1.data_width > 4 :
+                parser._actions[3].choices = [2,int(fabric_mem/8)]
+                parser._actions[3].default = int(fabric_mem/8)
+            elif args_1.data_width <= 4 and args_1.data_width > 2 :
+                parser._actions[3].choices = [2,int(fabric_mem/4)]
+                parser._actions[3].default = int(fabric_mem/4)
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
