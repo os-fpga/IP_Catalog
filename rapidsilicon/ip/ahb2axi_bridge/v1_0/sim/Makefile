@@ -29,14 +29,12 @@ WAVES ?= 1
 COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
-DUT      = ahb2axi4_bridge
+DUT      = ahb2axi_bridge
 TOPLEVEL = ahb2axi4_wrapper
 MODULE   = test_$(TOPLEVEL)
-VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/ahb2axi4_bridge/v1_0/ahb2axi4_wrapper/src/ahb2axi4_wrapper.v
-VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/ahb2axi4_bridge/v1_0/ahb2axi4_wrapper/src/ahb2axi4.sv
-VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/ahb2axi4_bridge/v1_0/ahb2axi4_wrapper/src/beh_lib.sv
-#VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_wrapper/src/sfifo.v
-#VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_wrapper/src/skidbuffer.v
+VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/ahb2axi_bridge/v1_0/ahb2axi4_wrapper/src/ahb2axi4_wrapper.v
+VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/ahb2axi_bridge/v1_0/ahb2axi4_wrapper/src/ahb2axi4.sv
+VERILOG_SOURCES += $(PWD)/rapidsilicon/ip/ahb2axi_bridge/v1_0/ahb2axi4_wrapper/src/beh_lib.sv
 
 
 $(shell ../$(DUT)_gen.py --data_width=32 --addr_width=32 --id_width=1 --build)

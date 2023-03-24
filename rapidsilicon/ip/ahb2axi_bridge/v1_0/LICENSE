@@ -21,8 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-rapidsilicon/ip/axi2axilite_bridge/v1_0/axi2axilite_bridge_gen.py
-rapidsilicon/ip/axi2axilite_bridge/v1_0/litex_wrapper/axi2axilite_bridge_litex_wrapper.py
+rapidsilicon/ip/ahb2axi_bridge/v1_0/ahb2axi_bridge_gen.py
+rapidsilicon/ip/ahb2axi_bridge/v1_0/litex_wrapper/ahb2axi_bridge_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
 
@@ -44,11 +44,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 FILES:
-rapidsilicon/ip/axi2axilite_bridge/v1_0/src/axi2axilite.v
-rapidsilicon/ip/axi2axilite_bridge/v1_0/src/skidbuffer.v
-rapidsilicon/ip/axi2axilite_bridge/v1_0/src/sfifo.v
-rapidsilicon/ip/axi2axilite_bridge/v1_0/src/axi_addr.v
-rapidsilicon/ip/axi2axilite_bridge/v1_0/src/faxil_master.v
-rapidsilicon/ip/axi2axilite_bridge/v1_0/src/faxil_slave.v
+rapidsilicon/ip/ahb2axi_bridge/v1_0/src/ahb2axi4.sv
+rapidsilicon/ip/ahb2axi_bridge/v1_0/src/beh_lib.sv
 
 ---------------------------------------------------------------------------------------

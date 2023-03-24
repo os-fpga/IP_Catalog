@@ -5,7 +5,7 @@
 #
 # SPDX-License-Identifier: MIT
 #
-# LiteX wrapper around Dan Gisselquist ZipCPU/wb2axip's axi2axilite.v
+# LiteX wrapper around western digital's ahb2axi4.v
 
 import os
 import logging
