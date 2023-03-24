@@ -8,7 +8,7 @@ import os
 import sys
 import argparse
 
-from litex_wrapper.ahb2axi4_bridge_litex_wrapper import AHB2AXI4
+from litex_wrapper.ahb2axi_bridge_litex_wrapper import AHB2AXI4
 
 from migen import *
 
@@ -103,7 +103,7 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="ahb2axi4_bridge", language="System verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="ahb2axi_bridge", language="System verilog")
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")

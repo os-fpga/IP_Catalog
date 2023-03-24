@@ -5,10 +5,10 @@ AHB-to-AXI4 Bridge IP
 For more information, visit: https://github.com/westerndigitalcorporation/swerv_eh1/blob/master/design/lib/axi4_to_ahb.sv
 
 ## Generator Script
-This directory contains the generator script which places the RTL to `rapidsilicon/ip/ahb2axi4_bridge/v1_0/<build-name>/src` directory and generates its wrapper in the same directory. 
+This directory contains the generator script which places the RTL to `rapidsilicon/ip/ahb2axi_bridge/v1_0/<build-name>/src` directory and generates its wrapper in the same directory. 
 
 ## Parameters
-User can configure ahb2axi4_bridge CORE using following parameters:
+User can configure ahb2axi_bridge CORE using following parameters:
 
 | Sr.No.|      Parameter       |         Keyword        |         Value         |
 |-------|----------------------|------------------------|-----------------------|
@@ -20,12 +20,12 @@ User can configure ahb2axi4_bridge CORE using following parameters:
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 ahb2axi4_bridge_gen.py --data_width=32 --addr_width=8 --build-name=wrapper --build
+python3 ahb2axi_bridge_gen.py --data_width=32 --addr_width=8 --build-name=wrapper --build
 ```
 
 ## TCL File
 
-This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/ahb2axi4_bridge/v1_0/<build-name>/synth` directory.
+This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/ahb2axi_bridge/v1_0/<build-name>/synth` directory.
 
 
 ## References
