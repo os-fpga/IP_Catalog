@@ -83,11 +83,7 @@ def main():
 
     # Parameter Dependency dictionary
     #                Ports     :    Dependency
-    dep_dict = {    
-                'id_width'    :   'id_en',
-                'dest_width'  :   'dest_en',
-                'user_width'  :   'user_en'
-    }            
+    dep_dict = {}            
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_adapter", language="verilog")
@@ -121,6 +117,33 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+
+        if (args.id_en == False):
+            dep_dict.update({
+                'id_width' :   'True',
+            })
+        else:
+            dep_dict.update({
+                'id_width' :   'False',
+            })
+        if (args.dest_en == False):
+            dep_dict.update({
+                'dest_width' :   'True',
+            })
+        else:
+            dep_dict.update({
+                'dest_width' :   'False',
+            })
+        if (args.user_en == False):
+            dep_dict.update({
+                'user_width' :   'True',
+            })
+        else:
+            dep_dict.update({
+                'user_width' :   'False',
+            })        
+
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------

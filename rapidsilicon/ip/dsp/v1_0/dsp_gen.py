@@ -196,6 +196,14 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         if (args.equation == "A*B"):
+            dep_dict.update({
+                'c_width'     :     'True',
+                'd_width'     :     'True',
+                'e_width'     :     'True',
+                'f_width'     :     'True',
+                'g_width'     :     'True',
+                'h_width'     :     'True'
+            })
             parser._actions[2].choices = ["Base", "Enhanced", "Pipeline"]
             if (args.feature == "Base") or (args.feature == "Pipeline" and args.unsigned == True):
                 if(args.feature == "Pipeline"):
@@ -214,6 +222,15 @@ def main():
             parser._actions[2].choices = ["Base"]
             parser._actions[3].choices = range(1, 21)
             parser._actions[4].choices = range(1, 19)
+
+        if (args.equation == "A*B+C*D"):
+            dep_dict.update({
+                'e_width'     :     'True',
+                'f_width'     :     'True',
+                'g_width'     :     'True',
+                'h_width'     :     'True'
+            })
+
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
