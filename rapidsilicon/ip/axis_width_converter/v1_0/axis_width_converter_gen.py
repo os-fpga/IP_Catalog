@@ -98,33 +98,6 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-        if (args.axis_id_enable == False):
-            dep_dict.update({
-                'axi_id_width' :   'True',
-            })
-        else:
-            dep_dict.update({
-                'axi_id_width' :   'False',
-            })
-        if (args.axis_dest_enable == False):
-            dep_dict.update({
-                'axis_dest_width' :   'True',
-            })
-        else:
-            dep_dict.update({
-                'axis_dest_width' :   'False',
-            })
-        if (args.axis_user_enable == False):
-            dep_dict.update({
-                'axis_user_width' :   'True',
-            })
-        else:
-            dep_dict.update({
-                'axis_user_width' :   'False',
-            })        
-
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
