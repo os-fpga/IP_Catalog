@@ -111,7 +111,7 @@ def main():
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--addr_width",     type=int,       default=33,      choices=range(6, 33),      help="Address Width")
+    core_range_param_group.add_argument("--addr_width",     type=int,       default=32,      choices=range(6, 33),      help="Address Width")
     core_range_param_group.add_argument("--id_width",       type=int,       default=1,      choices=range(1, 33),      help="ID Width")
 
     # Build Parameters.
