@@ -342,8 +342,8 @@ assign data_width32_64 = (data_width == 64) ? 0 : 1;
                                             ({8{ahb_hsize_q[2:0] == 3'b10}} & (8'b1111 << ahb_haddr_q[2:0])) |
                                             ({8{ahb_hsize_q[2:0] == 3'b11}} & 8'b1111_1111));
 
-   assign ahb_hreadyout       = ahb_hresp ? (ahb_hresp_q & ~ahb_hready_q) : ahb_hwrite ?  
-                                         ((ahb_htrans == 2'b11 | ahb_htrans == 2'b10 | ahb_htrans == 2'b00 | ahb_htrans == 2'b01) & ~buf_read_error) : axi_rvalid | ahb_htrans == 2'b10 | ahb_htrans == 2'b11;    
+   assign ahb_hreadyout       = rst_l ? 1 : (ahb_hresp ? (ahb_hresp_q & ~ahb_hready_q) : ahb_hwrite ?  
+                                         ((ahb_htrans == 2'b11 | ahb_htrans == 2'b10 | ahb_htrans == 2'b00 | ahb_htrans == 2'b01) & ~buf_read_error) : axi_rvalid | ahb_htrans == 2'b10 | ahb_htrans == 2'b11);    
    assign ahb_hready          = ahb_hreadyout & ahb_hreadyin;
    assign ahb_htrans_in[1:0]  = {2{ahb_hsel}} & ahb_htrans[1:0];
    assign buf_rdata_enb[data_width-1:0] = axi_rvalid ? axi_rdata : buf_rdata_enb;    //buf_rdata
@@ -418,7 +418,7 @@ assign data_width32_64 = (data_width == 64) ? 0 : 1;
  //  );/
 
    // Command Buffer - Holding for the commands to be sent for the AXI. It will be converted to the AXI signals.
-   assign cmdbuf_rst         = (((axi_awvalid & axi_awready) | (axi_arvalid & axi_arready)) & ~cmdbuf_wr_en) | (ahb_hresp & ~cmdbuf_write);
+   assign cmdbuf_rst         = (((axi_arvalid & axi_arready)) & ~cmdbuf_wr_en) | (ahb_hresp & ~cmdbuf_write);
    assign cmdbuf_full        = (cmdbuf_vld & ~((axi_awvalid & axi_awready) | (axi_arvalid & axi_arready)));
 
    rvdffsc_fpga #(.WIDTH(1))   cmdbuf_vldff      (.din(1'b1), .clear(cmdbuf_rst), .dout(cmdbuf_vld),        .en(cmdbuf_wr_en), .clk(bus_clk), .clken(bus_clk_en), .rawclk(clk), .*);
@@ -437,7 +437,7 @@ assign data_width32_64 = (data_width == 64) ? 0 : 1;
 
 
    // AXI Write Command Channel
-   assign axi_awvalid           = address_valid & ahb_hwrite_q;
+   assign axi_awvalid           = address_valid & ahb_hwrite_q | (axi_awready & address_valid_q);
    assign axi_awid[id_width-1:0]     = '0; 
    assign axi_awaddr[addr_width-1:0]      = address_valid_q ? cmdbuf_addr[addr_width-1:0]: axi_awaddr[addr_width-1:0];
    assign axi_awsize[2:0]       = {1'b0, cmdbuf_size[1:0]};
