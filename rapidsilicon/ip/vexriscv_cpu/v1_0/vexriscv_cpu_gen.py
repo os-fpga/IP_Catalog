@@ -7,6 +7,7 @@
 import os
 import sys
 import argparse
+import shutil
 
 from litex_wrapper.vexriscv_cpu_litex_wrapper import vexriscv_nocache_nommu
 from litex_wrapper.vexriscv_cpu_litex_wrapper import vexriscv_linux_mmu
@@ -37,7 +38,7 @@ def get_jtag_ios():
         ]
 
 def get_other_ios(n):
-    if (n == "base_variant"):
+    if (n == "Cacheless"):
         return [
             ("debugReset",          0,  Pins(1)),
             ("debug_resetOut",      0,  Pins(1)),
@@ -45,7 +46,7 @@ def get_other_ios(n):
             ("externalInterrupt",   0,  Pins(1)),    
             ("softwareInterrupt",   0,  Pins(1))
         ]  
-    if (n == "cached_with_mmu"):
+    if (n == "Cache_MMU"):
         return [
             ("debugReset",          0,  Pins(1)),
             ("debug_resetOut",      0,  Pins(1)),
@@ -55,7 +56,7 @@ def get_other_ios(n):
             ("externalInterruptS",  0,  Pins(1)),
             ("utime",               0,  Pins(64))
         ]      
-    if (n == "cached_with_mmu_plic_clint"):
+    if (n == "Cache_MMU_PLIC_CLINT"):
         return [
             ("debugReset",          0,  Pins(1)),
             ("debug_resetOut",      0,  Pins(1)),
@@ -103,7 +104,7 @@ def get_other_ios(n):
 
 # AXI-VEXRISCV Wrapper --------------------------------------------------------------------------------
 class VexriscvWrapper(Module):
-    def __init__(self, platform, base_variant, cached_with_mmu, cached_with_mmu_plic_clint):
+    def __init__(self, platform, variant):
         
         # Clocking
         platform.add_extension(get_clkin_ios())
@@ -121,22 +122,19 @@ class VexriscvWrapper(Module):
         platform.add_extension(dbus_axi.get_ios("dbus_axi"))
         self.comb += dbus_axi.connect_to_pads(platform.request("dbus_axi"), mode="master")
 
-        if (base_variant):
-            cpu_type = "base_variant"
+        if (variant == "Cacheless"):
             # VEXRISCV without cache and MMU
             self.submodules.vexriscv = vexriscv = vexriscv_nocache_nommu(platform,
                 ibus        = ibus_axi,
                 dbus        = dbus_axi
                 )
-        elif (cached_with_mmu):
-            cpu_type = "cached_with_mmu"
+        elif (variant == "Cache_MMU"):
             # VEXRISCV with Cache and MMU
             self.submodules.vexriscv = vexriscv = vexriscv_linux_mmu(platform,
                 ibus        = ibus_axi,
                 dbus        = dbus_axi
                 )
-        elif (cached_with_mmu_plic_clint):
-            cpu_type = "cached_with_mmu_plic_clint"
+        elif (variant == "Cache_MMU_PLIC_CLINT"):
             # VEXRISCV with Cache, MMU, PLIC and Clint
             self.submodules.vexriscv = vexriscv = vexriscv_plic_clint(platform,
                 ibus        = ibus_axi,
@@ -151,17 +149,17 @@ class VexriscvWrapper(Module):
         # Outputs
         self.comb += platform.request("jtag_tdo").eq(vexriscv.jtag_tdo)
 
-        platform.add_extension(get_other_ios(cpu_type))
+        platform.add_extension(get_other_ios(variant))
         # Inputs
         self.comb += vexriscv.debugReset.eq(platform.request("debugReset"))
-        if (base_variant or cached_with_mmu):
+        if (variant == "Cacheless" or variant == "Cache_MMU"):
             self.comb += vexriscv.timerInterrupt.eq(platform.request("timerInterrupt"))
             self.comb += vexriscv.externalInterrupt.eq(platform.request("externalInterrupt"))
             self.comb += vexriscv.softwareInterrupt.eq(platform.request("softwareInterrupt"))
-            if (cached_with_mmu):
+            if (variant == "Cache_MMU"):
                 self.comb += vexriscv.externalInterruptS.eq(platform.request("externalInterruptS"))
                 self.comb += vexriscv.utime.eq(platform.request("utime"))
-        if (cached_with_mmu_plic_clint):
+        if (variant == "Cache_MMU_PLIC_CLINT"):
             self.comb += vexriscv.clint_awvalid.eq(platform.request("clint_awvalid"))
             self.comb += vexriscv.clint_awaddr.eq(platform.request("clint_awaddr"))
             self.comb += vexriscv.clint_awprot.eq(platform.request("clint_awprot"))
@@ -203,7 +201,7 @@ class VexriscvWrapper(Module):
             self.comb += platform.request("plic_rdata").eq(vexriscv.plic_rdata)
             self.comb += platform.request("plic_rresp").eq(vexriscv.plic_rresp)
         self.comb += platform.request("debug_resetOut").eq(vexriscv.debug_resetOut)
-
+        
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="Vexriscv CORE")
@@ -221,11 +219,9 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="vexriscv_cpu", language="verilog")
 
-   # Core bool value parameters
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--base_variant",   type=bool,  default=False,  help="VEXRISCV Uncached without MMU")
-    core_bool_param_group.add_argument("--cached_with_mmu",               type=bool,  default=False,  help="VEXRISCV Cached with MMU")
-    core_bool_param_group.add_argument("--cached_with_mmu_plic_clint",        type=bool,  default=False,  help="VEXRISCV Cached with MMU, PLIC and CLINT")
+    # Core string parameters.
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
+    core_string_param_group.add_argument("--variant",     type=str,      default="Cacheless",      choices=["Cacheless", "Cache_MMU", "Cache_MMU_PLIC_CLINT"],    help="Select Equation")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -244,17 +240,13 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-    # Providing a default value
-    if (not args.base_variant and not args.cached_with_mmu and not args.cached_with_mmu_plic_clint):
-        args.base_variant = True
-
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = VexriscvWrapper(platform, base_variant=args.base_variant, cached_with_mmu=args.cached_with_mmu, cached_with_mmu_plic_clint=args.cached_with_mmu_plic_clint)
+    module   = VexriscvWrapper(platform, variant=args.variant)
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
@@ -264,11 +256,34 @@ def main():
             version    = "v1_0"
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        if (args.variant == "Cacheless"):
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_cached_mmu.v")
+            os.remove(file)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_cached_mmu_plic_clint.v")
+            os.remove(file)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "sim")
+            shutil.rmtree(file)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "sim")
+            os.mkdir(file)
+        elif (args.variant == "Cache_MMU"):
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_uncached_nommu.v")
+            os.remove(file)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_cached_mmu_plic_clint.v")
+            os.remove(file)
+        elif (args.variant == "Cache_MMU_PLIC_CLINT"):
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_uncached_nommu.v")
+            os.remove(file)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_cached_mmu.v")
+            os.remove(file)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "sim")
+            shutil.rmtree(file)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "sim")
+            os.mkdir(file)
         rs_builder.generate_tcl()
         rs_builder.generate_wrapper(
             platform   = platform,
             module     = module,
         )
-        
+
 if __name__ == "__main__":
     main()
