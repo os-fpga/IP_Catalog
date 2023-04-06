@@ -165,6 +165,8 @@ def main():
             elif args_1.data_width <= 2 and args_1.data_width > 1 :
                 parser._actions[3].choices = [2,int(fabric_mem/2)]
                 parser._actions[3].default = int(fabric_mem/2)
+            if args_1.data_width == 32:
+                parser._actions[3].default = 1024
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
