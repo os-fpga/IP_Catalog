@@ -221,7 +221,7 @@ def main():
 
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--variant",     type=str,      default="Cacheless",      choices=["Cacheless", "Cache_MMU", "Cache_MMU_PLIC_CLINT"],    help="Select Equation")
+    core_string_param_group.add_argument("--variant",     type=str,      default="Cacheless",      choices=["Cacheless", "Cache_MMU", "Cache_MMU_PLIC_CLINT"],    help="Select Variant")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -256,28 +256,29 @@ def main():
             version    = "v1_0"
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
         if (args.variant == "Cacheless"):
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_cached_mmu.v")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "src/vexriscv_cached_mmu.v")
             os.remove(file)
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_cached_mmu_plic_clint.v")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "src/vexriscv_cached_mmu_plic_clint.v")
             os.remove(file)
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "sim")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "sim")
             shutil.rmtree(file)
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "sim")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "sim")
             os.mkdir(file)
         elif (args.variant == "Cache_MMU"):
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_uncached_nommu.v")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "src/vexriscv_uncached_nommu.v")
             os.remove(file)
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_cached_mmu_plic_clint.v")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "src/vexriscv_cached_mmu_plic_clint.v")
             os.remove(file)
         elif (args.variant == "Cache_MMU_PLIC_CLINT"):
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_uncached_nommu.v")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "src/vexriscv_uncached_nommu.v")
             os.remove(file)
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "src/vexriscv_cached_mmu.v")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "src/vexriscv_cached_mmu.v")
             os.remove(file)
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "sim")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "sim")
             shutil.rmtree(file)
-            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", args.build_name, "sim")
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "sim")
             os.mkdir(file)
         rs_builder.generate_tcl()
         rs_builder.generate_wrapper(
