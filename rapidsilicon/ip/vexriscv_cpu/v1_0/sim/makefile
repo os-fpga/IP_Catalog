@@ -350,7 +350,6 @@ run: compile
 	./obj_dir/V$(DUT)
 
 verilate: ${VEXRISCV_FILE}
-	cp ${VEXRISCV_FILE}*.bin . | true
 	verilator -cc  ${VEXRISCV_FILE} -O3 -CFLAGS -std=c++11 -LDFLAGS -pthread  ${ADDCFLAGS} --gdbbt ${VERILATOR_ARGS} -Wno-UNOPTFLAT -Wno-WIDTH --x-assign unique --exe main.cpp
 
 compile: verilate
