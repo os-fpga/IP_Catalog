@@ -45,8 +45,8 @@ class RS_DSP_Wrapper(Module):
         self.clock_domains.cd_sys = ClockDomain()
         platform.add_extension(get_clkin_ios())
         
-            # A*B
-        if (equation == "A*B"):
+            # AxB
+        if (equation == "AxB"):
             z_width = a_width + b_width
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             if ((a_width >= 0 and a_width <=20) and (b_width >= 0 and b_width <=18)):
@@ -96,8 +96,8 @@ class RS_DSP_Wrapper(Module):
                             self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
 
-        # (A*B)+(C*D)
-        elif (equation=="A*B+C*D"):
+        # (AxB)+(CxD)
+        elif (equation=="AxB+CxD"):
             if ((a_width + b_width) > (c_width + d_width)):
                 z_width = a_width + b_width + 1
             else:
@@ -106,8 +106,8 @@ class RS_DSP_Wrapper(Module):
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             self.comb += dsp.c.eq(platform.request("c"))
             self.comb += dsp.d.eq(platform.request("d"))
-        # A*B+C*D+E*F+G*H
-        elif (equation=="A*B+C*D+E*F+G*H"):
+        # AxB+CxD+ExF+GxH
+        elif (equation=="AxB+CxD+ExF+GxH"):
             if ((a_width + b_width) > (c_width + d_width)):
                 z12_width = a_width + b_width + 1
             else:
@@ -159,7 +159,7 @@ def main():
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--equation",     type=str,      default="A*B",      choices=["A*B","A*B+C*D","A*B+C*D+E*F+G*H"],    help="Select Equation")
+    core_string_param_group.add_argument("--equation",     type=str,      default="AxB",      choices=["AxB","AxB+CxD","AxB+CxD+ExF+GxH"],    help="Select Equation")
     core_string_param_group.add_argument("--feature",  type=str,   default="Base", choices=["Base", "Enhanced", "Pipeline"],    help="Select Feature")
     
     # Core range value parameters.
@@ -195,7 +195,7 @@ def main():
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-        if (args.equation == "A*B"):
+        if (args.equation == "AxB"):
             dep_dict.update({
                 'c_width'     :     'True',
                 'd_width'     :     'True',
@@ -208,11 +208,17 @@ def main():
             if (args.feature == "Base") or (args.feature == "Pipeline" and args.unsigned == True):
                 if(args.feature == "Pipeline"):
                     parser._actions[11].default = True
+                    dep_dict.update({
+                        'reg_in'     :     'True'
+                    })
                 parser._actions[3].choices = range(1, 73)
                 parser._actions[4].choices = range(1, 73)
             elif (args.feature == "Pipeline" and args.unsigned == False) or (args.feature == "Enhanced" and args.unsigned == True):
                 if(args.feature == "Pipeline"):
                     parser._actions[11].default = True
+                    dep_dict.update({
+                        'reg_in'     :     'True'
+                    })
                 parser._actions[3].choices = range(1, 69)
                 parser._actions[4].choices = range(1, 69)
             elif args.feature == "Enhanced" and args.unsigned == False:
@@ -222,15 +228,13 @@ def main():
             parser._actions[2].choices = ["Base"]
             parser._actions[3].choices = range(1, 21)
             parser._actions[4].choices = range(1, 19)
-
-        if (args.equation == "A*B+C*D"):
-            dep_dict.update({
-                'e_width'     :     'True',
-                'f_width'     :     'True',
-                'g_width'     :     'True',
-                'h_width'     :     'True'
-            })
-
+            if (args.equation == "AxB+CxD"):
+                dep_dict.update({
+                    'e_width'     :     'True',
+                    'f_width'     :     'True',
+                    'g_width'     :     'True',
+                    'h_width'     :     'True'
+                })
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
