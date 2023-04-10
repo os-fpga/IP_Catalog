@@ -44,25 +44,25 @@ class OCM(Module):
         self.dout_B    = Signal(data_width)
         
         # OCM Instances.
-        if (write_depth % 1024 ==0):
-            if (write_depth == 1024):
-                m = math.ceil(data_width/36)
-                n = 1  
-            elif (write_depth == 2048):
-                m = math.ceil(data_width/18)
-                n = 1
-            elif (write_depth == 4096):
-                m = math.ceil(data_width/9)
-                n = 1
-            elif (write_depth == 8192):
-                m = math.ceil(data_width/4)
-                n = 1
-            elif (write_depth == 16384):
-                m = math.ceil(data_width/2)
-                n = 1
-            elif (write_depth == 32768):
-                m = math.ceil(data_width/1)
-                n = 1
+        # if (write_depth % 1024 ==0):
+        if (write_depth == 1024):
+            m = math.ceil(data_width/36)
+            n = 1  
+        elif (write_depth == 2048):
+            m = math.ceil(data_width/18)
+            n = 1
+        elif (write_depth == 4096):
+            m = math.ceil(data_width/9)
+            n = 1
+        elif (write_depth == 8192):
+            m = math.ceil(data_width/4)
+            n = 1
+        elif (write_depth == 16384):
+            m = math.ceil(data_width/2)
+            n = 1
+        elif (write_depth == 32768):
+            m = math.ceil(data_width/1)
+            n = 1
                 
         else:
             if (write_depth > 1024):
@@ -90,7 +90,7 @@ class OCM(Module):
         # Internal Addresses
         self.address_A    = Signal(msb)
         self.address_B    = Signal(msb)
-
+        
         # Write Enables
         self.wen_A1       = Signal(m)
         self.wen_B1       = Signal(m)
@@ -102,7 +102,7 @@ class OCM(Module):
         self.ren_B        = Signal(1)
         
         # Registered Address for output logic
-        if write_depth >1024:
+        if write_depth > 1024:
             self.addr_A_reg = Signal(msb-10)
             self.addr_B_reg = Signal(msb-10)
         
@@ -114,7 +114,7 @@ class OCM(Module):
             self.bram_out_A = [Signal(36*n) for i in range(m)]
             self.bram_out_B = [Signal(36*n) for i in range(m)]
 
-            if (write_depth % 1024 == 0):
+            if (write_depth == 1024 or write_depth == 2048 or write_depth == 4096 or write_depth == 8192 or write_depth == 16384 or write_depth == 32768):
                 # Single Port RAM
                 if (memory_type == "Single_Port"):
                     self.comb += If((self.wen_A == 1), self.wen_A1.eq(1)).Else(self.wen_A1.eq(0))
@@ -208,18 +208,23 @@ class OCM(Module):
                 if (memory_type == "Single_Port"):
                     self.comb += self.address_A[0:10].eq(self.addr_A[0:10])
                     cases = {}
+                    case_output = {}
                     for i in range(m):
-                        cases[i] = If((self.wen_A == 1), (self.wen_A1.eq(1 << i)))
+                        if write_depth < 1024:
+                            self.comb += If((self.wen_A == 1), (self.wen_A1.eq(1 << i)))
+                        else:
+                            cases[i] = If((self.wen_A == 1), (self.wen_A1.eq(1 << i)))
                     if (write_depth > 1024):
                         self.comb += Case(self.addr_A[10:msb], cases)
-                    case_output = {}
                     for i in range(m):
                         case_output[i] = self.dout_A.eq(self.bram_out_A[i])
                     if (write_depth > 1024):
-                        self.sync += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
                         self.comb += Case(self.addr_A_reg[0:msb-10], case_output)
                     else:
                         self.comb += self.dout_A.eq(self.bram_out_A[0])
+                    for i in range(m):
+                        if write_depth > 1024:
+                            self.sync += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
                 
                 # Simple Dual Port RAM
                 elif (memory_type == "Simple_Dual_Port"):
@@ -231,7 +236,6 @@ class OCM(Module):
                     for i in range(m):
                         case1[i] = If((self.wen_A == 1), (self.wen_A1.eq(1 << i)))
                     if (write_depth > 1024):
-                        self.sync += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
                         self.comb += Case(self.addr_A[10:msb], case1)
                     else:
                         self.comb += self.dout_B.eq(self.bram_out_B[0])
@@ -240,6 +244,9 @@ class OCM(Module):
                         case2[i] = self.dout_B.eq(self.bram_out_B[i])
                     if (write_depth > 1024):
                         self.comb += Case(self.addr_B_reg[0:msb-10], case2)
+                    for i in range(m):
+                        if write_depth > 1024:
+                            self.sync += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
                     
                 # True Dual Port RAM
                 elif (memory_type == "True_Dual_Port"):
@@ -247,11 +254,17 @@ class OCM(Module):
                     self.comb += self.address_B[0:10].eq(self.addr_B[0:10])
                     case1 = {}
                     case3 = {}
+                    if write_depth < 1024:
+                        self.comb += If((self.wen_A == 1), (self.wen_A1.eq(1)))
+                        self.comb += If((self.wen_B == 1), (self.wen_B1.eq(1)))
+                    for i in range(m):
+                        case1[i] = If((self.wen_A == 1), (self.wen_A1.eq(1 << i)))
+                    
                     for i in range(m):
                         case1[i] = (If((self.wen_A == 1), self.wen_A1.eq(1 << i)))
                         case3[i] =   self.dout_A.eq(self.bram_out_A[i])
                     if (write_depth > 1024):
-                        self.sync += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
+                        
                         self.comb += Case(self.addr_A[10:msb], case1)
                         self.comb += Case(self.addr_A_reg[0:msb-10], case3)
                     else:
@@ -262,11 +275,15 @@ class OCM(Module):
                         case2[i] = (If((self.wen_B == 1), self.wen_B1.eq(1 << i)))
                         case4[i] =  self.dout_B.eq(self.bram_out_B[i])
                     if (write_depth > 1024):
-                        self.sync += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
+                        
                         self.comb += Case(self.addr_B[10:msb], case2)
                         self.comb += Case(self.addr_B_reg[0:msb-10], case4)
                     else:
                         self.comb += self.dout_B.eq(self.bram_out_B[0])
+                    for i in range(m):
+                        if write_depth > 1024:
+                            self.sync += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
+                            self.sync += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
 
             # Single Port RAM
             if (memory_type == "Single_Port"):
@@ -284,73 +301,73 @@ class OCM(Module):
                             write_data_A1   = self.din_A[(i*36):((i*36)+18)]
                             write_data_A2   = self.din_A[((i*36)+18):((i*36)+36)]
                     
-                    if (write_depth % 1024 == 0):
-                        if (write_depth == 1024):
-                            w_mode_a1 = "110"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "110"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "110"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "110"
-                            r_mode_b2 = "000"
-                            split     = '0'
-                            address = Cat(Replicate(0,5), self.addr_A[0:msb])
-                        if (write_depth == 2048):
-                            w_mode_a1 = "010"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "010"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "010"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "010"
-                            r_mode_b2 = "000"
-                            split     = '0'
-                            address = Cat(Replicate(0,4), self.addr_A[0:msb])
-                        if (write_depth == 4096):
-                            w_mode_a1 = "100"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "100"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "100"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "100"
-                            r_mode_b2 = "000"
-                            split     = '0'
-                            address = Cat(Replicate(0,3), self.addr_A[0:msb])
-                        if (write_depth == 8192):
-                            w_mode_a1 = "001"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "001"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "001"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "001"
-                            r_mode_b2 = "000"
-                            split     = '0'
-                            address = Cat(Replicate(0,2), self.addr_A[0:msb])
-                        if (write_depth == 16384):
-                            w_mode_a1 = "011"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "011"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "011"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "011"
-                            r_mode_b2 = "000"
-                            split     = '0'
-                            address = Cat(Replicate(0,1), self.addr_A[0:msb])
-                        if (write_depth == 32768):
-                            w_mode_a1 = "101"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "101"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "101"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "101"
-                            r_mode_b2 = "000"
-                            split     = '0'
-                            address = self.addr_A[0:msb]
+                    # if (write_depth % 1024 == 0):
+                    if (write_depth == 1024):
+                        w_mode_a1 = "110"
+                        w_mode_b1 = "000"
+                        w_mode_a2 = "110"
+                        w_mode_b2 = "000"
+                        r_mode_a1 = "110"
+                        r_mode_b1 = "000"
+                        r_mode_a2 = "110"
+                        r_mode_b2 = "000"
+                        split     = '0'
+                        address = Cat(Replicate(0,5), self.addr_A[0:msb])
+                    elif (write_depth == 2048):
+                        w_mode_a1 = "010"
+                        w_mode_b1 = "000"
+                        w_mode_a2 = "010"
+                        w_mode_b2 = "000"
+                        r_mode_a1 = "010"
+                        r_mode_b1 = "000"
+                        r_mode_a2 = "010"
+                        r_mode_b2 = "000"
+                        split     = '0'
+                        address = Cat(Replicate(0,4), self.addr_A[0:msb])
+                    elif (write_depth == 4096):
+                        w_mode_a1 = "100"
+                        w_mode_b1 = "000"
+                        w_mode_a2 = "100"
+                        w_mode_b2 = "000"
+                        r_mode_a1 = "100"
+                        r_mode_b1 = "000"
+                        r_mode_a2 = "100"
+                        r_mode_b2 = "000"
+                        split     = '0'
+                        address = Cat(Replicate(0,3), self.addr_A[0:msb])
+                    elif (write_depth == 8192):
+                        w_mode_a1 = "001"
+                        w_mode_b1 = "000"
+                        w_mode_a2 = "001"
+                        w_mode_b2 = "000"
+                        r_mode_a1 = "001"
+                        r_mode_b1 = "000"
+                        r_mode_a2 = "001"
+                        r_mode_b2 = "000"
+                        split     = '0'
+                        address = Cat(Replicate(0,2), self.addr_A[0:msb])
+                    elif (write_depth == 16384):
+                        w_mode_a1 = "011"
+                        w_mode_b1 = "000"
+                        w_mode_a2 = "011"
+                        w_mode_b2 = "000"
+                        r_mode_a1 = "011"
+                        r_mode_b1 = "000"
+                        r_mode_a2 = "011"
+                        r_mode_b2 = "000"
+                        split     = '0'
+                        address = Cat(Replicate(0,1), self.addr_A[0:msb])
+                    elif (write_depth == 32768):
+                        w_mode_a1 = "101"
+                        w_mode_b1 = "000"
+                        w_mode_a2 = "101"
+                        w_mode_b2 = "000"
+                        r_mode_a1 = "101"
+                        r_mode_b1 = "000"
+                        r_mode_a2 = "101"
+                        r_mode_b2 = "000"
+                        split     = '0'
+                        address = self.addr_A[0:msb]
                     else:
                         # Mode Bits for other Full Memories
                         if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2):
@@ -435,7 +452,6 @@ class OCM(Module):
                     mode = int ("0{}{}{}{}00000000000000000000000000000{}{}{}{}00000000000000000000000000{}".format(r_mode_a1, r_mode_b1, w_mode_a1, w_mode_b1, r_mode_a2, r_mode_b2, w_mode_a2, w_mode_b2, split))
                     mode_bits = Instance.PreformattedParam("81'b{:d}".format(mode))
                     init_i = Instance.PreformattedParam("36864'hx")
-
                     
                     for j in range(m):
                         if (write_depth == 2048):
@@ -471,7 +487,7 @@ class OCM(Module):
                             write_data_A2 = 0
                             
                         # for j in range(m):
-                        if (write_depth % 1024 == 0):
+                        if (write_depth == 1024 or write_depth == 2048 or write_depth == 4096 or write_depth == 8192 or write_depth == 16384 or write_depth == 32768):
                             wen = self.wen_A1
                         else:
                             wen = self.wen_A1[j]
@@ -533,79 +549,79 @@ class OCM(Module):
                             write_data_A1   = self.din_A[(i*36):((i*36)+18)]
                             write_data_A2   = self.din_A[((i*36)+18):((i*36)+36)]
                     
-                    if (write_depth % 1024 == 0):
-                        if (write_depth == 1024):
-                            w_mode_a1 = "110"
-                            w_mode_b1 = "110"
-                            w_mode_a2 = "110"
-                            w_mode_b2 = "110"
-                            r_mode_a1 = "110"
-                            r_mode_b1 = "110"
-                            r_mode_a2 = "110"
-                            r_mode_b2 = "110"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,5), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,5), self.addr_B[0:msb])
-                        if (write_depth == 2048):
-                            w_mode_a1 = "010"
-                            w_mode_b1 = "010"
-                            w_mode_a2 = "010"
-                            w_mode_b2 = "010"
-                            r_mode_a1 = "010"
-                            r_mode_b1 = "010"
-                            r_mode_a2 = "010"
-                            r_mode_b2 = "010"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,4), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,4), self.addr_B[0:msb])
-                        if (write_depth == 4096):
-                            w_mode_a1 = "100"
-                            w_mode_b1 = "100"
-                            w_mode_a2 = "100"
-                            w_mode_b2 = "100"
-                            r_mode_a1 = "100"
-                            r_mode_b1 = "100"
-                            r_mode_a2 = "100"
-                            r_mode_b2 = "100"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,3), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,3), self.addr_B[0:msb])
-                        if (write_depth == 8192):
-                            w_mode_a1 = "001"
-                            w_mode_b1 = "001"
-                            w_mode_a2 = "001"
-                            w_mode_b2 = "001"
-                            r_mode_a1 = "001"
-                            r_mode_b1 = "001"
-                            r_mode_a2 = "001"
-                            r_mode_b2 = "001"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,2), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,2), self.addr_B[0:msb])
-                        if (write_depth == 16384):
-                            w_mode_a1 = "011"
-                            w_mode_b1 = "011"
-                            w_mode_a2 = "011"
-                            w_mode_b2 = "011"
-                            r_mode_a1 = "011"
-                            r_mode_b1 = "011"
-                            r_mode_a2 = "011"
-                            r_mode_b2 = "011"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,1), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,1), self.addr_B[0:msb])
-                        if (write_depth == 32768):
-                            w_mode_a1 = "101"
-                            w_mode_b1 = "101"
-                            w_mode_a2 = "101"
-                            w_mode_b2 = "101"
-                            r_mode_a1 = "101"
-                            r_mode_b1 = "101"
-                            r_mode_a2 = "101"
-                            r_mode_b2 = "101"
-                            split     = '0'
-                            address_A = self.addr_A[0:msb]
-                            address_B = self.addr_B[0:msb]
+                    # if (write_depth % 1024 == 0):
+                    if (write_depth == 1024):
+                        w_mode_a1 = "110"
+                        w_mode_b1 = "110"
+                        w_mode_a2 = "110"
+                        w_mode_b2 = "110"
+                        r_mode_a1 = "110"
+                        r_mode_b1 = "110"
+                        r_mode_a2 = "110"
+                        r_mode_b2 = "110"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,5), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,5), self.addr_B[0:msb])
+                    elif (write_depth == 2048):
+                        w_mode_a1 = "010"
+                        w_mode_b1 = "010"
+                        w_mode_a2 = "010"
+                        w_mode_b2 = "010"
+                        r_mode_a1 = "010"
+                        r_mode_b1 = "010"
+                        r_mode_a2 = "010"
+                        r_mode_b2 = "010"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,4), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,4), self.addr_B[0:msb])
+                    elif (write_depth == 4096):
+                        w_mode_a1 = "100"
+                        w_mode_b1 = "100"
+                        w_mode_a2 = "100"
+                        w_mode_b2 = "100"
+                        r_mode_a1 = "100"
+                        r_mode_b1 = "100"
+                        r_mode_a2 = "100"
+                        r_mode_b2 = "100"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,3), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,3), self.addr_B[0:msb])
+                    elif (write_depth == 8192):
+                        w_mode_a1 = "001"
+                        w_mode_b1 = "001"
+                        w_mode_a2 = "001"
+                        w_mode_b2 = "001"
+                        r_mode_a1 = "001"
+                        r_mode_b1 = "001"
+                        r_mode_a2 = "001"
+                        r_mode_b2 = "001"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,2), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,2), self.addr_B[0:msb])
+                    elif (write_depth == 16384):
+                        w_mode_a1 = "011"
+                        w_mode_b1 = "011"
+                        w_mode_a2 = "011"
+                        w_mode_b2 = "011"
+                        r_mode_a1 = "011"
+                        r_mode_b1 = "011"
+                        r_mode_a2 = "011"
+                        r_mode_b2 = "011"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,1), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,1), self.addr_B[0:msb])
+                    elif (write_depth == 32768):
+                        w_mode_a1 = "101"
+                        w_mode_b1 = "101"
+                        w_mode_a2 = "101"
+                        w_mode_b2 = "101"
+                        r_mode_a1 = "101"
+                        r_mode_b1 = "101"
+                        r_mode_a2 = "101"
+                        r_mode_b2 = "101"
+                        split     = '0'
+                        address_A = self.addr_A[0:msb]
+                        address_B = self.addr_B[0:msb]
                     else:
                         # Mode Bits
                         # Port A
@@ -750,7 +766,7 @@ class OCM(Module):
                             write_data_A2 = 0
                             
                         # for j in range(m):
-                        if (write_depth % 1024 == 0):
+                        if (write_depth == 1024 or write_depth == 2048 or write_depth == 4096 or write_depth == 8192 or write_depth == 16384 or write_depth == 32768):
                             wen = self.wen_A1
                         else:
                             wen = self.wen_A1[j]
@@ -860,79 +876,79 @@ class OCM(Module):
                             write_data_B2   = self.din_B[((i*36)+18):((i*36)+36)]
 
                     # Mode_Bits
-                    if (write_depth % 1024 == 0):
-                        if (write_depth == 1024):
-                            w_mode_a1 = "110"
-                            w_mode_b1 = "110"
-                            w_mode_a2 = "110"
-                            w_mode_b2 = "110"
-                            r_mode_a1 = "110"
-                            r_mode_b1 = "110"
-                            r_mode_a2 = "110"
-                            r_mode_b2 = "110"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,5), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,5), self.addr_B[0:msb])
-                        if (write_depth == 2048):
-                            w_mode_a1 = "010"
-                            w_mode_b1 = "010"
-                            w_mode_a2 = "010"
-                            w_mode_b2 = "010"
-                            r_mode_a1 = "010"
-                            r_mode_b1 = "010"
-                            r_mode_a2 = "010"
-                            r_mode_b2 = "010"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,4), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,4), self.addr_B[0:msb])
-                        if (write_depth == 4096):
-                            w_mode_a1 = "100"
-                            w_mode_b1 = "100"
-                            w_mode_a2 = "100"
-                            w_mode_b2 = "100"
-                            r_mode_a1 = "100"
-                            r_mode_b1 = "100"
-                            r_mode_a2 = "100"
-                            r_mode_b2 = "100"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,3), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,3), self.addr_B[0:msb])
-                        if (write_depth == 8192):
-                            w_mode_a1 = "001"
-                            w_mode_b1 = "001"
-                            w_mode_a2 = "001"
-                            w_mode_b2 = "001"
-                            r_mode_a1 = "001"
-                            r_mode_b1 = "001"
-                            r_mode_a2 = "001"
-                            r_mode_b2 = "001"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,2), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,2), self.addr_B[0:msb])
-                        if (write_depth == 16384):
-                            w_mode_a1 = "011"
-                            w_mode_b1 = "011"
-                            w_mode_a2 = "011"
-                            w_mode_b2 = "011"
-                            r_mode_a1 = "011"
-                            r_mode_b1 = "011"
-                            r_mode_a2 = "011"
-                            r_mode_b2 = "011"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,1), self.addr_A[0:msb])
-                            address_B = Cat(Replicate(0,1), self.addr_B[0:msb])
-                        if (write_depth == 32768):
-                            w_mode_a1 = "101"
-                            w_mode_b1 = "101"
-                            w_mode_a2 = "101"
-                            w_mode_b2 = "101"
-                            r_mode_a1 = "101"
-                            r_mode_b1 = "101"
-                            r_mode_a2 = "101"
-                            r_mode_b2 = "101"
-                            split     = '0'
-                            address_A = self.addr_A[0:msb]
-                            address_B = self.addr_B[0:msb]
+                    # if (write_depth % 1024 == 0):
+                    if (write_depth == 1024):
+                        w_mode_a1 = "110"
+                        w_mode_b1 = "110"
+                        w_mode_a2 = "110"
+                        w_mode_b2 = "110"
+                        r_mode_a1 = "110"
+                        r_mode_b1 = "110"
+                        r_mode_a2 = "110"
+                        r_mode_b2 = "110"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,5), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,5), self.addr_B[0:msb])
+                    elif (write_depth == 2048):
+                        w_mode_a1 = "010"
+                        w_mode_b1 = "010"
+                        w_mode_a2 = "010"
+                        w_mode_b2 = "010"
+                        r_mode_a1 = "010"
+                        r_mode_b1 = "010"
+                        r_mode_a2 = "010"
+                        r_mode_b2 = "010"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,4), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,4), self.addr_B[0:msb])
+                    elif (write_depth == 4096):
+                        w_mode_a1 = "100"
+                        w_mode_b1 = "100"
+                        w_mode_a2 = "100"
+                        w_mode_b2 = "100"
+                        r_mode_a1 = "100"
+                        r_mode_b1 = "100"
+                        r_mode_a2 = "100"
+                        r_mode_b2 = "100"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,3), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,3), self.addr_B[0:msb])
+                    elif (write_depth == 8192):
+                        w_mode_a1 = "001"
+                        w_mode_b1 = "001"
+                        w_mode_a2 = "001"
+                        w_mode_b2 = "001"
+                        r_mode_a1 = "001"
+                        r_mode_b1 = "001"
+                        r_mode_a2 = "001"
+                        r_mode_b2 = "001"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,2), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,2), self.addr_B[0:msb])
+                    elif (write_depth == 16384):
+                        w_mode_a1 = "011"
+                        w_mode_b1 = "011"
+                        w_mode_a2 = "011"
+                        w_mode_b2 = "011"
+                        r_mode_a1 = "011"
+                        r_mode_b1 = "011"
+                        r_mode_a2 = "011"
+                        r_mode_b2 = "011"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,1), self.addr_A[0:msb])
+                        address_B = Cat(Replicate(0,1), self.addr_B[0:msb])
+                    elif (write_depth == 32768):
+                        w_mode_a1 = "101"
+                        w_mode_b1 = "101"
+                        w_mode_a2 = "101"
+                        w_mode_b2 = "101"
+                        r_mode_a1 = "101"
+                        r_mode_b1 = "101"
+                        r_mode_a2 = "101"
+                        r_mode_b2 = "101"
+                        split     = '0'
+                        address_A = self.addr_A[0:msb]
+                        address_B = self.addr_B[0:msb]
                     
                     else:
                         # Mode Bits
@@ -1092,7 +1108,7 @@ class OCM(Module):
                             write_data_B2 = 0
                             
                         # for j in range(m):
-                        if (write_depth % 1024 == 0):
+                        if (write_depth == 1024 or write_depth == 2048 or write_depth == 4096 or write_depth == 8192 or write_depth == 16384 or write_depth == 32768):
                             wen_A = self.wen_A1
                             wen_B = self.wen_B1
                         else:
