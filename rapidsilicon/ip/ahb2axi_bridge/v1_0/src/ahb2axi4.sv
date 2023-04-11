@@ -446,7 +446,7 @@ assign data_width32_64 = (data_width == 64) ? 0 : 1;
    assign axi_awburst[1:0]      = burst_type_reg;
    // AXI Write Data Channel - This is tied to the command channel as we only write the command buffer once we have the data.
    assign axi_wvalid            = cmdbuf_vld & cmdbuf_write & (ahb_htrans_qq == 2'b10 | ahb_htrans_qq == 2'b11 | axi_wlast);
-   assign axi_wdata[data_width-1:0]       = cmdbuf_wdata_q[data_width-1:0];
+   assign axi_wdata[data_width-1:0]       = cmdbuf_wdata[data_width-1:0];
    assign axi_wstrb[(data_width/8)-1:0]        = cmdbuf_wstrb[(data_width/8)-1:0];
    assign axi_wlast             = ~(ahb_hburst == 3'b0 | ahb_hburst == 3'b1) ? (ahb_htrans_qq == 2'b00 & (~ahb_htrans_qqq == 2'b00) & cmdbuf_write) : 1'b1;   //ahb_htrans == 2'b00 & 
   // AXI Write Response - Always ready. AHB does not require a write response.
