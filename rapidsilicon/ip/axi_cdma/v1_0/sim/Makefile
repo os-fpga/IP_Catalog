@@ -23,6 +23,11 @@ TOPLEVEL_LANG = verilog
 SIM ?= icarus
 WAVES ?= 1
 
+OUT_DIR ?=3
+
+SIM_BUILD = $(OUT_DIR)
+
+
 COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
@@ -61,7 +66,7 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 iverilog_dump.v:
 	echo 'module iverilog_dump();' > $@
 	echo 'initial begin' >> $@
-	echo '    $$dumpfile("$(TOPLEVEL).fst");' >> $@
+	echo '    $$dumpfile("$(SIM_BUILD)/$(TOPLEVEL).fst");' >> $@
 	echo '    $$dumpvars(0, $(TOPLEVEL));' >> $@
 	echo 'end' >> $@
 	echo 'endmodule' >> $@
