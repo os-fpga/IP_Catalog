@@ -85,7 +85,7 @@ class OCM(Module):
             else:
                 n = data_width / 36
                 n = math.ceil(n)
-                
+        
         msb = math.ceil(math.log2(write_depth))
         # Internal Addresses
         self.address_A    = Signal(msb)
@@ -107,6 +107,7 @@ class OCM(Module):
             self.addr_B_reg = Signal(msb-10)
         
         y = data_width - 36*(n-1)
+        z = data_width - 36*(m-1)
         
         # BRAM Utilization Logic
         if (bram == 1):
@@ -117,13 +118,13 @@ class OCM(Module):
             if (write_depth == 1024 or write_depth == 2048 or write_depth == 4096 or write_depth == 8192 or write_depth == 16384 or write_depth == 32768):
                 # Single Port RAM
                 if (memory_type == "Single_Port"):
-                    self.comb += If((self.wen_A == 1), self.wen_A1.eq(1)).Else(self.wen_A1.eq(0))
+                    self.comb += If((self.wen_A == 1), self.wen_A1.eq(1))
                     for i in range(m):
                         if (write_depth <= 1024):
                             self.comb += self.dout_A[(i*36):((i*36)+36)].eq(Cat(self.bram_out_A[i][0:36]))
-                        elif (write_depth > 1024 and write_depth <= 2048):
+                        elif (write_depth == 2048):
                             self.comb += self.dout_A[(i*18):((i*18)+18)].eq(Cat(self.bram_out_A[i][0:18]))
-                        elif (write_depth > 2048 and write_depth <= 4096):
+                        elif (write_depth == 4096):
                             if data_width > 8:
                                 if (m == (i+1)):
                                     if (y == i*9):
@@ -135,7 +136,7 @@ class OCM(Module):
                             else:
                                 self.comb += self.dout_A[(i*9):((i*9)+9)].eq(Cat(self.bram_out_A[i][0:data_width]))
                                 
-                        elif (write_depth > 4096 and write_depth <= 8192):
+                        elif (write_depth == 8192):
                             self.comb += self.dout_A[(i*4):((i*4)+4)].eq(Cat(self.bram_out_A[i][0:4]))
                         elif (write_depth == 16384):
                             self.comb += self.dout_A[(i*2):((i*2)+2)].eq(Cat(self.bram_out_A[i][0:2]))
@@ -246,7 +247,10 @@ class OCM(Module):
                         self.comb += Case(self.addr_B_reg[0:msb-10], case2)
                     for i in range(m):
                         if write_depth > 1024:
-                            self.sync += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
+                            if common_clk == 1:
+                                self.sync += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
+                            else:
+                                self.sync.clk2 += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
                     
                 # True Dual Port RAM
                 elif (memory_type == "True_Dual_Port"):
@@ -282,8 +286,12 @@ class OCM(Module):
                         self.comb += self.dout_B.eq(self.bram_out_B[0])
                     for i in range(m):
                         if write_depth > 1024:
-                            self.sync += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
-                            self.sync += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
+                            if common_clk == 1:
+                                self.sync += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
+                                self.sync += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
+                            else:
+                                self.sync.clk1 += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
+                                self.sync.clk2 += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
 
             # Single Port RAM
             if (memory_type == "Single_Port"):
@@ -454,9 +462,22 @@ class OCM(Module):
                     init_i = Instance.PreformattedParam("36864'hx")
                     
                     for j in range(m):
-                        if (write_depth == 2048):
-                                write_data_A1 = self.din_A[(j*18):((j*18)+18)]
-                                write_data_A2 = 0
+                        if (write_depth == 1024):
+                            if (m == (j+1)):
+                                if (z > 18):
+                                    write_data_A1   = self.din_A[(j*36):((j*36)+18)]
+                                    write_data_A2   = self.din_A[(((j*36)+18)):((j*36)+36)]
+                                else:
+                                    write_data_A1   = self.din_A[36*(m-1):data_width]
+                                    write_data_A2   = 0
+                            else:
+                                if (data_width > 36):
+                                    write_data_A1   = self.din_A[(j*36):((j*36)+18)]
+                                    write_data_A2   = self.din_A[((j*36)+18):((j*36)+36)]
+
+                            if (write_depth == 2048):
+                                    write_data_A1 = self.din_A[(j*18):((j*18)+18)]
+                                    write_data_A2 = 0
                             
                         elif (write_depth == 4096):
                             if data_width > 8:
@@ -732,7 +753,19 @@ class OCM(Module):
                     init_i = Instance.PreformattedParam("36864'hx")
 
                     for j in range(m):
-                        
+                        if (write_depth == 1024):
+                            if (m == (j+1)):
+                                if (z > 18):
+                                    write_data_A1   = self.din_A[(j*36):((j*36)+18)]
+                                    write_data_A2   = self.din_A[(((j*36)+18)):((j*36)+36)]
+                                else:
+                                    write_data_A1   = self.din_A[36*(m-1):data_width]
+                                    write_data_A2   = 0
+                            else:
+                                if (data_width > 36):
+                                    write_data_A1   = self.din_A[(j*36):((j*36)+18)]
+                                    write_data_A2   = self.din_A[((j*36)+18):((j*36)+36)]
+                                    
                         if (write_depth == 2048):
                                 write_data_A1 = self.din_A[(j*18):((j*18)+18)]
                                 write_data_A2 = 0
@@ -1059,6 +1092,25 @@ class OCM(Module):
                     init_i = Instance.PreformattedParam("36864'hx")
 
                     for j in range(m): 
+                        if (write_depth == 1024):
+                            if (m == (j+1)):
+                                if (z > 18):
+                                    write_data_A1   = self.din_A[(j*36):((j*36)+18)]
+                                    write_data_A2   = self.din_A[(((j*36)+18)):((j*36)+36)]
+                                    write_data_B1   = self.din_B[(j*36):((j*36)+18)]
+                                    write_data_B2   = self.din_B[(((j*36)+18)):((j*36)+36)]
+                                else:
+                                    write_data_A1   = self.din_A[36*(m-1):data_width]
+                                    write_data_A2   = 0
+                                    write_data_B1   = self.din_B[36*(m-1):data_width]
+                                    write_data_B2   = 0
+                            else:
+                                if (data_width > 36):
+                                    write_data_A1   = self.din_A[(j*36):((j*36)+18)]
+                                    write_data_A2   = self.din_A[((j*36)+18):((j*36)+36)]
+                                    write_data_B1   = self.din_B[(j*36):((j*36)+18)]
+                                    write_data_B2   = self.din_B[((j*36)+18):((j*36)+36)]
+                                    
                         if (write_depth == 2048):
                                 write_data_A1 = self.din_A[(j*18):((j*18)+18)]
                                 write_data_A2 = 0
