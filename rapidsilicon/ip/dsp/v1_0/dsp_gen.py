@@ -7,7 +7,7 @@
 import os
 import sys
 import argparse
-
+from pathlib import Path
 from migen import *
 
 from litex.gen import *
@@ -85,7 +85,7 @@ class RS_DSP_Wrapper(Module):
                         elif ((a_width > 20 and a_width <=36) or (b_width > 18 and b_width <=36)):
                             self.submodules.dsp = dsp = RS_DSP_MULT20_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
-                    elif (not unsigned):
+                    else:
                         if ((a_width > 51 and a_width <=68) or (b_width > 51 and b_width <=68)):
                             self.submodules.dsp = dsp = RS_DSP_MULT54_pipeline(a_width, b_width, equation, unsigned)
                             reg_in = True
@@ -177,7 +177,7 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
+    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=False,     help="Unsigned Input")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -272,6 +272,167 @@ def main():
             platform   = platform,
             module     = module,
         )
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/dsp/v1_0", build_name, "sim/dsp_test.v")
+        file = Path(file)
+        text = file.read_text()
+        text = text.replace("[71:0]a", "[%s:0]a" % (args.a_width-1))
+        file.write_text(text)
+        text = text.replace("[6:0]b", "[%s:0]b" % (args.b_width-1))
+        file.write_text(text)
+        text = text.replace("[78:0]z", "[%s:0]z" % (args.a_width+args.b_width-1))
+        file.write_text(text)
+        if (args.equation == "AxB+CxD"):
+            text = text.replace("a1;", "a1; reg[%s: 0]c;" % (args.c_width - 1))
+            file.write_text(text)
+            text = text.replace(" b1;", " b1; reg[%s: 0]d;" % (args.d_width - 1))
+            file.write_text(text)
+            text = text.replace("(.a(a),.b(b),.z(z2))", "(.a(a),.b(b),.z(z2), .c(c), .d(d))")
+            file.write_text(text)
+            text = text.replace("(.a(a),.b(b),.z(z1))", "(.a(a),.b(b),.z(z1), .c(c), .d(d))")
+            file.write_text(text)
+            text = text.replace("dsp(a, b, z);", "dsp(a, b, z, c, d);")
+            file.write_text(text)
+            text = text.replace("z = a*b;", "z = a*b+c*d;")
+            file.write_text(text)
+            text = text.replace("a <= $random;", "a <= $random; c <= $random; d <= $random;")
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b1}};", "a <= {20{1'b1}}; c <= {%s{1'b1}};" % args.c_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b1}};", "a <= {20{1'b1}}; d <= {%s{1'b1}};" % args.d_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b0}};", "a <= {20{1'b0}}; c <= {%s{1'b0}};" % args.c_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b0}};", "a <= {20{1'b0}}; d <= {%s{1'b0}};" % args.d_width)
+            file.write_text(text)
+            if (args.unsigned):
+                text = text.replace("]a;", "]a; input [%s:0]c;" % (args.c_width - 1))
+                file.write_text(text)
+                text = text.replace("]b;", "]b; input [%s:0]d;" % (args.d_width - 1))
+                file.write_text(text)
+            else:
+                text = text.replace("]a;", "]a; input signed [%s:0]c;" % (args.c_width - 1))
+                file.write_text(text)
+                text = text.replace("]b;", "]b; input signed [%s:0]d;" % (args.d_width - 1))
+                file.write_text(text)
+            if ((args.a_width + args.b_width) > (args.c_width + args.d_width)):
+                text = text.replace("[37:0]z", "[%s:0]z" % (args.a_width + args.b_width))
+            else:
+                text = text.replace("[37:0]z", "[%s:0]z" % (args.c_width + args.d_width))
+            file.write_text(text)
+        if (args.equation == "AxB+CxD+ExF+GxH"):
+            text = text.replace("a1;", "a1; reg[%s: 0]c;" % (args.c_width - 1))
+            file.write_text(text)
+            text = text.replace("c;", "c; reg[%s: 0]e;" % (args.e_width - 1))
+            file.write_text(text)
+            text = text.replace("]e;", "]e; reg[%s: 0]f;" % (args.f_width - 1))
+            file.write_text(text)
+            text = text.replace(" b1;", " b1; reg[%s: 0]d;" % (args.d_width - 1))
+            file.write_text(text)
+            text = text.replace("d;", " d; reg[%s: 0]g;" % (args.g_width - 1))
+            file.write_text(text)
+            text = text.replace("g;", " g; reg[%s: 0]h;" % (args.h_width - 1))
+            file.write_text(text)
+            text = text.replace("(.a(a),.b(b),.z(z2))", "(.a(a),.b(b),.z(z2), .c(c), .d(d), .e(e), .f(f), .g(g), .h(h))")
+            file.write_text(text)
+            text = text.replace("(.a(a),.b(b),.z(z1))", "(.a(a),.b(b),.z(z1), .c(c), .d(d), .e(e), .f(f), .g(g), .h(h))")
+            file.write_text(text)
+            text = text.replace("dsp(a, b, z);", "dsp(a, b, z, c, d, e, f, g, h);")
+            file.write_text(text)
+            text = text.replace("z = a*b;", "z = a*b+c*d+e*f+g*h;")
+            file.write_text(text)
+            text = text.replace("a <= $random;", "a <= $random; c <= $random; d <= $random; e <= $random; f <= $random; h <= $random; g <= $random;")
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b1}};", "a <= {20{1'b1}}; c <= {%s{1'b1}};" % args.c_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b1}};", "a <= {20{1'b1}}; d <= {%s{1'b1}};" % args.d_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b1}};", "a <= {20{1'b1}}; e <= {%s{1'b1}};" % args.e_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b1}};", "a <= {20{1'b1}}; f <= {%s{1'b1}};" % args.f_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b1}};", "a <= {20{1'b1}}; g <= {%s{1'b1}};" % args.g_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b1}};", "a <= {20{1'b1}}; h <= {%s{1'b1}};" % args.h_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b0}};", "a <= {20{1'b0}}; c <= {%s{1'b0}};" % args.c_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b0}};", "a <= {20{1'b0}}; d <= {%s{1'b0}};" % args.d_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b0}};", "a <= {20{1'b0}}; e <= {%s{1'b0}};" % args.e_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b0}};", "a <= {20{1'b0}}; f <= {%s{1'b0}};" % args.f_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b0}};", "a <= {20{1'b0}}; g <= {%s{1'b0}};" % args.g_width)
+            file.write_text(text)
+            text = text.replace("a <= {20{1'b0}};", "a <= {20{1'b0}}; h <= {%s{1'b0}};" % args.h_width)
+            file.write_text(text)
+            if ((args.a_width + args.b_width) > (args.c_width + args.d_width)):
+                z12_width = args.a_width + args.b_width + 1
+            else:
+                z12_width = args.c_width + args.d_width + 1
+            if ((args.e_width + args.f_width) > (args.g_width + args.h_width)):
+                z34_width = args.e_width + args.f_width + 1
+            else:
+                z34_width = args.g_width + args.h_width + 1
+            if (z12_width > z34_width):
+                text = text.replace("[37:0]z", "[%s:0]z" % (z12_width))
+            else:
+                text = text.replace("[37:0]z", "[%s:0]z" % (z34_width))
+            file.write_text(text)
+            if (args.unsigned):
+                text = text.replace("]a;", "]a; input [%s:0]c;" % (args.c_width - 1))
+                file.write_text(text)
+                text = text.replace("]a;", "]a; input [%s:0]g;" % (args.g_width - 1))
+                file.write_text(text)
+                text = text.replace("]a;", "]a; input [%s:0]h;" % (args.h_width - 1))
+                file.write_text(text)
+                text = text.replace("]b;", "]b; input [%s:0]d;" % (args.d_width - 1))
+                file.write_text(text)
+                text = text.replace("]b;", "]b; input [%s:0]e;" % (args.e_width - 1))
+                file.write_text(text)
+                text = text.replace("]b;", "]b; input [%s:0]f;" % (args.f_width - 1))
+                file.write_text(text)
+            else:
+                text = text.replace("]a;", "]a; input signed [%s:0]c;" % (args.c_width - 1))
+                file.write_text(text)
+                text = text.replace("]a;", "]a; input signed [%s:0]g;" % (args.g_width - 1))
+                file.write_text(text)
+                text = text.replace("]a;", "]a; input signed [%s:0]h;" % (args.h_width - 1))
+                file.write_text(text)
+                text = text.replace("]b;", "]b; input signed [%s:0]d;" % (args.d_width - 1))
+                file.write_text(text)
+                text = text.replace("]b;", "]b; input signed [%s:0]e;" % (args.e_width - 1))
+                file.write_text(text)
+                text = text.replace("]b;", "]b; input signed [%s:0]f;" % (args.f_width - 1))
+                file.write_text(text)
+        text = text.replace("a <= {20", "a <= {%s" % args.a_width)
+        file.write_text(text)
+        text = text.replace("b <= {20", "b <= {%s" % args.b_width)
+        file.write_text(text)
+        if (not args.unsigned):
+            text = text.replace("input  ", "input signed")
+            file.write_text(text)
+        if (args.feature == "Pipeline"):
+            text = text.replace(".z(z1))", ".z(z1), .clk(clk1), .reset(reset))")
+            file.write_text(text)
+            text = text.replace("(.a(a),.b(b),.z(z2))", "(.a(a1),.b(b1),.z(z2))")
+            file.write_text(text)
+            if (args.unsigned):
+                if ((args.a_width > 54 and args.a_width <=72) or (args.b_width > 54 and args.b_width <=72)):
+                    text = text.replace("repeat (1)", "repeat (4)")
+                elif ((args.a_width > 36 and args.a_width <=54) or (args.b_width > 36 and args.b_width <=54)):
+                    text = text.replace("repeat (1)", "repeat (3)")
+                elif ((args.a_width > 20 and args.a_width <=36) or (args.b_width > 18 and args.b_width <=36)):
+                    text = text.replace("repeat (1)", "repeat (2)")
+            else: 
+                if ((args.a_width > 51 and args.a_width <=68) or (args.b_width > 51 and args.b_width <=68)):
+                    text = text.replace("repeat (1)", "repeat (4)")
+                elif ((args.a_width > 34 and args.a_width <=51) or (args.b_width > 34 and args.b_width <=51)):
+                    text = text.replace("repeat (1)", "repeat (3)")
+                elif ((args.a_width > 20 and args.a_width <=34) or (args.b_width > 18 and args.b_width <=34)):
+                    text = text.replace("repeat (1)", "repeat (2)")
+            file.write_text(text)
 
 if __name__ == "__main__":
     main()
