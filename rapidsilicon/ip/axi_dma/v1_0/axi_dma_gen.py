@@ -199,7 +199,7 @@ def main():
     core_bool_param_group.add_argument("--axis_id_enable",      type=bool,      default=False,      help="DMA AXI stream tid.")
     core_bool_param_group.add_argument("--axis_dest_enable",    type=bool,      default=False,      help="DMA AXI stream tdest.")
     core_bool_param_group.add_argument("--axis_user_enable",    type=bool,      default=True,       help="DMA AXI stream tuser.")
-    core_bool_param_group.add_argument("--enable_sg",           type=bool,      default=False,      help="Support for unaligned transfers.")
+    core_bool_param_group.add_argument("--enable_sg",           type=bool,      default=False,      help="Support for scatter/gather DMA.")
     core_bool_param_group.add_argument("--enable_unaligned",    type=bool,      default=False,      help="Support for unaligned transfers.")
 
     # Core range value parameters.
