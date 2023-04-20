@@ -50,7 +50,7 @@ reg [6:0]cycle;
 
 initial
 begin
-for (i=0; i<100; i=i+1)
+for (i=0; i<500; i=i+1)
 begin
 if(i == 0) begin
     a <= {20{1'b1}};
@@ -90,7 +90,7 @@ endtask
 initial begin
     $dumpfile("dsp.vcd");
     $dumpvars;
-    #2000;
+    #20000;
     $finish;
 end
 endmodule
