@@ -177,7 +177,7 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=False,     help="Unsigned Input")
+    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -277,6 +277,8 @@ def main():
         file = Path(file)
         text = file.read_text()
         text = text.replace("[71:0]a", "[%s:0]a" % (args.a_width-1))
+        file.write_text(text)
+        text = text.replace("dsp_wrapper", "%s" % build_name)
         file.write_text(text)
         text = text.replace("[6:0]b", "[%s:0]b" % (args.b_width-1))
         file.write_text(text)
