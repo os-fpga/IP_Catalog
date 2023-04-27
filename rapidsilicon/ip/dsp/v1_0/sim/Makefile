@@ -3,12 +3,12 @@
 # SPDX-License-Identifier: MIT
 
 DUT = dsp
-DSP_SIM ?= $(dsp_sim)
+
 OUT_DIR ?= 3
 
 all:
 	@sed -i "s|dsp.vcd|$(OUT_DIR)/reset.vcd|g" ./dsp_test.v
-	iverilog -g2012 -o dsp ../src/*.v ./dsp_test.v $(DSP_SIM)
+	iverilog -g2012 -o dsp ../src/*.v ./dsp_test.v ./dsp_sim.v
 	vvp dsp
 	@sed -i "s|$(OUT_DIR)/reset.vcd|dsp.vcd|g" ./dsp_test.v
 
