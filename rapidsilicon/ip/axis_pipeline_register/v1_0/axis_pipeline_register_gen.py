@@ -108,7 +108,7 @@ def main():
     core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),       help="ID Width.")
     core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),       help="Destination Width.")
     core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),     help="User Width.")
-    core_range_param_group.add_argument("--length",         type=int,       default=2,      choices=range(1,6),         help="Number of registers in pipeline.")
+    core_range_param_group.add_argument("--length",         type=int,       default=1,      choices=range(1,33),        help="Number of registers in pipeline.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
