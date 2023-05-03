@@ -260,7 +260,7 @@ end
         s_axi_rvalid = 'b1;
         s_axi_rresp  = rresp;
         re           = 'b1;
-        araddr       = araddr;
+        araddr       = araddr_ff;
       end
       default: begin
         araddr       = 'b0;
@@ -272,7 +272,8 @@ end
       end
     endcase
   end
-
+  
+  
   // read fsm
   // Determine the next state
   always @(posedge s_axi_aclk or negedge s_axi_aresetn) begin
