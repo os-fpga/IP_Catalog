@@ -29,7 +29,7 @@ def get_clkin_ios():
 # AXIS_PIPELINE_REGISTER Wrapper ----------------------------------------------------------------------------------
 class AXISPIPELINEREGISTERWrapper(Module):
     def __init__(self, platform, data_width, last_en, id_en, id_width, 
-                dest_en, dest_width, user_en, user_width, reg_type, length
+                dest_en, dest_width, user_en, user_width, reg_type, length, register
                 ):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
@@ -71,7 +71,8 @@ class AXISPIPELINEREGISTERWrapper(Module):
             dest_en         = dest_en,
             user_en         = user_en,
             reg_type        = reg_type,
-            length          = length
+            length          = length,
+            register        = register
             )
         
 # Build --------------------------------------------------------------------------------------------
@@ -86,29 +87,29 @@ def main():
 
     # Parameter Dependency dictionary
     #                Ports    :    Dependency
-    dep_dict = {}   
+    dep_dict = {}  
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_pipeline_register", language="verilog")
 
     # Core fixed value parameters.
-    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--reg_type",    type=int,        default=2,    choices=[0,1,2],      help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
+    core_fix_param_group = parser.add_argument_group(title="Core string parameters")
+    core_fix_param_group.add_argument("--reg_type",    type=str,        default="Bypass",    choices=["Bypass","Simple_Buffer","Skid_Buffer"],      help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
     
+    # Core range value parameters.
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--data_width",     type=int,       default=8,      choices=range(1,1025),      help="Data Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),       help="ID Width.")
+    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),       help="Destination Width.")
+    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),     help="User Width.")
+    core_range_param_group.add_argument("--length",         type=int,       default=1,      choices=range(1,17),        help="Number of registers in pipeline.")
+
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--last_en",    type=bool,       default=True,       help="Last Enable.")
     core_bool_param_group.add_argument("--id_en",      type=bool,       default=True,       help="ID Enable.")
     core_bool_param_group.add_argument("--dest_en",    type=bool,       default=True,       help="Destination Enable.")
     core_bool_param_group.add_argument("--user_en",    type=bool,       default=True,       help="User Enable.")
-    
-    # Core range value parameters.
-    core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",     type=int,       default=8,      choices=range(1,4097),      help="Data Width.")
-    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),       help="ID Width.")
-    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),       help="Destination Width.")
-    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),     help="User Width.")
-    core_range_param_group.add_argument("--length",         type=int,       default=2,      choices=range(1,6),         help="Number of registers in pipeline.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -158,6 +159,14 @@ def main():
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
+    # Register Types 
+    if args.reg_type == "Bypass":
+        register = 0
+    elif args.reg_type == "Simple_Buffer":
+        register = 1
+    elif args.reg_type == "Skid_Buffer":
+        register = 2
+
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = AXISPIPELINEREGISTERWrapper(platform,
@@ -171,6 +180,7 @@ def main():
         user_width = args.user_width,
         reg_type   = args.reg_type,
         length     = args.length,
+        register   = register
     )
 
     # Build Project --------------------------------------------------------------------------------
