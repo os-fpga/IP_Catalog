@@ -145,7 +145,7 @@ def main():
         args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         for key, value in vars(args).items():
             if args_1.data_width <= 128 and args_1.data_width > 64 :
-                parser._actions[3].choices = [2,int(fabric_mem/128)]
+                parser._actions[3].choices = [2,int((fabric_mem/128)-1)]
                 parser._actions[3].default = int(fabric_mem/128)
             elif args_1.data_width <= 64 and args_1.data_width > 32:
                 parser._actions[3].choices = [2,int(fabric_mem/64)]
@@ -162,7 +162,7 @@ def main():
             elif args_1.data_width <= 4 and args_1.data_width > 2 :
                 parser._actions[3].choices = [2,int(fabric_mem/4)]
                 parser._actions[3].default = int(fabric_mem/4)
-            elif args_1.data_width <= 2 and args_1.data_width > 1 :
+            elif args_1.data_width <= 2 and args_1.data_width >= 1 :
                 parser._actions[3].choices = [2,int(fabric_mem/2)]
                 parser._actions[3].default = int(fabric_mem/2)
             if args_1.data_width == 32:
