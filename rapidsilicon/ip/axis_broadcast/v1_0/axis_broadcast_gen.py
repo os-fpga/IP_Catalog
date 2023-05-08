@@ -99,7 +99,7 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--m_count",        type=int,       default=4,      choices=range(2,17),        help="BROADCAST AXIS Master Interfaces.")
-    core_range_param_group.add_argument("--data_width",     type=int,       default=32,     choices=range(1,4097),      help="BROADCAST AXIS interface Data Width.")
+    core_range_param_group.add_argument("--data_width",     type=int,       default=32,     choices=range(1,1025),      help="BROADCAST AXIS interface Data Width.")
     core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),       help="BROADCAST AXIS tid signal width.")
     core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),       help="BROADCAST AXIS tdest signal width.")
     core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),     help="BROADCAST AXIS interface User Width.")
