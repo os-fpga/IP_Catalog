@@ -76,7 +76,7 @@ jobs:
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_adapter/v1_0/axis_adapter_gen.py --s_data_width=32 --build-name=adapter --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_fifo/v1_0/axis_fifo_gen.py --depth=2048 --data_width=32  --build-name=fifo --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_pipeline_register/v1_0/axis_pipeline_register_gen.py --data_width=32 --build-name=reg --build
-        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_uart/v1_0/axis_uart_gen.py --data_width=7 --build-name=uart --build
+        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_uart/v1_0/axis_uart_gen.py --data_width=8 --build-name=uart --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/i2c_master_gen.py --build-name=i2c --build-dir=./test_dir --write_fifo=1 --write_addr_width=5 --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_slave/v1_0/i2c_slave_gen.py --data_width=32 --build-name=wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/priority_encoder/v1_0/priority_encoder_gen.py --width=7 --build-name=encoder --build
@@ -183,7 +183,7 @@ jobs:
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_adapter/v1_0/axis_adapter_gen.py --s_data_width=32 --json-template --build-name=adapter --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_fifo/v1_0/axis_fifo_gen.py --depth=2048 --data_width=32 --json-template --build-name=fifo --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_pipeline_register/v1_0/axis_pipeline_register_gen.py --data_width=32 --json-template --build-name=reg --build
-           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_uart/v1_0/axis_uart_gen.py --data_width=7 --json-template --build-name=uart --build
+           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_uart/v1_0/axis_uart_gen.py --data_width=8 --json-template --build-name=uart --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/i2c_master_gen.py --json-template --build-name=i2c --build-dir=./test_dir --write_fifo=1 --write_addr_width=5 --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_slave/v1_0/i2c_slave_gen.py --data_width=32 --json-template --build-name=wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/priority_encoder/v1_0/priority_encoder_gen.py --width=7 --json-template --build-name=encoder --build
