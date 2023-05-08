@@ -36,6 +36,12 @@ class AXIREGISTERWrapper(Module):
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         
+        reg_type = {
+            "Bypass"        :   "0",
+            "Simple_Buffer" :   "1",
+            "Skid_Buffer"   :   "2"
+        }
+
         # AXI-------------------------------------------------------------
         s_axi = AXIInterface(
             data_width      = data_width,
@@ -71,11 +77,11 @@ class AXIREGISTERWrapper(Module):
         self.submodules += AXIREGISTER(platform, 
             s_axi               =   s_axi,
             m_axi               =   m_axi, 
-            aw_reg_type         =   aw_reg_type,
-            w_reg_type          =   w_reg_type,
-            b_reg_type          =   b_reg_type,
-            ar_reg_type         =   ar_reg_type,
-            r_reg_type          =   r_reg_type,
+            aw_reg_type         =   reg_type[aw_reg_type],
+            w_reg_type          =   reg_type[w_reg_type],
+            b_reg_type          =   reg_type[b_reg_type],
+            ar_reg_type         =   reg_type[ar_reg_type],
+            r_reg_type          =   reg_type[r_reg_type],
             size                =   (2**addr_width)*(data_width/8)
             )
 
@@ -99,6 +105,11 @@ def main():
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="Register Data Width.")
+    core_fix_param_group.add_argument("--aw_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_fix_param_group.add_argument("--w_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_fix_param_group.add_argument("--b_reg_type",    type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_fix_param_group.add_argument("--ar_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_fix_param_group.add_argument("--r_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -109,11 +120,6 @@ def main():
     core_range_param_group.add_argument("--b_user_width",       type=int,       default=1,      choices=range(1, 1025),     help="Register B-User Width.")
     core_range_param_group.add_argument("--ar_user_width",      type=int,       default=1,      choices=range(1, 1025),     help="Register AR-User Width.")
     core_range_param_group.add_argument("--r_user_width",       type=int,       default=1,      choices=range(1, 1025),     help="Register R-User Width.")
-    core_range_param_group.add_argument("--aw_reg_type",        type=int,       default=1,      choices=range(1,3),         help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_range_param_group.add_argument("--w_reg_type",         type=int,       default=2,      choices=range(1,3),         help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_range_param_group.add_argument("--b_reg_type",         type=int,       default=1,      choices=range(1,3),         help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_range_param_group.add_argument("--ar_reg_type",        type=int,       default=1,      choices=range(1,3),         help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
-    core_range_param_group.add_argument("--r_reg_type",         type=int,       default=2,      choices=range(1,3),         help="Register 0=bypass , 1=simple buffer , 2=skid buffer")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
