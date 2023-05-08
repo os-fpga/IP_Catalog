@@ -102,14 +102,17 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_register", language="verilog")
 
+    # Core string parameters.
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
+    core_string_param_group.add_argument("--aw_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--w_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--b_reg_type",    type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--ar_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--r_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="Register Data Width.")
-    core_fix_param_group.add_argument("--aw_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
-    core_fix_param_group.add_argument("--w_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
-    core_fix_param_group.add_argument("--b_reg_type",    type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
-    core_fix_param_group.add_argument("--ar_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
-    core_fix_param_group.add_argument("--r_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
