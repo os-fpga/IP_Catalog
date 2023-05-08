@@ -161,6 +161,11 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_switch", language="verilog")
 
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="SWITCH Data Width.")
+
+
     # Core bool value parameters
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--id_en",                   type=bool,  default=False,  help="SWITCH ID Enable.")
@@ -171,10 +176,9 @@ def main():
 
     # Core range value parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",     type=int,   default=8,  choices=range(1,4097),  help="SWITCH Data Width")
-    core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,4097),  help="SWITCH User Width")
-    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,33),    help="SWITCH S_ID Width")
-    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,33),    help="SWITCH M_Destination Width")
+    core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,1025),  help="SWITCH User Width")
+    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,9),    help="SWITCH S_ID Width")
+    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,9),    help="SWITCH M_Destination Width")
     core_range_param_group.add_argument("--m_reg_type",     type=int,   default=2,  choices=range(0,3),     help="SWITCH Output Register Type")
     core_range_param_group.add_argument("--s_reg_type",     type=int,   default=0,  choices=range(0,3),     help="SWITCH Input Register Type")
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Slave Interfaces")

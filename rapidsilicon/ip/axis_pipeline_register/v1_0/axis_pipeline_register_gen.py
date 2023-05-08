@@ -95,14 +95,14 @@ def main():
     # Core fixed value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core string parameters")
     core_fix_param_group.add_argument("--reg_type",    type=str,        default="Bypass",    choices=["Bypass","Simple_Buffer","Skid_Buffer"],      help="Register Type; 0 to bypass, 1 for simple buffer, 2 for skid buffer")
-    
+    core_fix_param_group.add_argument("--data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="Data Width.")
+
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",     type=int,       default=8,      choices=range(1,1025),      help="Data Width.")
-    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),       help="ID Width.")
-    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),       help="Destination Width.")
-    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),     help="User Width.")
-    core_range_param_group.add_argument("--length",         type=int,       default=1,      choices=range(1,17),        help="Number of registers in pipeline.")
+    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 9),       help="ID Width.")
+    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 9),       help="Destination Width.")
+    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 1025),     help="User Width.")
+    core_range_param_group.add_argument("--length",         type=int,       default=1,      choices=range(1,33),        help="Number of registers in pipeline.")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
