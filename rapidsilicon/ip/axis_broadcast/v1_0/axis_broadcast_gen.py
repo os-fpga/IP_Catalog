@@ -89,6 +89,11 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_broadcast", language="verilog")
 
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="BROADCAST AXIS interface Data Width.")
+
+
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--last_en",    type=bool,       default=True,       help="BROADCAST AXIS tlast signal width.")
@@ -99,10 +104,9 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--m_count",        type=int,       default=4,      choices=range(2,17),        help="BROADCAST AXIS Master Interfaces.")
-    core_range_param_group.add_argument("--data_width",     type=int,       default=32,     choices=range(1,1025),      help="BROADCAST AXIS interface Data Width.")
-    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),       help="BROADCAST AXIS tid signal width.")
-    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),       help="BROADCAST AXIS tdest signal width.")
-    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),     help="BROADCAST AXIS interface User Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 9),       help="BROADCAST AXIS tid signal width.")
+    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 9),       help="BROADCAST AXIS tdest signal width.")
+    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 1025),     help="BROADCAST AXIS interface User Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -112,8 +116,8 @@ def main():
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
-    json_group.add_argument("--json",                                    help="Generate Core from JSON File")
-    json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
+    json_group.add_argument("--json",                                               help="Generate Core from JSON File")
+    json_group.add_argument("--json-template",  action="store_true",                help="Generate JSON Template")
 
     args = parser.parse_args()
 

@@ -143,6 +143,7 @@ def main():
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--depth",          type=int,     default=4096,   choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768],   help="FIFO Depth.")
+    core_fix_param_group.add_argument("--data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="FIFO Data Width.")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -159,10 +160,9 @@ def main():
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",     type=int,       default=8,      choices=range(1,4097),       help="FIFO Data Width.")
-    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),        help="FIFO ID Width.")
-    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),        help="FIFO Destination Width.")
-    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),      help="FIFO User Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 9),        help="FIFO ID Width.")
+    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 9),        help="FIFO Destination Width.")
+    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 1024),      help="FIFO User Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")

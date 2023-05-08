@@ -198,6 +198,8 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--fifo_depth",       type=int,   default=4096,   choices=[8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768], help="RAM_SWITCH FIFO Depth.")
     core_fix_param_group.add_argument("--cmd_fifo_depth",   type=int,   default=32,     choices=[8, 16, 32, 64, 128, 256, 512, 1024],                                 help="RAM_SWITCH CMD_FIFO Depth")
+    core_fix_param_group.add_argument("--s_data_width",     type=int,       default=8,  choices=[8, 16, 32, 64, 128, 256, 512, 1024],      help="RAM_SWITCH Slave Data Width.")
+    core_fix_param_group.add_argument("--m_data_width",     type=int,       default=8,  choices=[8, 16, 32, 64, 128, 256, 512, 1024],      help="RAM_SWITCH Master Data Width.")
     
     # Core bool value parameters
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -211,13 +213,11 @@ def main():
 
     # Core range value parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--s_data_width",   type=int,   default=8,  choices=range(1,4097),  help="RAM_SWITCH Slave Data Width")
-    core_range_param_group.add_argument("--m_data_width",   type=int,   default=8,  choices=range(1,4097),  help="RAM_SWITCH Master Data Width")
-    core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,4097),  help="RAM_SWITCH User Width")
-    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,33),    help="RAM_SWITCH S_ID Width")
-    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,33),    help="RAM_SWITCH M_Destination Width")
+    core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,1025),  help="RAM_SWITCH User Width")
+    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,9),    help="RAM_SWITCH S_ID Width")
+    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,9),    help="RAM_SWITCH M_Destination Width")
     core_range_param_group.add_argument("--speedup",        type=int,   default=0,  choices=range(0,101),   help="RAM_SWITCH Speedup factor")
-    core_range_param_group.add_argument("--ram_pipeline",   type=int,   default=2,  choices=range(0,11),    help="RAM_SWITCH RAM Pipeline Stages")
+    core_range_param_group.add_argument("--ram_pipeline",   type=int,   default=2,  choices=range(0,33),    help="RAM_SWITCH RAM Pipeline Stages")
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="RAM_SWITCH Slave Interfaces")
     core_range_param_group.add_argument("--m_count",        type=int,   default=4,  choices=range(1,17),    help="RAM_SWITCH Master Interfaces")
     core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,17),    help="RAM_SWITCH Output interface routing base")
