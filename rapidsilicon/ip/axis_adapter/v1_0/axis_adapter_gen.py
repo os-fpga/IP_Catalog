@@ -88,13 +88,17 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_adapter", language="verilog")
 
+
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--s_data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="Slave Data Width.")
+    core_fix_param_group.add_argument("--m_data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="Master Data Width.")
+
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--s_data_width",   type=int,       default=8,      choices=range(1,4097),      help="Slave Data Width.")
-    core_range_param_group.add_argument("--m_data_width",   type=int,       default=8,      choices=range(1,4097),      help="Master Data Width.")
-    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 33),       help="ID Width.")
-    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 33),       help="Destination Width.")
-    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 4097),     help="User Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 9),       help="ID Width.")
+    core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 9),       help="Destination Width.")
+    core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 1025),     help="User Width.")
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")

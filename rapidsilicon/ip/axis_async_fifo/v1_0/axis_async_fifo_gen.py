@@ -163,7 +163,6 @@ def main():
     core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 9),        help="FIFO Destination Width.")
     core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 1024),      help="FIFO User Width.")
     core_range_param_group.add_argument("--ram_pipeline",   type=int,       default=1,      choices=range(1, 10),      help="FIFO Number of Pipeline registers.")
-
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                  help="Build Core")

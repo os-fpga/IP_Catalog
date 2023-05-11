@@ -110,6 +110,11 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_interconnect", language="verilog")
 
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="Data Width.")
+
+
     # Core Bool value Parameters.
     core_bool_param_group = parser.add_argument_group(title="Core Bool Parameters")
     core_bool_param_group.add_argument("--last_en",    type=bool,    default=True,    help="Last Enable.")
@@ -121,10 +126,9 @@ def main():
     core_range_param_group = parser.add_argument_group(title="Core Range Parameters")
     core_range_param_group.add_argument("--s_count",     type=int,   default=4,    choices=range(2,17),       help="Slave Interfaces.")
     core_range_param_group.add_argument("--m_count",     type=int,   default=4,    choices=range(1,17),       help="Master Interfaces.")
-    core_range_param_group.add_argument("--data_width",  type=int,   default=8,    choices=range(1,4097),     help="Data Width.")
-    core_range_param_group.add_argument("--id_width",    type=int,   default=8,    choices=range(1, 33),      help="ID Width.")
-    core_range_param_group.add_argument("--dest_width",  type=int,   default=8,    choices=range(1, 33),      help="Destination Width.")
-    core_range_param_group.add_argument("--user_width",  type=int,   default=1,    choices=range(1, 4097),    help="User Width.")
+    core_range_param_group.add_argument("--id_width",    type=int,   default=8,    choices=range(1, 9),      help="ID Width.")
+    core_range_param_group.add_argument("--dest_width",  type=int,   default=8,    choices=range(1, 9),      help="Destination Width.")
+    core_range_param_group.add_argument("--user_width",  type=int,   default=1,    choices=range(1, 1025),    help="User Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
