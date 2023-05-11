@@ -23,7 +23,7 @@ from litex.soc.interconnect.axi import AXILiteInterface
 def get_clkin_ios ():
     return [
         ("clk", 0, Pins(1)),
-        ("rst", 0, Pins(1)),
+        ("rstn", 0, Pins(1)),
     ]
 
 def get_gpio_ios(data_width):
@@ -40,7 +40,7 @@ class AXILITEGPIOWrapper(Module):
         
         self.clock_domains.cd_sys = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+        self.comb += self.cd_sys.rst.eq(platform.request("rstn"))
         
         # AXI-LITE 
         axil = AXILiteInterface(

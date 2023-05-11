@@ -21,6 +21,7 @@
 TOPLEVEL_LANG = verilog
 PWD=$(shell pwd)
 export PYTHONPATH := $(PWD)/../model:$(PYTHONPATH)
+OUT_DIR ?= 3
 
 SIM ?= icarus
 
@@ -68,7 +69,7 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 iverilog_dump.v:
 	echo 'module iverilog_dump();' > $@
 	echo 'initial begin' >> $@
-	echo '    $$dumpfile("$(TOPLEVEL).fst");' >> $@
+	echo '    $$dumpfile("$(OUT_DIR)/$(TOPLEVEL).fst");' >> $@
 	echo '    $$dumpvars(0, $(TOPLEVEL));' >> $@
 	echo 'end' >> $@
 	echo 'endmodule' >> $@

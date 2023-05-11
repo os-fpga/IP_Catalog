@@ -1,14 +1,8 @@
 # Simulation  
-First, you have to set cocotb environment on your machine. Todo this, run the following commands:
-```
-pip install cocotb
 
-pip install cocotbext-axi
-```
-
-For simulation, you have to install either of the simulators `Icarus Verilog` or `Verilator`.
+This is a Cocotb based simulation for which either `Icarus Verilog` or `Verilator` is required.
 
 Run the following command for simulation:
 ```
-./sim.sh
-``` 
+make OUT_DIR=$(PWD)
+```  
