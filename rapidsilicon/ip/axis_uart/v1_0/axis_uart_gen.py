@@ -100,9 +100,11 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_uart", language="verilog")
 
-    # Core range value parameters.
-    core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",     type=int,       default=5,      choices=range(5,9),     help="UART Data Width.")
+
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="UART Data Width.")
+
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
