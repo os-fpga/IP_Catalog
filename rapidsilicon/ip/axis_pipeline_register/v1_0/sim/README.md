@@ -1,12 +1,6 @@
 # Simulation  
-First, you have to set cocotb environment on your machine. Todo this, run the following commands:
-```
-pip install cocotb
 
-pip install cocotbext-axi
-```
-
-For simulation, you have to install either of the simulators `Icarus Verilog` or `Verilator`.
+This is a Cocotb based simulation for which either `Icarus Verilog` or `Verilator` is required.
 
 Before starting simulation, you have to create IP with default parameters. To create this IP, run the following command:
 ```
@@ -15,5 +9,5 @@ python3 ../axis_pipeline_register_gen.py --build --id_en=1 --dest_en=1
 
 Run the following command for simulation:
 ```
-./sim.sh
+make OUT_DIR=$(PWD)
 ``` 
