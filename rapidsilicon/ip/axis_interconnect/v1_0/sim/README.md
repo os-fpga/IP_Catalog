@@ -4,5 +4,5 @@ This is a MyHDL based simulation for which `Icarus Verilog` is required.
 
 Run the following command for simulation:
 ```
-./sim.sh
+make OUT_DIR=$(PWD)
 ```  

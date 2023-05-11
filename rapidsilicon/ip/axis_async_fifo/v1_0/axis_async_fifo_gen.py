@@ -51,7 +51,7 @@ def get_master_status_ios():
 # AXI_STREAM_FIFO Wrapper ----------------------------------------------------------------------------------
 class AXISASYNCFIFOWrapper(Module):
     def __init__(self, platform, depth, data_width, last_en, id_en, id_width, 
-                dest_en, dest_width, user_en, user_width, pip_out, out_fifo_en, frame_fifo, bad_frame_value, 
+                dest_en, dest_width, user_en, user_width, ram_pipeline, out_fifo_en, frame_fifo, bad_frame_value, 
                 drop_bad_frame, drop_when_full):
 
         # Clock Domain
@@ -90,7 +90,7 @@ class AXISASYNCFIFOWrapper(Module):
             id_en           = id_en,
             dest_en         = dest_en,
             user_en         = user_en,
-            pip_out         = pip_out,
+            ram_pipeline         = ram_pipeline,
             frame_fifo      = frame_fifo,
             out_fifo_en     = out_fifo_en,
             bad_frame_value = bad_frame_value,
@@ -151,7 +151,6 @@ def main():
     core_bool_param_group.add_argument("--id_en",           type=bool,      default=True,       help="FIFO ID Enable.")
     core_bool_param_group.add_argument("--dest_en",         type=bool,      default=True,       help="FIFO Destination Enable.")
     core_bool_param_group.add_argument("--user_en",         type=bool,      default=True,       help="FIFO User Enable.")
-    core_bool_param_group.add_argument("--pip_out",         type=bool,      default=True,       help="FIFO Pipeline Output.")
     core_bool_param_group.add_argument("--frame_fifo",      type=bool,      default=True,       help="FIFO Frame.")
     core_bool_param_group.add_argument("--out_fifo_en",     type=bool,      default=True,       help="OUTPUT FIFO ENABLE.")
     core_bool_param_group.add_argument("--bad_frame_value", type=bool,      default=True,       help="USER BAD FRAME VALUE.")
@@ -163,7 +162,7 @@ def main():
     core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 9),        help="FIFO ID Width.")
     core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 9),        help="FIFO Destination Width.")
     core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 1024),      help="FIFO User Width.")
-
+    core_range_param_group.add_argument("--ram_pipeline",   type=int,       default=1,      choices=range(1, 10),      help="FIFO Number of Pipeline registers.")
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                  help="Build Core")
@@ -224,7 +223,7 @@ def main():
         dest_width     = args.dest_width,
         user_en        = args.user_en,
         user_width     = args.user_width,
-        pip_out        = args.pip_out,
+        ram_pipeline        = args.ram_pipeline,
         frame_fifo     = args.frame_fifo,
         out_fifo_en    = args.out_fifo_en,
         bad_frame_value= args.bad_frame_value,

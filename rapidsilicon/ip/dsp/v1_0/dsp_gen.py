@@ -177,7 +177,7 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=False,     help="Unsigned Input")
+    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -221,7 +221,7 @@ def main():
                     })
                 parser._actions[3].choices = range(1, 69)
                 parser._actions[4].choices = range(1, 69)
-            elif args.feature == "Enhanced" and args.unsigned == False:
+            elif (args.feature == "Enhanced" and args.unsigned == False):
                 parser._actions[3].choices = range(1, 65)
                 parser._actions[4].choices = range(1, 65)
         else:
@@ -277,6 +277,8 @@ def main():
         file = Path(file)
         text = file.read_text()
         text = text.replace("[71:0]a", "[%s:0]a" % (args.a_width-1))
+        file.write_text(text)
+        text = text.replace("dsp_wrapper", "%s" % build_name)
         file.write_text(text)
         text = text.replace("[6:0]b", "[%s:0]b" % (args.b_width-1))
         file.write_text(text)
@@ -421,18 +423,39 @@ def main():
             if (args.unsigned):
                 if ((args.a_width > 54 and args.a_width <=72) or (args.b_width > 54 and args.b_width <=72)):
                     text = text.replace("repeat (1)", "repeat (4)")
+                    if (args.reg_out):
+                        text = text.replace("repeat (4)", "repeat (5)")
                 elif ((args.a_width > 36 and args.a_width <=54) or (args.b_width > 36 and args.b_width <=54)):
                     text = text.replace("repeat (1)", "repeat (3)")
+                    if (args.reg_out):
+                        text = text.replace("repeat (3)", "repeat (4)")
                 elif ((args.a_width > 20 and args.a_width <=36) or (args.b_width > 18 and args.b_width <=36)):
                     text = text.replace("repeat (1)", "repeat (2)")
+                    if (args.reg_out):
+                        text = text.replace("repeat (2)", "repeat (3)")
             else: 
                 if ((args.a_width > 51 and args.a_width <=68) or (args.b_width > 51 and args.b_width <=68)):
                     text = text.replace("repeat (1)", "repeat (4)")
+                    if (args.reg_out):
+                        text = text.replace("repeat (4)", "repeat (5)")
                 elif ((args.a_width > 34 and args.a_width <=51) or (args.b_width > 34 and args.b_width <=51)):
                     text = text.replace("repeat (1)", "repeat (3)")
+                    if (args.reg_out):
+                        text = text.replace("repeat (3)", "repeat (4)")
                 elif ((args.a_width > 20 and args.a_width <=34) or (args.b_width > 18 and args.b_width <=34)):
                     text = text.replace("repeat (1)", "repeat (2)")
+                    if (args.reg_out):
+                        text = text.replace("repeat (2)", "repeat (3)")
             file.write_text(text)
+        else:
+            if (args.reg_in and args.reg_out):
+                text = text.replace("repeat (1) @ (posedge clk1);", "repeat (3) @ (posedge clk1);")
+                file.write_text(text)
+            if (args.reg_in or args.reg_out):
+                text = text.replace(".z(z1)", ".z(z1), .clk(clk1), .reset(reset)")
+                file.write_text(text)
+                text = text.replace("repeat (1) @ (posedge clk1);", "repeat (2) @ (posedge clk1);")
+                file.write_text(text)
 
 if __name__ == "__main__":
     main()

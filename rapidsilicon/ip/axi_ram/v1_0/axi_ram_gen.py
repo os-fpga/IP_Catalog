@@ -70,20 +70,20 @@ def main():
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width",   type=int,   default=32,     choices=[8, 16, 32, 64],    help="RAM Data Width.")
-
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--pip_out",    type=bool,   default=False,    help="RAM Pipeline Output.")
+    core_fix_param_group.add_argument("--data_width",   type=int,   default=32,     choices=[8, 16, 32, 64],    help="RAM Data Width")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--addr_width",     type=int,   default=16,     choices=range(8,17),     help="RAM Address Width.")
-    core_range_param_group.add_argument("--id_width",       type=int,   default=8,      choices=range(1, 9),     help="RAM ID Width.")
+    core_range_param_group.add_argument("--addr_width",     type=int,   default=16,     choices=range(8,17),     help="RAM Address Width")
+    core_range_param_group.add_argument("--id_width",       type=int,   default=8,      choices=range(1, 9),     help="RAM ID Width")
+    
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--pip_out",    type=bool,   default=False,    help="RAM Pipelined Output")
 
     # Core file path parameters.
-    core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--file_path", type=argparse.FileType('r'), help="File Path for memory initialization file")
+    # core_file_path_group = parser.add_argument_group(title="Core file path parameters")
+    # core_file_path_group.add_argument("--file_path", type=argparse.FileType('r'), help="File Path for memory initialization file")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
