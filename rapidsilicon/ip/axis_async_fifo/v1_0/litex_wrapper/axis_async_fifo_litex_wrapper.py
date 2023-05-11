@@ -24,7 +24,7 @@ class AXISASYNCFIFO(Module):
         id_en           = 0,
         dest_en         = 0,
         user_en         = 1,
-        pip_out         = 1,
+        ram_pipeline         = 1,
         out_fifo_en     = 0,
         bad_frame_value = 1,
         bad_frame_mask  = 1,
@@ -61,7 +61,7 @@ class AXISASYNCFIFO(Module):
         self.logger.info(f"USER_WIDTH           : {user_width}")
         
         # Other
-        self.logger.info(f"RAM_PIPELINE         : {pip_out}")
+        self.logger.info(f"RAM_PIPELINE         : {ram_pipeline}")
         self.logger.info(f"FRAME_FIFO           : {frame_fifo}")
         self.logger.info(f"OUTPUT_FIFO_ENABLE   : {out_fifo_en}")
         self.logger.info(f"USER_BAD_FRAME_VALUE : {bad_frame_value}")
@@ -95,7 +95,7 @@ class AXISASYNCFIFO(Module):
             p_ID_WIDTH              = Instance.PreformattedParam(id_width),
             p_DEST_WIDTH            = Instance.PreformattedParam(dest_width),
             p_USER_WIDTH            = Instance.PreformattedParam(user_width),
-            p_RAM_PIPELINE          = pip_out,
+            p_RAM_PIPELINE          = ram_pipeline,
             p_KEEP_ENABLE           = data_width>8,
             p_LAST_ENABLE           = last_en,
             p_ID_ENABLE             = id_en,

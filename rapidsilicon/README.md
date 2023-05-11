@@ -4,6 +4,7 @@ IP Catalog is an IP library for Raptor toolchain.
 	IP_Catalog
 		rapidsilicon
 			ip/
+			├── ahb2axi_bridge
 			├── axi2axilite_bridge
 			├── axi_async_fifo
 			├── axi_cdma
@@ -32,11 +33,11 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── axis_switch
 			├── axis_uart
 			├── axis_width_converter
-			├── on_chip_memory
 			├── dsp
 			├── i2c_master
 			├── i2c_slave
 			├── jtag_to_axi
+			├── on_chip_memory
 			├── priority_encoder
 			├── reset_release
 			└── vexriscv_cpu

@@ -47,6 +47,12 @@ class AXISTREAMSWITCHWrapper(Module):
         self.clock_domains.cd_sys  = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+
+        reg_type = {
+            "Bypass"        :   "0",
+            "Simple_Buffer" :   "1",
+            "Skid_Buffer"   :   "2"
+        }
         
         s_dest_width    = m_dest_width + (math.ceil(math.log2(m_count)))
         m_id_width      = s_id_width + (math.ceil(math.log2(s_count)))
@@ -131,8 +137,8 @@ class AXISTREAMSWITCHWrapper(Module):
             m_id_width              = m_id_width,
             m_dest_width            = m_dest_width,
             s_dest_width            = s_dest_width,
-            m_reg_type              = m_reg_type,
-            s_reg_type              = s_reg_type,
+            m_reg_type              = reg_type[m_reg_type],
+            s_reg_type              = reg_type[s_reg_type],
             arb_type_round_robin    = arb_type_round_robin,
             arb_lsb_high_priority   = arb_lsb_high_priority,
             update_tid              = update_tid,
@@ -165,6 +171,10 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="SWITCH Data Width.")
 
+    # Core string parameters.
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
+    core_string_param_group.add_argument("--m_reg_type",    type=str,      default="Skid_Buffer",   choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--s_reg_type",    type=str,      default="Bypass",        choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
 
     # Core bool value parameters
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -176,11 +186,17 @@ def main():
 
     # Core range value parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
+
     core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,1025),  help="SWITCH User Width")
     core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,9),    help="SWITCH S_ID Width")
     core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,9),    help="SWITCH M_Destination Width")
     core_range_param_group.add_argument("--m_reg_type",     type=int,   default=2,  choices=range(0,3),     help="SWITCH Output Register Type")
     core_range_param_group.add_argument("--s_reg_type",     type=int,   default=0,  choices=range(0,3),     help="SWITCH Input Register Type")
+
+    core_range_param_group.add_argument("--data_width",     type=int,   default=8,  choices=range(1,4097),  help="SWITCH Data Width")
+    core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,4097),  help="SWITCH User Width")
+    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,33),    help="SWITCH S_ID Width")
+    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,33),    help="SWITCH M_Destination Width")
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Slave Interfaces")
     core_range_param_group.add_argument("--m_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Master Interfaces")
     core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,17),    help="SWITCH Output interface routing base")
