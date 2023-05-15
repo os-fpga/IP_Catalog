@@ -100,6 +100,28 @@ def get_other_ios(n):
             ("plic_rresp",          0,  Pins(2)),
             ("plicInterrupts",      0,  Pins(32))
         ]
+    
+def get_ibus_io():
+    return [
+        ("ibus_axi_arvalid",    0,  Pins(1)),
+        ("ibus_axi_arready",    0,  Pins(1)),
+        ("ibus_axi_araddr",     0,  Pins(32)),
+        ("ibus_axi_arburst",    0,  Pins(2)),
+        ("ibus_axi_arlen",      0,  Pins(8)),
+        ("ibus_axi_arsize",     0,  Pins(3)),
+        ("ibus_axi_arlock",     0,  Pins(1)),
+        ("ibus_axi_arprot",     0,  Pins(3)),
+        ("ibus_axi_arcache",    0,  Pins(4)),
+        ("ibus_axi_arqos",      0,  Pins(4)),
+        ("ibus_axi_arregion",   0,  Pins(4)),
+        ("ibus_axi_arid",       0,  Pins(1)),
+        ("ibus_axi_rvalid",     0,  Pins(1)),
+        ("ibus_axi_rready",     0,  Pins(1)),
+        ("ibus_axi_rlast",      0,  Pins(1)),
+        ("ibus_axi_rresp",      0,  Pins(2)),
+        ("ibus_axi_rdata",      0,  Pins(32)),
+        ("ibus_axi_rid",        0,  Pins(1))
+    ]
             
 
 # AXI-VEXRISCV Wrapper --------------------------------------------------------------------------------
@@ -112,12 +134,7 @@ class VexriscvWrapper(Module):
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
-        #IBUS
-        ibus_axi = AXIInterface(data_width = 32, address_width = 32, id_width = 8)
-        platform.add_extension(ibus_axi.get_ios("ibus_axi"))
-        self.comb += ibus_axi.connect_to_pads(platform.request("ibus_axi"), mode="master")
-
-        #IBUS
+        #DBUS
         dbus_axi = AXIInterface(data_width = 32, address_width = 32, id_width = 8)
         platform.add_extension(dbus_axi.get_ios("dbus_axi"))
         self.comb += dbus_axi.connect_to_pads(platform.request("dbus_axi"), mode="master")
@@ -125,32 +142,54 @@ class VexriscvWrapper(Module):
         if (variant == "Cacheless"):
             # VEXRISCV without cache and MMU
             self.submodules.vexriscv = vexriscv = vexriscv_nocache_nommu(platform,
-                ibus        = ibus_axi,
                 dbus        = dbus_axi
                 )
         elif (variant == "Cache_MMU"):
             # VEXRISCV with Cache and MMU
             self.submodules.vexriscv = vexriscv = vexriscv_linux_mmu(platform,
-                ibus        = ibus_axi,
                 dbus        = dbus_axi
                 )
         elif (variant == "Cache_MMU_PLIC_CLINT"):
             # VEXRISCV with Cache, MMU, PLIC and Clint
             self.submodules.vexriscv = vexriscv = vexriscv_plic_clint(platform,
-                ibus        = ibus_axi,
                 dbus        = dbus_axi
                 )
-        platform.add_extension(get_jtag_ios())
+            
+         # IBUS
+        platform.add_extension(get_ibus_io())
+        # Outputs
+        self.comb += platform.request("ibus_axi_arvalid").eq(vexriscv.ibus_ar_valid)
+        self.comb += platform.request("ibus_axi_araddr").eq(vexriscv.ibus_ar_addr)
+        self.comb += platform.request("ibus_axi_arburst").eq(vexriscv.ibus_ar_burst)
+        self.comb += platform.request("ibus_axi_arlen").eq(vexriscv.ibus_ar_len)
+        self.comb += platform.request("ibus_axi_arsize").eq(vexriscv.ibus_ar_size)
+        self.comb += platform.request("ibus_axi_arlock").eq(vexriscv.ibus_ar_lock)
+        self.comb += platform.request("ibus_axi_arprot").eq(vexriscv.ibus_ar_prot)
+        self.comb += platform.request("ibus_axi_arcache").eq(vexriscv.ibus_ar_cache)
+        self.comb += platform.request("ibus_axi_arqos").eq(vexriscv.ibus_ar_qos)
+        self.comb += platform.request("ibus_axi_arregion").eq(vexriscv.ibus_ar_region)
+        self.comb += platform.request("ibus_axi_arid").eq(vexriscv.ibus_ar_id)
+        self.comb += platform.request("ibus_axi_rready").eq(vexriscv.ibus_r_ready)
         # Inputs
+        self.comb += vexriscv.ibus_ar_ready.eq(platform.request("ibus_axi_arready"))
+        self.comb += vexriscv.ibus_r_valid.eq(platform.request("ibus_axi_rvalid"))
+        self.comb += vexriscv.ibus_r_last.eq(platform.request("ibus_axi_rlast"))
+        self.comb += vexriscv.ibus_r_resp.eq(platform.request("ibus_axi_rresp"))
+        self.comb += vexriscv.ibus_r_data.eq(platform.request("ibus_axi_rdata"))
+        self.comb += vexriscv.ibus_r_id.eq(platform.request("ibus_axi_rid"))
+        platform.add_extension(get_jtag_ios())
+
+        # JTAG Inputs
         self.comb += vexriscv.jtag_tms.eq(platform.request("jtag_tms"))
         self.comb += vexriscv.jtag_tdi.eq(platform.request("jtag_tdi"))
         self.comb += vexriscv.jtag_tck.eq(platform.request("jtag_tck"))
 
-        # Outputs
+        # JTAG Outputs
         self.comb += platform.request("jtag_tdo").eq(vexriscv.jtag_tdo)
 
         platform.add_extension(get_other_ios(variant))
-        # Inputs
+
+        # Interrupts and Debug Inputs
         self.comb += vexriscv.debugReset.eq(platform.request("debugReset"))
         if (variant == "Cacheless" or variant == "Cache_MMU"):
             self.comb += vexriscv.timerInterrupt.eq(platform.request("timerInterrupt"))
@@ -183,7 +222,7 @@ class VexriscvWrapper(Module):
             self.comb += vexriscv.plic_arprot.eq(platform.request("plic_arprot"))
             self.comb += vexriscv.plic_rready.eq(platform.request("plic_rready"))
             self.comb += vexriscv.plicInterrupts.eq(platform.request("plicInterrupts"))
-            # Outputs
+            # Interrupts and Debug Outputs
             self.comb += platform.request("clint_awready").eq(vexriscv.clint_awready)
             self.comb += platform.request("clint_wready").eq(vexriscv.clint_wready)
             self.comb += platform.request("clint_bvalid").eq(vexriscv.clint_bvalid)
