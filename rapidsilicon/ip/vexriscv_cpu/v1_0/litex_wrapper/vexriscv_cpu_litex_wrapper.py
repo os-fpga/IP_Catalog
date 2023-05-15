@@ -18,7 +18,6 @@ class vexriscv_nocache_nommu(Module):
         self.platform          = platform
         self.human_name        = "vexriscv_nocache_nommu"
         self.external_variant  = None
-        # self.ibus              = ibus
         self.dbus              = dbus
         self.reset             = Signal()
         self.interrupt         = Signal()
