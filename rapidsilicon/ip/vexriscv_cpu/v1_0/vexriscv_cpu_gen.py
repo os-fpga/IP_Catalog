@@ -8,6 +8,7 @@ import os
 import sys
 import argparse
 import shutil
+from pathlib import Path
 
 from litex_wrapper.vexriscv_cpu_litex_wrapper import vexriscv_nocache_nommu
 from litex_wrapper.vexriscv_cpu_litex_wrapper import vexriscv_linux_mmu
@@ -310,6 +311,16 @@ def main():
             os.remove(file)
             file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "src/vexriscv_cached_mmu_plic_clint.v")
             os.remove(file)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "sim/Makefile")
+            file = Path(file)
+            text = file.read_text()
+            text = text.replace("vexriscv_cpu_wrapper", build_name)
+            file.write_text(text)
+            file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "sim/main.cpp")
+            file = Path(file)
+            text = file.read_text()
+            text = text.replace("vexriscv_cpu_wrapper", build_name)
+            file.write_text(text)
         elif (args.variant == "Cache_MMU_PLIC_CLINT"):
             file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "src/vexriscv_uncached_nommu.v")
             os.remove(file)

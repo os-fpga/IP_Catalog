@@ -1,7 +1,7 @@
 DEBUG=no
-DUT = vexriscv_cached_mmu
+DUT = vexriscv_cpu_wrapper
 REGRESSION_PATH?=./
-VEXRISCV_FILE?=../src/vexriscv_cached_mmu.v
+VEXRISCV_FILE?=../src/vexriscv_cpu_wrapper.v
 IBUS?=CACHED
 IBUS_TC?=no
 IBUS_DATA_WIDTH?=32
@@ -353,7 +353,7 @@ run: compile
 	@mv linux.debugTrace $(OUT_DIR)
 
 verilate: ${VEXRISCV_FILE}
-	verilator -cc  ${VEXRISCV_FILE} -O3 -CFLAGS -std=c++11 -LDFLAGS -pthread  ${ADDCFLAGS} --gdbbt ${VERILATOR_ARGS} -Wno-UNOPTFLAT -Wno-WIDTH --x-assign unique --exe main.cpp
+	verilator -cc  ${VEXRISCV_FILE} -I../src/ -O3 -CFLAGS -std=c++11 -LDFLAGS -pthread  ${ADDCFLAGS} --gdbbt ${VERILATOR_ARGS} -Wno-UNOPTFLAT -Wno-WIDTH --x-assign unique --exe main.cpp
 
 compile: verilate
 	make  -j${THREAD_COUNT} -C obj_dir/ -f V$(DUT).mk V$(DUT)
