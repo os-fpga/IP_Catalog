@@ -18,14 +18,8 @@ logging.basicConfig(level=logging.INFO)
 
 # AXIS_PIPELINE_REGISTER ---------------------------------------------------------------------------------------
 class AXISPIPELINEREGISTER(Module):
-    def __init__(self, platform, s_axis, m_axis, register,
-        last_en         = 1,
-        id_en           = 0,
-        dest_en         = 0,
-        user_en         = 1,
-        reg_type        = 2,
-        length          = 2        
-    ):
+    def __init__(self, platform, s_axis, m_axis, last_en, id_en, dest_en, user_en, reg_type, length):
+        
         self.logger = logging.getLogger("AXIS_PIPELINE_REGISTER")
         
         self.logger.propagate = False
@@ -65,7 +59,7 @@ class AXISPIPELINEREGISTER(Module):
             p_ID_WIDTH          = Instance.PreformattedParam(id_width),
             p_DEST_WIDTH        = Instance.PreformattedParam(dest_width),
             p_USER_WIDTH        = Instance.PreformattedParam(user_width),
-            p_REG_TYPE          = Instance.PreformattedParam(register),
+            p_REG_TYPE          = Instance.PreformattedParam(reg_type),
             p_LENGTH            = Instance.PreformattedParam(length),
             p_KEEP_ENABLE       = data_width>8,
             p_LAST_ENABLE       = last_en,
