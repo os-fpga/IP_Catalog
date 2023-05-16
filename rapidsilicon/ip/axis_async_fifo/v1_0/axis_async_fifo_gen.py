@@ -153,16 +153,18 @@ def main():
     core_bool_param_group.add_argument("--user_en",         type=bool,      default=True,       help="FIFO User Enable.")
     core_bool_param_group.add_argument("--frame_fifo",      type=bool,      default=True,       help="FIFO Frame.")
     core_bool_param_group.add_argument("--out_fifo_en",     type=bool,      default=True,       help="OUTPUT FIFO ENABLE.")
-    core_bool_param_group.add_argument("--bad_frame_value", type=bool,      default=True,       help="USER BAD FRAME VALUE.")
     core_bool_param_group.add_argument("--drop_bad_frame",  type=bool,      default=True,       help="FIFO Drop Bad Frame.")
     core_bool_param_group.add_argument("--drop_when_full",  type=bool,      default=True,       help="FIFO Drop Frame When Full.")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 9),        help="FIFO ID Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 17),        help="FIFO ID Width.")
     core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 9),        help="FIFO Destination Width.")
     core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 1024),      help="FIFO User Width.")
+    core_range_param_group.add_argument("--bad_frame_value",type=int,       default=1,      choices=range(1,100),       help="FIFO USER BAD FRAME VALUE")
     core_range_param_group.add_argument("--ram_pipeline",   type=int,       default=1,      choices=range(1, 10),      help="FIFO Number of Pipeline registers.")
+    core_range_param_group.add_argument("--bad_frame_mask", type=int,   default=1,  choices=range(1,100),    help="FIFO Mask for bad frame marker")
+
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                  help="Build Core")

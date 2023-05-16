@@ -214,14 +214,14 @@ def main():
     # Core range value parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,1025),  help="RAM_SWITCH User Width")
-    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,9),    help="RAM_SWITCH S_ID Width")
+    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,17),    help="RAM_SWITCH S_ID Width")
     core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,9),    help="RAM_SWITCH M_Destination Width")
     core_range_param_group.add_argument("--speedup",        type=int,   default=0,  choices=range(0,101),   help="RAM_SWITCH Speedup factor")
     core_range_param_group.add_argument("--ram_pipeline",   type=int,   default=2,  choices=range(0,33),    help="RAM_SWITCH RAM Pipeline Stages")
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="RAM_SWITCH Slave Interfaces")
     core_range_param_group.add_argument("--m_count",        type=int,   default=4,  choices=range(1,17),    help="RAM_SWITCH Master Interfaces")
-    core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,17),    help="RAM_SWITCH Output interface routing base")
-    core_range_param_group.add_argument("--m_top",          type=int,   default=0,  choices=range(0,17),    help="RAM_SWITCH Output interface routing top")
+    core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,16),    help="RAM_SWITCH Output interface routing base")
+    core_range_param_group.add_argument("--m_top",          type=int,   default=0,  choices=range(0,16),    help="RAM_SWITCH Output interface routing top")
     core_range_param_group.add_argument("--bad_frame_value",type=int,   default=1,  choices=range(1,100),    help="RAM_SWITCH Value for bad frame marker")
     core_range_param_group.add_argument("--bad_frame_mask", type=int,   default=1,  choices=range(1,100),    help="RAM_SWITCH Mask for bad frame marker")
     

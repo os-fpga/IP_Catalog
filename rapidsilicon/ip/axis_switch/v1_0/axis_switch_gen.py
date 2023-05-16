@@ -188,13 +188,13 @@ def main():
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
 
     core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,1025),  help="SWITCH User Width")
-    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,9),    help="SWITCH S_ID Width")
+    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,17),    help="SWITCH S_ID Width")
     core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,9),    help="SWITCH M_Destination Width")
 
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Slave Interfaces")
     core_range_param_group.add_argument("--m_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Master Interfaces")
-    core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,17),    help="SWITCH Output interface routing base")
-    core_range_param_group.add_argument("--m_top",          type=int,   default=0,  choices=range(0,17),    help="SWITCH Output interface routing top")
+    core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,16),    help="SWITCH Output interface routing base")
+    core_range_param_group.add_argument("--m_top",          type=int,   default=0,  choices=range(0,16),    help="SWITCH Output interface routing top")
 
     # Build Parameters
     build_group = parser.add_argument_group(title="Build parameters")
