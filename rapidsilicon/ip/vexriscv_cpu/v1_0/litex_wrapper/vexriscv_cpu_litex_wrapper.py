@@ -14,11 +14,10 @@ from migen import *
 ## ----------------VexRiscv Configuration without Cache and MMU----------------------------------------
 
 class vexriscv_nocache_nommu(Module):
-    def __init__(self, platform, ibus, dbus):
+    def __init__(self, platform, dbus):
         self.platform          = platform
         self.human_name        = "vexriscv_nocache_nommu"
         self.external_variant  = None
-        self.ibus              = ibus
         self.dbus              = dbus
         self.reset             = Signal()
         self.interrupt         = Signal()
@@ -35,6 +34,29 @@ class vexriscv_nocache_nommu(Module):
         self.softwareInterrupt = Signal()
         self.debugReset        = Signal()
         self.debug_resetOut    = Signal()    
+
+        # IBUS
+        self.ibus_ar_valid     = Signal()
+        self.ibus_ar_ready     = Signal()
+        self.ibus_ar_burst     = Signal(2)
+        self.ibus_ar_addr      = Signal(32)
+        self.ibus_ar_id        = Signal()
+        self.ibus_ar_lock      = Signal()
+        self.ibus_ar_cache     = Signal(4)
+        self.ibus_ar_len       = Signal(8)
+        self.ibus_ar_size      = Signal(3)
+        self.ibus_ar_region    = Signal(4)
+        self.ibus_ar_prot      = Signal(3)
+        self.ibus_ar_qos       = Signal(4)
+        self.ibus_r_ready      = Signal()
+        self.ibus_r_valid      = Signal()
+        self.ibus_r_data       = Signal(32)       
+        self.ibus_r_id         = Signal()       
+        self.ibus_r_resp       = Signal(2)       
+        self.ibus_r_last       = Signal()       
+
+
+
 
         # CPU Instance.
         self.specials += Instance("vexriscv_uncached_nommu",
@@ -53,26 +75,26 @@ class vexriscv_nocache_nommu(Module):
             # IBUS AXI-FULL   
             # -------------
             # AR.
-            o_iBusAxi_ar_valid          = self.ibus.ar.valid,
-            i_iBusAxi_ar_ready          = self.ibus.ar.ready,
-            o_iBusAxi_ar_payload_addr   = self.ibus.ar.addr,
-            o_iBusAxi_ar_payload_id     = self.ibus.ar.id,
-            o_iBusAxi_ar_payload_region = self.ibus.ar.region,
-            o_iBusAxi_ar_payload_len    = self.ibus.ar.len,
-            o_iBusAxi_ar_payload_size   = self.ibus.ar.size,
-            o_iBusAxi_ar_payload_burst  = self.ibus.ar.burst,
-            o_iBusAxi_ar_payload_lock   = self.ibus.ar.lock,
-            o_iBusAxi_ar_payload_cache  = self.ibus.ar.cache,
-            o_iBusAxi_ar_payload_qos    = self.ibus.ar.qos,
-            o_iBusAxi_ar_payload_prot   = self.ibus.ar.prot,
+            o_iBusAxi_ar_valid          = self.ibus_ar_valid,
+            i_iBusAxi_ar_ready          = self.ibus_ar_ready,
+            o_iBusAxi_ar_payload_addr   = self.ibus_ar_addr,
+            o_iBusAxi_ar_payload_id     = self.ibus_ar_id,
+            o_iBusAxi_ar_payload_region = self.ibus_ar_region,
+            o_iBusAxi_ar_payload_len    = self.ibus_ar_len,
+            o_iBusAxi_ar_payload_size   = self.ibus_ar_size,
+            o_iBusAxi_ar_payload_burst  = self.ibus_ar_burst,
+            o_iBusAxi_ar_payload_lock   = self.ibus_ar_lock,
+            o_iBusAxi_ar_payload_cache  = self.ibus_ar_cache,
+            o_iBusAxi_ar_payload_qos    = self.ibus_ar_qos,
+            o_iBusAxi_ar_payload_prot   = self.ibus_ar_prot,
 
-            # R.
-            i_iBusAxi_r_valid           = self.ibus.r.valid,
-            o_iBusAxi_r_ready           = self.ibus.r.ready,
-            i_iBusAxi_r_payload_data    = self.ibus.r.data,
-            i_iBusAxi_r_payload_id      = self.ibus.r.id,
-            i_iBusAxi_r_payload_resp    = self.ibus.r.resp,
-            i_iBusAxi_r_payload_last    = self.ibus.r.last,
+            # # R.
+            i_iBusAxi_r_valid           = self.ibus_r_valid,
+            o_iBusAxi_r_ready           = self.ibus_r_ready,
+            i_iBusAxi_r_payload_data    = self.ibus_r_data,
+            i_iBusAxi_r_payload_id      = self.ibus_r_id,
+            i_iBusAxi_r_payload_resp    = self.ibus_r_resp,
+            i_iBusAxi_r_payload_last    = self.ibus_r_last,
 
             # DBUS AXI-FULL
             # -------------
@@ -147,11 +169,10 @@ class vexriscv_nocache_nommu(Module):
 ## ----------------VexRiscv Configuration with Cache and MMU----------------------------------------
 
 class vexriscv_linux_mmu(Module):
-    def __init__(self, platform, ibus, dbus):
+    def __init__(self, platform, dbus):
         self.platform           = platform
         self.human_name         = "vexriscv_linux_mmu"
         self.external_variant   = None
-        self.ibus               = ibus
         self.dbus               = dbus
         self.reset              = Signal()
         self.interrupt          = Signal()
@@ -169,7 +190,27 @@ class vexriscv_linux_mmu(Module):
         self.debugReset         = Signal()
         self.debug_resetOut     = Signal()    
         self.externalInterruptS = Signal()
-        self.utime              = Signal()
+        self.utime              = Signal(64)
+
+        # IBUS
+        self.ibus_ar_valid     = Signal()
+        self.ibus_ar_ready     = Signal()
+        self.ibus_ar_burst     = Signal(2)
+        self.ibus_ar_addr      = Signal(32)
+        self.ibus_ar_id        = Signal()
+        self.ibus_ar_lock      = Signal()
+        self.ibus_ar_cache     = Signal(4)
+        self.ibus_ar_len       = Signal(8)
+        self.ibus_ar_size      = Signal(3)
+        self.ibus_ar_region    = Signal(4)
+        self.ibus_ar_prot      = Signal(3)
+        self.ibus_ar_qos       = Signal(4)
+        self.ibus_r_ready      = Signal()
+        self.ibus_r_valid      = Signal()
+        self.ibus_r_data       = Signal(32)       
+        self.ibus_r_id         = Signal()       
+        self.ibus_r_resp       = Signal(2)       
+        self.ibus_r_last       = Signal() 
 
         # CPU Instance.
         self.specials += Instance("vexriscv_cached_mmu",
@@ -190,26 +231,26 @@ class vexriscv_linux_mmu(Module):
             # IBUS AXI-FULL   
             # -------------
             # AR.
-            o_iBusAxi_arvalid           = self.ibus.ar.valid,
-            i_iBusAxi_arready           = self.ibus.ar.ready,
-            o_iBusAxi_araddr            = self.ibus.ar.addr,
-            o_iBusAxi_arid              = self.ibus.ar.id,
-            o_iBusAxi_arregion          = self.ibus.ar.region,
-            o_iBusAxi_arlen             = self.ibus.ar.len,
-            o_iBusAxi_arsize            = self.ibus.ar.size,
-            o_iBusAxi_arburst           = self.ibus.ar.burst,
-            o_iBusAxi_arlock            = self.ibus.ar.lock,
-            o_iBusAxi_arcache           = self.ibus.ar.cache,
-            o_iBusAxi_arqos             = self.ibus.ar.qos,
-            o_iBusAxi_arprot            = self.ibus.ar.prot,
+            o_iBusAxi_arvalid           = self.ibus_ar_valid,
+            i_iBusAxi_arready           = self.ibus_ar_ready,
+            o_iBusAxi_araddr            = self.ibus_ar_addr,
+            o_iBusAxi_arid              = self.ibus_ar_id,
+            o_iBusAxi_arregion          = self.ibus_ar_region,
+            o_iBusAxi_arlen             = self.ibus_ar_len,
+            o_iBusAxi_arsize            = self.ibus_ar_size,
+            o_iBusAxi_arburst           = self.ibus_ar_burst,
+            o_iBusAxi_arlock            = self.ibus_ar_lock,
+            o_iBusAxi_arcache           = self.ibus_ar_cache,
+            o_iBusAxi_arqos             = self.ibus_ar_qos,
+            o_iBusAxi_arprot            = self.ibus_ar_prot,
 
             # R.
-            i_iBusAxi_rvalid            = self.ibus.r.valid,
-            o_iBusAxi_rready            = self.ibus.r.ready,
-            i_iBusAxi_rdata             = self.ibus.r.data,
-            i_iBusAxi_rid               = self.ibus.r.id,
-            i_iBusAxi_rresp             = self.ibus.r.resp,
-            i_iBusAxi_rlast             = self.ibus.r.last,
+            i_iBusAxi_rvalid            = self.ibus_r_valid,
+            o_iBusAxi_rready            = self.ibus_r_ready,
+            i_iBusAxi_rdata             = self.ibus_r_data,
+            i_iBusAxi_rid               = self.ibus_r_id,
+            i_iBusAxi_rresp             = self.ibus_r_resp,
+            i_iBusAxi_rlast             = self.ibus_r_last,
 
             # DBUS AXI-FULL
             # -------------
@@ -284,11 +325,10 @@ class vexriscv_linux_mmu(Module):
 ## ----------------VexRiscv Configuration with Cache, MMU, PLIC and CLINT--------------------------------
 
 class vexriscv_plic_clint(Module):
-    def __init__(self, platform, ibus, dbus):
+    def __init__(self, platform, dbus):
         self.platform           = platform
         self.human_name         = "vexriscv_plic_clint"
         self.external_variant   = None
-        self.ibus               = ibus
         self.dbus               = dbus
         self.reset              = Signal()
         self.interrupt          = Signal()
@@ -306,45 +346,65 @@ class vexriscv_plic_clint(Module):
         # PLIC IOs
         self.plic_awvalid       = Signal()
         self.plic_awready       = Signal()
-        self.plic_awaddr        = Signal()
-        self.plic_awprot        = Signal()
+        self.plic_awaddr        = Signal(22)
+        self.plic_awprot        = Signal(3)
         self.plic_wvalid        = Signal()
         self.plic_wready        = Signal()
-        self.plic_wdata         = Signal()
-        self.plic_wstrb         = Signal()
+        self.plic_wdata         = Signal(32)
+        self.plic_wstrb         = Signal(4)
         self.plic_bvalid        = Signal()
         self.plic_bready        = Signal()
-        self.plic_bresp         = Signal()
+        self.plic_bresp         = Signal(2)
         self.plic_arvalid       = Signal()
         self.plic_arready       = Signal()
-        self.plic_araddr        = Signal()
-        self.plic_arprot        = Signal()
+        self.plic_araddr        = Signal(22)
+        self.plic_arprot        = Signal(3)
         self.plic_rvalid        = Signal()
         self.plic_rready        = Signal()
-        self.plic_rdata         = Signal()
-        self.plic_rresp         = Signal()
-        self.plicInterrupts     = Signal()
+        self.plic_rdata         = Signal(32)
+        self.plic_rresp         = Signal(2)
+        self.plicInterrupts     = Signal(32)
 
         # CLINT IOs
         self.clint_awvalid      = Signal()
         self.clint_awready      = Signal()
-        self.clint_awaddr       = Signal()
-        self.clint_awprot       = Signal()
+        self.clint_awaddr       = Signal(16)
+        self.clint_awprot       = Signal(3)
         self.clint_wvalid       = Signal()
         self.clint_wready       = Signal()
-        self.clint_wdata        = Signal()
-        self.clint_wstrb        = Signal()
+        self.clint_wdata        = Signal(32)
+        self.clint_wstrb        = Signal(4)
         self.clint_bvalid       = Signal()
         self.clint_bready       = Signal()
-        self.clint_bresp        = Signal()
+        self.clint_bresp        = Signal(2)
         self.clint_arvalid      = Signal()
         self.clint_arready      = Signal()
-        self.clint_araddr       = Signal()
-        self.clint_arprot       = Signal()
+        self.clint_araddr       = Signal(16)
+        self.clint_arprot       = Signal(3)
         self.clint_rvalid       = Signal()
         self.clint_rready       = Signal()
-        self.clint_rdata        = Signal()
-        self.clint_rresp        = Signal()
+        self.clint_rdata        = Signal(32)
+        self.clint_rresp        = Signal(2)
+
+        # IBUS
+        self.ibus_ar_valid     = Signal()
+        self.ibus_ar_ready     = Signal()
+        self.ibus_ar_burst     = Signal(2)
+        self.ibus_ar_addr      = Signal(32)
+        self.ibus_ar_id        = Signal()
+        self.ibus_ar_lock      = Signal()
+        self.ibus_ar_cache     = Signal(4)
+        self.ibus_ar_len       = Signal(8)
+        self.ibus_ar_size      = Signal(3)
+        self.ibus_ar_region    = Signal(4)
+        self.ibus_ar_prot      = Signal(3)
+        self.ibus_ar_qos       = Signal(4)
+        self.ibus_r_ready      = Signal()
+        self.ibus_r_valid      = Signal()
+        self.ibus_r_data       = Signal(32)       
+        self.ibus_r_id         = Signal()       
+        self.ibus_r_resp       = Signal(2)       
+        self.ibus_r_last       = Signal() 
 
         # CPU Instance.
         self.specials += Instance("vexriscv_cached_mmu_plic_clint",
@@ -360,26 +420,26 @@ class vexriscv_plic_clint(Module):
             # IBUS AXI-FULL   
             # -------------
             # AR.
-            o_iBusAxi_arvalid           = self.ibus.ar.valid,
-            i_iBusAxi_arready           = self.ibus.ar.ready,
-            o_iBusAxi_araddr            = self.ibus.ar.addr,
-            o_iBusAxi_arid              = self.ibus.ar.id,
-            o_iBusAxi_arregion          = self.ibus.ar.region,
-            o_iBusAxi_arlen             = self.ibus.ar.len,
-            o_iBusAxi_arsize            = self.ibus.ar.size,
-            o_iBusAxi_arburst           = self.ibus.ar.burst,
-            o_iBusAxi_arlock            = self.ibus.ar.lock,
-            o_iBusAxi_arcache           = self.ibus.ar.cache,
-            o_iBusAxi_arqos             = self.ibus.ar.qos,
-            o_iBusAxi_arprot            = self.ibus.ar.prot,
+            o_iBusAxi_arvalid           = self.ibus_ar_valid,
+            i_iBusAxi_arready           = self.ibus_ar_ready,
+            o_iBusAxi_araddr            = self.ibus_ar_addr,
+            o_iBusAxi_arid              = self.ibus_ar_id,
+            o_iBusAxi_arregion          = self.ibus_ar_region,
+            o_iBusAxi_arlen             = self.ibus_ar_len,
+            o_iBusAxi_arsize            = self.ibus_ar_size,
+            o_iBusAxi_arburst           = self.ibus_ar_burst,
+            o_iBusAxi_arlock            = self.ibus_ar_lock,
+            o_iBusAxi_arcache           = self.ibus_ar_cache,
+            o_iBusAxi_arqos             = self.ibus_ar_qos,
+            o_iBusAxi_arprot            = self.ibus_ar_prot,
 
             # R.
-            i_iBusAxi_rvalid            = self.ibus.r.valid,
-            o_iBusAxi_rready            = self.ibus.r.ready,
-            i_iBusAxi_rdata             = self.ibus.r.data,
-            i_iBusAxi_rid               = self.ibus.r.id,
-            i_iBusAxi_rresp             = self.ibus.r.resp,
-            i_iBusAxi_rlast             = self.ibus.r.last,
+            i_iBusAxi_rvalid            = self.ibus_r_valid,
+            o_iBusAxi_rready            = self.ibus_r_ready,
+            i_iBusAxi_rdata             = self.ibus_r_data,
+            i_iBusAxi_rid               = self.ibus_r_id,
+            i_iBusAxi_rresp             = self.ibus_r_resp,
+            i_iBusAxi_rlast             = self.ibus_r_last,
 
             # DBUS AXI-FULL
             # -------------

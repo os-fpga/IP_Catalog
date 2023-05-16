@@ -131,7 +131,7 @@ def main():
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 9),         help="FIFO ID Width.")
+    core_range_param_group.add_argument("--id_width",       type=int,       default=8,      choices=range(1, 17),         help="FIFO ID Width.")
     core_range_param_group.add_argument("--dest_width",     type=int,       default=8,      choices=range(1, 9),         help="FIFO Destination Width.")
     core_range_param_group.add_argument("--user_width",     type=int,       default=1,      choices=range(1, 1025),       help="FIFO User Width.")
     core_range_param_group.add_argument("--pip_out",     type=int,       default=1,      choices=range(1, 33),       help="FIFO Pipeline Output registers.")

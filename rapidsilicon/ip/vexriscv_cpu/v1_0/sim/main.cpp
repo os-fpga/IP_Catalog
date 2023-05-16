@@ -1,5 +1,6 @@
-#include "Vvexriscv_cached_mmu.h"
-#include "Vvexriscv_cached_mmu_vexriscv_cached_mmu.h"
+#include "Vvexriscv_cpu_wrapper.h"
+#include "Vvexriscv_cpu_wrapper_vexriscv_cpu_wrapper.h"
+#include "Vvexriscv_cpu_wrapper_vexriscv_cached_mmu.h"
 #ifdef REF
 #include "VVexRiscv_RiscvCore.h"
 #endif
@@ -1281,8 +1282,8 @@ public:
 	uint64_t currentTime = 22;
 	uint64_t mTimeCmp = 0;
 	uint64_t mTime = 0;
-	Vvexriscv_cached_mmu* top;
-	bool resetDone = false;
+	Vvexriscv_cpu_wrapper* top;
+	bool rstDone = false;
 	bool riscvRefEnable = false;
 	uint64_t i;
 	double cyclesPerSecond = 10e6;
@@ -1450,7 +1451,7 @@ public:
 		testsCounter++;
 		staticMutex.unlock();
 		this->name = name;
-		top = new Vvexriscv_cached_mmu;
+		top = new Vvexriscv_cpu_wrapper;
 		#ifdef TRACE_ACCESS
 			regTraces.open (name + ".regTrace");
 			memTraces.open (name + ".memTrace");
@@ -1621,13 +1622,13 @@ public:
 
 		// Reset
 		top->clk = 0;
-		top->reset = 0;
+		top->rst = 0;
 
 
 		top->eval(); currentTime = 3;
 		for(SimElement* simElement : simElements) simElement->onReset();
 
-		top->reset = 1;
+		top->rst = 1;
 		top->eval();
 		top->clk = 1;
 		top->eval();
@@ -1646,7 +1647,7 @@ public:
 		top->externalInterrupt = 0;
 		#endif
 		dump(0);
-		top->reset = 0;
+		top->rst = 0;
 		for(SimElement* simElement : simElements) simElement->postReset();
 
 		top->eval(); currentTime = 2;
@@ -1656,24 +1657,25 @@ public:
 
         //Sync register file initial content
         for(int i = 1;i < 32;i++){
-            riscvRef.regs[i] = top->vexriscv_cached_mmu->RegFilePlugin_regFile[i];
+            riscvRef.regs[i] = top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->RegFilePlugin_regFile[i];
         }
-		resetDone = true;
+		rstDone = true;
 
 		#ifdef  REF
-		if(bootPc != -1) top->vexriscv_cached_mmu->core->prefetch_pc = bootPc;
+		if(bootPc != -1) top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->core->prefetch_pc = bootPc;
 		#else
 		if(bootPc != -1) {
 		    #if defined(IBUS_SIMPLE) || defined(IBUS_SIMPLE_WISHBONE) || defined(IBUS_SIMPLE_AHBLITE3)
-                top->vexriscv_cached_mmu->IBusSimplePlugin_fetchPc_pcReg = bootPc;
+                top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->IBusSimplePlugin_fetchPc_pcReg = bootPc;
                 #ifdef COMPRESSED
-                top->vexriscv_cached_mmu->IBusSimplePlugin_decodePc_pcReg = bootPc;
+                top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->IBusSimplePlugin_decodePc_pcReg = bootPc;
                 #endif
             #else
-                top->vexriscv_cached_mmu->IBusCachedPlugin_fetchPc_pcReg = bootPc;
+                top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->IBusCachedPlugin_fetchPc_pcReg = bootPc;
                 #ifdef COMPRESSED
-                top->vexriscv_cached_mmu->IBusCachedPlugin_decodePc_pcReg = bootPc;
+                top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->IBusCachedPlugin_decodePc_pcReg = bootPc;
                 #endif
+				
             #endif
 		}
 		#endif
@@ -1699,7 +1701,7 @@ public:
                 #ifndef MTIME_INSTR_FACTOR
                 mTime = i/2;
                 #else
-				mTime += top->vexriscv_cached_mmu->lastStageIsFiring*MTIME_INSTR_FACTOR;
+				mTime += top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageIsFiring*MTIME_INSTR_FACTOR;
                 #endif
 				#endif
 				#ifdef TIMER_INTERRUPT
@@ -1743,36 +1745,36 @@ public:
                         riscvRef.ipInput |= top->externalInterruptS << 9;
     #endif
 
-                        riscvRef.liveness(top->vexriscv_cached_mmu->CsrPlugin_inWfi);
-                        if(top->vexriscv_cached_mmu->CsrPlugin_interruptJump){
-                            if(riscvRefEnable) riscvRef.trap(true, top->vexriscv_cached_mmu->CsrPlugin_interrupt_code);
+                        riscvRef.liveness(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->CsrPlugin_inWfi);
+                        if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->CsrPlugin_interruptJump){
+                            if(riscvRefEnable) riscvRef.trap(true, top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->CsrPlugin_interrupt_code);
                         }
                     }
 				#endif
 
                 #ifdef RVF
                 if(riscvRefEnable) {
-                    if(top->vexriscv_cached_mmu->writeBack_FpuPlugin_commit_valid && top->vexriscv_cached_mmu->writeBack_FpuPlugin_commit_ready && top->vexriscv_cached_mmu->writeBack_FpuPlugin_commit_payload_write){
+                    if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->writeBack_FpuPlugin_commit_valid && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->writeBack_FpuPlugin_commit_ready && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->writeBack_FpuPlugin_commit_payload_write){
                         FpuCommit c;
-                        c.value = top->vexriscv_cached_mmu->writeBack_FpuPlugin_commit_payload_value;
+                        c.value = top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->writeBack_FpuPlugin_commit_payload_value;
                         riscvRef.fpuCommit.push(c);
                     }
 
-                    if(top->vexriscv_cached_mmu->FpuPlugin_port_rsp_valid && top->vexriscv_cached_mmu->FpuPlugin_port_rsp_ready && top->vexriscv_cached_mmu->lastStageIsFiring){
+                    if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_rsp_valid && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_rsp_ready && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageIsFiring){
                         FpuRsp c;
-                        c.value = top->vexriscv_cached_mmu->FpuPlugin_port_rsp_payload_value;
-                        c.flags = (top->vexriscv_cached_mmu->FpuPlugin_port_rsp_payload_NX << 0) |
-                                  (top->vexriscv_cached_mmu->FpuPlugin_port_rsp_payload_NV << 4);
+                        c.value = top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_rsp_payload_value;
+                        c.flags = (top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_rsp_payload_NX << 0) |
+                                  (top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_rsp_payload_NV << 4);
                         riscvRef.fpuRsp.push(c);
                     }
 
-                    if(top->vexriscv_cached_mmu->FpuPlugin_port_completion_valid && top->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_written){
+                    if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_completion_valid && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_written){
                         FpuCompletion c;
-                        c.flags = (top->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_NX << 0) |
-                                  (top->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_UF << 1) |
-                                  (top->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_OF << 2) |
-                                  (top->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_DZ << 3) |
-                                  (top->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_NV << 4);
+                        c.flags = (top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_NX << 0) |
+                                  (top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_UF << 1) |
+                                  (top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_OF << 2) |
+                                  (top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_DZ << 3) |
+                                  (top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->FpuPlugin_port_completion_payload_flags_NV << 4);
                         riscvRef.fpuCompletion.push(c);
                     }
                 }
@@ -1780,7 +1782,7 @@ public:
 
 
 				
-                if(top->vexriscv_cached_mmu->lastStageIsFiring){
+                if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageIsFiring){
                    	if(riscvRefEnable) {
 //                        privilegeCounters[riscvRef.privilege]++;
 //                        if((riscvRef.stepCounter & 0xFFFFF) == 0){
@@ -1789,14 +1791,14 @@ public:
 //                            cout << "- S " << privilegeCounters[1] << endl;
 //                            cout << "- M " << privilegeCounters[3] << endl;
 //                        }
-                        riscvRef.dutRfWriteValue = top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data;
+                        riscvRef.dutRfWriteValue = top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data;
                    	    riscvRef.step();
                    	    bool mIntTimer = false;
                    	    bool mIntExt = false;
                    	}
 
-                   	if(riscvRefEnable && top->vexriscv_cached_mmu->lastStagePc != riscvRef.lastPc){
-						cout << hex << " pc missmatch " << top->vexriscv_cached_mmu->lastStagePc << " should be " << riscvRef.lastPc << dec << endl;
+                   	if(riscvRefEnable && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStagePc != riscvRef.lastPc){
+						cout << hex << " pc missmatch " << top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStagePc << " should be " << riscvRef.lastPc << dec << endl;
 						fail();
 					}
 
@@ -1805,16 +1807,16 @@ public:
                 	int32_t rfWriteAddress;
                 	int32_t rfWriteData;
 
-                    if(top->vexriscv_cached_mmu->lastStageRegFileWrite_valid == 1 && top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address != 0){
+                    if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_valid == 1 && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address != 0){
                     	rfWriteValid = true;
-                    	rfWriteAddress = top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address;
-                    	rfWriteData = top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data;
+                    	rfWriteAddress = top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address;
+                    	rfWriteData = top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data;
                     	#ifdef TRACE_ACCESS
                         regTraces <<
                             #ifdef TRACE_WITH_TIME
                             currentTime <<
                              #endif
-                             " PC " << hex << setw(8) <<  top->vexriscv_cached_mmu->lastStagePc << " : reg[" << dec << setw(2) << (uint32_t)top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address << "] = " << hex << setw(8) << top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data <<  dec << endl;
+                             " PC " << hex << setw(8) <<  top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStagePc << " : reg[" << dec << setw(2) << (uint32_t)top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address << "] = " << hex << setw(8) << top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data <<  dec << endl;
                         #endif
                     } else {
                         #ifdef TRACE_ACCESS
@@ -1822,7 +1824,7 @@ public:
                                 #ifdef TRACE_WITH_TIME
                                 currentTime <<
                                  #endif
-                                 " PC " << hex << setw(8) <<  top->vexriscv_cached_mmu->lastStagePc << dec << endl;
+                                 " PC " << hex << setw(8) <<  top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStagePc << dec << endl;
                         #endif
                     }
 					if(riscvRefEnable) if(rfWriteValid != riscvRef.rfWriteValid ||
@@ -1835,7 +1837,7 @@ public:
                 }
 
                 #ifdef CSR
-                    if(top->vexriscv_cached_mmu->CsrPlugin_hadException){
+                    if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->CsrPlugin_hadException){
                         if(riscvRefEnable) {
                             riscvRef.step();
                         }
@@ -1877,7 +1879,7 @@ public:
 		} catch (const std::exception& e) {
 			staticMutex.lock();
 
-			cout << "FAIL " <<  name << " at PC=" << hex << setw(8) << top->vexriscv_cached_mmu->lastStagePc << dec; //<<  " seed : " << seed <<
+			cout << "FAIL " <<  name << " at PC=" << hex << setw(8) << top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStagePc << dec; //<<  " seed : " << seed <<
 			if(riscvRefEnable) cout << hex << " REF PC=" << riscvRef.lastPc << " REF I=" << riscvRef.lastInstruction << dec;
 			cout << " time=" << i;
 			cout << endl;
@@ -2035,7 +2037,7 @@ public:
 	uint32_t address;
 
 	Workspace *ws;
-	Vvexriscv_cached_mmu* top;
+	Vvexriscv_cpu_wrapper* top;
 	IBusCached(Workspace* ws){
 		this->ws = ws;
 		this->top = ws->top;
@@ -2043,23 +2045,23 @@ public:
 
 
 	virtual void onReset(){
-		top->iBusAxi_arready = 1;
-		top->iBusAxi_rvalid = 0;
+		top->ibus_axi_arready = 1;
+		top->ibus_axi_rvalid = 0;
 	}
 
 	virtual void preCycle(){
-		if (top->iBusAxi_arvalid && top->iBusAxi_arready && pendingCount == 0) {
+		if (top->ibus_axi_arvalid && top->ibus_axi_arready && pendingCount == 0) {
 			
-			assertEq((top->iBusAxi_araddr & 3),0);
-			pendingCount = (1 << top->vexriscv_cached_mmu->iBus_cmd_payload_size)/4;
-			address = top->iBusAxi_araddr;
+			assertEq((top->ibus_axi_araddr & 3),0);
+			pendingCount = (1 << top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->iBus_cmd_payload_size)/4;
+			address = top->ibus_axi_araddr;
 		}
 		
 	}
 
 	virtual void postCycle(){
 		bool error;
-		top->iBusAxi_rvalid = 0;
+		top->ibus_axi_rvalid = 0;
 		if(pendingCount != 0 && (!ws->iStall || VL_RANDOM_I_WIDTH(7) < 100)){
 		    #ifdef IBUS_TC
             if((address & 0x70000000) == 0){
@@ -2070,15 +2072,15 @@ public:
             error = false;
             for(int idx = 0;idx < IBUS_DATA_WIDTH/32;idx++){
                 bool localError = false;
-			    ws->iBusAccess(address+idx*4,((uint32_t*)&top->iBusAxi_rdata)+idx,&localError);
+			    ws->iBusAccess(address+idx*4,((uint32_t*)&top->ibus_axi_rdata)+idx,&localError);
 			    error |= localError;
             }
-			top->iBusAxi_rresp = error;
+			top->ibus_axi_rresp = error;
 			pendingCount-=IBUS_DATA_WIDTH/32;
 			address = address + IBUS_DATA_WIDTH/8;
-			top->iBusAxi_rvalid = 1;
+			top->ibus_axi_rvalid = 1;
 		}
-		if(ws->iStall) top->iBusAxi_arready = VL_RANDOM_I_WIDTH(7) < 100 && pendingCount == 0;
+		if(ws->iStall) top->ibus_axi_arready = VL_RANDOM_I_WIDTH(7) < 100 && pendingCount == 0;
 	}
 };
 #endif
@@ -2106,7 +2108,7 @@ public:
 	uint32_t pendingWrites = 0;
 
 	Workspace *ws;
-	Vvexriscv_cached_mmu* top;
+	Vvexriscv_cpu_wrapper* top;
     DBusCachedTask rsp;
 
 	DBusCached(Workspace* ws){
@@ -2115,35 +2117,35 @@ public:
 	}
 
 	virtual void onReset(){
-		top->dBusAxi_arready = 0;
-		top->dBusAxi_rvalid = 0;
-		top->dBusAxi_wready = 0;
-		top->dBusAxi_awready= 0;
-		top->dBusAxi_bvalid = 0;
-		top->dBusAxi_bresp = 3;
+		top->dbus_axi_arready = 0;
+		top->dbus_axi_rvalid = 0;
+		top->dbus_axi_wready = 0;
+		top->dbus_axi_awready= 0;
+		top->dbus_axi_bvalid = 0;
+		top->dbus_axi_bresp = 3;
 	}
 
 	virtual void preCycle(){
-		if (top->dBusAxi_arvalid || top->dBusAxi_awvalid) {
-			top->dBusAxi_wready = 1;
-			top->dBusAxi_awready= 1;
-			if(top->dBusAxi_wvalid && top->dBusAxi_wready){
-                int size = 1 << top->vexriscv_cached_mmu->dBus_cmd_payload_size;
+		if (top->dbus_axi_arvalid || top->dbus_axi_awvalid) {
+			top->dbus_axi_wready = 1;
+			top->dbus_axi_awready= 1;
+			if(top->dbus_axi_wvalid && top->dbus_axi_wready){
+                int size = 1 << top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->dBus_cmd_payload_size;
                 bool error;
-                int shift = top->dBusAxi_araddr & (DBUS_STORE_DATA_WIDTH/8-1);
-                ws->dBusAccess(top->dBusAxi_araddr,1,size,((uint8_t*)&top->dBusAxi_wdata) + shift,&error);
+                int shift = top->dbus_axi_araddr & (DBUS_STORE_DATA_WIDTH/8-1);
+                ws->dBusAccess(top->dbus_axi_araddr,1,size,((uint8_t*)&top->dbus_axi_wdata) + shift,&error);
                 pendingWrites += 1;
-            } else if (top->dBusAxi_arready) {
+            } else if (top->dbus_axi_arready) {
                 bool error = false;
-                uint32_t beatCount = (((1 << top->vexriscv_cached_mmu->dBus_cmd_payload_size)*8+DBUS_LOAD_DATA_WIDTH-1) / DBUS_LOAD_DATA_WIDTH)-1;
-                uint32_t startAt = top->dBusAxi_araddr;
-                uint32_t endAt = top->dBusAxi_araddr + (1 << top->vexriscv_cached_mmu->dBus_cmd_payload_size);
-                uint32_t address = top->dBusAxi_araddr & ~(DBUS_LOAD_DATA_WIDTH/8-1);
+                uint32_t beatCount = (((1 << top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->dBus_cmd_payload_size)*8+DBUS_LOAD_DATA_WIDTH-1) / DBUS_LOAD_DATA_WIDTH)-1;
+                uint32_t startAt = top->dbus_axi_araddr;
+                uint32_t endAt = top->dbus_axi_araddr + (1 << top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->dBus_cmd_payload_size);
+                uint32_t address = top->dbus_axi_araddr & ~(DBUS_LOAD_DATA_WIDTH/8-1);
 				uint8_t buffer[64];
-                ws->dBusAccess(top->dBusAxi_araddr,0,1 << top->vexriscv_cached_mmu->dBus_cmd_payload_size,buffer, &error);
+                ws->dBusAccess(top->dbus_axi_araddr,0,1 << top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->dBus_cmd_payload_size,buffer, &error);
                 for(int beat = 0;beat <= beatCount;beat++){
                     for(int i = 0;i < DBUS_LOAD_DATA_WIDTH/8;i++){
-                        rsp.data[i] = (address >= startAt && address < endAt) ? buffer[address-top->dBusAxi_araddr] : VL_RANDOM_I_WIDTH(8);
+                        rsp.data[i] = (address >= startAt && address < endAt) ? buffer[address-top->dbus_axi_araddr] : VL_RANDOM_I_WIDTH(8);
                         address += 1;
                     }
                     rsp.last = beat == beatCount;
@@ -2152,38 +2154,38 @@ public:
                 }
             }
 		}
-		if(top->dBusAxi_bvalid && top->dBusAxi_bready) pendingWrites -= 1;
+		if(top->dbus_axi_bvalid && top->dbus_axi_bready) pendingWrites -= 1;
 	}
 
 	virtual void postCycle(){
 		if(!rsps.empty() && (!ws->dStall || VL_RANDOM_I_WIDTH(7) < 100)){
 			DBusCachedTask rsp = rsps.front();
 			rsps.pop();
-			top->dBusAxi_rvalid = 1;
-			top->dBusAxi_rresp = rsp.error;
+			top->dbus_axi_rvalid = 1;
+			top->dbus_axi_rresp = rsp.error;
             for(int idx = 0;idx < DBUS_LOAD_DATA_WIDTH/32;idx++){
-                ((uint32_t*)&top->dBusAxi_rdata)[idx] = ((uint32_t*)rsp.data)[idx];
+                ((uint32_t*)&top->dbus_axi_rdata)[idx] = ((uint32_t*)rsp.data)[idx];
             }
-			top->dBusAxi_rlast = rsp.last;
+			top->dbus_axi_rlast = rsp.last;
 		} else{
-			top->dBusAxi_rvalid = 0;
+			top->dbus_axi_rvalid = 0;
             for(int idx = 0;idx < DBUS_LOAD_DATA_WIDTH/32;idx++){
-			    ((uint32_t*)&top->dBusAxi_rdata)[idx] = VL_RANDOM_I_WIDTH(32);
+			    ((uint32_t*)&top->dbus_axi_rdata)[idx] = VL_RANDOM_I_WIDTH(32);
 			}
-			top->dBusAxi_rresp = VL_RANDOM_I_WIDTH(1);
-			top->dBusAxi_rlast = VL_RANDOM_I_WIDTH(1);
+			top->dbus_axi_rresp = VL_RANDOM_I_WIDTH(1);
+			top->dbus_axi_rlast = VL_RANDOM_I_WIDTH(1);
 		}
 
 		if(pendingWrites && (ws->dStall ? VL_RANDOM_I_WIDTH(7) < 100 : 1)){
-		    top->dBusAxi_bvalid = 1;
-		    top->dBusAxi_bresp = 0;
+		    top->dbus_axi_bvalid = 1;
+		    top->dbus_axi_bresp = 0;
 		} else{
-            top->dBusAxi_bvalid = 0;
-            top->dBusAxi_bresp = 2;
+            top->dbus_axi_bvalid = 0;
+            top->dbus_axi_bresp = 2;
 		}
-		top->dBusAxi_arready = (ws->dStall ? VL_RANDOM_I_WIDTH(7) < 100 : 1);
-        // top->dBusAxi_wready  = (ws->dStall ? VL_RANDOM_I_WIDTH(7) < 100 : 1);
-        top->dBusAxi_awready = top->dBusAxi_wready;
+		top->dbus_axi_arready = (ws->dStall ? VL_RANDOM_I_WIDTH(7) < 100 : 1);
+        // top->dbus_axi_wready  = (ws->dStall ? VL_RANDOM_I_WIDTH(7) < 100 : 1);
+        top->dbus_axi_awready = top->dbus_axi_wready;
 	}
 };
 #endif
@@ -2202,7 +2204,7 @@ public:
 	queue<DBusCachedAvalonTask> rsps;
 
 	Workspace *ws;
-	Vvexriscv_cached_mmu* top;
+	Vvexriscv_cpu_wrapper* top;
 	DBusCachedAvalon(Workspace* ws){
 		this->ws = ws;
 		this->top = ws->top;
@@ -2289,7 +2291,7 @@ struct DebugPluginTask{
 class DebugPlugin : public SimElement{
 public:
 	Workspace *ws;
-	Vvexriscv_cached_mmu* top;
+	Vvexriscv_cpu_wrapper* top;
 
 	int serverSocket, clientHandle;
 	struct sockaddr_in serverAddr;
@@ -2380,7 +2382,7 @@ public:
 	}
 
 	virtual void postCycle(){
-		top->reset = top->debug_resetOut;
+		top->rst = top->debug_rstOut;
 		if(timeSpacer == 0){
 			if(clientHandle == -1){
 				clientHandle = accept(serverSocket, (struct sockaddr *) &serverStorage, &addr_size);
@@ -2493,7 +2495,7 @@ public:
 class VexRiscvJtag : public SimElement{
 public:
 	Workspace *ws;
-	Vvexriscv_cached_mmu* top;
+	Vvexriscv_cpu_wrapper* top;
 
 	VexRiscvJtag(Workspace* ws){
 		this->ws = ws;
@@ -2598,9 +2600,9 @@ public:
 	}
 
 	virtual void checks(){
-		if(top->vexriscv_cached_mmu->lastStageRegFileWrite_valid == 1 && top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address != 0){
-			assertEq(top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address, regFileWriteRefArray[regFileWriteRefIndex][0]);
-			assertEq(top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data, regFileWriteRefArray[regFileWriteRefIndex][1]);
+		if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_valid == 1 && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address != 0){
+			assertEq(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address, regFileWriteRefArray[regFileWriteRefIndex][0]);
+			assertEq(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data, regFileWriteRefArray[regFileWriteRefIndex][1]);
 			//printf("%d\n",i);
 
 			regFileWriteRefIndex++;
@@ -2624,8 +2626,8 @@ public:
 	}
 
 	virtual void checks(){
-		if(top->vexriscv_cached_mmu->lastStageRegFileWrite_valid == 1 && top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address == 28){
-			assertEq(top->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data, ref[refIndex]);
+		if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_valid == 1 && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_address == 28){
+			assertEq(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageRegFileWrite_payload_data, ref[refIndex]);
 			//printf("%d\n",i);
 
 			refIndex++;
@@ -2646,20 +2648,20 @@ public:
 
 	virtual void postReset() {
 //		#ifdef CSR
-//		top->vexriscv_cached_mmu->prefetch_PcManagerSimplePlugin_pcReg = 0x80000000u;
+//		top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->prefetch_PcManagerSimplePlugin_pcReg = 0x80000000u;
 //		#else
 //		#endif
 	}
 
 	virtual void checks(){
-		if(top->vexriscv_cached_mmu->lastStageIsFiring && top->vexriscv_cached_mmu->lastStageInstruction == 0x00000013){
+		if(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageIsFiring && top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStageInstruction == 0x00000013){
 			uint32_t instruction;
 			bool error;
-			Workspace::mem.read(top->vexriscv_cached_mmu->lastStagePc, 4, (uint8_t*)&instruction);
-			//printf("%x => %x\n", top->vexriscv_cached_mmu->lastStagePc, instruction );
+			Workspace::mem.read(top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStagePc, 4, (uint8_t*)&instruction);
+			//printf("%x => %x\n", top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->lastStagePc, instruction );
 			if(instruction == 0x00000073){
-				uint32_t code = top->vexriscv_cached_mmu->RegFilePlugin_regFile[28];
-				uint32_t code2 = top->vexriscv_cached_mmu->RegFilePlugin_regFile[3];
+				uint32_t code = top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->RegFilePlugin_regFile[28];
+				uint32_t code2 = top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->RegFilePlugin_regFile[3];
 				if((code & 1) == 0 && (code2 & 1) == 0){
 					cout << "Wrong error code"<< endl;
 					fail();
@@ -2870,7 +2872,7 @@ public:
 		uint32_t debugAddress = 0xF00F0000;
 		uint32_t readValue;
 
-		while(resetDone != true){usleep(100);}
+		while(rstDone != true){usleep(100);}
 
 		while((readCmd(2,debugAddress) & RISCV_SPINAL_FLAGS_HALT) == 0){usleep(100);}
 		if((readValue = readCmd(2,debugAddress + 4)) != 0x8000000C){
@@ -2957,7 +2959,7 @@ public:
 
     virtual void postReset(){
         Workspace::postReset();
-        top->vexriscv_cached_mmu->DebugPlugin_debugUsed = 1;
+        top->vexriscv_cpu_wrapper->vexriscv_cached_mmu->DebugPlugin_debugUsed = 1;
     }
 };
 
