@@ -241,9 +241,6 @@ def main():
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-        if (args.m_count <= 16):
-            parser._actions[19].choices = range(1, (args.m_count - 1))
-            parser._actions[20].choices = range(1, (args.m_count - 1))
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
