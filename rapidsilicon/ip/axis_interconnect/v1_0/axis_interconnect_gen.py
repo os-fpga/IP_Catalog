@@ -126,7 +126,7 @@ def main():
     core_range_param_group = parser.add_argument_group(title="Core Range Parameters")
     core_range_param_group.add_argument("--s_count",     type=int,   default=4,    choices=range(2,17),       help="Slave Interfaces.")
     core_range_param_group.add_argument("--m_count",     type=int,   default=4,    choices=range(1,17),       help="Master Interfaces.")
-    core_range_param_group.add_argument("--id_width",    type=int,   default=8,    choices=range(1, 9),      help="ID Width.")
+    core_range_param_group.add_argument("--id_width",    type=int,   default=8,    choices=range(1, 17),      help="ID Width.")
     core_range_param_group.add_argument("--dest_width",  type=int,   default=8,    choices=range(1, 9),      help="Destination Width.")
     core_range_param_group.add_argument("--user_width",  type=int,   default=1,    choices=range(1, 1025),    help="User Width.")
 
