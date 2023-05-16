@@ -193,8 +193,8 @@ def main():
 
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Slave Interfaces")
     core_range_param_group.add_argument("--m_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Master Interfaces")
-    core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,17),    help="SWITCH Output interface routing base")
-    core_range_param_group.add_argument("--m_top",          type=int,   default=0,  choices=range(0,17),    help="SWITCH Output interface routing top")
+    core_range_param_group.add_argument("--m_base",         type=int,   default=0,  choices=range(0,16),    help="SWITCH Output interface routing base")
+    core_range_param_group.add_argument("--m_top",          type=int,   default=0,  choices=range(0,16),    help="SWITCH Output interface routing top")
 
     # Build Parameters
     build_group = parser.add_argument_group(title="Build parameters")
