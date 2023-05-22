@@ -54,7 +54,7 @@ class RS_DSP_Wrapper(Module):
             z_width = a_width + b_width
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             if ((a_width >= 0 and a_width <=20) and (b_width >= 0 and b_width <=18)):
-                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, equation, reg_in, reg_out, unsigned, delay_b)
+                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, equation, reg_in, reg_out, unsigned)
             else:
                 if(feature == "Base"):
                     if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
