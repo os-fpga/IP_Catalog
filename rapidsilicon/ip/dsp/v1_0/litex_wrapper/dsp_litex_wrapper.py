@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT(Module):
-    def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned ):
+    def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned):
 
         # Get Parameters.
         # ---------------------        
@@ -4779,7 +4779,7 @@ class RS_DSP_MULT36_enhance(Module):
 
 # # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT54_enhance(Module):
-    def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned, ):
+    def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned):
 
         # Get Parameters.
         # ---------------------        

@@ -37,9 +37,13 @@ def get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_wid
         ("h",   0, Pins(h_width)),
         ("z",   0, Pins(z_width)),
     ]
+def del_b(b_width):
+    return [
+        ("delay_b",   0,  Pins(b_width))
+    ]
 
 class RS_DSP_Wrapper(Module):
-    def __init__(self, platform, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, equation, reg_in, reg_out, unsigned, feature):
+    def __init__(self, platform, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, equation, reg_in, reg_out, unsigned, feature, delay_b):
     
     # Clocking
         self.clock_domains.cd_sys = ClockDomain()
@@ -50,7 +54,7 @@ class RS_DSP_Wrapper(Module):
             z_width = a_width + b_width
             platform.add_extension(get_ios(a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, z_width))
             if ((a_width >= 0 and a_width <=20) and (b_width >= 0 and b_width <=18)):
-                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, equation, reg_in, reg_out, unsigned)
+                self.submodules.dsp = dsp = RS_DSP_MULT(a_width, b_width, equation, reg_in, reg_out, unsigned, delay_b)
             else:
                 if(feature == "Base"):
                     if ((a_width > 54 and a_width <=72) or (b_width > 54 and b_width <=72)):
@@ -140,6 +144,9 @@ class RS_DSP_Wrapper(Module):
             self.sync += platform.request("z").eq(dsp.z)
         else:
             self.comb += platform.request("z").eq(dsp.z)
+        if (delay_b):
+            platform.add_extension(del_b(b_width))
+            self.comb += platform.request("delay_b").eq(dsp.delay_b)
         
 def main():
     # DSP CORE -------------------------------------------------------------------------------------
@@ -178,6 +185,7 @@ def main():
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
     core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
+    core_bool_param_group.add_argument("--delay_b",  type=bool,    default=False,     help="Delayed output of B input")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -256,7 +264,8 @@ def main():
         reg_in      = args.reg_in,
         reg_out     = args.reg_out,
         unsigned    = args.unsigned,
-        equation    = args.equation
+        equation    = args.equation,
+        delay_b     = args.delay_b
     )
     
     # Build Project --------------------------------------------------------------------------------
