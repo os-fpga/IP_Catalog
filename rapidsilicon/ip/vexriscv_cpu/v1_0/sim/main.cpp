@@ -3957,7 +3957,7 @@ int main(int argc, char **argv, char **env) {
 	cout << endl << "****************************************************************" << endl;
 	cout << "Had simulate " << Workspace::cycles << " clock cycles in " << duration*1e-9 << " s (" << Workspace::cycles / (duration*1e-6) << " Khz)" << endl;
 	if(Workspace::successCounter == Workspace::testsCounter)
-		cout << "REGRESSION SUCCESS " << Workspace::successCounter << "/" << Workspace::testsCounter << endl;
+		cout << "Simulation Passed " << Workspace::successCounter << "/" << Workspace::testsCounter << endl;
 	else
 		cout<< "REGRESSION FAILURE " << Workspace::testsCounter - Workspace::successCounter << "/"  << Workspace::testsCounter << endl;
 	cout << "****************************************************************" << endl << endl;

@@ -212,6 +212,19 @@ def main():
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        if(args.m_count):
+            if (args.m_count == 1):
+                parser._actions[12].choices = range(1, 17)
+            else:
+                parser._actions[12].choices = range(1, math.floor(31/args.m_count) + 1)
+            parser._actions[15].choices = range(0, args.m_count)
+            parser._actions[14].choices = range(0, args.m_count)
+        if(args.s_count):
+            if (args.s_count == 1):
+                parser._actions[13].choices = range(1, 17)
+            else:
+                parser._actions[13].choices = range(1, math.floor(31/args.s_count) + 1)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -219,6 +232,14 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    
+    m_base = args.m_base
+    m_top = args.m_top
+    if (m_base >= args.m_count):
+        m_base = 0
+    if (m_top >= args.m_count):
+        m_top = 0
+
     module   = AXISTREAMSWITCHWrapper(platform,
         s_count                 = args.s_count, 
         m_count                 = args.m_count, 
@@ -228,8 +249,8 @@ def main():
         m_dest_width            = args.m_dest_width,
         user_enable             = args.user_en,
         user_width              = args.user_width,
-        m_base                  = args.m_base,
-        m_top                   = args.m_top,
+        m_base                  = m_base,
+        m_top                   = m_top,
         update_tid              = args.tid,
         s_reg_type              = args.s_reg_type,
         m_reg_type              = args.m_reg_type,
