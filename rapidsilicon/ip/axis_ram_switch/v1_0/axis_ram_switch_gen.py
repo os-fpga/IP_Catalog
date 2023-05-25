@@ -241,6 +241,19 @@ def main():
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        if(args.m_count):
+            if (args.m_count == 1):
+                parser._actions[17].choices = range(1, 17)
+            else:
+                parser._actions[17].choices = range(1, math.floor(31/args.m_count) + 1)
+            parser._actions[20].choices = range(0, args.m_count)
+            parser._actions[19].choices = range(0, args.m_count)
+        if(args.s_count):
+            if (args.s_count == 1):
+                parser._actions[18].choices = range(1, 17)
+            else:
+                parser._actions[18].choices = range(1, math.floor(31/args.s_count) + 1)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -248,6 +261,14 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+
+    m_base = args.m_base
+    m_top = args.m_top
+    if (m_base >= args.m_count):
+        m_base = 0
+    if (m_top >= args.m_count):
+        m_top = 0
+        
     module   = AXISTREAMRAMSWITCHWrapper(platform,
         fifo_depth              = args.fifo_depth,
         cmd_fifo_depth          = args.cmd_fifo_depth,
@@ -265,8 +286,8 @@ def main():
         user_bad_frame_mask     = args.bad_frame_mask,
         drop_bad_frame          = args.drop_bad_frame,
         drop_when_full          = args.drop_when_full,
-        m_base                  = args.m_base,
-        m_top                   = args.m_top,
+        m_base                  = m_base,
+        m_top                   = m_top,
         update_tid              = args.tid,
         arb_type_round_robin    = args.type_round_robin,
         arb_lsb_high_priority   = args.lsb_high_priority,
