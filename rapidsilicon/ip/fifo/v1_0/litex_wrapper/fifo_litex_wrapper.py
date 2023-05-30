@@ -142,45 +142,39 @@ class FIFO(Module):
                 )
                 j = data + j
 
-        # Writing to FIFOs
-        for n in range(instances):
-            if (n > 0):
+        # Writing and Reading to FIFOs
+            if (k > 0):
                 self.comb += [
                     If(self.wren,
-                        If(~self.full1[n],
-                            If(self.full1[n - 1],
-                                self.wren1[n].eq(1)
+                        If(~self.full1[k],
+                            If(self.full1[k - 1],
+                                self.wren1[k].eq(1)
                                 )
                             )
                         )
                 ]
-            else:
-                self.comb += [
-                    If(self.wren,
-                       If(~self.full1[n],
-                            self.wren1[n].eq(1)
-                            )
-                        )
-                ]
-        
-        # Reading from FIFOs
-        for n in range(instances):
-            if (n > 0):
                 self.comb += [
                     If(self.rden,
-                       If(~self.empty1[n],
-                          If(self.empty1[n - 1],
-                             self.rden1[n].eq(1),
-                             self.dout.eq(self.dout1[n]))
+                       If(~self.empty1[k],
+                          If(self.empty1[k - 1],
+                             self.rden1[k].eq(1),
+                             self.dout.eq(self.dout1[k]))
                           )
                        )
                 ]
             else:
                 self.comb += [
+                    If(self.wren,
+                       If(~self.full1[k],
+                            self.wren1[k].eq(1)
+                            )
+                        )
+                ]
+                self.comb += [
                     If(self.rden,
-                       If(~self.empty1[n],
-                          self.rden1[n].eq(1),
-                             self.dout.eq(self.dout1[n])
+                       If(~self.empty1[k],
+                          self.rden1[k].eq(1),
+                             self.dout.eq(self.dout1[k])
                        )
                     )
                 ]
