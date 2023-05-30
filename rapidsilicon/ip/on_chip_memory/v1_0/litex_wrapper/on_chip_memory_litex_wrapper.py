@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 # On Chip Memory ------------------------------------------------------------------------------------------
 class OCM(Module):
-    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram):
+    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
 
         # Get/Check Parameters.
         # ---------------------
@@ -111,6 +111,165 @@ class OCM(Module):
         
         # BRAM Utilization Logic
         if (bram == 1):
+            
+            if (file_path == ""):
+                init_i = Instance.PreformattedParam("36864'bx")
+            else:
+                with open(file_path, "r") as f:
+                    binary1 = []
+                    array1 = [] # contain bits less than 18
+                    array2 = [] # contain bits greater than 18
+                    file_content = f.readlines()
+                    line_count = 0
+                    for line in file_content:
+                        line_count += 1
+                        if (file_extension == ".hex"):
+                            mem_file_data = int(line.strip(), 16)
+                            binary = format(mem_file_data, 'b') # integer to binary conversion
+                        elif (file_extension == ".init"):
+                            mem_file_data = int(line.strip(), 2)
+                            binary = format(mem_file_data, 'b')
+                        binary1.append(binary)
+                    if (write_depth <= 1024):
+                        if (data_width > 8):
+                            for i in range(line_count):
+                                if len(binary1[i]) < 36:
+                                    binary1[i] = '0' * (36 - len(binary1[i])) + binary1[i]
+                                array1.append((binary1[i][0:18]))
+                                array2.append((binary1[i][18:37]))
+                            msb2 = "".join(array1[::-1])
+                            lsb1 = "".join(array2[::-1])
+                            result = msb2 + lsb1
+                        else:
+                            for i in range(0, line_count-1):
+                                if len(binary1[i]) < 8:
+                                    binary1[i] = '0' * (8 - len(binary1[i])) + binary1[i]
+                                if len(binary1[i+1]) < 8:
+                                    binary1[i+1] = '0' * (8 - len(binary1[i+1])) + binary1[i+1]
+                                array1.append('xx' + binary1[i+1][0:8] + binary1[i][0:8])
+                            # handle last element separately
+                            if len(binary1[-1]) < 8:
+                                binary1[-1] = '0' * (8 - len(binary1[-1])) + binary1[-1]
+                                array1.append('xx' + binary1[-1][0:8])
+                                # array1.append((binary1[i][0:9]))
+                                # array1.append()
+                            # array1.sort(reverse=True)
+                            msb2 = "".join(array1[::-1])
+                            print(len(msb2))
+                            if (len(msb2) < 36864):
+                                result = 'x'*(36864-len(msb2)) + msb2
+                    elif (write_depth > 1024 and write_depth <= 2048):
+                        for i in range(line_count):
+                            binary1[i] = '0' * (36 - len(binary1[i])) + binary1[i]
+                            array1.append((binary1[i][0:18]))
+                            array2.append((binary1[i][18:37]))
+                        print("hello", binary1[i][18:37],"array1: ", array1,"array2: ", array2)
+                        result = 1
+                    # print(array1)
+                    # if len(array1[i]) < 18:
+                        # array1[i] = '0' * (18 - len(array1[i])) + array1[i]
+                        
+                    
+                    # msb2 = "".join(array1[::-1])
+                    # lsb1 = "".join(array2[::-1])
+                
+                # for i in range(len(array1)):
+                    # if array1[i] == '000000000000000000':  # Check if the value at index i is zero
+                        # array1[i] = 'xxxxxxxxxxxxxxxxxx'  # Replace zero with the given value 'x'
+                        
+                    # if len(array1[i]) < 18:
+                        # array1[i] = '0' * (18 - len(array1[i])) + array1[i]
+                # 
+                # for i in range(len(array2)):
+                    # if array2[i] == '000000000000000000':  # Check if the value at index i is zero
+                        # array2[i] = 'xxxxxxxxxxxxxxxxxx'  # Replace zero with the given value 'x'
+                    
+                    # if len(array2[i]) < 18:
+                        # array2[i] = '0' * (18 - len(array2[i])) + array2[i]
+                    
+                
+                    
+                init_i = Instance.PreformattedParam("36864'b{}".format(result))
+                    # print(array1[i])  
+                # print(lsb1)
+                # print(msb2)
+                    # init_i=str(joined_data_list)
+                    # if (bits) >= 18:
+                    #     if array1 == '':
+                    #         array1.append('0'*18)
+                    #     else:
+                    #         # extract the first 18 bits of data and add to array1
+                    #         array1.append((binary[0:18]))
+                    #     if array2 == '':
+                    #         array2.append('0'*18)
+                    #     else:
+                    #         # extract the next 18 bits of data and add to array2
+                    #         arra000000001011110001101010111100110111y2.append((binary[18:37]))
+                    # else:
+                
+                # init_i=0
+                # print("LSB: ",array2)
+                # print("MSB: ",array1)
+                
+                # print(array1_len)
+                # print(array2_len)
+                    
+                    # start writing data from right
+                    # print("out ", output_str)
+                    # print(f"\nInit_data: {output_str}")
+                    # mem_file_data = int(line.strip(), 16)
+                    
+                    # bits = mem_file_data
+                # even_lines = []
+                # odd_lines = []
+                # # iterate through the lines in the file
+                # for index, line in enumerate(file_content):
+                #     # check if the line number is even or odd
+                #     if index % 2 == 0:
+                #         # if the line number is even, append the line to the even_lines array
+                #         even_lines.append(line.strip())
+                #     else:
+                #         # if the line number is odd, append the line to the odd_lines array
+                #         odd_lines.append(line.strip())
+                        
+                # # print(even_lines)
+                # # print(odd_lines)
+                
+                    # if bytes < 18:
+                    #     a = 0 * (9 - bytes) + mem_file_data
+                    # print('\n\nmy mem data: ', hex(line), format(mem_file_data, "b")) 
+                    # print(line + "\n")
+                    # # print(f"Bytes: {bytes}")
+                    # print("bytes: ", bytes)
+                    # init_data += ""+ format(a, "b")
+                    
+                    
+                # init_i = Instance.PreformattedParam("36864'b{}".format(output_str))
+                
+                    # byte_string = mem_file_data.to_bytes(16 ,'little')
+                    # # print (hex(mem_file_data))
+                    # # print (byte_string)
+                    # # Create a BytesIO object from the byte string
+                    # memory_file = io.BytesIO(byte_string)
+                    # # print(memory_file)
+                    # # Read the data from the memory file in chunks of 10 bytes
+                    # chunk_size = data_width
+                    # # chunk_size = len(self.addr_A)
+                    # chunk1 = memory_file.read(chunk_size)
+                
+                    # chunk2 = memory_file.read(chunk_size)
+                    # chunk3 = memory_file.read(chunk_size)
+                    # chunk4 = memory_file.read(chunk_size)
+                    # chunk5 = memory_file.read(chunk_size)
+        
+                    # Print the chunks of data
+                    # print(chunk1) # b'This is so'
+                    # print(chunk2) # b'me data t'
+                    # print(chunk3) # b'hat I wan'
+                    # print(chunk4) # b't to read '
+                    # print(chunk5)
+            
+            
             # Number of Data Out Ports from BRAMS
             self.bram_out_A = [Signal(36*n) for i in range(m)]
             self.bram_out_B = [Signal(36*n) for i in range(m)]
@@ -459,7 +618,7 @@ class OCM(Module):
                     # Mode Bits Calculations
                     mode = int ("0{}{}{}{}00000000000000000000000000000{}{}{}{}00000000000000000000000000{}".format(r_mode_a1, r_mode_b1, w_mode_a1, w_mode_b1, r_mode_a2, r_mode_b2, w_mode_a2, w_mode_b2, split))
                     mode_bits = Instance.PreformattedParam("81'b{:d}".format(mode))
-                    init_i = Instance.PreformattedParam("36864'hx")
+                    # init_i = Instance.PreformattedParam("36864'hx")
                     
                     for j in range(m):
                         if (write_depth == 1024):
@@ -475,9 +634,9 @@ class OCM(Module):
                                     write_data_A1   = self.din_A[(j*36):((j*36)+18)]
                                     write_data_A2   = self.din_A[((j*36)+18):((j*36)+36)]
 
-                            if (write_depth == 2048):
-                                    write_data_A1 = self.din_A[(j*18):((j*18)+18)]
-                                    write_data_A2 = 0
+                        elif (write_depth == 2048):
+                                write_data_A1 = self.din_A[(j*18):((j*18)+18)]
+                                write_data_A2 = 0
                             
                         elif (write_depth == 4096):
                             if data_width > 8:
@@ -766,7 +925,7 @@ class OCM(Module):
                                     write_data_A1   = self.din_A[(j*36):((j*36)+18)]
                                     write_data_A2   = self.din_A[((j*36)+18):((j*36)+36)]
                                     
-                        if (write_depth == 2048):
+                        elif (write_depth == 2048):
                                 write_data_A1 = self.din_A[(j*18):((j*18)+18)]
                                 write_data_A2 = 0
                             
@@ -1111,7 +1270,7 @@ class OCM(Module):
                                     write_data_B1   = self.din_B[(j*36):((j*36)+18)]
                                     write_data_B2   = self.din_B[((j*36)+18):((j*36)+36)]
                                     
-                        if (write_depth == 2048):
+                        elif (write_depth == 2048):
                                 write_data_A1 = self.din_A[(j*18):((j*18)+18)]
                                 write_data_A2 = 0
                                 write_data_B1 = self.din_B[(j*18):((j*18)+18)]
