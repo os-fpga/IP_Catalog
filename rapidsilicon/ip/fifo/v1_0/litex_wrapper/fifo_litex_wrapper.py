@@ -149,32 +149,35 @@ class FIFO(Module):
                         If(~self.full1[k],
                             If(self.full1[k - 1],
                                 self.wren1[k].eq(1)
-                                )
                             )
                         )
+                    )
                 ]
                 self.comb += [
                     If(self.rden,
                        If(~self.empty1[k],
                           If(self.empty1[k - 1],
                              self.rden1[k].eq(1),
-                             self.dout.eq(self.dout1[k]))
-                          )
-                       )
+                             self.dout.eq(self.dout1[k]
+                                )
+                            )
+                        )
+                    )
                 ]
             else:
                 self.comb += [
                     If(self.wren,
                        If(~self.full1[k],
                             self.wren1[k].eq(1)
-                            )
                         )
+                    )
                 ]
                 self.comb += [
                     If(self.rden,
                        If(~self.empty1[k],
                           self.rden1[k].eq(1),
-                             self.dout.eq(self.dout1[k])
+                             self.dout.eq(self.dout1[k]
+                            )
                        )
                     )
                 ]
