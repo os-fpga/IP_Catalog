@@ -29,6 +29,13 @@ def divide_n_bit_number(number):
     
     return buses
 
+def generate_nested_if_statements(signals, index, signal):
+    if (index == len(signals) - 1):
+        return If(signals[index], signal.eq(1))
+    else:
+        return If(signals[index], generate_nested_if_statements(signals, index + 1, signal))
+
+
 # AXIS_SWITCH ---------------------------------------------------------------------------------------
 class FIFO(Module):
     def __init__(self, platform, data_width, common_clk, sync_fifo, full_threshold, empty_threshold, depth):
@@ -52,6 +59,9 @@ class FIFO(Module):
         memory = math.ceil(size_bram / len(maximum))
 
         instances = math.ceil(depth / memory)
+        counter = depth - (instances - 1)*memory
+
+        self.counter = Signal(math.ceil(math.log2(counter) + 1), reset=0)
 
         self.din    = Signal(data_width)
         self.dout   = Signal(data_width)
@@ -61,38 +71,36 @@ class FIFO(Module):
         self.empty          = Signal()  
         self.full           = Signal()   
         self.underflow      = Signal()  
-        self.overflow       = Signal()   
-        self.almost_empty   = Signal()   
-        self.almost_full    = Signal()    
+        self.overflow       = Signal() 
         self.prog_full      = Signal()  
         self.prog_empty     = Signal()
 
-        self.rden1          = Array(Signal() for _ in range(instances))
-        self.wren1          = Array(Signal() for _ in range(instances))
-        self.empty1         = Array(Signal() for _ in range(instances))
-        self.full1          = Array(Signal() for _ in range(instances))
-        self.underflow1     = Array(Signal() for _ in range(instances))
-        self.overflow1      = Array(Signal() for _ in range(instances))
-        self.almost_empty1  = Array(Signal() for _ in range(instances))
-        self.almost_full1   = Array(Signal() for _ in range(instances))
-        self.prog_full1     = Array(Signal() for _ in range(instances))
-        self.prog_empty1    = Array(Signal() for _ in range(instances))
-        self.dout1          = Array(Signal() for _ in range(instances))
+        self.rden_int           = Array(Signal() for _ in range(instances))
+        self.wren_int           = Array(Signal() for _ in range(instances))
+        self.empty_int          = Array(Signal() for _ in range(instances))
+        self.full_int           = Array(Signal() for _ in range(instances))
+        self.almost_empty_int   = Array(Signal() for _ in range(instances))
+        self.almost_full_int    = Array(Signal() for _ in range(instances))
+        self.prog_full_int      = Array(Signal() for _ in range(instances))
+        self.prog_empty_int     = Array(Signal() for _ in range(instances))
+        self.dout_int           = Array(Signal() for _ in range(instances))
+        self.underflow_int      = Array(Signal() for _ in range(instances))
+        self.overflow_int       = Array(Signal() for _ in range(instances))
 
         for k in range(instances):
             j = 0
 
-            self.rden1[k]           = Signal(name=f"rden1_{k}")
-            self.wren1[k]           = Signal(name=f"wren1_{k}")
-            self.empty1[k]          = Signal(name=f"empty1_{k}")  
-            self.full1[k]           = Signal(name=f"full1_{k}")   
-            self.underflow1[k]      = Signal(name=f"underflow1_{k}")  
-            self.overflow1[k]       = Signal(name=f"overflow1_{k}")   
-            self.almost_empty1[k]   = Signal(name=f"almost_empty1_{k}")   
-            self.almost_full1[k]    = Signal(name=f"almost_full1_{k}")    
-            self.prog_full1[k]      = Signal(name=f"prog_full1_{k}")  
-            self.prog_empty1[k]     = Signal(name=f"prog_empty1_{k}")
-            self.dout1[k]           = Signal(data_width, name=f"dout1_{k}")
+            self.rden_int[k]           = Signal(name=f"rden_int_{k}")
+            self.wren_int[k]           = Signal(name=f"wren_int_{k}")
+            self.empty_int[k]          = Signal(name=f"empty_int_{k}")  
+            self.full_int[k]           = Signal(name=f"full_int_{k}")
+            self.prog_full_int[k]      = Signal(name=f"prog_full_int_{k}")  
+            self.prog_empty_int[k]     = Signal(name=f"prog_empty_int_{k}")
+            self.almost_empty_int[k]   = Signal(name=f"almost_empty_int_{k}")
+            self.almost_full_int[k]    = Signal(name=f"almost_full_int_{k}")
+            self.dout_int[k]           = Signal(data_width, name=f"dout_int_{k}")
+            self.underflow_int[k]      = Signal(name=f"underflow_int_{k}")
+            self.overflow_int[k]       = Signal(name=f"overflow_int_{k}")
 
             for i, bus in enumerate(buses):
                 if (len(bus) <= 2):
@@ -126,39 +134,39 @@ class FIFO(Module):
                     # AXI Input
                     # -----------------
                     i_WR_DATA       = self.din[j:data + j],
-                    i_RDEN          = self.rden1[k],
-                    i_WREN          = self.wren1[k],
+                    i_RDEN          = self.rden_int[k],
+                    i_WREN          = self.wren_int[k],
 
                     # AXI Output      
-                    o_RD_DATA       = self.dout1[k][j:data + j],
-                    o_EMPTY         = self.empty1[k],
-                    o_FULL          = self.full1[k],
-                    o_UNDERFLOW     = self.underflow1[k],
-                    o_OVERFLOW      = self.overflow1[k],
-                    o_ALMOST_EMPTY  = self.almost_empty1[k],
-                    o_ALMOST_FULL   = self.almost_full1[k],
-                    o_PROG_FULL     = self.prog_full1[k],
-                    o_PROG_EMPTY    = self.prog_empty1[k]
+                    o_RD_DATA       = self.dout_int[k][j:data + j],
+                    o_EMPTY         = self.empty_int[k],
+                    o_FULL          = self.full_int[k],
+                    o_UNDERFLOW     = self.underflow_int[k],
+                    o_OVERFLOW      = self.overflow_int[k],
+                    o_ALMOST_EMPTY  = self.almost_empty_int[k],
+                    o_ALMOST_FULL   = self.almost_full_int[k],
+                    o_PROG_FULL     = self.prog_full_int[k],
+                    o_PROG_EMPTY    = self.prog_empty_int[k]
                 )
                 j = data + j
 
-        # Writing and Reading to FIFOs
+            # Writing and Reading to FIFOs
             if (k > 0):
                 self.comb += [
                     If(self.wren,
-                        If(~self.full1[k],
-                            If(self.full1[k - 1],
-                                self.wren1[k].eq(1)
+                        If(~self.full_int[k],
+                            If(self.full_int[k - 1],
+                                self.wren_int[k].eq(1)
                             )
                         )
                     )
                 ]
                 self.comb += [
                     If(self.rden,
-                       If(~self.empty1[k],
-                          If(self.empty1[k - 1],
-                             self.rden1[k].eq(1),
-                             self.dout.eq(self.dout1[k]
+                       If(~self.empty_int[k],
+                          If(self.empty_int[k - 1],
+                             self.rden_int[k].eq(1),
+                             self.dout.eq(self.dout_int[k]
                                 )
                             )
                         )
@@ -167,20 +175,58 @@ class FIFO(Module):
             else:
                 self.comb += [
                     If(self.wren,
-                       If(~self.full1[k],
-                            self.wren1[k].eq(1)
+                       If(~self.full_int[k],
+                            self.wren_int[k].eq(1)
                         )
                     )
                 ]
                 self.comb += [
                     If(self.rden,
-                       If(~self.empty1[k],
-                          self.rden1[k].eq(1),
-                             self.dout.eq(self.dout1[k]
+                       If(~self.empty_int[k],
+                          self.rden_int[k].eq(1),
+                             self.dout.eq(self.dout_int[k]
                             )
-                       )
+                        )
                     )
                 ]
+
+            # Checking if the FIFO is full
+            if (k == instances - 1):
+                self.sync += [
+                If(self.counter == counter,
+                   self.counter.eq(0),
+                   self.wren_int[k].eq(0)
+                   )
+                ]
+                self.sync += [
+                    If(self.wren_int[k],
+                        self.counter.eq(self.counter + 1)
+                        )
+                ]
+        self.comb += self.full.eq(Mux(self.counter == counter, 1, 0))
+
+        # Checking for Overflow in FIFO
+        self.comb += [
+            If(self.wren,
+               If(self.full,
+                  self.overflow.eq(1)
+                )
+            )
+        ]
+
+            
+        # Checking if the FIFO is empty
+        self.comb += generate_nested_if_statements(self.empty_int, 0, self.empty)
+
+        # Checking for underflow in FIFO
+        self.comb += [
+            If(self.rden,
+               If(self.empty,
+                  self.underflow.eq(1)
+                )
+            )
+        ]
+
 
         # Add Sources.
         # ------------

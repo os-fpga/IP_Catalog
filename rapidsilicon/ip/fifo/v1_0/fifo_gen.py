@@ -35,8 +35,6 @@ def get_clkin_ios(data_width):
         ("empty",       0,  Pins(1)),
         ("underflow",   0,  Pins(1)),
         ("overflow",    0,  Pins(1)),
-        ("almost_empty",0,  Pins(1)),
-        ("almost_full", 0,  Pins(1)),
         ("prog_full",   0,  Pins(1)),
         ("prog_empty",  0,  Pins(1))
     ]
@@ -65,8 +63,6 @@ class FIFOWrapper(Module):
         self.comb += fifo.rden.eq(platform.request("rd_en"))   
         self.comb += platform.request("full").eq(fifo.full)
         self.comb += platform.request("empty").eq(fifo.empty)
-        self.comb += platform.request("almost_empty").eq(fifo.almost_empty)
-        self.comb += platform.request("almost_full").eq(fifo.almost_full)
         self.comb += platform.request("underflow").eq(fifo.underflow)
         self.comb += platform.request("overflow").eq(fifo.overflow)        
             
