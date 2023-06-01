@@ -158,13 +158,56 @@ class OCM(Module):
                             print(len(msb2))
                             if (len(msb2) < 36864):
                                 result = 'x'*(36864-len(msb2)) + msb2
-                    elif (write_depth > 1024 and write_depth <= 2048):
+                    elif (write_depth == 2048):
+                        if (data_width > 8):
+                            for i in range(line_count):
+                                # print(len(binary1[i]))
+                                if len(binary1[i]) < 18:
+                                    binary1[i] = '0' * (18 - len(binary1[i])) + binary1[i]
+                                if i % 2 == 0:
+                                    # Even location data
+                                    array1.append(binary1[i])
+                                else:
+                                    # Odd location data
+                                    array2.append(binary1[i])
+                            # print(array1)
+                            # print(array2)
+                            bram1 = "".join(array1[::-1])
+                            bram2 = "".join(array2[::-1])
+                            result = bram2 + bram1
+                            
+                            
+                    elif (write_depth == 4096):
+                        # if (data_width > 8):
                         for i in range(line_count):
-                            binary1[i] = '0' * (36 - len(binary1[i])) + binary1[i]
-                            array1.append((binary1[i][0:18]))
-                            array2.append((binary1[i][18:37]))
-                        print("hello", binary1[i][18:37],"array1: ", array1,"array2: ", array2)
-                        result = 1
+                            print(len(binary1[i]))
+                            if len(binary1[i]) < 9:
+                                binary1[i] = '0' * (9 - len(binary1[i])) + binary1[i]
+                                
+                                print(binary1[i])
+                            # if i % 2 == 0:
+                                # Even location data
+                            array1.append(binary1[i])
+                            # else:
+                                # Odd location data
+                            array2.append(binary1[i])
+                        # print(array1)
+                        # print(array2)
+                        bram1 = "".join(array1[::-1])
+                        bram2 = "".join(array2[::-1])
+                        result = bram2 + bram1
+                        
+                        
+                    
+                        # print(len(bram1), len(array1),)
+                        # if (len(bram1) < 36864):
+                        #         result = 'x' * (36864-len(bram1)) + bram1
+                                
+
+                        # bram2 = "".join(array2[::-1])
+                        
+                        # print("hello", i, i+1, bram1)
+                        # result = 1
                     # print(array1)
                     # if len(array1[i]) < 18:
                         # array1[i] = '0' * (18 - len(array1[i])) + array1[i]
