@@ -112,14 +112,32 @@ def main():
 
     args = parser.parse_args()
 
+
+    details =  {   "IP details": {
+    'Name' : 'axi_asynchronus_fifo',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'The AXI Async FIFO is an AXI full compliant customize-able asynchronous FIFO. It can be used to store and retrieve ordered data at different clock domains, while using optimal resources.'}}
+
+
+    summary =  { 
+    "AXI Data width programmed": 32,
+    "AXI ID width programmed": 4,
+    "Memory Type selected": "Single Dual Port",
+    "Number of Brams 36k utilized": 5
+  }
+
+
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
-        
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict , summary=summary)
+    #Exporting Details.json
+        rs_builder.import_ip_details_json(json_filename=args.json, details=details)
 
 
     # Create Wrapper -------------------------------------------------------------------------------
