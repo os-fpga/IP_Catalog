@@ -14,7 +14,7 @@ These are the parameters for FIFO core along with their keyword and values: -
 |   1.   |   DATA_WIDTH               |     data_width             |    1 - 128   |
 |   2.   |   DEPTH               |     depth             |    2 - 32768   |
 |   3.   |   FULL_THRESHOLD           |     full_threshold     |    1 - 4094     |
-|   4.   |   EMPTY_THRESHOLD        |     emptyh_threshold        |    0 - 4094     |
+|   4.   |   EMPTY_THRESHOLD        |     empty_threshold        |    0 - 4094     |
 |   5.   |   COMMON_CLK               |     common_clk             |    0 / 1     |
 |   6.   |   SYNC_FIFO             |     sync_fifo           |    0 / 1     |
 |   7.  |   DRAM                    |   dram                |   0 / 1   |
