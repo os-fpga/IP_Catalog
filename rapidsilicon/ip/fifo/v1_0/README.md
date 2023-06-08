@@ -1,46 +1,33 @@
-# AXI STREAM SWITCH Core Generation 
+# FIFO Core Generation 
 ## Introduction
 
-AXIS-SWITCH is an AXI Stream based IP core.
-
-For more information, visit: http://alexforencich.com/wiki/en/verilog/axis/start
+This is a customizable FIFO Core module with various different parameters and features a list of which is given below.
 
 ## Generator Script
-This directory contains the generator script which places the RTL to `rapidsilicon/ip/axis_switch/v1_0/<build-name>/src/` directory and generates its wrapper in the same directory. 
+This directory contains the generator script which places the RTL to `rapidsilicon/ip/fifo/v1_0/<build-name>/src/` directory and generates its wrapper in the same directory. 
 
 ## Parameters
-These are the parameters for AXIS-SWITCH core along with their keyword and values: -
+These are the parameters for FIFO core along with their keyword and values: -
 
 | Sr.No. |      Parameter             |       Keyword              |    Value      |
 |--------|----------------------------|----------------------------|---------------|
-|   1.   |   DATA_WIDTH               |     data_width             |    1 - 4096   |
-|   2.   |   USER_WIDTH               |     user_width             |    1 - 4096   |
-|   3.   |   S_COUNT                  |     s_count                |    1 - 16     |
-|   4.   |   M_COUNT                  |     m_count                |    2 - 16     |
-|   5.   |   S_ID_WIDTH               |     s_id_width             |    1 - 32     |
-|   6.   |   M_DEST_WIDTH             |     m_dest_width           |    1 - 32     |
-|   7.   |   M_REG_TYPE               |     m_reg_type             |    0 - 2      |
-|   8.   |   S_REG_TYPE               |     s_reg_type             |    0 - 2      |
-|   9.   |   ID_ENABLE                |     id_en                  |    0 / 1      |
-|   10.  |   USER_ENABLE              |     user_en                |    0 / 1      |
-|   11.  |   ARB_LSB_HIGH_PRIORITY    |     lsb_high_priority      |    0 / 1      |
-|   12.  |   ARB_TYPE_ROUND_ROBIN     |     type_round_robin       |    0 / 1      |
-|   13.  |   UPDATE_TID               |     tid                    |    0 / 1      |
-|   14.  |   M_TOP                    |     m_top                  |    0 - 16     |
-|   15.  |   M_BASE                   |     m_base                 |    0 - 16     |
+|   1.   |   DATA_WIDTH               |     data_width             |    1 - 128   |
+|   2.   |   DEPTH               |     depth             |    2 - 32768   |
+|   3.   |   FULL_THRESHOLD           |     full_threshold     |    1 - 4094     |
+|   4.   |   EMPTY_THRESHOLD        |     emptyh_threshold        |    0 - 4094     |
+|   5.   |   COMMON_CLK               |     common_clk             |    0 / 1     |
+|   6.   |   SYNC_FIFO             |     sync_fifo           |    0 / 1     |
+|   7.  |   DRAM                    |   dram                |   0 / 1   |
+|   8.  |   FIRST_WORD_FALL_THROUGH |   fwft                |   0 / 1   |
+
 
 
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 axis_switch_gen.py --data_width=7 --s_count=3 --build-name=switch --build
+./fifo_gen.py --data_width=72 --depth=3072 --build-name=fifo_wrapper --build
 ```
 
 ## TCL File
 
-This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/axis_switch/v1_0/<build-name>/synth/` directory.
-
-
-## References
-
-https://github.com/alexforencich/verilog-axis/blob/master/rtl/axis_switch.v
+This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/fifo/v1_0/<build-name>/synth/` directory.
