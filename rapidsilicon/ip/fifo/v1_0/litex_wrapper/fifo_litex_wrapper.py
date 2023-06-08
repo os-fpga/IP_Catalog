@@ -59,9 +59,14 @@ class FIFO(Module):
         memory = math.ceil(size_bram / len(maximum))
 
         instances = math.ceil(depth / memory)
-        counter = depth - (instances - 1)*memory
+        self.counter = Signal(math.ceil(math.log2(depth)) + 1, reset=1)
 
-        self.counter = Signal(math.ceil(math.log2(counter) + 1), reset=0)
+        self.wrt_ptr = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
+        self.rd_ptr = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
+        self.temp = Signal(bits_sign=(math.ceil(math.log2(depth)) + 2, True))
+        self.temp_abs = Signal(math.ceil(math.log2(depth)) + 1)
+        self.delay_full = Signal()
+        self.delay_empty = Signal()
 
         self.din    = Signal(data_width)
         self.dout   = Signal(data_width)
@@ -120,10 +125,10 @@ class FIFO(Module):
                     # Parameters.
                     # -----------
                     # Global.
-                    p_DATA_WIDTH        = Instance.PreformattedParam(data), 
+                    p_DATA_WIDTH        = C(data, 6), 
                     p_SYNC_FIFO         = sync_fifo,
-                    p_PROG_FULL_THRESH  = C(full_threshold, 12),
-                    p_PROG_EMPTY_THRESH = C(empty_threshold, 12),
+                    p_PROG_FULL_THRESH  = C(4095, 12),
+                    p_PROG_EMPTY_THRESH = C(0, 12),
 
                     # Clk / Rst.
                     # ----------
@@ -151,64 +156,182 @@ class FIFO(Module):
                 j = data + j
 
             # Writing and Reading to FIFOs
-            if (k > 0):
-                self.comb += [
-                    If(self.wren,
-                        If(~self.full_int[k],
-                            If(self.full_int[k - 1],
-                                self.wren_int[k].eq(1)
-                            )
-                        )
-                    )
-                ]
-                self.comb += [
-                    If(self.rden,
-                       If(~self.empty_int[k],
-                          If(self.empty_int[k - 1],
-                             self.rden_int[k].eq(1),
-                             self.dout.eq(self.dout_int[k]
-                                )
-                            )
-                        )
-                    )
-                ]
-            else:
-                self.comb += [
-                    If(self.wren,
-                       If(~self.full_int[k],
+            # if (k > 0):
+            self.comb += [
+                If(self.wren,
+                   If(~self.overflow,
+                    If(self.wrt_ptr < (k + 1)*memory,
+                       If(self.wrt_ptr >= (k)*memory,
+                          If(~self.full_int[k],
                             self.wren_int[k].eq(1)
+                          )
                         )
                     )
-                ]
-                self.comb += [
-                    If(self.rden,
-                       If(~self.empty_int[k],
-                          self.rden_int[k].eq(1),
-                             self.dout.eq(self.dout_int[k]
-                            )
-                        )
+                    
+                    #    If(self.wrt_ptr == depth,
+                    #       self.wren_int[k].eq(0)
+                    #       )
+                    #       .Elif(
+                    #         self.full_int[k - 1],
+                    #         self.wren_int[k].eq(1)
+                    #     )
                     )
-                ]
+                )
+            ]
 
-            # Checking if the FIFO is full
-            if (k == instances - 1):
-                self.sync += [
-                If(self.counter == counter,
-                   self.counter.eq(0),
-                   self.wren_int[k].eq(0)
-                   )
-                ]
-                self.sync += [
-                    If(self.wren_int[k],
-                        self.counter.eq(self.counter + 1)
+            self.comb += [
+                If(self.rden,
+                   If(self.rd_ptr <= (k + 1)*memory,
+                      If(self.rd_ptr > (k)*memory,
+                        self.rden_int[k].eq(1),
+                        self.dout.eq(self.dout_int[k]
                         )
-                ]
-        self.comb += self.full.eq(Mux(self.counter == counter, 1, 0))
+                      )
+                   )
+                )
+            ]
+            # self.comb += [
+            #     If(self.rden,
+            #        If(~self.empty_int[k],
+            #           If(self.wrt_ptr == 0,
+            #              self.rden_int[k].eq(0)
+            #           ).Elif(
+            #                 self.empty_int[k - 1],
+            #                     self.rden_int[k].eq(1),
+            #                     self.dout.eq(self.dout_int[k]
+            #                 )
+            #             )
+            #         )
+            #     )
+            # ]
+            # else:
+            #     self.comb += [
+            #         If(self.wren,
+            #            If(~self.full_int[k],
+            #               If(self.wrt_ptr == depth,
+            #                 self.wren_int[k].eq(0)
+            #                 )
+            #                 .Else(
+            #                    self.wren_int[k].eq(1)
+            #                 )
+            #             )
+            #         )
+            #     ]
+            #     self.comb += [
+            #         If(self.rden,
+            #            If(~self.empty_int[k],
+            #               If(self.wrt_ptr == 0,
+            #                  self.rden_int[k].eq(0)
+            #               )
+            #               .Else(
+            #                     self.rden_int[k].eq(1),
+            #                     self.dout.eq(self.dout_int[k]
+            #                  )
+            #                 )
+            #             )
+            #         )
+            #     ]
+
+        # wrt_ptr to check for number of entries in FIFO
+        self.sync += [
+            If(self.wren,
+               If(~self.full,
+                    self.wrt_ptr.eq(self.wrt_ptr + 1)
+               )
+            )
+        ]
+        self.sync += [
+            If(self.rden,
+               If(~self.empty,
+                    self.rd_ptr.eq(self.rd_ptr + 1)
+               )
+            )
+        ]
+        self.sync += [
+            If(self.wren,
+               If(~self.full,
+                  self.counter.eq(self.counter + 1)
+               )
+            )
+        ]
+        self.sync += [
+            If(self.rden,
+               If(~self.empty,
+                  self.counter.eq(self.counter - 1)
+               )
+            )
+        ]
+            # elif(k == 0):
+            #     self.sync += [
+            #         If(self.wren,
+            #            If(~self.full_int[k],
+            #                 self.wrt_ptr.eq(self.wrt_ptr + 1)
+            #            )
+            #         )
+            #     ]
+            #     self.sync += [
+            #         If(self.rden,
+            #            If(~self.empty_int[k],
+            #                 self.rd_ptr.eq(self.rd_ptr + 1)
+            #            )
+            #         )
+            #     ]
+            # else:
+            #     self.sync += [
+            #         If(self.wren,
+            #            If(~self.full_int[k],
+            #               If(self.full_int[k -1],
+            #                 self.wrt_ptr.eq(self.wrt_ptr + 1)
+            #               )
+            #            )
+            #         )
+            #     ]
+            #     self.sync += [
+            #         If(self.rden,
+            #            If(~self.empty_int[k],
+            #               If(self.empty_int[k - 1],
+            #                 self.rd_ptr.eq(self.rd_ptr + 1)
+            #               )
+            #            )
+            #         )
+            #     ]
+        self.sync += [
+            If(self.wren,
+                If(self.wrt_ptr == depth - 1,
+                   If(~self.full,
+                        self.wrt_ptr.eq(0)
+                   )
+                )
+            )
+        ]
+        self.sync += [
+            If(self.rden,
+                If(self.rd_ptr == depth,
+                   If(~self.empty,
+                    self.rd_ptr.eq(1)
+                   )
+                )
+            )
+        ]
+
+        # Checking if the FIFO is full
+        self.comb += [
+            If(self.counter == depth,
+               self.full.eq(1)
+            )
+        ]
 
         # Checking for Overflow in FIFO
+        self.sync += [
+            If(self.full,
+               self.delay_full.eq(self.full)
+               ).Else(
+            self.delay_full.eq(0)
+               )
+        ]
         self.comb += [
             If(self.wren,
-               If(self.full,
+               If(self.delay_full,
                   self.overflow.eq(1)
                 )
             )
@@ -216,17 +339,42 @@ class FIFO(Module):
 
             
         # Checking if the FIFO is empty
-        self.comb += generate_nested_if_statements(self.empty_int, 0, self.empty)
+        self.comb += [
+            If(self.counter == 0,
+               self.empty.eq(1)
+               )
+        ]
 
         # Checking for underflow in FIFO
+        self.sync += [
+            If(self.empty,
+               self.delay_empty.eq(self.empty)
+               ).Else(
+            self.delay_empty.eq(0)
+               )
+        ]
         self.comb += [
             If(self.rden,
-               If(self.empty,
+               If(self.delay_empty,
                   self.underflow.eq(1)
                 )
             )
         ]
+        # Checking for Programmable Full
+        self.comb += [
+            If(self.counter >= full_threshold - 1,
+               self.prog_full.eq(1)
+            )
+        ]
 
+        # Checking for Programmable Empty
+        self.comb += [
+            If(self.counter <= empty_threshold - 1,
+               self.prog_empty.eq(1)
+               )
+        ]
+
+        
 
         # Add Sources.
         # ------------
