@@ -38,7 +38,7 @@ def generate_nested_if_statements(signals, index, signal):
 
 # AXIS_SWITCH ---------------------------------------------------------------------------------------
 class FIFO(Module):
-    def __init__(self, platform, data_width, common_clk, sync_fifo, full_threshold, empty_threshold, depth):
+    def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through):
         self.logger = logging.getLogger("FIFO")
         self.logger.propagate = False
         
@@ -46,7 +46,7 @@ class FIFO(Module):
         self.logger.info(f"DATA_WIDTH       : {data_width}")
 
         # User Width
-        self.logger.info(f"SYNC_FIFO      : {sync_fifo}")
+        self.logger.info(f"Synchronous      : {synchronous}")
 
         self.logger.info(f"FULL THRESHOLD       : {full_threshold}")
 
@@ -126,7 +126,7 @@ class FIFO(Module):
                     # -----------
                     # Global.
                     p_DATA_WIDTH        = C(data, 6), 
-                    p_SYNC_FIFO         = sync_fifo,
+                    p_SYNC_FIFO         = synchronous,
                     p_PROG_FULL_THRESH  = C(4095, 12),
                     p_PROG_EMPTY_THRESH = C(0, 12),
 
@@ -181,15 +181,44 @@ class FIFO(Module):
 
             self.comb += [
                 If(self.rden,
-                   If(self.rd_ptr <= (k + 1)*memory,
-                      If(self.rd_ptr > (k)*memory,
-                        self.rden_int[k].eq(1),
-                        self.dout.eq(self.dout_int[k]
+                   If(~self.underflow,
+                        If(self.rd_ptr <= (k + 1)*memory,
+                          If(self.rd_ptr > (k)*memory,
+                            self.rden_int[k].eq(1),
+                            self.dout.eq(self.dout_int[k]
+                            )
                         )
                       )
                    )
                 )
             ]
+
+            # First Word Fall Through Implmentation
+            if (first_word_fall_through):
+                if (k == 0):
+                    self.comb += [
+                        If(~self.rden,
+                           If(~self.underflow,
+                              If(self.rd_ptr <= (k + 1)*memory,
+                                If(self.rd_ptr >= (k)*memory,
+                                    self.dout.eq(self.dout_int[k])
+                                )
+                              )
+                           )
+                        )
+                    ]
+                else:
+                    self.comb += [
+                        If(~self.rden,
+                           If(~self.underflow,
+                              If(self.rd_ptr <= (k + 1)*memory,
+                                If(self.rd_ptr > (k)*memory,
+                                    self.dout.eq(self.dout_int[k])
+                                )
+                              )
+                           )
+                        )
+                    ]
             # self.comb += [
             #     If(self.rden,
             #        If(~self.empty_int[k],
@@ -373,7 +402,6 @@ class FIFO(Module):
                self.prog_empty.eq(1)
                )
         ]
-
         
 
         # Add Sources.

@@ -18,7 +18,7 @@ These are the parameters for FIFO core along with their keyword and values: -
 |   5.   |   COMMON_CLK               |     common_clk             |    0 / 1     |
 |   6.   |   SYNC_FIFO             |     sync_fifo           |    0 / 1     |
 |   7.  |   DRAM                    |   dram                |   0 / 1   |
-|   8.  |   FIRST_WORD_FALL_THROUGH |   fwft                |   0 / 1   |
+|   8.  |   FIRST_WORD_FALL_THROUGH |   first_word_fall_through   |   0 / 1   |
 
 
 
