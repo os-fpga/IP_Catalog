@@ -22,21 +22,20 @@ from litex.build.osfpga import OSFPGAPlatform
 
 def get_clkin_ios(data_width):
     return [
-        ("clk",      0,  Pins(1)),
-        ("rst",         0,  Pins(1)),
-
-        ("din",         0,  Pins(data_width)),
-        ("dout",        0,  Pins(data_width)),
-
-        ("wr_en",        0,  Pins(1)),
-        ("rd_en",        0,  Pins(1)),
-
-        ("full",        0,  Pins(1)),
-        ("empty",       0,  Pins(1)),
-        ("underflow",   0,  Pins(1)),
-        ("overflow",    0,  Pins(1)),
-        ("prog_full",   0,  Pins(1)),
-        ("prog_empty",  0,  Pins(1))
+        ("clk",        0,  Pins(1)),
+        ("rst",        0,  Pins(1)),
+		("wrt_clock",  0,	Pins(1)),
+        ("rd_clock",   0,	Pins(1)),
+        ("din",        0,  Pins(data_width)),
+        ("dout",       0,  Pins(data_width)),
+        ("wr_en",      0,  Pins(1)),
+        ("rd_en",      0,  Pins(1)),
+        ("full",       0,  Pins(1)),
+        ("empty",      0,  Pins(1)),
+        ("underflow",  0,  Pins(1)),
+        ("overflow",   0,  Pins(1)),
+        ("prog_full",  0,  Pins(1)),
+        ("prog_empty", 0,  Pins(1))
     ]
 
 # FIFO Wrapper ----------------------------------------------------------------------------------
@@ -45,14 +44,21 @@ class FIFOWrapper(Module):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(data_width))
         self.clock_domains.cd_sys  = ClockDomain()
-        
+        self.clock_domains.cd_wrt	= ClockDomain()
+        self.clock_domains.cd_rd	= ClockDomain()
+
+	
         self.submodules.fifo = fifo = FIFO(platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through)
     
         self.comb += fifo.din.eq(platform.request("din"))
         self.comb += platform.request("dout").eq(fifo.dout)
         self.comb += platform.request("prog_full").eq(fifo.prog_full)
         self.comb += platform.request("prog_empty").eq(fifo.prog_empty)
-        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        if(synchronous):
+            self.comb += self.cd_sys.clk.eq(platform.request("clk"))
+        else:
+            self.comb += self.cd_wrt.clk.eq(platform.request("wrt_clock"))
+            self.comb += self.cd_rd.clk.eq(platform.request("rd_clock"))
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
         self.comb += fifo.wren.eq(platform.request("wr_en"))
         self.comb += fifo.rden.eq(platform.request("rd_en"))   
@@ -87,8 +93,8 @@ def main():
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--synchronous",  							type=bool,   default=True,    help="Synchronous / Asynchronous Clock")
-    core_bool_param_group.add_argument("--first_word_fall_through",   type=bool,   default=True,    help="Type of Register")
+    core_bool_param_group.add_argument("--synchronous",  			type=bool,   default=False,    help="Synchronous / Asynchronous Clock")
+    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=True,    help="Type of Register")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
