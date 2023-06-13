@@ -93,8 +93,8 @@ def main():
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--synchronous",  			type=bool,   default=True,    help="Synchronous / Asynchronous Clock")
-    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=True,    help="Type of Register")
+    core_bool_param_group.add_argument("--synchronous",  			type=bool,   default=False,    help="Synchronous / Asynchronous Clock")
+    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,    help="Type of Register")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
