@@ -78,9 +78,10 @@ class FIFO(Module):
             self.gray_encoded_wrtptr = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
             self.sync_rdclk_wrtptr_binary = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
             self.sync_wrtclk_rdptr_binary = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
-            self.rgraynext = Signal(math.ceil(math.log2(depth)) + 2)
             self.rd_en_flop = Signal()
             self.rd_en_flop1 = Signal()
+            self.comb += ResetSignal("wrt").eq(ResetSignal("sys"))
+            self.comb += ResetSignal("rd").eq(ResetSignal("sys"))
 
         self.din    = Signal(data_width)
         self.dout   = Signal(data_width)
@@ -558,22 +559,12 @@ class FIFO(Module):
 
             # Synchronizers----------------------------------------------------------------
             self.sync.wrt += [
-                If(ResetSignal("sys"),
-                   self.rd_ptr_wrt_clk1.eq(0),
-                   self.rd_ptr_wrt_clk2.eq(0)
-                ).Else(
                 self.rd_ptr_wrt_clk1.eq(self.gray_encoded_rdptr),
                 self.rd_ptr_wrt_clk2.eq(self.rd_ptr_wrt_clk1)
-                )
             ]
             self.sync.rd += [
-                If(ResetSignal("sys"),
-                   self.wrt_ptr_rd_clk1.eq(0),
-                   self.wrt_ptr_rd_clk2.eq(0)
-                ).Else(
                 self.wrt_ptr_rd_clk1.eq(self.gray_encoded_wrtptr),
                 self.wrt_ptr_rd_clk2.eq(self.wrt_ptr_rd_clk1)
-                )
             ]
             # -----------------------------------------------------------------------------
 
@@ -683,12 +674,9 @@ class FIFO(Module):
             # Checking if the FIFO is empty
             self.comb += [
                 If(self.rd_ptr == self.sync_rdclk_wrtptr_binary,
-                   self.empty.eq(1))
-            ]
-            self.comb += [
-                If(self.sync_rdclk_wrtptr_binary == 0,
-                   If(self.wrt_ptr == int(starting),
-                      self.empty.eq(1)))
+                   self.empty.eq(1)
+                   ).Elif(self.sync_rdclk_wrtptr_binary <= int(starting),
+                    self.empty.eq(1))
             ]
 
             # Checking for underflow in FIFO
