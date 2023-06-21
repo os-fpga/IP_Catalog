@@ -372,7 +372,6 @@ class FIFO(Module):
                     self.wren_int[k].eq(0))
                     ]
                     if (k == 0):
-                        print(k)
                         self.sync.rd += [
                             If(self.rden,
                                If(~self.empty,
