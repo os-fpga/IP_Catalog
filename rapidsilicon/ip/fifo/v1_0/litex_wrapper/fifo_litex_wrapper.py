@@ -82,6 +82,7 @@ class FIFO(Module):
             self.rd_en_flop1 = Signal()
             self.comb += ResetSignal("wrt").eq(ResetSignal("sys"))
             self.comb += ResetSignal("rd").eq(ResetSignal("sys"))
+            self.empty_count = Signal(2)
 
         self.din    = Signal(data_width)
         self.dout   = Signal(data_width)
@@ -454,8 +455,8 @@ class FIFO(Module):
                     If(~self.rd_en_flop,
                        self.dout.eq(0))
                 ]
-            self.comb += [
-                If(self.underflow,
+            self.sync.rd += [
+                If(self.empty,
                    self.dout.eq(0))
             ]
 
@@ -675,8 +676,15 @@ class FIFO(Module):
             self.comb += [
                 If(self.rd_ptr == self.sync_rdclk_wrtptr_binary,
                    self.empty.eq(1)
-                   ).Elif(self.sync_rdclk_wrtptr_binary <= int(starting),
-                    self.empty.eq(1))
+                   )
+            ]
+            self.comb += [
+                If(self.empty_count <= 1,
+                   self.empty.eq(1))
+            ]
+            self.sync.rd += [
+                If(self.empty_count < 2,
+                   self.empty_count.eq(self.empty_count + 1))
             ]
 
             # Checking for underflow in FIFO
