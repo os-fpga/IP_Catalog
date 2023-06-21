@@ -264,27 +264,31 @@ class FIFO(Module):
                         ]
             else:
                 if (k == instances - 1):
-                    self.sync.rd += [
-                        If(self.rd_en_flop1,
-                           If(~self.underflow,
-                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k + 1)*memory) + int(starting),
+                    if (k == 0):
+                        self.sync.rd += [
+                        If(self.rden,
+                           If(~self.empty,
+                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k + 1)*memory) + int(starting - 1),
                                   If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k)*memory) + int(starting),
-                                        self.dout.eq(self.dout_int[k])
+                                        self.rden_int[k].eq(1)
                                 )
+                                .Else(
+                        self.rden_int[k].eq(0))
                               )
-                        #       .Else(
-                        # self.rden_int[k].eq(0))
-                        # # self.dout.eq(0))
-                           )
-                        #    .Else(
-                        # self.rden_int[k].eq(0))
-                        # # self.dout.eq(0))
-                        )
-                        # .Else(
-                        # self.rden_int[k].eq(0))
+                              .Else(
+                        self.rden_int[k].eq(0))
                         # self.dout.eq(0))
-                    ]
-                    self.sync.rd += [
+                           )
+                           .Else(
+                        self.rden_int[k].eq(0))
+                        # self.dout.eq(0))
+                        )
+                        .Else(
+                        self.rden_int[k].eq(0))
+                        # self.dout.eq(0))
+                        ]
+                    else:
+                        self.sync.rd += [
                         If(self.rden,
                            If(~self.empty,
                                 If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k + 1)*memory) + int(starting - 1),
@@ -306,6 +310,27 @@ class FIFO(Module):
                         self.rden_int[k].eq(0))
                         # self.dout.eq(0))
                     ]
+                    self.sync.rd += [
+                        If(self.rd_en_flop1,
+                           If(~self.underflow,
+                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k + 1)*memory) + int(starting),
+                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k)*memory) + int(starting),
+                                        self.dout.eq(self.dout_int[k])
+                                )
+                              )
+                        #       .Else(
+                        # self.rden_int[k].eq(0))
+                        # # self.dout.eq(0))
+                           )
+                        #    .Else(
+                        # self.rden_int[k].eq(0))
+                        # # self.dout.eq(0))
+                        )
+                        # .Else(
+                        # self.rden_int[k].eq(0))
+                        # self.dout.eq(0))
+                    ]
+                    
                     
                     self.sync.wrt += [
                         If(self.wren,
@@ -347,11 +372,12 @@ class FIFO(Module):
                     self.wren_int[k].eq(0))
                     ]
                     if (k == 0):
+                        print(k)
                         self.sync.rd += [
                             If(self.rden,
                                If(~self.empty,
                                     If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k + 1)*memory) + int(starting - 1),
-                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k)*memory) + int(starting - 1),
+                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k)*memory) + int(starting),
                                             self.rden_int[k].eq(1)
                                     )
                                     .Else(
