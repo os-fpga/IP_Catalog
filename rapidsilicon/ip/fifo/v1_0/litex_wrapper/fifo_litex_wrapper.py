@@ -83,6 +83,7 @@ class FIFO(Module):
             self.comb += ResetSignal("wrt").eq(ResetSignal("sys"))
             self.comb += ResetSignal("rd").eq(ResetSignal("sys"))
             self.empty_count = Signal(2)
+            self.wrt_ptr_reg = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
 
         self.din    = Signal(data_width)
         self.dout   = Signal(data_width)
@@ -726,7 +727,31 @@ class FIFO(Module):
                    )
             ]
 
+            # Checking for Programmable Full
+            self.comb += [
+                If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_threshold + int(starting) - 1)) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1] < (int(ending) - (full_threshold + int(starting) - 1)),
+                    self.prog_full.eq(1)
+                )
+            ]
+            self.comb += [
+                If(self.full,
+                   self.prog_full.eq(1))
+            ]
+            self.comb += [
+                If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_threshold + int(starting) - 1)) >= int(ending),
+                   self.wrt_ptr_reg.eq(int(starting)),
+                   If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1],
+                   self.prog_full.eq(1)
+                   )
+                )
+            ]
 
+            # Checking for Programmable Empty
+            # self.comb += [
+            #     If(self.rd_ptr == self.sync_rdclk_wrtptr_binary,
+            #        self.prog_empty.eq(1)
+            #        )
+            # ]
         
 
         # Add Sources.
