@@ -444,10 +444,10 @@ class FIFO(Module):
 
                 # First Word Fall Through Implmentation
                 if (first_word_fall_through):
-                    if (k == 0):
-                        self.comb += [
-                            If(~self.rden,
-                               If(~self.empty,
+                    if (k == instances - 1):
+                        self.sync.rd += [
+                            If(~self.rd_en_flop1,
+                               If(~self.underflow,
                                   If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k + 1)*memory) + int(starting),
                                     If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k)*memory) + int(starting),
                                         self.dout.eq(self.dout_int[k])
@@ -457,11 +457,11 @@ class FIFO(Module):
                             )
                         ]
                     else:
-                        self.comb += [
-                            If(~self.rden,
-                               If(~self.empty,
-                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k + 1)*memory),
-                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] > ((k)*memory),
+                        self.sync.rd += [
+                            If(~self.rd_en_flop1,
+                               If(~self.underflow,
+                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k + 1)*memory) + int(starting),
+                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k)*memory) + int(starting),
                                         self.dout.eq(self.dout_int[k])
                                     )
                                   )
@@ -476,10 +476,11 @@ class FIFO(Module):
                    ).Elif(~self.rd_en_flop,
                           self.rd_en_flop1.eq(0))
             ]
-            self.sync.rd += [
-                    If(~self.rd_en_flop,
-                       self.dout.eq(0))
-                ]
+            if (not first_word_fall_through):
+                self.sync.rd += [
+                        If(~self.rd_en_flop,
+                           self.dout.eq(0))
+                    ]
             self.sync.rd += [
                 If(self.empty,
                    self.dout.eq(0))
