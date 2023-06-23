@@ -36,7 +36,7 @@ def generate_nested_if_statements(signals, index, signal):
 
 # AXIS_SWITCH ---------------------------------------------------------------------------------------
 class FIFO(Module):
-    def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through):
+    def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value):
         self.logger = logging.getLogger("FIFO")
         self.logger.propagate = False
         
@@ -46,11 +46,11 @@ class FIFO(Module):
         # User Width
         self.logger.info(f"Synchronous      : {synchronous}")
 
-        self.logger.info(f"FULL THRESHOLD       : {full_threshold}")
+        self.logger.info(f"FULL THRESHOLD       : {full_value}")
 
         # Destination Width
 
-        self.logger.info(f"EMPTY THRESHOLD    : {empty_threshold}")
+        self.logger.info(f"EMPTY THRESHOLD    : {empty_value}")
         buses = divide_n_bit_number(data_width)
         size_bram = 36864
         maximum = max(buses, key=len)
@@ -274,19 +274,19 @@ class FIFO(Module):
                                         self.rden_int[k].eq(1)
                                 )
                                 .Else(
-                        self.rden_int[k].eq(0))
+                                self.rden_int[k].eq(0))
                               )
                               .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                                self.rden_int[k].eq(0)
+                                )
                            )
                            .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                            self.rden_int[k].eq(0)
+                            )
                         )
                         .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                        self.rden_int[k].eq(0)
+                        )
                         ]
                     else:
                         self.sync.rd += [
@@ -297,19 +297,19 @@ class FIFO(Module):
                                         self.rden_int[k].eq(1)
                                 )
                                 .Else(
-                        self.rden_int[k].eq(0))
+                                self.rden_int[k].eq(0))
                               )
                               .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                                self.rden_int[k].eq(0)
+                                )
                            )
                            .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                            self.rden_int[k].eq(0)
+                            )
                         )
                         .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                            self.rden_int[k].eq(0)
+                            )
                     ]
                     self.sync.rd += [
                         If(self.rd_en_flop1,
@@ -319,19 +319,9 @@ class FIFO(Module):
                                         self.dout.eq(self.dout_int[k])
                                 )
                               )
-                        #       .Else(
-                        # self.rden_int[k].eq(0))
-                        # # self.dout.eq(0))
                            )
-                        #    .Else(
-                        # self.rden_int[k].eq(0))
-                        # # self.dout.eq(0))
                         )
-                        # .Else(
-                        # self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
                     ]
-                    
                     
                     self.sync.wrt += [
                         If(self.wren,
@@ -341,16 +331,20 @@ class FIFO(Module):
                                     self.wren_int[k].eq(1)
                                     )
                                     .Else(
-                        self.wren_int[k].eq(0))
+                                    self.wren_int[k].eq(0)
+                                    )
                                 )
                                 .Else(
-                        self.wren_int[k].eq(0))
+                                self.wren_int[k].eq(0)
+                                )
                             )
                             .Else(
-                        self.wren_int[k].eq(0))
+                            self.wren_int[k].eq(0)
+                            )
                         )
                         .Else(
-                        self.wren_int[k].eq(0))
+                        self.wren_int[k].eq(0)
+                        )
                     ]
                 else:
                     self.sync.wrt += [
@@ -361,16 +355,20 @@ class FIFO(Module):
                                 self.wren_int[k].eq(1)
                                 )
                                 .Else(
-                    self.wren_int[k].eq(0))
+                                self.wren_int[k].eq(0)
+                                )
                             )
                             .Else(
-                    self.wren_int[k].eq(0))
+                            self.wren_int[k].eq(0)
+                            )
                         )
                         .Else(
-                    self.wren_int[k].eq(0))
+                        self.wren_int[k].eq(0)
+                        )
                     )
                     .Else(
-                    self.wren_int[k].eq(0))
+                    self.wren_int[k].eq(0)
+                    )
                     ]
                     if (k == 0):
                         self.sync.rd += [
@@ -387,16 +385,16 @@ class FIFO(Module):
                                            self.rden_int[k].eq(1)
                                            )
                                   .Else(
-                            self.rden_int[k].eq(0))
-                            # self.dout.eq(0))
+                                    self.rden_int[k].eq(0)
+                                    )
                                )
                                .Else(
-                            self.rden_int[k].eq(0))
-                            # self.dout.eq(0))
+                                self.rden_int[k].eq(0)
+                                )
                             )
                             .Else(
-                            self.rden_int[k].eq(0))
-                            # self.dout.eq(0))
+                            self.rden_int[k].eq(0)
+                            )
                         ]
                     else:
                         self.sync.rd += [
@@ -407,19 +405,20 @@ class FIFO(Module):
                                         self.rden_int[k].eq(1)
                                 )
                                 .Else(
-                        self.rden_int[k].eq(0))
+                                self.rden_int[k].eq(0)
+                                )
                               )
                               .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                                self.rden_int[k].eq(0)
+                                )
                            )
                            .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                            self.rden_int[k].eq(0)
+                            )
                         )
                         .Else(
-                        self.rden_int[k].eq(0))
-                        # self.dout.eq(0))
+                        self.rden_int[k].eq(0)
+                        )
                         ]
                     self.sync.rd += [
                         If(self.rd_en_flop1,
@@ -429,17 +428,8 @@ class FIFO(Module):
                                         self.dout.eq(self.dout_int[k])
                                 )
                               )
-                        #       .Else(
-                        # self.rden_int[k].eq(0))
-                        # # self.dout.eq(0))
                            )
-                        #    .Else(
-                        # self.rden_int[k].eq(0))
-                        # # self.dout.eq(0))
                         )
-                        # .Else(
-                        # self.rden_int[k].eq(0))
-                        # # self.dout.eq(0))
                     ]
                     
 
@@ -475,16 +465,19 @@ class FIFO(Module):
                 If(self.rden,
                    self.rd_en_flop1.eq(1)
                    ).Elif(~self.rd_en_flop,
-                          self.rd_en_flop1.eq(0))
+                          self.rd_en_flop1.eq(0)
+                          )
             ]
             if (not first_word_fall_through):
                 self.sync.rd += [
                         If(~self.rd_en_flop,
-                           self.dout.eq(0))
+                           self.dout.eq(0)
+                           )
                     ]
             self.sync.rd += [
                 If(self.empty,
-                   self.dout.eq(0))
+                   self.dout.eq(0)
+                   )
             ]
 
         # wrt_ptr and rd_ptr to check for number of entries in FIFO
@@ -662,20 +655,22 @@ class FIFO(Module):
                     )
                 )
             ]
-
+            
             # Checking for Programmable Full
-            self.comb += [
-                If(self.counter >= full_threshold - 1,
-                   self.prog_full.eq(1)
-                )
-            ]
+            if (full_threshold):
+                self.comb += [
+                    If(self.counter >= full_value - 1,
+                       self.prog_full.eq(1)
+                    )
+                ]
 
             # Checking for Programmable Empty
-            self.comb += [
-                If(self.counter <= empty_threshold - 1,
-                   self.prog_empty.eq(1)
-                   )
-            ]
+            if (empty_threshold):
+                self.comb += [
+                    If(self.counter <= empty_value - 1,
+                       self.prog_empty.eq(1)
+                       )
+                ]
         else:
             # Checking if the FIFO is full
             self.comb += [
@@ -728,47 +723,49 @@ class FIFO(Module):
             ]
 
             # Checking for Programmable Full
-            self.comb += [
-                If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_threshold + int(starting) - 1)) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1] < (int(ending) - (full_threshold + int(starting) - 1)),
-                    self.prog_full.eq(1)
-                )
-            ]
-            self.comb += [
-                If(self.full,
-                   self.prog_full.eq(1))
-            ]
-            self.comb += [
-                If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_threshold + int(starting) - 1)) >= int(ending),
-                   self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
-                   If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1],
-                   self.prog_full.eq(1)
-                   )
-                ).Else(
-                self.wrt_ptr_reg.eq(self.wrt_ptr)
-                )
-            ]
+            if (full_threshold):
+                self.comb += [
+                    If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_value + int(starting))) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1] < (int(ending) - (full_value + int(starting))),
+                        self.prog_full.eq(1)
+                    )
+                ]
+                self.comb += [
+                    If(self.full,
+                       self.prog_full.eq(1))
+                ]
+                self.comb += [
+                    If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_value + int(starting))) >= int(ending),
+                       self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
+                       If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1],
+                       self.prog_full.eq(1)
+                       )
+                    ).Else(
+                    self.wrt_ptr_reg.eq(self.wrt_ptr)
+                    )
+                ]
 
             # Checking for Programmable Empty
-            self.comb += [
-                If(self.rd_ptr +  empty_threshold >= int(ending),
-                   self.rd_ptr_reg.eq(int(starting)),
-                   If(self.rd_ptr_reg == self.sync_rdclk_wrtptr_binary,
-                   self.prog_empty.eq(1)
-                   )
-                ).Else(
-                self.rd_ptr_reg.eq(self.rd_ptr)
-                )
-            ]
-            self.comb += [
-                If(self.rd_ptr +  empty_threshold - self.sync_rdclk_wrtptr_binary < empty_threshold,
-                    self.prog_empty.eq(1)
-                )
-            ]
-            self.comb += [
-                If(self.empty,
-                   self.prog_empty.eq(1)
-                   )
-            ]
+            if (empty_threshold):
+                self.comb += [
+                    If(self.rd_ptr +  empty_value >= int(ending),
+                       self.rd_ptr_reg.eq(int(starting)),
+                       If(self.rd_ptr_reg == self.sync_rdclk_wrtptr_binary,
+                       self.prog_empty.eq(1)
+                       )
+                    ).Else(
+                    self.rd_ptr_reg.eq(self.rd_ptr)
+                    )
+                ]
+                self.comb += [
+                    If(self.rd_ptr +  empty_value - self.sync_rdclk_wrtptr_binary < empty_value,
+                        self.prog_empty.eq(1)
+                    )
+                ]
+                self.comb += [
+                    If(self.empty,
+                       self.prog_empty.eq(1)
+                       )
+                ]
         
 
         # Add Sources.
