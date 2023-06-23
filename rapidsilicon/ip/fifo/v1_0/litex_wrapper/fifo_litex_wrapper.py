@@ -5,7 +5,6 @@
 #
 # SPDX-License-Identifier: MIT
 #
-# LiteX wrapper around Alex Forencich Verilog-AXIS's axis_switch.v
 
 import os
 import logging
@@ -84,6 +83,7 @@ class FIFO(Module):
             self.comb += ResetSignal("rd").eq(ResetSignal("sys"))
             self.empty_count = Signal(2)
             self.wrt_ptr_reg = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
+            self.rd_ptr_reg = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
 
         self.din    = Signal(data_width)
         self.dout   = Signal(data_width)
@@ -739,19 +739,36 @@ class FIFO(Module):
             ]
             self.comb += [
                 If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_threshold + int(starting) - 1)) >= int(ending),
-                   self.wrt_ptr_reg.eq(int(starting)),
+                   self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
                    If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1],
                    self.prog_full.eq(1)
                    )
+                ).Else(
+                self.wrt_ptr_reg.eq(self.wrt_ptr)
                 )
             ]
 
             # Checking for Programmable Empty
-            # self.comb += [
-            #     If(self.rd_ptr == self.sync_rdclk_wrtptr_binary,
-            #        self.prog_empty.eq(1)
-            #        )
-            # ]
+            self.comb += [
+                If(self.rd_ptr +  empty_threshold >= int(ending),
+                   self.rd_ptr_reg.eq(int(starting)),
+                   If(self.rd_ptr_reg == self.sync_rdclk_wrtptr_binary,
+                   self.prog_empty.eq(1)
+                   )
+                ).Else(
+                self.rd_ptr_reg.eq(self.rd_ptr)
+                )
+            ]
+            self.comb += [
+                If(self.rd_ptr +  empty_threshold - self.sync_rdclk_wrtptr_binary < empty_threshold,
+                    self.prog_empty.eq(1)
+                )
+            ]
+            self.comb += [
+                If(self.empty,
+                   self.prog_empty.eq(1)
+                   )
+            ]
         
 
         # Add Sources.
