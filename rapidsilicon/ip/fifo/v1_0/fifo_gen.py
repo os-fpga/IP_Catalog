@@ -40,7 +40,7 @@ def get_clkin_ios(data_width):
 
 # FIFO Wrapper ----------------------------------------------------------------------------------
 class FIFOWrapper(Module):
-    def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through):
+    def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(data_width))
         self.clock_domains.cd_sys  = ClockDomain()
@@ -48,12 +48,14 @@ class FIFOWrapper(Module):
         self.clock_domains.cd_rd	= ClockDomain()
 
 	
-        self.submodules.fifo = fifo = FIFO(platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through)
+        self.submodules.fifo = fifo = FIFO(platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value)
     
         self.comb += fifo.din.eq(platform.request("din"))
         self.comb += platform.request("dout").eq(fifo.dout)
-        self.comb += platform.request("prog_full").eq(fifo.prog_full)
-        self.comb += platform.request("prog_empty").eq(fifo.prog_empty)
+        if (full_threshold):
+            self.comb += platform.request("prog_full").eq(fifo.prog_full)
+        if (empty_threshold):
+            self.comb += platform.request("prog_empty").eq(fifo.prog_empty)
         if(synchronous):
             self.comb += self.cd_sys.clk.eq(platform.request("clk"))
         else:
@@ -88,13 +90,15 @@ def main():
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--data_width",     type=int,   default=36,  	choices=range(1,129),   help="FIFO Write/Read Width")
     core_range_param_group.add_argument("--depth",          type=int,   default=1024,	choices=range(2,32769), help="FIFO Depth")
-    core_range_param_group.add_argument("--full_threshold", type=int,   default=3065,	choices=range(1,4095),  help="Full Threshold")
-    core_range_param_group.add_argument("--empty_threshold",type=int,   default=20,  	choices=range(0,4095),  help="Empty Threshold")
+    core_range_param_group.add_argument("--full_value",     type=int,   default=3065,	choices=range(1,4095),  help="Full Value")
+    core_range_param_group.add_argument("--empty_value",    type=int,   default=20,  	choices=range(0,4095),  help="Empty Value")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--synchronous",  			type=bool,   default=False,    help="Synchronous / Asynchronous Clock")
-    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,    help="Type of Register")
+    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,    help="Fist Word Fall Through")
+    core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	   help="Full Threshold")
+    core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=True,    help="Empty Threshold")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -125,7 +129,9 @@ def main():
         full_threshold  				= args.full_threshold,
         empty_threshold 				= args.empty_threshold,
         depth           				= args.depth,
-        first_word_fall_through = args.first_word_fall_through
+        full_value                      = args.full_value,
+        empty_value                     = args.empty_value,
+        first_word_fall_through         = args.first_word_fall_through
     )
 
     # Build Project --------------------------------------------------------------------------------
