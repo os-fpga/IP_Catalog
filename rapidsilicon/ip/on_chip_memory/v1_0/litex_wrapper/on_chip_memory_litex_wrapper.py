@@ -18,8 +18,486 @@ logging.basicConfig(level=logging.INFO)
 
 # On Chip Memory ------------------------------------------------------------------------------------------
 class OCM(Module):
-    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
+    def memory_converter(self, file_path, file_extension):
+        if file_path == "":
+            return "x"
+        binary_data = []
+        with open(file_path, "r") as f:
+            file_content = f.readlines()
+            line_count = 0
+            for line in file_content:
+                line_count += 1
+                if (file_extension == ".hex"):
+                    mem_file_data = int(line.strip(), 16)
+                    binary = format(mem_file_data, 'b') # hexadecimal to binary conversion
+                elif (file_extension == ".bin"):
+                    mem_file_data = int(line.strip(), 2) # binary(0b10101) to binary(10101) conversion
+                    binary = format(mem_file_data, 'b')
+                binary_data.append(binary)
+                self.binary_data    = binary_data
+                self.line_count     = line_count
+            return binary_data
+        
+    def data_width_36(self, file_path, file_extension):
+        self.memory_converter(file_path, file_extension)
+        # self.__init__(platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension)
+        
+        result = []
+        
+        sram = {}
+        sram1   = []
+        sram2   = []
+        sram3   = []
+        sram4   = []
+        
+        
+        # RAM1
+        sram1_1 = []
+        sram1_2 = []
+        
+        # RAM2
+        sram2_1 = []
+        sram2_2 = []
+        
+        # RAM3
+        sram3_1 = []
+        sram3_2 = []
+        
+        # RAM4
+        sram4_1 = []
+        sram4_2 = []
+        
+        
+        if self.write_depth in [2048, 4096, 8192, 16384, 32768]:
+            if (self.write_depth == 2048):
+                if (self.line_count) > 2048:
+                    if (len(self.binary_data) > self.write_depth):
+                        lines = self.write_depth
+                else:
+                    lines = self.line_count
+                remainder = self.line_count % 1024
+                actual_remainder = (1024 - remainder) * 36
+                for i in range(lines):
+                    if self.data_width % 18 == 0:
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 18
+                        self.binary_data[i] = '0' * (18 - temp) + self.binary_data[i]
 
+                if lines == self.line_count:
+                    for i in range(actual_remainder):
+                        self.binary_data.append(36 * 'x')
+                for j in range(self.m-1, -1, -1):
+                    # print ("Looooooop M ", j)
+                    number_of_rams = f"ram_{j}"
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram_result = f"result_{j}"
+                    sram[number_of_rams] = []
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    sram[sram_result] = []
+                    for i in range(2048): # 2048 * (1-line per iteration) = 2048 addresses
+                        if i % 2 == 0:
+                            sram[sram1].append(self.binary_data[(i*1)][(j*18):(j*18)+18])
+                            
+                            print((self.binary_data[(i*1)][(j*18):(j*18)+18]))
+                            # print(self.binary_data[i] ,self.binary_data[(i*1)][(j*18):(j*18)+18],  j, i, len(sram[sram1]))
+                        
+                        else:
+                            sram[sram2].append(self.binary_data[(i*1)][(j*18):(j*18)+18])
+                    
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+                    sram[sram_result] = sram[data2] + sram[data1]
+                    
+                    import json
+                    with open('result.json', 'w') as fp:
+                        json.dump(sram, fp, indent=4)
+                    result.append(sram[sram_result])
+
+                return result
+        
+            elif (self.write_depth == 4096):
+                if (self.line_count) > 4096:
+                    print("Enter valid data to valid addresses")
+                    return "x"
+                else:
+                    for i in range(self.line_count):
+                        if (len(self.binary_data[i]) < 36):
+                            self.binary_data[i] = '0' * (36 - len(self.binary_data[i])) + self.binary_data[i]
+
+                        sram1.append(self.binary_data[i][0:9])
+                        sram2.append(self.binary_data[i][9:18])
+                        sram3.append(self.binary_data[i][18:27])
+                        sram4.append(self.binary_data[i][27:36])
+
+                        # print("Data", i, self.binary_data[i],  self.binary_data[i][0:9], self.binary_data[i][9:18], self.binary_data[i][18:27], self.binary_data[i][27:36])
+
+                        # Address 0,1 4,5 8,9 so on data
+                        if (i % 4 == 0) or (i % 4 == 1):
+                            print("First two",sram1[i], i)
+                            sram1_1.append(sram1[i]) # SRAM1 Data
+                            sram2_1.append(sram2[i]) # SRAM1 Data
+                            sram3_1.append(sram3[i]) # SRAM1 Data
+                            sram4_1.append(sram4[i]) # SRAM1 Data
+                        # Adress 2,3 6,7 10,11 and so on data
+                        else:
+                            print("Next Two",sram1[i], i)
+                            sram1_2.append(sram1[i]) # SRAM2 Data
+                            sram2_2.append(sram2[i]) # SRAM2 Data
+                            sram3_2.append(sram3[i]) # SRAM2 Data
+                            sram4_2.append(sram4[i]) # SRAM2 Data
+
+                    # RAM1 Data
+                    sram1_1_data = "".join(sram1_1[::-1])
+                    sram1_2_data = "".join(sram1_2[::-1])
+
+                    # RAM2 Data
+                    sram2_1_data = "".join(sram2_1[::-1])
+                    sram2_2_data = "".join(sram2_2[::-1])
+
+                    # RAM3 Data
+                    sram3_1_data = "".join(sram3_1[::-1])
+                    sram3_2_data = "".join(sram3_2[::-1])
+
+                    # RAM4 Data
+                    sram4_1_data = "".join(sram4_1[::-1])
+                    sram4_2_data = "".join(sram4_2[::-1])
+
+                    result1 = sram1_2_data + sram1_1_data
+                    result2 = sram2_2_data + sram2_1_data
+                    result3 = sram3_2_data + sram3_1_data
+                    result4 = sram4_2_data + sram4_1_data
+
+                    # print(len(result1), len(result2), len(result3), len(result4))
+                    # print(sram2_1)
+                    # result1 = ""
+                    # result2 = ""
+                    # result3 = ""
+                    # result4 = ""
+                    # result_temp = ""
+                    # for i in  range(0, 32768, 16):
+                    #     # print(len(result1))
+                    #     # print(i)
+                    #     every_16_bits = result11[i:i+16]
+                    #     result_temp = '00' + every_16_bits
+                    #     # result1 = 0
+                    #     result1 += result_temp
+                    #     result_temp = ""
+                    #     every_16_bits = result22[i:i+16]
+                    #     result_temp = '00' + every_16_bits
+                    #     result2 += result_temp
+                    #     result_temp = ""
+                    #     every_16_bits = result33[i:i+16]
+                    #     result_temp = '00' + every_16_bits
+                    #     result3 += result_temp
+                    #     result_temp = ""
+                    #     every_16_bits = result44[i:i+16]
+                    #     result_temp = '00' + every_16_bits
+                    #     result4 += result_temp
+
+                    if (len(result1) < 36864):
+                        result1 = 'x'*(36864-len(result1)) + result1
+
+                    if (len(result2) < 36864):
+                        result2 = 'x'*(36864-len(result2)) + result2
+
+                    if (len(result3) < 36864):
+                        result3 = 'x'*(36864-len(result3)) + result3
+
+                    if (len(result4) < 36864):
+                        result4 = 'x'*(36864-len(result4)) + result4
+
+                    result.append(result4)
+                    result.append(result3)
+                    result.append(result2)
+                    result.append(result1)
+
+                    return result
+
+            # 8K Memory
+            elif (self.write_depth == 8192):
+                
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+                
+                remainder = self.line_count % 1024
+                actual_remainder = (1024 - remainder) * 36
+                
+                for i in range(lines):
+                    if self.data_width % 4 == 0:
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 4
+                        self.binary_data[i] = '0' * (4 - temp) + self.binary_data[i]
+                        
+                if lines == self.line_count:
+                    for i in range(actual_remainder):
+                        self.binary_data.append(self.data_width * 'x')
+                        
+                for j in range(self.m-1, -1, -1):
+                # for j in range(self.m):
+                    # print ("Looooooop M ", j)
+                    number_of_rams = f"ram_{j}"
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram_result = f"result_{j}"
+                    
+                    sram[number_of_rams] = []
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    sram[sram_result] = []
+                    
+                    for i in range(2048): # 2048 * (4-lines per iteration) = 8192 addresses
+                        if i % 2 == 0:
+                            sram[sram1].append("xx" + self.binary_data[(i*4)+3][(j*4):(j*4)+4]+self.binary_data[(i*4)+2][(j*4):(j*4)+4]+self.binary_data[(i*4)+1][(j*4):(j*4)+4]+self.binary_data[(i*4)][(j*4):(j*4)+4])
+                            print(self.binary_data[i] ,self.binary_data[i*4][(j*4):(j*4)+4],  j, i)
+                        else:
+                            sram[sram2].append("xx" + self.binary_data[(i*4)+3][(j*4):(j*4)+4]+self.binary_data[(i*4)+2][(j*4):(j*4)+4]+self.binary_data[(i*4)+1][(j*4):(j*4)+4]+self.binary_data[(i*4)][(j*4):(j*4)+4])
+
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+
+                    # ---------------------------------------------------------------------------
+                    # sram[data1] = "".join(sram[sram1][::-1])
+                    # sram[data2] = "".join(sram[sram2][::-1])
+                    
+                    # sram[data1] = [sram[data1][i:i+16] for i in range(0, len(sram[data1]), 16)]
+                    # sram[data1] = ['xx' + i for i in sram[data1]]
+                    # sram[data1] = ''.join(sram[data1])
+                    
+                    # sram[data2] = [sram[data2][i:i+16] for i in range(0, len(sram[data2]), 16)]
+                    # sram[data2] = ['xx' + i for i in sram[data2]]
+                    # sram[data2] = ''.join(sram[data2])
+                    
+                    # if (len(sram[data1]) < 18432):
+                        # sram[data1] = 'x'*(18432-len(sram[data1])) + sram[data1]
+                        
+                    # if (len(sram[data2]) < 18432):
+                        # sram[data2] = 'x'*(18432-len(sram[data2])) + sram[data2]
+                    # ---------------------------------------------------------------------------
+                    # import json
+                    # with open('result.json', 'w') as fp:
+                        # json.dump(sram, fp, indent=4)
+                        
+                    sram[sram_result] = sram[data2] + sram[data1]
+                    result.append(sram[sram_result])
+                return result
+                
+            # 16K Memory
+            elif (self.write_depth == 16384):
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+                remainder = self.line_count % 1024
+                actual_remainder = (1024 - remainder) * 36
+                for i in range(lines):
+                    if self.data_width % 2 == 0:
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 2
+                        self.binary_data[i] = '0' * (2 - temp) + self.binary_data[i]
+                        
+                if lines == self.line_count:
+                    for i in range(actual_remainder):
+                        self.binary_data.append(self.data_width * 'x')
+                for j in range(self.m-1, -1, -1):
+                    # print ("Looooooop M ", j)
+                    number_of_rams = f"ram_{j}"
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram_result = f"result_{j}"
+                    sram[number_of_rams] = []
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    sram[sram_result] = []
+                    for i in range(2048): # 2048 * (8-lines per iteration) = 16384 addresses
+                        if i % 2 == 0:
+                            sram[sram1].append("xx" + self.binary_data[(i*8)+7][(j*2):(j*2)+2] + self.binary_data[(i*8)+6][(j*2):(j*2)+2] + self.binary_data[(i*8)+5][(j*2):(j*2)+2] + self.binary_data[(i*8)+4][(j*2):(j*2)+2] + self.binary_data[(i*8)+3][(j*2):(j*2)+2]+self.binary_data[(i*8)+2][(j*2):(j*2)+2]+self.binary_data[(i*8)+1][(j*2):(j*2)+2]+self.binary_data[(i*8)][(j*2):(j*2)+2])
+                            # print(self.binary_data[i] ,self.binary_data[i][(j*2):(j*2)+2],  j, i)
+                        else:
+                            sram[sram2].append("xx" + self.binary_data[(i*8)+7][(j*2):(j*2)+2] + self.binary_data[(i*8)+6][(j*2):(j*2)+2] + self.binary_data[(i*8)+5][(j*2):(j*2)+2] + self.binary_data[(i*8)+4][(j*2):(j*2)+2] + self.binary_data[(i*8)+3][(j*2):(j*2)+2]+self.binary_data[(i*8)+2][(j*2):(j*2)+2]+self.binary_data[(i*8)+1][(j*2):(j*2)+2]+self.binary_data[(i*8)][(j*2):(j*2)+2])
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+                    sram[sram_result] = sram[data2] + sram[data1]
+                    import json
+                    with open('result.json', 'w') as fp:
+                        json.dump(sram, fp, indent=4)
+                    result.append(sram[sram_result])
+
+                return result
+            
+            # 32K Memory
+            elif (self.write_depth == 32768):
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+                remainder = self.line_count % 1024
+                actual_remainder = (1024 - remainder) * 36
+                for i in range(lines):
+                    if len(self.binary_data[i]) < self.data_width:
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                    # print(self.binary_data[i], i, self.binary_data[i][32:36])
+                print(len(self.binary_data))
+                if lines == self.line_count:
+                    for i in range(actual_remainder):
+                        self.binary_data.append(self.data_width * 'x')
+                for j in range(self.m-1, -1, -1):
+                    # print ("Looooooop M ", j)
+                    number_of_rams = f"ram_{j}"
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram_result = f"result_{j}"
+                    sram[number_of_rams] = []
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    sram[sram_result] = []
+                    for i in range(2048): # 2048 * (16-lines per iteration) = 32768 addresses
+                        if i % 2 == 0:
+                            sram[sram1].append("xx" + self.binary_data[(i*16)+15][(j*1):(j*1)+1] + self.binary_data[(i*16)+14][(j*1):(j*1)+1] + self.binary_data[(i*16)+13][(j*1):(j*1)+1] + self.binary_data[(i*16)+12][(j*1):(j*1)+1] + self.binary_data[(i*16)+11][(j*1):(j*1)+1] + self.binary_data[(i*16)+10][(j*1):(j*1)+1] + self.binary_data[(i*16)+9][(j*1):(j*1)+1] + self.binary_data[(i*16)+8][(j*1):(j*1)+1] + self.binary_data[(i*16)+7][(j*1):(j*1)+1] + self.binary_data[(i*16)+6][(j*1):(j*1)+1] + self.binary_data[(i*16)+5][(j*1):(j*1)+1] + self.binary_data[(i*16)+4][(j*1):(j*1)+1] + self.binary_data[(i*16)+3][(j*1):(j*1)+1]+self.binary_data[(i*16)+2][(j*1):(j*1)+1]+self.binary_data[(i*16)+1][(j*1):(j*1)+1]+self.binary_data[(i*16)][(j*1):(j*1)+1])
+                            # print(self.binary_data[i] ,self.binary_data[i][(j*1):(j*1)+1],  j, i)
+                        else:
+                            sram[sram2].append("xx" + self.binary_data[(i*16)+15][(j*1):(j*1)+1] + self.binary_data[(i*16)+14][(j*1):(j*1)+1] + self.binary_data[(i*16)+13][(j*1):(j*1)+1] + self.binary_data[(i*16)+12][(j*1):(j*1)+1] + self.binary_data[(i*16)+11][(j*1):(j*1)+1] + self.binary_data[(i*16)+10][(j*1):(j*1)+1] + self.binary_data[(i*16)+9][(j*1):(j*1)+1] + self.binary_data[(i*16)+8][(j*1):(j*1)+1] + self.binary_data[(i*16)+7][(j*1):(j*1)+1] + self.binary_data[(i*16)+6][(j*1):(j*1)+1] + self.binary_data[(i*16)+5][(j*1):(j*1)+1] + self.binary_data[(i*16)+4][(j*1):(j*1)+1] + self.binary_data[(i*16)+3][(j*1):(j*1)+1]+self.binary_data[(i*16)+2][(j*1):(j*1)+1]+self.binary_data[(i*16)+1][(j*1):(j*1)+1]+self.binary_data[(i*16)][(j*1):(j*1)+1])
+                    
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+                    sram[sram_result] = sram[data2] + sram[data1]
+                    import json
+                    with open('result.json', 'w') as fp:
+                        json.dump(sram, fp, indent=4)
+                    result.append(sram[sram_result])
+                return result
+        
+        # 1K Memory Initialization
+        else:
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+                
+                remainder = self.line_count % 1024
+                actual_remainder = (1024 - remainder) *36
+                
+                for i in range(lines):
+                    if self.data_width % 36 == 0:
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 36
+                        print(self.binary_data[i], temp)
+                        self.binary_data[i] = '0' * (36 - temp) + self.binary_data[i]
+
+                # print(self.binary_data)
+                # print(temp, self.binary_data)
+                if lines == self.line_count:
+                    for i in range(actual_remainder):
+                        self.binary_data.append(36 * 'x')
+                        
+                for j in range(self.m):
+                    number_of_rams1 = f"ram1_{j}"
+                    number_of_rams2 = f"ram2_{j}"
+                    data1 = f"sram_data1_{j}"
+                    data2 = f"sram_data2_{j}"
+                    sram_result = f"result_{j}"
+                    
+                    sram[number_of_rams1] = []
+                    sram[number_of_rams2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    sram[sram_result] = []
+                    
+                    # print ("j------------------------- = ",j)
+                    for i in range(1024):
+                        k= i+(1024*j)
+                        sram[number_of_rams1].append((self.binary_data[k][0:18]))
+                        sram[number_of_rams2].append((self.binary_data[k][18:37]))
+                        
+                    sram[data1] = ''.join(sram[number_of_rams1][::-1])
+                    sram[data2] = ''.join(sram[number_of_rams2][::-1])
+                    sram[sram_result] = sram[data1] + sram[data2]
+                    result.append(sram[sram_result])
+                    
+                    import json
+                    with open('result.json', 'w') as fp:
+                        json.dump(sram, fp, indent=4)
+                    # print(len(sram[number_of_rams1]))
+                    
+                    #     sram1.append((self.binary_data[i][0:18]))
+                    #     sram2.append((self.binary_data[i][18:37]))
+                    # print(type(sram1[1]))
+                    # sram1_data = "".join(sram1[::-1])
+                    # sram2_data = "".join(sram2[::-1])
+                    # result1 = sram1_data + sram2_data
+                    # print(sram)
+
+                    # if (len(result1) < 36864):
+                    #     result1 = 'x'*(36864-len(result1)) + result1
+                    # result.append(result1)
+                
+                return result
+            
+            
+    def data_width_8(self, file_path, file_extension):
+        self.memory_converter(file_path, file_extension)
+        sram1   = []
+        print(self.binary_data)
+        for i in range(0, self.line_count-1, 2):
+            if len(self.binary_data[i]) < 8:
+                self.binary_data[i] = '0' * (8 - len(self.binary_data[i])) + self.binary_data[i]
+            
+            # print(i)
+            if len(self.binary_data[i+1]) < 8:
+                self.binary_data[i+1] = '0' * (8 - len(self.binary_data[i+1])) + self.binary_data[i+1]
+            sram1.append('xx' + self.binary_data[i+1][0:8] + self.binary_data[i][0:8])
+            # print(sram1)
+        # handle last element separately
+        if len(self.binary_data[-1]) < 8:
+            self.binary_data[-1] = '0' * (8 - len(self.binary_data[-1])) + self.binary_data[-1]
+            sram1.append('xx' + self.binary_data[-1][0:8])
+        sram1_data = "".join(sram1[::-1])
+        print(len(sram1_data))
+        if (len(sram1_data) < 36864):
+            result = 'x'*(36864-len(sram1_data)) + sram1_data
+        return result
+    
+    
+    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
+        
+        self.write_depth = write_depth
+        self.data_width  = data_width
+        
         # Get/Check Parameters.
         # ---------------------
         self.logger = logging.getLogger("\tON CHIP MEMORY")
@@ -85,7 +563,7 @@ class OCM(Module):
             else:
                 n = data_width / 36
                 n = math.ceil(n)
-        
+        self.m = m
         msb = math.ceil(math.log2(write_depth))
         # Internal Addresses
         self.address_A    = Signal(msb)
@@ -112,92 +590,95 @@ class OCM(Module):
         # BRAM Utilization Logic
         if (bram == 1):
             
-            if (file_path == ""):
-                init_i = Instance.PreformattedParam("36864'bx")
-            else:
-                with open(file_path, "r") as f:
-                    binary1 = []
-                    array1 = [] # contain bits less than 18
-                    array2 = [] # contain bits greater than 18
-                    file_content = f.readlines()
-                    line_count = 0
-                    for line in file_content:
-                        line_count += 1
-                        if (file_extension == ".hex"):
-                            mem_file_data = int(line.strip(), 16)
-                            binary = format(mem_file_data, 'b') # integer to binary conversion
-                        elif (file_extension == ".init"):
-                            mem_file_data = int(line.strip(), 2)
-                            binary = format(mem_file_data, 'b')
-                        binary1.append(binary)
-                    if (write_depth <= 1024):
-                        if (data_width > 8):
-                            for i in range(line_count):
-                                if len(binary1[i]) < 36:
-                                    binary1[i] = '0' * (36 - len(binary1[i])) + binary1[i]
-                                array1.append((binary1[i][0:18]))
-                                array2.append((binary1[i][18:37]))
-                            msb2 = "".join(array1[::-1])
-                            lsb1 = "".join(array2[::-1])
-                            result = msb2 + lsb1
-                        else:
-                            for i in range(0, line_count-1):
-                                if len(binary1[i]) < 8:
-                                    binary1[i] = '0' * (8 - len(binary1[i])) + binary1[i]
-                                if len(binary1[i+1]) < 8:
-                                    binary1[i+1] = '0' * (8 - len(binary1[i+1])) + binary1[i+1]
-                                array1.append('xx' + binary1[i+1][0:8] + binary1[i][0:8])
-                            # handle last element separately
-                            if len(binary1[-1]) < 8:
-                                binary1[-1] = '0' * (8 - len(binary1[-1])) + binary1[-1]
-                                array1.append('xx' + binary1[-1][0:8])
-                                # array1.append((binary1[i][0:9]))
-                                # array1.append()
-                            # array1.sort(reverse=True)
-                            msb2 = "".join(array1[::-1])
-                            print(len(msb2))
-                            if (len(msb2) < 36864):
-                                result = 'x'*(36864-len(msb2)) + msb2
-                    elif (write_depth == 2048):
-                        if (data_width > 8):
-                            for i in range(line_count):
-                                # print(len(binary1[i]))
-                                if len(binary1[i]) < 18:
-                                    binary1[i] = '0' * (18 - len(binary1[i])) + binary1[i]
-                                if i % 2 == 0:
-                                    # Even location data
-                                    array1.append(binary1[i])
-                                else:
-                                    # Odd location data
-                                    array2.append(binary1[i])
-                            # print(array1)
-                            # print(array2)
-                            bram1 = "".join(array1[::-1])
-                            bram2 = "".join(array2[::-1])
-                            result = bram2 + bram1
+            
+            # if (file_path == ""):
+            #     init_i = Instance.PreformattedParam("36864'bx")
+            # else:
+            #     with open(file_path, "r") as f:
+            #         binary_data = []
+            #         array1 = [] # contain bits less than 18
+            #         array2 = [] # contain bits greater than 18
+            #         file_content = f.readlines()
+            #         line_count = 0
+            #         for line in file_content:
+            #             line_count += 1
+            #             if (file_extension == ".hex"):
+            #                 mem_file_data = int(line.strip(), 16)
+            #                 binary = format(mem_file_data, 'b') # integer to binary conversion
+            #             elif (file_extension == ".hex"):
+            #                 mem_file_data = int(line.strip(), 2)
+            #                 binary = format(mem_file_data, 'b')
+            #             binary_data.append(binary)
+            
+
+            #         if (write_depth <= 1024):
+            #             if (data_width > 8):
+            #                 for i in range(line_count):
+            #                     if len(binary_data[i]) < 36:
+            #                         binary_data[i] = '0' * (36 - len(binary_data[i])) + binary_data[i]
+            #                     array1.append((binary_data[i][0:18]))
+            #                     array2.append((binary_data[i][18:37]))
+            #                 msb2 = "".join(array1[::-1])
+            #                 lsb1 = "".join(array2[::-1])
+            #                 result = msb2 + lsb1
+            #             else:
+            #                 for i in range(0, line_count-1):
+            #                     if len(binary_data[i]) < 8:
+            #                         binary_data[i] = '0' * (8 - len(binary_data[i])) + binary_data[i]
+            #                     if len(binary_data[i+1]) < 8:
+            #                         binary_data[i+1] = '0' * (8 - len(binary_data[i+1])) + binary_data[i+1]
+            #                     array1.append('xx' + binary_data[i+1][0:8] + binary_data[i][0:8])
+            #                 # handle last element separately
+            #                 if len(binary_data[-1]) < 8:
+            #                     binary_data[-1] = '0' * (8 - len(binary_data[-1])) + binary_data[-1]
+            #                     array1.append('xx' + binary_data[-1][0:8])
+            #                 msb2 = "".join(array1[::-1])
+            #                 print(len(msb2))
+            #                 if (len(msb2) < 36864):
+            #                     result = 'x'*(36864-len(msb2)) + msb2
+            #         elif (write_depth == 2048):
+            #             if (data_width > 8):
+            #                 for i in range(line_count):
+            #                     # print(len(binary_data[i]))
+            #                     if len(binary_data[i]) < 18:
+            #                         binary_data[i] = '0' * (18 - len(binary_data[i])) + binary_data[i]
+            #                     if i % 2 == 0:
+            #                         # Even location data
+            #                         array1.append(binary_data[i])
+            #                     else:
+            #                         # Odd location data
+            #                         array2.append(binary_data[i])
+            #                 # print(array1)
+            #                 # print(array2)
+            #                 bram1 = "".join(array1[::-1])
+            #                 bram2 = "".join(array2[::-1])
+            #                 result = bram2 + bram1
                             
                             
-                    elif (write_depth == 4096):
-                        # if (data_width > 8):
-                        for i in range(line_count):
-                            print(len(binary1[i]))
-                            if len(binary1[i]) < 9:
-                                binary1[i] = '0' * (9 - len(binary1[i])) + binary1[i]
+            #         elif (write_depth == 4096):
+            #             # if (data_width > 8):
+            #             for i in range(line_count):
+            #                 print(len(binary_data[i]))
+            #                 if len(binary_data[i]) < 9:
+            #                     binary_data[i] = '0' * (9 - len(binary_data[i])) + binary_data[i]
                                 
-                                print(binary1[i])
-                            # if i % 2 == 0:
-                                # Even location data
-                            array1.append(binary1[i])
-                            # else:
-                                # Odd location data
-                            array2.append(binary1[i])
-                        # print(array1)
-                        # print(array2)
-                        bram1 = "".join(array1[::-1])
-                        bram2 = "".join(array2[::-1])
-                        result = bram2 + bram1
+            #                     print(binary_data[i])
+                            
+            #                     # Even location data
+            #                 array1.append(binary_data[i])
+            #                 # else:
+            #                     # Odd location data
+            #                 array2.append(binary_data[i])
+            #             # print(array1)
+            #             # print(array2)
+            #             bram1 = "".join(array1[::-1])
+            #             bram2 = "".join(array2[::-1])
+            #             result = bram2 + bram1
+
                         
-                        
+                    
+                    
+                    
                     
                         # print(len(bram1), len(array1),)
                         # if (len(bram1) < 36864):
@@ -232,7 +713,6 @@ class OCM(Module):
                     
                 
                     
-                init_i = Instance.PreformattedParam("36864'b{}".format(result))
                     # print(array1[i])  
                 # print(lsb1)
                 # print(msb2)
@@ -498,6 +978,7 @@ class OCM(Module):
             # Single Port RAM
             if (memory_type == "Single_Port"):
                 # Number of BRAMS
+                init = self.data_width_36(file_path, file_extension)
                 for i in range(n):
                     if (n == (i+1)):
                         if (y > 18):
@@ -664,6 +1145,13 @@ class OCM(Module):
                     # init_i = Instance.PreformattedParam("36864'hx")
                     
                     for j in range(m):
+                        
+                        print("m:", m , "n", n)
+                        
+                        value = init[j]
+                        init_i = Instance.PreformattedParam("36864'b{}".format(value))
+                        
+                        
                         if (write_depth == 1024):
                             if (m == (j+1)):
                                 if (z > 18):
@@ -717,6 +1205,7 @@ class OCM(Module):
                         
                         read_data_A1   = self.bram_out_A[j][(i*36):((i*36)+18)]
                         read_data_A2   = self.bram_out_A[j][((i*36)+18):((i*36)+36)]
+                        
                         # Module instance.
                         # ----------------
                         self.specials += Instance("RS_TDP36K",
