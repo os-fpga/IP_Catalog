@@ -151,7 +151,7 @@ class FIFO(Module):
                         # Global.
                         p_DATA_WIDTH        = C(data), 
                         p_SYNC_FIFO         = synchronous,
-                        p_PROG_FULL_THRESH  = C(full_value, 12),
+                        p_PROG_FULL_THRESH  = C(depth - full_value, 12),
                         p_PROG_EMPTY_THRESH = C(empty_value, 12),
 
                         # Clk / Rst.
@@ -218,7 +218,7 @@ class FIFO(Module):
                         # Global.
                         p_DATA_WIDTH        = C(data), 
                         p_SYNC_FIFO         = synchronous,
-                        p_PROG_FULL_THRESH  = C(full_value, 12),
+                        p_PROG_FULL_THRESH  = C(depth - full_value, 12),
                         p_PROG_EMPTY_THRESH = C(empty_value, 12),
 
                         # Clk / Rst.
