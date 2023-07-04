@@ -9,7 +9,7 @@
 import os
 import logging
 import math
-from migen.genlib.fifo import SyncFIFO
+from migen.genlib.fifo import SyncFIFOBuffered, AsyncFIFO, SyncFIFO, AsyncFIFOBuffered
 from migen import *
 
 from litex.soc.interconnect.axi import *
@@ -903,102 +903,117 @@ class FIFO(Module):
                     ]
         # Using Distributed RAM
         else:
-            # self.specials.memory = Memory(data_width, depth)
-            # self.wrt_port = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=False)
-            # self.rd_port = self.memory.get_port(write_capable=False, async_read=False, mode=WRITE_FIRST, has_re=True)
-            # self.specials += self.wrt_port
-            # self.specials += self.rd_port
-            # self.comb += [
-            #     self.rd_port.re.eq(self.rden),
-            #     self.wrt_port.we.eq(self.wren),
-            #     self.dout.eq(self.rd_port.dat_r),
-            #     self.wrt_port.dat_w.eq(self.din),
-            #     self.wrt_port.adr.eq(self.wrt_ptr),
-            #     self.rd_port.adr.eq(self.rd_ptr)
-            # ]
-            # self.sync += [
-            #     If (self.wren,
-            #         If (~self.full,
-            #             self.wrt_ptr.eq(self.wrt_ptr + 1)
-            #         )
-            #     )
-            # ]
-            # self.sync += [
-            #     If (self.wren,
-            #         If(~self.overflow,
-            #            self.counter.eq(self.counter + 1)
-            #         )
-            #     )
-            # ]
-            # self.sync += [
-            #     If (self.rden,
-            #         If (~self.empty,
-            #             self.rd_ptr.eq(self.rd_ptr + 1),
-            #             self.counter.eq(self.counter - 1)
-            #         )
-            #     )
-            # ]
-            # # Counter logic for Empty and Full
-            # self.comb += [
-            #     If(self.counter >= depth - 1,
-            #        self.full.eq(1)
-            #     )
-            # ]
-            # self.comb += [
-            #     If(self.counter == 0,
-            #        self.empty.eq(1)
-            #        )
-            # ]
-            # # Checking for Underflow
-            # self.sync += [
-            #     If(self.empty,
-            #        If(self.rden,
-            #           self.underflow.eq(1)
-            #         ).Else(
-            #             self.underflow.eq(0)
-            #         )
-            #     ).Else(
-            #         self.underflow.eq(0)
-            #     )
-            # ]
-            # # Checking for Overflow
-            # self.sync += [
-            #     If(self.full,
-            #        If(self.wren,
-            #           self.overflow.eq(1)
-            #         ).Else(
-            #             self.overflow.eq(0)
-            #         )
-            #     ).Else(
-            #         self.overflow.eq(0)
-            #     )
-            # ]
-            # self.sync += [
-            #     If(self.wren,
-            #         If(self.wrt_ptr == depth - 1,
-            #            If(~self.full,
-            #                 self.wrt_ptr.eq(0)
-            #            )
-            #         )
-            #     )
-            # ]
-            # self.sync += [
-            #     If(self.rden,
-            #         If(self.rd_ptr == depth,
-            #            If(~self.empty,
-            #             self.rd_ptr.eq(1)
-            #            )
-            #         )
-            #     )
-            # ]
-            self.submodules.fifo = SyncFIFO(data_width, depth)
-            self.comb += [
-                self.fifo.din.eq(self.din),
-                self.fifo.we.eq(self.wren),
-                self.fifo.re.eq(self.rden),
-                self.dout.eq(self.fifo.dout),
-                self.full.eq(~self.fifo.writable),
-                self.empty.eq(~self.fifo.readable)
+            if (synchronous):
+                self.submodules.fifo = SyncFIFO(data_width, depth, first_word_fall_through)
+            else:
+                self.submodules.fifo = AsyncFIFO(data_width, depth)
+                self.fifo = ClockDomainsRenamer({"write": "wrt"})(self.fifo)
+                self.fifo = ClockDomainsRenamer({"read": "rd"})(self.fifo)
+            if (synchronous):
+                self.comb += [
+                    If(self.wren,
+                        self.fifo.din.eq(self.din)
+                    ),
+                    self.fifo.we.eq(self.wren),
+                    self.fifo.re.eq(self.rden),
+                    If(self.rden,
+                        self.dout.eq(self.fifo.dout)
+                    ),
+                    self.full.eq(~self.fifo.writable),
+                    self.empty.eq(~self.fifo.readable),
+                    If(self.underflow,
+                       self.dout.eq(0)
+                       )
+                    ]
+            else:
+                self.wr_en = Signal()
+                self.comb += [
+                    If(self.wren,
+                       If(~self.full,
+                            self.wr_en.eq(1)
+                       )
+                    )
+                ]
+                self.sync.wrt += [
+                    If(self.wren,
+                       self.fifo.din.eq(self.din)
+                    ),
+                    self.fifo.we.eq(self.wr_en)                    
+                ]
+                if (not first_word_fall_through):
+                    self.sync.rd += [
+                        If(self.rd_en_flop,
+                            self.dout.eq(self.fifo.dout)
+                        ).Else(
+                            self.dout.eq(0)
+                        ),
+                        self.fifo.re.eq(self.rden),
+                        If(self.empty,
+                           self.dout.eq(0)
+                           )
+                    ]
+                else:
+                    self.sync.rd += [
+                        self.dout.eq(self.fifo.dout),
+                        self.fifo.re.eq(self.rden),
+                        If(self.empty,
+                           self.dout.eq(0)
+                           )
+                    ]
+                self.comb += self.empty.eq(~self.fifo.readable)
+                self.comb += self.full.eq(~self.fifo.writable)
+                self.sync.rd += [
+                    If(self.rden,
+                       self.rd_en_flop.eq(1)
+                       ).Else(
+                        self.rd_en_flop.eq(0)
+                       )
+                ]
+            if (synchronous):
+                self.sync += [
+                    If(self.rden,
+                       If(self.empty,
+                          self.underflow.eq(1)
+                        ).Else(
+                            self.underflow.eq(0)
+                        )
+                    ).Else(
+                            self.underflow.eq(0)
+                        )
+                ]
+                self.sync += [
+                    If(self.wren,
+                       If(self.full,
+                          self.overflow.eq(1)
+                        ).Else(
+                            self.overflow.eq(0)
+                        )
+                    ).Else(
+                            self.overflow.eq(0)
+                        )
+                ]
+            else:
+                self.sync.rd += [
+                    If(self.rden,
+                       If(self.empty,
+                          self.underflow.eq(1)
+                        ).Else(
+                            self.underflow.eq(0)
+                        )
+                    ).Else(
+                            self.underflow.eq(0)
+                        )
+                ]
+                self.sync.wrt += [
+                    If(self.wren,
+                       If(self.full,
+                          self.overflow.eq(1)
+                        ).Else(
+                            self.overflow.eq(0)
+                        )
+                    ).Else(
+                            self.overflow.eq(0)
+                        )
                 ]
             
 
