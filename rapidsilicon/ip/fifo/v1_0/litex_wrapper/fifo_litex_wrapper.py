@@ -909,31 +909,46 @@ class FIFO(Module):
                 self.submodules.fifo = AsyncFIFO(data_width, depth)
                 self.fifo = ClockDomainsRenamer({"write": "wrt"})(self.fifo)
                 self.fifo = ClockDomainsRenamer({"read": "rd"})(self.fifo)
+            self.wr_en = Signal()
+            self.comb += [
+                If(self.wren,
+                   If(~self.full,
+                        self.wr_en.eq(1)
+                   )
+                )
+            ]
             if (synchronous):
+                if (not first_word_fall_through):
+                    self.comb += [
+                        If(self.wren,
+                            self.fifo.din.eq(self.din)
+                        ),
+                        self.fifo.we.eq(self.wr_en),
+                        self.fifo.re.eq(self.rden),
+                        If(self.rden,
+                            self.dout.eq(self.fifo.dout)
+                        ),
+                        If(self.underflow,
+                           self.dout.eq(0)
+                           )
+                        ]
+                else:
+                    self.comb += [
+                        If(self.wren,
+                            self.fifo.din.eq(self.din)
+                        ),
+                        self.fifo.we.eq(self.wr_en),
+                        self.fifo.re.eq(self.rden),
+                        self.dout.eq(self.fifo.dout),
+                        If(self.underflow,
+                           self.dout.eq(0)
+                           )
+                        ]
                 self.comb += [
-                    If(self.wren,
-                        self.fifo.din.eq(self.din)
-                    ),
-                    self.fifo.we.eq(self.wren),
-                    self.fifo.re.eq(self.rden),
-                    If(self.rden,
-                        self.dout.eq(self.fifo.dout)
-                    ),
                     self.full.eq(~self.fifo.writable),
                     self.empty.eq(~self.fifo.readable),
-                    If(self.underflow,
-                       self.dout.eq(0)
-                       )
-                    ]
-            else:
-                self.wr_en = Signal()
-                self.comb += [
-                    If(self.wren,
-                       If(~self.full,
-                            self.wr_en.eq(1)
-                       )
-                    )
                 ]
+            else:
                 self.sync.wrt += [
                     If(self.wren,
                        self.fifo.din.eq(self.din)
