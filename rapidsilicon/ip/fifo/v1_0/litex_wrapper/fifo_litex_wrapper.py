@@ -996,6 +996,20 @@ class FIFO(Module):
                             self.underflow.eq(0)
                         )
                 ]
+                # Programmable Full Flag
+                if (full_threshold):
+                    self.comb += [
+                        If(self.fifo.level >= full_value - 1,
+                           self.prog_full.eq(1)
+                        )
+                    ]
+                # Programmable Empty Flag
+                if (empty_threshold):
+                    self.comb += [
+                        If(self.fifo.level <= empty_value - 1,
+                           self.prog_empty.eq(1)
+                        )
+                    ]
                 self.sync += [
                     If(self.wren,
                        If(self.full,
