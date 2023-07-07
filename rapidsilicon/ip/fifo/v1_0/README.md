@@ -13,12 +13,13 @@ These are the parameters for FIFO core along with their keyword and values: -
 |--------|----------------------------|----------------------------|---------------|
 |   1.   |   DATA_WIDTH               |     data_width             |    1 - 128   |
 |   2.   |   DEPTH               |     depth             |    2 - 32768   |
-|   3.   |   FULL_THRESHOLD           |     full_threshold     |    1 - 4094     |
-|   4.   |   EMPTY_THRESHOLD        |     empty_threshold        |    0 - 4094     |
+|   3.   |   FULL_THRESHOLD           |     full_threshold     |    0 / 1     |
+|   4.   |   EMPTY_THRESHOLD        |     empty_threshold        |    0 / 1     |
 |   6.   |   SYNCHRONOUS             |     synchronous           |    0 / 1     |
-|   7.  |   DRAM                    |   dram                |   0 / 1   |
+|   7.  |   BRAM                    |   bram                |   0 / 1   |
 |   8.  |   FIRST_WORD_FALL_THROUGH |   first_word_fall_through   |   0 / 1   |
-
+|   9.   |   FULL_VALUE           |     full_value     |    1 - 4094     |
+|   10.   |   EMPTY_VALUE        |     empty_value        |    0 - 4094     |
 
 
 
