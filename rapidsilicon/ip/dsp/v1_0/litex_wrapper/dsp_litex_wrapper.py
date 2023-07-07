@@ -5324,4 +5324,3 @@ class RS_DSP_MULT54_enhance(Module):
                 i_unsigned_a    = 0,
                 i_unsigned_b    = 0
             )
-
