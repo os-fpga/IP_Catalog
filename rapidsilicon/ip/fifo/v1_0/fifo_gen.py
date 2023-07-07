@@ -89,9 +89,13 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--data_width",     type=int,   default=36,  	choices=range(1,129),   help="FIFO Write/Read Width")
-    core_range_param_group.add_argument("--depth",          type=int,   default=1024,	choices=range(2,32769), help="FIFO Depth")
     core_range_param_group.add_argument("--full_value",     type=int,   default=1010,	choices=range(1,4095),  help="Full Value")
     core_range_param_group.add_argument("--empty_value",    type=int,   default=20,  	choices=range(0,4095),  help="Empty Value")
+    core_range_param_group.add_argument("--depth",          type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
+
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--DEPTH",      type=int,     default=1024,   choices=[4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768],   help="FIFO Depth")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -117,11 +121,49 @@ def main():
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        if (args.full_threshold == False):
+            dep_dict.update({
+                'full_value'    :   'True'
+            })
+        if (args.empty_threshold == False):
+            dep_dict.update({
+                'empty_value'   :   'True'
+            })
+        if (args.BRAM == False and args.synchronous == False):
+            dep_dict.update ({
+                'empty_threshold'   :   'True',
+                'full_threshold'    :   'True'
+            })
+            option_strings_to_remove = ['--depth']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
+                parser._actions[4].default = 2 ** round(math.log2(args.depth))
+            parser._actions[2].choices = range(2, args.DEPTH)
+            parser._actions[3].choices = range(1, args.DEPTH)
+            if (args.full_value >= args.DEPTH):
+                parser._actions[2].default = args.DEPTH - 1
+            if (args.empty_value >= args.DEPTH):    
+                parser._actions[3].default = 1
+        else:
+            option_strings_to_remove = ['--DEPTH']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            parser._actions[2].choices = range(2, args.depth)
+            parser._actions[3].choices = range(1, args.depth)
+            if (args.full_value >= args.depth):
+                parser._actions[2].default = args.depth - 1
+            if (args.empty_value >= args.depth):    
+                parser._actions[3].default = 1
+        
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
+    if (args.BRAM == False and args.synchronous == False):
+        depth = args.DEPTH
+    else:
+        depth = args.depth
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = FIFOWrapper(platform,
@@ -129,7 +171,7 @@ def main():
         synchronous     				= args.synchronous,
         full_threshold  				= args.full_threshold,
         empty_threshold 				= args.empty_threshold,
-        depth           				= args.depth,
+        depth           				= depth,
         full_value                      = args.full_value,
         empty_value                     = args.empty_value,
         first_word_fall_through         = args.first_word_fall_through,
