@@ -31,7 +31,7 @@ module RS_DSP (
     input  wire       subtract
 );
 
-	//-- Aram -- register_inputs and output_select are part of MODE_BITS
+    //-- Aram -- register_inputs and output_select are part of MODE_BITS
     parameter [83:0] MODE_BITS = 84'd0;
 
     localparam [19:0] COEFF_0 = MODE_BITS[19:0];
@@ -252,6 +252,7 @@ module RS_DSP_MULTADD (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
+    output wire [17:0] dly_b,
 
     input  wire       clk,
     input  wire       lreset,
@@ -276,6 +277,7 @@ module RS_DSP_MULTADD (
     localparam [19:0] COEFF_2 = MODE_BITS[59:40];
     localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
+
     //Avinash// RS_DSP_MULTADD
     localparam [2:0] output_select = 3'b010;
     localparam register_inputs = 1'b0;
@@ -286,6 +288,7 @@ module RS_DSP_MULTADD (
         .a(a),
         .b(b),
         .z(z),
+        .dly_b(dly_b),
         .feedback(feedback),
         .acc_fir(acc_fir),
         .load_acc(load_acc),
@@ -306,6 +309,7 @@ module RS_DSP_MULTADD_REGIN (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
+    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire        clk,
@@ -342,6 +346,7 @@ module RS_DSP_MULTADD_REGIN (
         .a(a),
         .b(b),
         .z(z),
+        .dly_b(dly_b),
         .feedback(feedback),
         .acc_fir(acc_fir),
         .load_acc(load_acc),
@@ -362,6 +367,7 @@ module RS_DSP_MULTADD_REGOUT (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
+    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire        clk,
@@ -396,6 +402,7 @@ module RS_DSP_MULTADD_REGOUT (
         .a(a),
         .b(b),
         .z(z),
+        .dly_b(dly_b),
         .feedback(feedback),
         .acc_fir(acc_fir),
         .load_acc(load_acc),
@@ -416,6 +423,7 @@ module RS_DSP_MULTADD_REGIN_REGOUT (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
+    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire        clk,
@@ -451,6 +459,7 @@ module RS_DSP_MULTADD_REGIN_REGOUT (
         .a(a),
         .b(b),
         .z(z),
+        .dly_b(dly_b),
         .feedback(feedback),
         .acc_fir(acc_fir),
         .load_acc(load_acc),
@@ -800,11 +809,31 @@ module dsp_t1_sim_cfg_ports # (
     reg  [2:0]          r_feedback;
     reg  [5:0]          r_shift_d1;
     reg  [5:0]          r_shift_d2;
-    reg         r_subtract;
-    reg         r_sat;
-    reg         r_rnd;
-    reg [NBITS_ACC-1:0] acc;
+    reg                 r_subtract;
+    reg                 r_sat_d1, r_sat_d2;  // FIXED: adding registers for pipelining  //
+    reg                 r_rnd_d1, r_rnd_d2;  // // //  //  //  //  //  //  //  //   //  //
+    reg signed [NBITS_ACC-1:0] acc;
 
+ // Registered / non-registered input path select
+    wire [NBITS_A-1:0]  a = register_inputs_i ? r_a : a_i;
+    wire [NBITS_B-1:0]  b = register_inputs_i ? r_b : b_i;
+
+    wire [5:0] acc_fir = register_inputs_i ? r_acc_fir : acc_fir_i;
+    wire       unsigned_a = register_inputs_i ? r_unsigned_a : unsigned_a_i;
+    wire       unsigned_b = register_inputs_i ? r_unsigned_b : unsigned_b_i;
+    wire [2:0] feedback   = register_inputs_i ? r_feedback   : feedback_i;
+    wire       load_acc   = register_inputs_i ? r_load_acc   : load_acc_i;
+    wire       subtract   = register_inputs_i ? r_subtract   : subtract_i;
+    wire       sat_d1     = register_inputs_i ?  r_sat_d1 : saturate_enable_i;
+    wire       sat_d2     = output_select_i[1] ?  sat_d1 : r_sat_d2;
+    wire       rnd_d1     = register_inputs_i ?  r_rnd_d1 : round_i;
+    wire       rnd_d2     = output_select_i[1] ?  rnd_d1 : r_rnd_d2;
+
+    // Shift right control
+    wire [5:0] shift_d1 = register_inputs_i ? r_shift_d1 : shift_right_i;
+    wire [5:0] shift_d2 = output_select_i[1] ? shift_d1 : r_shift_d2;
+
+`ifndef VCS_MODE
     initial begin
         r_a          <= 0;
         r_b          <= 0;
@@ -817,9 +846,12 @@ module dsp_t1_sim_cfg_ports # (
         r_shift_d2   <= 0;
         r_subtract   <= 0;
         r_load_acc   <= 0;
-        r_sat        <= 0;
-        r_rnd        <= 0;
+        r_sat_d1     <= 0;
+        r_sat_d2     <= 0;
+        r_rnd_d1     <= 0;
+        r_rnd_d2     <= 0;
     end
+`endif
 
     always @(posedge clock_i or posedge s_reset) begin
         if (s_reset) begin
@@ -835,8 +867,10 @@ module dsp_t1_sim_cfg_ports # (
             r_shift_d2   <= 0;
             r_subtract   <= 0;
             r_load_acc   <= 0;
-            r_sat    <= 0;
-            r_rnd    <= 0;
+            r_sat_d1     <= 0;
+            r_sat_d2     <= 0;
+            r_rnd_d1     <= 0;
+            r_rnd_d2     <= 0;
 
         end else begin
 
@@ -848,31 +882,16 @@ module dsp_t1_sim_cfg_ports # (
             r_unsigned_b <= unsigned_b_i;
             r_feedback   <= feedback_i;
             r_shift_d1   <= shift_right_i;
-            r_shift_d2   <= r_shift_d1;
+            r_shift_d2   <= shift_d1;       // Fixed Extra Flop Logic
             r_subtract   <= subtract_i;
             r_load_acc   <= load_acc_i;
-            r_sat    <= r_sat;
-            r_rnd    <= r_rnd;
+            r_sat_d1     <= saturate_enable_i;
+            r_sat_d2     <= sat_d1;
+            r_rnd_d1     <= round_i;
+            r_rnd_d2     <= rnd_d1;
 
         end
     end
-
-    // Registered / non-registered input path select
-    wire [NBITS_A-1:0]  a = register_inputs_i ? r_a : a_i;
-    wire [NBITS_B-1:0]  b = register_inputs_i ? r_b : b_i;
-
-    wire [5:0] acc_fir = register_inputs_i ? r_acc_fir : acc_fir_i;
-    wire       unsigned_a = register_inputs_i ? r_unsigned_a : unsigned_a_i;
-    wire       unsigned_b = register_inputs_i ? r_unsigned_b : unsigned_b_i;
-    wire [2:0] feedback   = register_inputs_i ? r_feedback   : feedback_i;
-    wire       load_acc   = register_inputs_i ? r_load_acc   : load_acc_i;
-    wire       subtract   = register_inputs_i ? r_subtract   : subtract_i;
-    wire       sat    = register_inputs_i ? r_sat : saturate_enable_i;
-    wire       rnd    = register_inputs_i ? r_rnd : round_i;
-
-    // Shift right control
-    wire [5:0] shift_d1 = register_inputs_i ? r_shift_d1 : shift_right_i;
-    wire [5:0] shift_d2 = output_select_i[1] ? shift_d1 : r_shift_d2;
 
     // Multiplier
     wire unsigned_mode = unsigned_a & unsigned_b;
@@ -914,8 +933,10 @@ module dsp_t1_sim_cfg_ports # (
 
     wire [NBITS_ACC-1:0] add_o = add_a + add_b;
 
+`ifndef VCS_MODE
     // Accumulator
     initial acc <= 0;
+`endif
 
     always @(posedge clock_i or posedge s_reset)
         if (s_reset) acc <= 'h0;
@@ -927,23 +948,22 @@ module dsp_t1_sim_cfg_ports # (
         end
 
     // Adder/accumulator output selection
-    wire [NBITS_ACC-1:0] acc_out = (output_select_i[1]) ? add_o : acc;
+    wire signed [NBITS_ACC-1:0] acc_out = (output_select_i[1]) ? add_o : acc; // FIXED: CONVERTED TO SIGNED VALUE
 
-    // Round, shift, saturate
-    wire signed [NBITS_ACC-1:0] acc_rnd = (rnd && (shift_right_i != 0)) ? (acc_out + ({{(NBITS_ACC-1){1'b0}}, 1'b1} << (shift_right_i - 1))) :
-                                                                    acc_out;
+    // Round, shift, saturate   
+    // FIXED LOGIC FOR SHIFT ROUND AND SATURATE BLOCK 
+    wire signed [NBITS_ACC-1:0] acc_shr = (acc_out >>> shift_d2);
 
-    wire [NBITS_ACC-1:0] acc_shr = (unsigned_mode) ? (acc_rnd  >> shift_right_i) :
-                                                     (acc_rnd >>> shift_right_i);
+    wire signed [NBITS_ACC-1:0] acc_rnd = (rnd_d2 && (shift_d2 != 0)) ? ((acc_out[shift_d2-1])? acc_shr + 1'b1 : acc_shr) : acc_shr;
 
-    wire [NBITS_ACC-1:0] acc_sat_u = (acc_shr[NBITS_ACC-1:NBITS_Z] != 0) ? {{(NBITS_ACC-NBITS_Z){1'b0}},{NBITS_Z{1'b1}}} :
-                                                                           {{(NBITS_ACC-NBITS_Z){1'b0}},{acc_shr[NBITS_Z-1:0]}};
 
-    wire [NBITS_ACC-1:0] acc_sat_s = ((|acc_shr[NBITS_ACC-1:NBITS_Z-1] == 1'b0) ||
-                                      (&acc_shr[NBITS_ACC-1:NBITS_Z-1] == 1'b1)) ? {{(NBITS_ACC-NBITS_Z){1'b0}},{acc_shr[NBITS_Z-1:0]}} :
-                                                                                   {{(NBITS_ACC-NBITS_Z){1'b0}},{acc_shr[NBITS_ACC-1],{NBITS_Z-1{~acc_shr[NBITS_ACC-1]}}}};
+    wire signed [NBITS_ACC-1:0] acc_sat_u = (acc_rnd[NBITS_ACC-1] == 1) ? {NBITS_ACC{1'b0}} : 
+                                            ((|acc_rnd[NBITS_ACC-1:NBITS_Z] == 1'b0)? ({{(NBITS_ACC-NBITS_Z){1'b0}},{acc_rnd[NBITS_Z-1:0]}}) : {{(NBITS_ACC-NBITS_Z){1'b0}},{NBITS_Z{1'b1}}});
+    
+    wire signed [NBITS_ACC-1:0] acc_sat_s = ((|acc_rnd[NBITS_ACC-1:NBITS_Z-1] == 1'b0) || (&acc_rnd[NBITS_ACC-1:NBITS_Z-1] == 1'b1)) ? {{(NBITS_ACC-NBITS_Z){1'b0}},{acc_rnd[NBITS_Z-1:0]}} :
+                                            {{(NBITS_ACC-NBITS_Z){1'b0}},{acc_rnd[NBITS_ACC-1],{NBITS_Z-1{~acc_rnd[NBITS_ACC-1]}}}};
 
-    wire [NBITS_ACC-1:0] acc_sat = (sat) ? ((unsigned_mode) ? acc_sat_u : acc_sat_s) : acc_shr;
+    wire signed [NBITS_ACC-1:0] acc_sat = (sat_d2) ? ((unsigned_mode) ? acc_sat_u : acc_sat_s) : acc_rnd;
 
     // Output signals
     wire [NBITS_Z-1:0]  z0;
