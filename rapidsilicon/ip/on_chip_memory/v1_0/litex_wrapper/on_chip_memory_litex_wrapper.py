@@ -826,8 +826,8 @@ class OCM(Module):
                                     write_data_A2   = self.din_A[((j*36)+18):((j*36)+36)]
 
                         elif (write_depth == 2048):
-                                write_data_A1 = self.din_A[(j*18):((j*18)+18)]
-                                write_data_A2 = 0
+                            write_data_A1 = self.din_A[(j*18):((j*18)+18)]
+                            write_data_A2 = 0
                             
                         elif (write_depth == 4096):
                             if data_width > 8:
