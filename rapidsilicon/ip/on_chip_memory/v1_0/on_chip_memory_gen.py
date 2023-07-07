@@ -44,13 +44,13 @@ def get_clkin_ios(data_width, write_depth):
 
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
-    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram):
+    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(data_width, write_depth))
         self.clock_domains.cd_sys  = ClockDomain()
         self.clock_domains.cd_clk1  = ClockDomain()
         self.clock_domains.cd_clk2  = ClockDomain()
-        self.submodules.sp = ram = OCM(platform, data_width, memory_type, common_clk, write_depth, bram)
+        self.submodules.sp = ram = OCM(platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension)
         
         # Single Port RAM
         if (memory_type == "Single_Port"):
@@ -126,6 +126,10 @@ def main():
     core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock")
     core_bool_param_group.add_argument("--bram",        type=bool,   default=False,     help="BRAM vs Distributed Memory")
 
+    # Core file path parameters.
+    core_file_path_group = parser.add_argument_group(title="Core file path parameters")
+    core_file_path_group.add_argument("--file_path",    type=str,   default="",   help="File Path for memory initialization file (.bin/.hex)")
+
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                        help="Build Core")
@@ -140,39 +144,39 @@ def main():
     args = parser.parse_args()
 
     # Import JSON (Optional) -----------------------------------------------------------------------
-    fabric_mem = 4194432
-    if args.json:
-        args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-        for key, value in vars(args).items():
-            if args_1.data_width <= 128 and args_1.data_width > 64 :
-                parser._actions[3].choices = [2,int((fabric_mem/128)-1)]
-                parser._actions[3].default = int(fabric_mem/128)
-            elif args_1.data_width <= 64 and args_1.data_width > 32:
-                parser._actions[3].choices = [2,int(fabric_mem/64)]
-                parser._actions[3].default = int(fabric_mem/64)
-            elif args_1.data_width <= 32 and args_1.data_width > 16:
-                parser._actions[3].choices = [2,int(fabric_mem/32)]
-                parser._actions[3].default = int(fabric_mem/32)
-            elif args_1.data_width <= 16 and args_1.data_width > 8 :
-                parser._actions[3].choices = [2,int(fabric_mem/16)]
-                parser._actions[3].default = int(fabric_mem/16)
-            elif args_1.data_width <= 8 and args_1.data_width > 4 :
-                parser._actions[3].choices = [2,int(fabric_mem/8)]
-                parser._actions[3].default = int(fabric_mem/8)
-            elif args_1.data_width <= 4 and args_1.data_width > 2 :
-                parser._actions[3].choices = [2,int(fabric_mem/4)]
-                parser._actions[3].default = int(fabric_mem/4)
-            elif args_1.data_width <= 2 and args_1.data_width >= 1 :
-                parser._actions[3].choices = [2,int(fabric_mem/2)]
-                parser._actions[3].default = int(fabric_mem/2)
-            if args_1.data_width == 32:
-                parser._actions[3].default = 1024
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    # fabric_mem = 4194432
+    # if args.json:
+    #     args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    #     for key, value in vars(args).items():
+    #         if args_1.data_width <= 128 and args_1.data_width > 64 :
+    #             parser._actions[3].choices = [2,int((fabric_mem/128)-1)]
+    #             parser._actions[3].default = int(fabric_mem/128)
+    #         elif args_1.data_width <= 64 and args_1.data_width > 32:
+    #             parser._actions[3].choices = [2,int(fabric_mem/64)]
+    #             parser._actions[3].default = int(fabric_mem/64)
+    #         elif args_1.data_width <= 32 and args_1.data_width > 16:
+    #             parser._actions[3].choices = [2,int(fabric_mem/32)]
+    #             parser._actions[3].default = int(fabric_mem/32)
+    #         elif args_1.data_width <= 16 and args_1.data_width > 8 :
+    #             parser._actions[3].choices = [2,int(fabric_mem/16)]
+    #             parser._actions[3].default = int(fabric_mem/16)
+    #         elif args_1.data_width <= 8 and args_1.data_width > 4 :
+    #             parser._actions[3].choices = [2,int(fabric_mem/8)]
+    #             parser._actions[3].default = int(fabric_mem/8)
+    #         elif args_1.data_width <= 4 and args_1.data_width > 2 :
+    #             parser._actions[3].choices = [2,int(fabric_mem/4)]
+    #             parser._actions[3].default = int(fabric_mem/4)
+    #         elif args_1.data_width <= 2 and args_1.data_width >= 1 :
+    #             parser._actions[3].choices = [2,int(fabric_mem/2)]
+    #             parser._actions[3].default = int(fabric_mem/2)
+    #         if args_1.data_width == 32:
+    #             parser._actions[3].default = 1024
+    # args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
-
+    
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = OCMWrapper(platform,
@@ -180,7 +184,9 @@ def main():
         data_width      = args.data_width,
         write_depth     = args.write_depth,
         common_clk      = args.common_clk,
-        bram            = args.bram
+        bram            = args.bram,
+        file_path       = args.file_path,
+        file_extension  = os.path.splitext(args.file_path)[1]
     )
 
     # Build Project --------------------------------------------------------------------------------
