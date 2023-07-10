@@ -40,12 +40,14 @@ class OCM(Module):
         
     def data_width_36(self, file_path, file_extension):
         self.memory_converter(file_path, file_extension)
-        result = []
         
         sram = {}
         sram1   = []
         sram2   = []
-
+        result = []
+        
+        if file_path == "":
+            return "x"
         if self.write_depth in [2048, 4096, 8192, 16384, 32768]:
             if (self.write_depth == 2048):
                 if (self.line_count) > 2048:
@@ -137,7 +139,6 @@ class OCM(Module):
 
             # 8K Memory
             elif (self.write_depth == 8192):
-                
                 if (len(self.binary_data) > self.write_depth):
                     lines = self.write_depth
                 else:
@@ -640,10 +641,12 @@ class OCM(Module):
                                 self.sync.clk1 += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
                                 self.sync.clk2 += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
 
+            # Memory Initialization Function Calling
+            init = self.data_width_36(file_path, file_extension)
+            
             # Single Port RAM
             if (memory_type == "Single_Port"):
                 # Number of BRAMS
-                init = self.data_width_36(file_path, file_extension)
                 for i in range(n):
                     if (n == (i+1)):
                         if (y > 18):
@@ -809,7 +812,10 @@ class OCM(Module):
                     mode_bits = Instance.PreformattedParam("81'b{:d}".format(mode))
                     
                     for j in range(m):
-                        value = init[j]
+                        if (file_path == ""):
+                            value = 'x'
+                        else:
+                            value = init[j]
                         init_i = Instance.PreformattedParam("36864'b{}".format(value))
                         
                         if (write_depth == 1024):
@@ -1104,6 +1110,12 @@ class OCM(Module):
                     init_i = Instance.PreformattedParam("36864'hx")
 
                     for j in range(m):
+                        if (file_path == ""):
+                            value = 'x'
+                        else:
+                            value = init[j]
+                        init_i = Instance.PreformattedParam("36864'b{}".format(value))
+                        
                         if (write_depth == 1024):
                             if (m == (j+1)):
                                 if (z > 18):
@@ -1443,6 +1455,12 @@ class OCM(Module):
                     init_i = Instance.PreformattedParam("36864'hx")
 
                     for j in range(m): 
+                        if (file_path == ""):
+                            value = 'x'
+                        else:
+                            value = init[j]
+                        init_i = Instance.PreformattedParam("36864'b{}".format(value))
+                        
                         if (write_depth == 1024):
                             if (m == (j+1)):
                                 if (z > 18):
