@@ -142,36 +142,10 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
+    
     # Import JSON (Optional) -----------------------------------------------------------------------
-    # fabric_mem = 4194432
-    # if args.json:
-    #     args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-    #     for key, value in vars(args).items():
-    #         if args_1.data_width <= 128 and args_1.data_width > 64 :
-    #             parser._actions[3].choices = [2,int((fabric_mem/128)-1)]
-    #             parser._actions[3].default = int(fabric_mem/128)
-    #         elif args_1.data_width <= 64 and args_1.data_width > 32:
-    #             parser._actions[3].choices = [2,int(fabric_mem/64)]
-    #             parser._actions[3].default = int(fabric_mem/64)
-    #         elif args_1.data_width <= 32 and args_1.data_width > 16:
-    #             parser._actions[3].choices = [2,int(fabric_mem/32)]
-    #             parser._actions[3].default = int(fabric_mem/32)
-    #         elif args_1.data_width <= 16 and args_1.data_width > 8 :
-    #             parser._actions[3].choices = [2,int(fabric_mem/16)]
-    #             parser._actions[3].default = int(fabric_mem/16)
-    #         elif args_1.data_width <= 8 and args_1.data_width > 4 :
-    #             parser._actions[3].choices = [2,int(fabric_mem/8)]
-    #             parser._actions[3].default = int(fabric_mem/8)
-    #         elif args_1.data_width <= 4 and args_1.data_width > 2 :
-    #             parser._actions[3].choices = [2,int(fabric_mem/4)]
-    #             parser._actions[3].default = int(fabric_mem/4)
-    #         elif args_1.data_width <= 2 and args_1.data_width >= 1 :
-    #             parser._actions[3].choices = [2,int(fabric_mem/2)]
-    #             parser._actions[3].default = int(fabric_mem/2)
-    #         if args_1.data_width == 32:
-    #             parser._actions[3].default = 1024
-    # args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    if args.json:
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
