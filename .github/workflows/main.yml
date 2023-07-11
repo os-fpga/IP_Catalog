@@ -55,7 +55,7 @@ jobs:
       
         new_list=()
         # Iterate over each element in the original list
-        for element in "${original_list[@]}"; do
+        for element in "${gen_list[@]}"; do
         # Remove the "_gen.py" suffix from the element and add it to the new list
         new_list+=("${element%_gen.py}")
         done
