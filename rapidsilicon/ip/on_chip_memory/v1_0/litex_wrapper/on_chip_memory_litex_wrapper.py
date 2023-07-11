@@ -40,21 +40,75 @@ class OCM(Module):
         
     def data_width_36(self, file_path, file_extension):
         self.memory_converter(file_path, file_extension)
-        result = []
         
         sram = {}
         sram1   = []
         sram2   = []
-
+        result = []
+        
+        # Empty File Path
+        if file_path == "":
+            return "x"
+        
+        # If FIle Path Exists
         if self.write_depth in [2048, 4096, 8192, 16384, 32768]:
-            if (self.write_depth == 2048):
+            # 1K Memory Initialization
+            if (self.write_depth == 1024):
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+
+                for i in range(lines):
+                    if self.data_width % 36 == 0:
+                            if len(self.binary_data[i]) < self.data_width:
+                                self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                            else:
+                                self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 36
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        self.binary_data[i] = '0' * (36 - temp) + self.binary_data[i]
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
+                if lines == self.line_count:
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (36-(self.data_width % 36))) * 'x')
+
+                for j in range(self.m-1, -1, -1):
+                    number_of_rams = f"ram_{j}"
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram_result = f"result_{j}"
+                    sram[number_of_rams] = []
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    sram[sram_result] = []
+
+                    for i in range(1024): # 1024 * (1-line per iteration) = 1024 addresses
+                        bits = self.binary_data[i*1][j*36:(j*36)+36]  # Extract 36 bits from the binary data
+                        sram[sram1].append(bits[:18]) # Extracting First 18 bits from binary data
+                        sram[sram2].append(bits[18:]) # Extracting Next 18 bits from binary data
+
+                    sram[data1] = "".join(sram[sram1][::-1]) # inverting indexing of list
+                    sram[data2] = "".join(sram[sram2][::-1]) # inverting indexing of list
+                    sram[sram_result] = sram[data1] + sram[data2]
+                    result.append(sram[sram_result])
+                return result
+            
+            # 2K Memory Initialization
+            elif (self.write_depth == 2048):
                 if (self.line_count) > 2048:
                     if (len(self.binary_data) > self.write_depth):
                         lines = self.write_depth
                 else:
                     lines = self.line_count
-                remainder = self.line_count % 1024
-                actual_remainder = (1024 - remainder) * 36
+                
                 for i in range(lines):
                     if self.data_width % 18 == 0:
                         if len(self.binary_data[i]) < self.data_width:
@@ -63,11 +117,15 @@ class OCM(Module):
                             self.binary_data[i] = self.binary_data[i]
                     else:
                         temp = self.data_width % 18
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
                         self.binary_data[i] = '0' * (18 - temp) + self.binary_data[i]
-
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
                 if lines == self.line_count:
-                    for i in range(actual_remainder):
-                        self.binary_data.append(36 * 'x')
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (18-(self.data_width % 18))) * 'x')
+                        
                 for j in range(self.m-1, -1, -1):
                     number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
@@ -91,24 +149,32 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1])
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
-
                 return result
-        
+
+            # 4K Memory Initialization
             elif (self.write_depth == 4096):
                 if (len(self.binary_data) > self.write_depth):
                     lines = self.write_depth
                 else:
                     lines = self.line_count
-                remainder = self.line_count % 1024
-                actual_remainder = (1024 - remainder) * 36
 
                 for i in range(lines):
-                    if len(self.binary_data[i]) < 8:
-                        self.binary_data[i] = '0' * (8 - len(self.binary_data[i])) + self.binary_data[i]
+                    if self.data_width % 9 == 0:
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 9
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        self.binary_data[i] = '0' * (9 - temp) + self.binary_data[i]
                 
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
                 if lines == self.line_count:
-                    for i in range(actual_remainder):
-                        self.binary_data.append(self.data_width * 'x')
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (9-(self.data_width % 9))) * 'x')
+                
                 for j in range(self.m-1, -1, -1):
                     number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
@@ -124,27 +190,22 @@ class OCM(Module):
                     sram[sram_result] = []
                     for i in range(2048): # 2048 * (2-lines per iteration) = 4096 addresses
                         if i % 2 == 0:
-                            sram[sram1].append(self.binary_data[(i*2)+1][(j*9)+8] + self.binary_data[(i*2)+0][(j*9)+8] + self.binary_data[(i*2)+1][(j*9)+1:(j*9)+9] + self.binary_data[(i*2)+0][(j*9):(j*9)+8])
+                            sram[sram1].append(self.binary_data[(i*2)+1][(j*9)] + self.binary_data[(i*2)+0][(j*9)] + self.binary_data[(i*2)+1][(j*9)+1:(j*9)+9] + self.binary_data[(i*2)+0][(j*9)+1:(j*9)+9])
                         else:
-                            sram[sram2].append(self.binary_data[(i*2)+1][(j*9)+8] + self.binary_data[(i*2)+0][(j*9)+8] + self.binary_data[(i*2)+1][(j*9)+1:(j*9)+9] + self.binary_data[(i*2)+0][(j*9):(j*9)+8])
-                            
+                            sram[sram2].append(self.binary_data[(i*2)+1][(j*9)] + self.binary_data[(i*2)+0][(j*9)] + self.binary_data[(i*2)+1][(j*9)+1:(j*9)+9] + self.binary_data[(i*2)+0][(j*9)+1:(j*9)+9])
+                    
                     sram[data1] = "".join(sram[sram1][::-1]) 
                     sram[data2] = "".join(sram[sram2][::-1])
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
-
                 return result
 
             # 8K Memory
             elif (self.write_depth == 8192):
-                
                 if (len(self.binary_data) > self.write_depth):
                     lines = self.write_depth
                 else:
                     lines = self.line_count
-                
-                remainder = self.line_count % 1024
-                actual_remainder = (1024 - remainder) * 36
                 
                 for i in range(lines):
                     if self.data_width % 4 == 0:
@@ -154,11 +215,14 @@ class OCM(Module):
                             self.binary_data[i] = self.binary_data[i]
                     else:
                         temp = self.data_width % 4
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
                         self.binary_data[i] = '0' * (4 - temp) + self.binary_data[i]
-                        
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
                 if lines == self.line_count:
-                    for i in range(actual_remainder):
-                        self.binary_data.append(self.data_width * 'x')
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (4-(self.data_width % 4))) * 'x')
                         
                 for j in range(self.m-1, -1, -1):
                     number_of_rams = f"ram_{j}"
@@ -183,7 +247,6 @@ class OCM(Module):
 
                     sram[data1] = "".join(sram[sram1][::-1]) 
                     sram[data2] = "".join(sram[sram2][::-1])
-                        
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
                 return result
@@ -194,21 +257,24 @@ class OCM(Module):
                     lines = self.write_depth
                 else:
                     lines = self.line_count
-                remainder = self.line_count % 1024
-                actual_remainder = (1024 - remainder) * 36
+
                 for i in range(lines):
-                    if self.data_width % 2 == 0:
+                    if self.data_width % 4 == 0:
                         if len(self.binary_data[i]) < self.data_width:
                             self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
                         else:
                             self.binary_data[i] = self.binary_data[i]
                     else:
                         temp = self.data_width % 2
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
                         self.binary_data[i] = '0' * (2 - temp) + self.binary_data[i]
-                        
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
                 if lines == self.line_count:
-                    for i in range(actual_remainder):
-                        self.binary_data.append(self.data_width * 'x')
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (2-(self.data_width % 2))) * 'x')
+                
                 for j in range(self.m-1, -1, -1):
                     number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
@@ -231,7 +297,6 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1])
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
-
                 return result
             
             # 32K Memory
@@ -240,14 +305,15 @@ class OCM(Module):
                     lines = self.write_depth
                 else:
                     lines = self.line_count
-                remainder = self.line_count % 1024
-                actual_remainder = (1024 - remainder) * 36
+
                 for i in range(lines):
                     if len(self.binary_data[i]) < self.data_width:
                         self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
-                        
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
                 if lines == self.line_count:
-                    for i in range(actual_remainder):
+                    for i in range(x_data):
                         self.binary_data.append(self.data_width * 'x')
                 for j in range(self.m-1, -1, -1):
                     number_of_rams = f"ram_{j}"
@@ -274,50 +340,6 @@ class OCM(Module):
                     result.append(sram[sram_result])
                 return result
         
-        # 1K Memory Initialization
-        elif (self.write_depth == 1024):
-            if (len(self.binary_data) > self.write_depth):
-                lines = self.write_depth
-            else:
-                lines = self.line_count
-            
-            remainder = self.line_count % 1024
-            actual_remainder = (1024 - remainder) * 36
-            
-            for i in range(lines):
-                temp = self.data_width % 36
-                self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
-                self.binary_data[i] = '0' * (36 -  temp) + self.binary_data[i]
-                
-            if lines == self.line_count:
-                for i in range(actual_remainder):
-                    self.binary_data.append(36 * 'x')
-            
-            for j in range(self.m-1, -1, -1):
-                number_of_rams = f"ram_{j}"
-                sram1 = f"sram1_{j}"
-                sram2 = f"sram2_{j}"
-                data1 = f"ram_data1_{j}"
-                data2 = f"ram_data2_{j}"
-                sram_result = f"result_{j}"
-                sram[number_of_rams] = []
-                sram[sram1] = []
-                sram[sram2] = []
-                sram[data1] = []
-                sram[data2] = []
-                sram[sram_result] = []
-                
-                for i in range(1024): # 1024 * (1-line per iteration) = 1024 addresses
-                    bits = self.binary_data[i*1][j*36:(j*36)+36]  # Extract 36 bits from the binary data
-                    sram[sram1].append(bits[:18]) # Extracting First 18 bits from binary data
-                    sram[sram2].append(bits[18:]) # Extracting Next 18 bits from binary data
-                
-                sram[data1] = "".join(sram[sram1][::-1]) # inverting indexing of list
-                sram[data2] = "".join(sram[sram2][::-1]) # inverting indexing of list
-                sram[sram_result] = sram[data1] + sram[data2]
-                result.append(sram[sram_result])
-            return result
-        
         # Other Memory Size Initialization
         else:
             if (len(self.binary_data) > self.write_depth):
@@ -325,16 +347,21 @@ class OCM(Module):
             else:
                 lines = self.line_count
             
-            remainder = self.line_count % 1024
-            actual_remainder = (1024 - remainder) * 36
-            
             for i in range(lines):
-                temp = self.data_width % 36
-                self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
-                self.binary_data[i] = '0' * (36 -  temp) + self.binary_data[i]
+                if self.data_width % 36 == 0:
+                    if len(self.binary_data[i]) < self.data_width:
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                    else:
+                        self.binary_data[i] = self.binary_data[i]
+                else:
+                    temp = self.data_width % 36
+                    self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                    self.binary_data[i] = '0' * (36 - temp) + self.binary_data[i]
                 
+            # Appending 'x' on vacant addresses
+            x_data = self.write_depth - self.line_count
             if lines == self.line_count:
-                for i in range(actual_remainder):
+                for i in range(x_data):
                     self.binary_data.append(36 * 'x')
                     
             for j in range(self.m-1, -1, -1):
@@ -640,10 +667,12 @@ class OCM(Module):
                                 self.sync.clk1 += If((self.addr_A[10:msb] == i), self.addr_A_reg[0:msb-10].eq(i))
                                 self.sync.clk2 += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
 
+            # Memory Initialization Function Calling
+            init = self.data_width_36(file_path, file_extension)
+            
             # Single Port RAM
             if (memory_type == "Single_Port"):
                 # Number of BRAMS
-                init = self.data_width_36(file_path, file_extension)
                 for i in range(n):
                     if (n == (i+1)):
                         if (y > 18):
@@ -809,7 +838,10 @@ class OCM(Module):
                     mode_bits = Instance.PreformattedParam("81'b{:d}".format(mode))
                     
                     for j in range(m):
-                        value = init[j]
+                        if (file_path == ""):
+                            value = 'x'
+                        else:
+                            value = init[j]
                         init_i = Instance.PreformattedParam("36864'b{}".format(value))
                         
                         if (write_depth == 1024):
@@ -876,33 +908,19 @@ class OCM(Module):
                         # Clk / Rst.
                         # ----------
                         i_CLK_A1        = ClockSignal(),
-                        i_CLK_B1        = 0,
                         i_CLK_A2        = ClockSignal(),
-                        i_CLK_B2        = 0,
                         i_WEN_A1        = wen,
-                        i_WEN_B1        = 0,
                         i_REN_A1        = self.ren_A,
-                        i_REN_B1        = 0,
                         i_BE_A1         = ben_A,
-                        i_BE_B1         = 0,
                         i_ADDR_A1       = address,
-                        i_ADDR_B1       = 0,
                         i_WDATA_A1      = write_data_A1,
-                        i_WDATA_B1      = 0,
                         o_RDATA_A1      = read_data_A1,
-                        i_FLUSH1        = 0,
                         i_WEN_A2        = wen,
-                        i_WEN_B2        = 0,
                         i_REN_A2        = self.ren_A,
-                        i_REN_B2        = 0,
                         i_BE_A2         = ben_A,
-                        i_BE_B2         = 0,
                         i_ADDR_A2       = address,
-                        i_ADDR_B2       = 0,
                         i_WDATA_A2      = write_data_A2,
-                        i_WDATA_B2      = 0,
-                        o_RDATA_A2      = read_data_A2,
-                        i_FLUSH2        = 0
+                        o_RDATA_A2      = read_data_A2
                 )
 
             # Simple Dual Port RAM
@@ -1104,6 +1122,12 @@ class OCM(Module):
                     init_i = Instance.PreformattedParam("36864'hx")
 
                     for j in range(m):
+                        if (file_path == ""):
+                            value = 'x'
+                        else:
+                            value = init[j]
+                        init_i = Instance.PreformattedParam("36864'b{}".format(value))
+                        
                         if (write_depth == 1024):
                             if (m == (j+1)):
                                 if (z > 18):
@@ -1173,29 +1197,19 @@ class OCM(Module):
                             i_CLK_A2        = ClockSignal(),
                             i_CLK_B2        = ClockSignal(),
                             i_WEN_A1        = wen,
-                            i_WEN_B1        = 0,
-                            i_REN_A1        = 0,
                             i_REN_B1        = self.ren_B,
                             i_BE_A1         = ben_A,
-                            i_BE_B1         = 0,
                             i_ADDR_A1       = address_A,
                             i_ADDR_B1       = address_B,
                             i_WDATA_A1      = write_data_A1,
-                            i_WDATA_B1      = 0,
                             o_RDATA_B1      = read_data_B1,
-                            i_FLUSH1        = 0,
                             i_WEN_A2        = wen,
-                            i_WEN_B2        = 0,
-                            i_REN_A2        = 0,
                             i_REN_B2        = self.ren_B,
                             i_BE_A2         = ben_A,
-                            i_BE_B2         = 0,
                             i_ADDR_A2       = address_A,
                             i_ADDR_B2       = address_B,
                             i_WDATA_A2      = write_data_A2,
-                            i_WDATA_B2      = 0,
-                            o_RDATA_B2      = read_data_B2,
-                            i_FLUSH2        = 0
+                            o_RDATA_B2      = read_data_B2
                         )
                         else: 
                             # Module instance.
@@ -1212,29 +1226,19 @@ class OCM(Module):
                             i_CLK_A2        = ClockSignal("clk1"),
                             i_CLK_B2        = ClockSignal("clk2"),
                             i_WEN_A1        = wen,
-                            i_WEN_B1        = 0,
-                            i_REN_A1        = 0,
                             i_REN_B1        = self.ren_B,
                             i_BE_A1         = ben_A,
-                            i_BE_B1         = 0,
                             i_ADDR_A1       = address_A,
                             i_ADDR_B1       = address_B,
                             i_WDATA_A1      = write_data_A1,
-                            i_WDATA_B1      = 0,
                             o_RDATA_B1      = read_data_B1,
-                            i_FLUSH1        = 0,
                             i_WEN_A2        = wen,
-                            i_WEN_B2        = 0,
-                            i_REN_A2        = 0,
                             i_REN_B2        = self.ren_B,
                             i_BE_A2         = ben_A,
-                            i_BE_B2         = 0,
                             i_ADDR_A2       = address_A,
                             i_ADDR_B2       = address_B,
                             i_WDATA_A2      = write_data_A2,
-                            i_WDATA_B2      = 0,
-                            o_RDATA_B2      = read_data_B2,
-                            i_FLUSH2        = 0
+                            o_RDATA_B2      = read_data_B2
                         )
 
             # True Dual Port RAM
@@ -1443,6 +1447,12 @@ class OCM(Module):
                     init_i = Instance.PreformattedParam("36864'hx")
 
                     for j in range(m): 
+                        if (file_path == ""):
+                            value = 'x'
+                        else:
+                            value = init[j]
+                        init_i = Instance.PreformattedParam("36864'b{}".format(value))
+                        
                         if (write_depth == 1024):
                             if (m == (j+1)):
                                 if (z > 18):
@@ -1548,7 +1558,6 @@ class OCM(Module):
                             i_WDATA_B1      = write_data_B1,
                             o_RDATA_A1      = read_data_A1,
                             o_RDATA_B1      = read_data_B1,
-                            i_FLUSH1        = 0,
                             i_WEN_A2        = wen_A,
                             i_WEN_B2        = wen_B,
                             i_REN_A2        = self.ren_A,
@@ -1560,8 +1569,7 @@ class OCM(Module):
                             i_WDATA_A2      = write_data_A2,
                             i_WDATA_B2      = write_data_B2,
                             o_RDATA_A2      = read_data_A2,
-                            o_RDATA_B2      = read_data_B2,
-                            i_FLUSH2        = 0
+                            o_RDATA_B2      = read_data_B2
                         )
                         else: 
                             # Module instance.
@@ -1589,7 +1597,6 @@ class OCM(Module):
                             i_WDATA_B1      = write_data_B1,
                             o_RDATA_A1      = read_data_A1,
                             o_RDATA_B1      = read_data_B1,
-                            i_FLUSH1        = 0,
                             i_WEN_A2        = wen_A,
                             i_WEN_B2        = wen_B,
                             i_REN_A2        = self.ren_A,
@@ -1601,8 +1608,7 @@ class OCM(Module):
                             i_WDATA_A2      = write_data_A2,
                             i_WDATA_B2      = write_data_B2,
                             o_RDATA_A2      = read_data_A2,
-                            o_RDATA_B2      = read_data_B2,
-                            i_FLUSH2        = 0
+                            o_RDATA_B2      = read_data_B2
                         )
         
         # Distributed RAM
