@@ -65,7 +65,7 @@ jobs:
                         
             path="$GITHUB_WORKSPACE/rapidsilicon/ip/"
             echo $path
-            find $path -type f -name *$_wrapper.v
+            find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -name *_wrapper.v
             echo "IP generated RTL generated"
         done
 
