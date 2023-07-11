@@ -60,6 +60,8 @@ jobs:
             new_list+=($(basename "${n%_gen.py}"))
         done
         # Print the new list
+        echo "${gen_list[@]}" 
+
         echo "${new_list[@]}" 
         
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
