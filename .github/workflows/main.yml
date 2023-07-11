@@ -56,10 +56,12 @@ jobs:
 
 
         for n in $gen_list
-        do        
+        do       
+            ./python3 $n --build --json-template
+            echo $n
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
-           ./python3 $n --build --json-template
+            
             
             path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${ip_name}/v1_0/rapidsilicon/ip/${ip_name}/v1_0/${ip_name}_wrapper"
             echo $path
