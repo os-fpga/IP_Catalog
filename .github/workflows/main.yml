@@ -63,10 +63,8 @@ jobs:
             pwd
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
-            #tree $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/ 
-            ls /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin
 
-            find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name *"_wrapper.py"
+            find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name *"$ip_name_wrapper.v"
             echo "IP generated RTL generated"
         done
 
