@@ -63,7 +63,7 @@ jobs:
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
                         
-            find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -name *"_wrapper.v"
+            find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -name *"_gen.py"
             echo "IP generated RTL generated"
         done
 
