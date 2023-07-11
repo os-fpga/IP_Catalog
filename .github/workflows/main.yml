@@ -55,35 +55,20 @@ jobs:
       
         new_list=()
 
+
+
         for n in $gen_list
-        do  
-            new_list+=($(basename "${n%_gen.py}"))
+        do        
+            ip_name=($(basename "${n%_gen.py}"))
+            echo $ip_name
+           ./python3 $n --build --json-template
+            
+            path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${ip_name}/v1_0/rapidsilicon/ip/${ip_name}/v1_0/${ip_name}_wrapper"
+            echo $path
+            find "$path" -type f -name "*_wrapper"
+            echo "IP generated RTL generated"
         done
-        # Print the new list
-        #echo "${gen_list[@]}" 
 
-        echo "${new_list[@]}" 
-        
-        cd Raptor_Tools/python_tools/build/share/envs/litex/bin
-
-
-        for ((i=0; i<${#gen_list[@]}; i++)); do
-          element1=${gen_list[i]}
-          element2=${new_list[i]}
-          
-          echo $element1[i]
-          
-          echo "------------------------------------------------------------"
-          
-          echo $element2
-          
-          ./python3 $element1 --build --json-template
-          path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${element2}/v1_0/rapidsilicon/ip/${element2}/v1_0/${element2}_wrapper"
-          echo $path
-          find "$path" -type f -name "*_wrapper"
-          echo "IP generated RTL generated"
-        
-        done
 
 
 
