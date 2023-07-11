@@ -161,6 +161,7 @@ def main():
         bram            = args.bram,
         file_path       = args.file_path,
         file_extension  = os.path.splitext(args.file_path)[1]
+        # wrapper         = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
     )
 
     # Build Project --------------------------------------------------------------------------------
@@ -185,6 +186,17 @@ def main():
                 for i, line in enumerate(lines):
                     if "Port" in line:
                         lines.insert(i, "(* ram_style = \"logic\" *)\n\n")
+                        break
+                    
+                file_extension  = os.path.splitext(args.file_path)[1]
+                hex_path = "initial begin\n\t$readmemh(\"{}\", memory);\nend\n".format(args.file_path)
+                bin_path = "initial begin\n\t$readmemb(\"{}\", memory);\nend\n".format(args.file_path)
+                for i, line in enumerate(lines):
+                    if "always" in line:
+                        if (file_extension == ".hex"):
+                            lines.insert(i, hex_path)
+                        elif (file_extension == ".bin"):
+                            lines.insert(i, bin_path)
                         break
 
             with open(os.path.join(wrapper), "w") as file:
