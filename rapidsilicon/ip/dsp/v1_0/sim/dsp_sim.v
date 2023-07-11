@@ -1,10 +1,6 @@
 // Copyright (C) 2022 RapidSilicon
 //5:20 PM
 //Thursday, November 17, 2022
-//
-// In Genesis3, parameters MODE_BITS vectors have been reversed
-// in order to match big endian behavior used by the fabric
-// primitives DSP/BRAM (CASTORIP-121)
 
 `default_nettype none
 // ---------------------------------------- //
@@ -36,15 +32,15 @@ module RS_DSP (
 );
 
     //-- Aram -- register_inputs and output_select are part of MODE_BITS
-    parameter [0:83] MODE_BITS = 84'd0;
+    parameter [83:0] MODE_BITS = 84'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
     //Avinash//Aram// RS_DSP
-    localparam [0:2] output_select = MODE_BITS[80:82];
+    localparam [2:0] output_select = MODE_BITS[82:80];
     localparam register_inputs = MODE_BITS[83];
 
     localparam NBITS_ACC = 64;
@@ -98,7 +94,6 @@ module RS_DSP_MULT (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
-    output wire [17:0] dly_b,
 
     input  wire [2:0] feedback,
     input  wire       unsigned_a,
@@ -106,24 +101,23 @@ module RS_DSP_MULT (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
     //Avinash// RS_DSP_MULT
-    localparam [0:2] output_select = 3'b000;
+    localparam [2:0] output_select = 3'b000;
     localparam register_inputs = 1'b0;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
         .z(z),
-        .dly_b(dly_b),
         .feedback(feedback),
         .unsigned_a(unsigned_a),
         .unsigned_b(unsigned_b)
@@ -135,7 +129,6 @@ module RS_DSP_MULT_REGIN (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
-    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire       clk,
@@ -147,24 +140,23 @@ module RS_DSP_MULT_REGIN (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
     //Avinash// RS_DSP_MULT_REGIN
-    localparam [0:2] output_select = 3'b000;
+    localparam [2:0] output_select = 3'b000;
     localparam register_inputs = 1'b1;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
         .z(z),
-        .dly_b(dly_b),
         .feedback(feedback),
         .unsigned_a(unsigned_a),
         .unsigned_b(unsigned_b),
@@ -178,7 +170,6 @@ module RS_DSP_MULT_REGOUT (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
-    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire       clk,
@@ -190,24 +181,23 @@ module RS_DSP_MULT_REGOUT (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
    //Avinash// RS_DSP_MULT_REGOUT
-    localparam [0:2] output_select = 3'b001;
+    localparam [2:0] output_select = 3'b100;
     localparam register_inputs = 1'b0;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
         .z(z),
-        .dly_b(dly_b),
         .feedback(feedback),
         .unsigned_a(unsigned_a),
         .unsigned_b(unsigned_b),
@@ -221,7 +211,6 @@ module RS_DSP_MULT_REGIN_REGOUT (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
-    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire       clk,
@@ -233,24 +222,23 @@ module RS_DSP_MULT_REGIN_REGOUT (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
     //Avinash// RS_DSP_MULT_REGIN_REGOUT
-    localparam [0:2] output_select = 3'b001;
+    localparam [2:0] output_select = 3'b100;
     localparam register_inputs = 1'b1;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
         .z(z),
-        .dly_b(dly_b),
         .feedback(feedback),
         .unsigned_a(unsigned_a),
         .unsigned_b(unsigned_b),
@@ -282,19 +270,20 @@ module RS_DSP_MULTADD (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
+
 
     //Avinash// RS_DSP_MULTADD
-    localparam [0:2] output_select = 3'b010;
+    localparam [2:0] output_select = 3'b010;
     localparam register_inputs = 1'b0;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
@@ -339,20 +328,20 @@ module RS_DSP_MULTADD_REGIN (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
   //Avinash// RS_DSP_MULTADD_REGIN
-     localparam [0:2] output_select = 3'b010;
+     localparam [2:0] output_select = 3'b010;
      localparam register_inputs = 1'b1;
 
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
@@ -396,19 +385,19 @@ module RS_DSP_MULTADD_REGOUT (
     input  wire        subtract
 );
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
  //Avinash// RS_DSP_MULTADD_REGOUT
-    localparam [0:2] output_select = 3'b011;
+    localparam [2:0] output_select = 3'b110;
     localparam register_inputs = 1'b0;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
@@ -453,19 +442,19 @@ module RS_DSP_MULTADD_REGIN_REGOUT (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
     //Avinash// RS_DSP_MULTADD_REGIN_REGOUT
-    localparam [0:2] output_select = 3'b011;
+    localparam [2:0] output_select = 3'b110;
     localparam register_inputs = 1'b1;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
@@ -492,7 +481,6 @@ module RS_DSP_MULTACC (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
-    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire        clk,
@@ -508,24 +496,23 @@ module RS_DSP_MULTACC (
     input  wire        round,
     input  wire        subtract
 );
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
     //Avinash// RS_DSP_MULTACC
-    localparam [0:2] output_select = 3'b100;
+    localparam [2:0] output_select = 3'b001;
     localparam register_inputs = 1'b0;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
         .z(z),
-        .dly_b(dly_b),
         .feedback(feedback),
         .load_acc(load_acc),
         .unsigned_a(unsigned_a),
@@ -544,7 +531,6 @@ module RS_DSP_MULTACC_REGIN (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
-    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire        clk,
@@ -562,24 +548,23 @@ module RS_DSP_MULTACC_REGIN (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
     //Avinash// RS_DSP_MULTACC_REGIN
-    localparam [0:2] output_select = 3'b100;
+    localparam [2:0] output_select = 3'b001;
     localparam register_inputs = 1'b1;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
         .z(z),
-        .dly_b(dly_b),
         .feedback(feedback),
         .load_acc(load_acc),
 
@@ -602,7 +587,6 @@ module RS_DSP_MULTACC_REGOUT (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
-    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire        clk,
@@ -620,24 +604,23 @@ module RS_DSP_MULTACC_REGOUT (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
    //Avinash// RS_DSP_MULTACC_REGOUT
-    localparam [0:2] output_select = 3'b101;
+    localparam [2:0] output_select = 3'b101;
     localparam register_inputs = 1'b0;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
         .z(z),
-        .dly_b(dly_b),
         .feedback(feedback),
         .load_acc(load_acc),
 
@@ -660,7 +643,6 @@ module RS_DSP_MULTACC_REGIN_REGOUT (
     input  wire [19:0] a,
     input  wire [17:0] b,
     output wire [37:0] z,
-    output wire [17:0] dly_b,
 
     (* clkbuf_sink *)
     input  wire        clk,
@@ -678,24 +660,23 @@ module RS_DSP_MULTACC_REGIN_REGOUT (
 );
 
 
-    parameter [0:79] MODE_BITS = 80'd0;
+    parameter [79:0] MODE_BITS = 80'd0;
 
-    localparam [0:19] COEFF_0 = MODE_BITS[0:19];
-    localparam [0:19] COEFF_1 = MODE_BITS[20:39];
-    localparam [0:19] COEFF_2 = MODE_BITS[40:59];
-    localparam [0:19] COEFF_3 = MODE_BITS[60:79];
+    localparam [19:0] COEFF_0 = MODE_BITS[19:0];
+    localparam [19:0] COEFF_1 = MODE_BITS[39:20];
+    localparam [19:0] COEFF_2 = MODE_BITS[59:40];
+    localparam [19:0] COEFF_3 = MODE_BITS[79:60];
 
    //Avinash// RS_DSP_MULTACC_REGIN_REGOUT
-    localparam [0:2] output_select = 3'b101;
+    localparam [2:0] output_select = 3'b101;
     localparam register_inputs = 1'b1;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0, COEFF_1, COEFF_2, COEFF_3, output_select, register_inputs})
+        .MODE_BITS({register_inputs, output_select, COEFF_3, COEFF_2, COEFF_1, COEFF_0})
     ) dsp (
         .a(a),
         .b(b),
         .z(z),
-        .dly_b(dly_b),
 
         .feedback(feedback),
         .load_acc(load_acc),
@@ -737,20 +718,20 @@ module dsp_t1_20x18x64_cfg_ports (
     //input  wire        register_inputs_i
 );
 
-    parameter [0:19] COEFF_0 = 20'd0;
-    parameter [0:19] COEFF_1 = 20'd0;
-    parameter [0:19] COEFF_2 = 20'd0;
-    parameter [0:19] COEFF_3 = 20'd0;
-    parameter [0:2] OUTPUT_SELECT = 3'b000;
+    parameter [19:0] COEFF_0 = 20'd0;
+    parameter [19:0] COEFF_1 = 20'd0;
+    parameter [19:0] COEFF_2 = 20'd0;
+    parameter [19:0] COEFF_3 = 20'd0;
+    parameter [2:0] OUTPUT_SELECT = 3'b000;
     parameter REGISTER_INPUTS = 1'b0;
 
     RS_DSP #(
-        .MODE_BITS({COEFF_0,
-                    COEFF_1, 
-                    COEFF_2, 
-                    COEFF_3, 
+        .MODE_BITS({REGISTER_INPUTS, 
                     OUTPUT_SELECT, 
-                    REGISTER_INPUTS})
+                    COEFF_3, 
+                    COEFF_2, 
+                    COEFF_1, 
+                    COEFF_0})
     ) dsp (
         .a(a_i),
         .b(b_i),
@@ -797,15 +778,15 @@ module dsp_t1_sim_cfg_ports # (
     input  wire               s_reset,
 
     input  wire               saturate_enable_i,
-    input  wire [0:2]         output_select_i,
+    input  wire [2:0]         output_select_i,
     input  wire               round_i,
     input  wire [5:0]         shift_right_i,
     input  wire               subtract_i,
     input  wire               register_inputs_i,
-    input  wire [0:NBITS_A-1] coef_0_i,
-    input  wire [0:NBITS_A-1] coef_1_i,
-    input  wire [0:NBITS_A-1] coef_2_i,
-    input  wire [0:NBITS_A-1] coef_3_i
+    input  wire [NBITS_A-1:0] coef_0_i,
+    input  wire [NBITS_A-1:0] coef_1_i,
+    input  wire [NBITS_A-1:0] coef_2_i,
+    input  wire [NBITS_A-1:0] coef_3_i
 );
 
 // FIXME: The version of Icarus Verilog from Conda seems not to recognize the
@@ -998,17 +979,17 @@ module dsp_t1_sim_cfg_ports # (
         if (s_reset)
             z1 <= 0;
         else begin
-            z1 <= (output_select_i == 3'b001) ? z0 : z2;
+            z1 <= (output_select_i == 3'b100) ? z0 : z2;
         end
 
     // Output mux
     assign z_o = (output_select_i == 3'h0) ?   z0 :
-                 (output_select_i == 3'h4) ?   z2 :
+                 (output_select_i == 3'h1) ?   z2 :
                  (output_select_i == 3'h2) ?   z2 :
-                 (output_select_i == 3'h6) ?   z2 :
-                 (output_select_i == 3'h1) ?   z1 :
+                 (output_select_i == 3'h3) ?   z2 :
+                 (output_select_i == 3'h4) ?   z1 :
                  (output_select_i == 3'h5) ?   z1 :
-                 (output_select_i == 3'h3) ?   z1 :
+                 (output_select_i == 3'h6) ?   z1 :
                            z1;  // if output_select_i == 3'h7
 
     // B input delayed passthrough
