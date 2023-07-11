@@ -71,7 +71,7 @@ jobs:
           element1=${gen_list[i]}
           element2=${new_list[i]}
           
-          echo $element1
+          echo $element1[i]
           
           echo "------------------------------------------------------------"
           
