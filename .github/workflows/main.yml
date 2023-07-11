@@ -60,8 +60,13 @@ jobs:
         new_list+=("${element%_gen.py}")
         done
 
+        for n in $gen_list
+        do  
+             # Remove the "_gen.py" suffix from the element and add it to the new list
+            new_list+=("${element%_gen.py}")
+        done
         # Print the new list
-        echo "${new_list[@]}"
+        echo "${new_list}"
       
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
 
