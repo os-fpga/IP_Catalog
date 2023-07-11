@@ -57,7 +57,7 @@ jobs:
 
         for n in $gen_list
         do  
-            new_list+=("${n%_gen.py}")
+            new_list+=($(basename "${input_string%_gen.py}"))
         done
         # Print the new list
         echo "${new_list[@]}" 
