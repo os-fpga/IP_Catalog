@@ -53,6 +53,7 @@ jobs:
       run: |
         gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"`
 
+        cd Raptor_Tools/python_tools/build/share/envs/litex/bin
 
 
         for n in $gen_list
