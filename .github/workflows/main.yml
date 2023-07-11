@@ -65,9 +65,9 @@ jobs:
             echo $ip_name
             
             
-            path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${ip_name}/v1_0/rapidsilicon/ip/${ip_name}/v1_0/${ip_name}_wrapper"
+            path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${ip_name}/v1_0/rapidsilicon/ip/${ip_name}/v1_0/${ip_name}_wrapper/src"
             echo $path
-            find "$path" -type f -name "*_wrapper"
+            find "$path" -type f -name "*_wrapper.v"
             echo "IP generated RTL generated"
         done
 
