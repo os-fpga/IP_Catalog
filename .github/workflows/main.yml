@@ -59,7 +59,7 @@ jobs:
         for n in $gen_list
         do  
             echo $n
-            ./python3 $n --build --json-template
+            ./python3 $n --build
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
             tree $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/            
