@@ -66,11 +66,7 @@ jobs:
 
         for n in $gen_list
         do  
-            path="/rapidsilicon/ip/${n}/v1_0/${n}_wrapper"
-            echo $path
             ./python3 $n --build --json-template
-            find "$path" -type f -name "*_wrapper"
-            echo "IP generated RTL generated"
         done
         
         
