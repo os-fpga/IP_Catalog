@@ -52,14 +52,12 @@ jobs:
       shell: bash
       run: |
         gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"`
-      
-        new_list=()
 
 
 
         for n in $gen_list
         do        
-            ip_name=($(basename "${n%_gen.py}"))
+            ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
            ./python3 $n --build --json-template
             
