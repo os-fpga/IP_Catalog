@@ -60,16 +60,12 @@ jobs:
         do  
             echo $n
             ./python3 $n --build --json-template
-            pwd
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
 
             find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name "$(ip_name)_wrapper.v"
             echo "IP generated RTL generated"
         done
-
-
-            tree $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/            
 
 
     - name: Test IP Generation
