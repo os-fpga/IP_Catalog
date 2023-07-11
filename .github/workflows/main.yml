@@ -66,19 +66,22 @@ jobs:
         
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
 
-        for n in $gen_list
-        do  
-            ./python3 $n --build --json-template
-        done
+
+        for ((i=0; i<${#gen_list[@]}; i++)); do
+          element1=${gen_list[i]}
+          element2=${new_list[i]}
+          
+          path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${element2}/v1_0/rapidsilicon/ip/${element2}/v1_0/${element2}_wrapper"
+          echo $path
+          
+          ./python3 $element1 --build --json-template
+          path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${element2}/v1_0/rapidsilicon/ip/${element2}/v1_0/${element2}_wrapper"
+          echo $path
+          find "$path" -type f -name "*_wrapper"
+          echo "IP generated RTL generated"
         
-        
-        for m in $new_list
-        do  
-            path="/rapidsilicon/ip/${m}/v1_0/${m}_wrapper"
-            echo $path
-            find "$path" -type f -name "*_wrapper"
-            echo "IP generated RTL generated"
         done
+
 
 
     - name: Test IP Generation
