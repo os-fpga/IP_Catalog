@@ -60,7 +60,7 @@ jobs:
             new_list+=($(basename "${n%_gen.py}"))
         done
         # Print the new list
-        echo "${gen_list[@]}" 
+        #echo "${gen_list[@]}" 
 
         echo "${new_list[@]}" 
         
@@ -71,8 +71,8 @@ jobs:
           element1=${gen_list[i]}
           element2=${new_list[i]}
           
-          path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${element2}/v1_0/rapidsilicon/ip/${element2}/v1_0/${element2}_wrapper"
-          echo $path
+          echo $element1
+          echo $element2
           
           ./python3 $element1 --build --json-template
           path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${element2}/v1_0/rapidsilicon/ip/${element2}/v1_0/${element2}_wrapper"
