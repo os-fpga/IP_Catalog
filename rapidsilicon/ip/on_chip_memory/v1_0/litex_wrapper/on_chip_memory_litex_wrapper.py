@@ -179,16 +179,12 @@ class OCM(Module):
                     number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
                     sram2 = f"sram2_{j}"
-                    inter1 = f"inter1_{j}"
-                    inter2 = f"inter2_{j}"
                     data1 = f"ram_data1_{j}"
                     data2 = f"ram_data2_{j}"
                     sram_result = f"result_{j}"
                     sram[number_of_rams] = []
                     sram[sram1] = []
                     sram[sram2] = []
-                    sram[inter1] = []
-                    sram[inter2] = []
                     sram[data1] = []
                     sram[data2] = []
                     sram[sram_result] = []
@@ -912,33 +908,19 @@ class OCM(Module):
                         # Clk / Rst.
                         # ----------
                         i_CLK_A1        = ClockSignal(),
-                        i_CLK_B1        = 0,
                         i_CLK_A2        = ClockSignal(),
-                        i_CLK_B2        = 0,
                         i_WEN_A1        = wen,
-                        i_WEN_B1        = 0,
                         i_REN_A1        = self.ren_A,
-                        i_REN_B1        = 0,
                         i_BE_A1         = ben_A,
-                        i_BE_B1         = 0,
                         i_ADDR_A1       = address,
-                        i_ADDR_B1       = 0,
                         i_WDATA_A1      = write_data_A1,
-                        i_WDATA_B1      = 0,
                         o_RDATA_A1      = read_data_A1,
-                        i_FLUSH1        = 0,
                         i_WEN_A2        = wen,
-                        i_WEN_B2        = 0,
                         i_REN_A2        = self.ren_A,
-                        i_REN_B2        = 0,
                         i_BE_A2         = ben_A,
-                        i_BE_B2         = 0,
                         i_ADDR_A2       = address,
-                        i_ADDR_B2       = 0,
                         i_WDATA_A2      = write_data_A2,
-                        i_WDATA_B2      = 0,
-                        o_RDATA_A2      = read_data_A2,
-                        i_FLUSH2        = 0
+                        o_RDATA_A2      = read_data_A2
                 )
 
             # Simple Dual Port RAM
@@ -1215,29 +1197,19 @@ class OCM(Module):
                             i_CLK_A2        = ClockSignal(),
                             i_CLK_B2        = ClockSignal(),
                             i_WEN_A1        = wen,
-                            i_WEN_B1        = 0,
-                            i_REN_A1        = 0,
                             i_REN_B1        = self.ren_B,
                             i_BE_A1         = ben_A,
-                            i_BE_B1         = 0,
                             i_ADDR_A1       = address_A,
                             i_ADDR_B1       = address_B,
                             i_WDATA_A1      = write_data_A1,
-                            i_WDATA_B1      = 0,
                             o_RDATA_B1      = read_data_B1,
-                            i_FLUSH1        = 0,
                             i_WEN_A2        = wen,
-                            i_WEN_B2        = 0,
-                            i_REN_A2        = 0,
                             i_REN_B2        = self.ren_B,
                             i_BE_A2         = ben_A,
-                            i_BE_B2         = 0,
                             i_ADDR_A2       = address_A,
                             i_ADDR_B2       = address_B,
                             i_WDATA_A2      = write_data_A2,
-                            i_WDATA_B2      = 0,
-                            o_RDATA_B2      = read_data_B2,
-                            i_FLUSH2        = 0
+                            o_RDATA_B2      = read_data_B2
                         )
                         else: 
                             # Module instance.
@@ -1254,29 +1226,19 @@ class OCM(Module):
                             i_CLK_A2        = ClockSignal("clk1"),
                             i_CLK_B2        = ClockSignal("clk2"),
                             i_WEN_A1        = wen,
-                            i_WEN_B1        = 0,
-                            i_REN_A1        = 0,
                             i_REN_B1        = self.ren_B,
                             i_BE_A1         = ben_A,
-                            i_BE_B1         = 0,
                             i_ADDR_A1       = address_A,
                             i_ADDR_B1       = address_B,
                             i_WDATA_A1      = write_data_A1,
-                            i_WDATA_B1      = 0,
                             o_RDATA_B1      = read_data_B1,
-                            i_FLUSH1        = 0,
                             i_WEN_A2        = wen,
-                            i_WEN_B2        = 0,
-                            i_REN_A2        = 0,
                             i_REN_B2        = self.ren_B,
                             i_BE_A2         = ben_A,
-                            i_BE_B2         = 0,
                             i_ADDR_A2       = address_A,
                             i_ADDR_B2       = address_B,
                             i_WDATA_A2      = write_data_A2,
-                            i_WDATA_B2      = 0,
-                            o_RDATA_B2      = read_data_B2,
-                            i_FLUSH2        = 0
+                            o_RDATA_B2      = read_data_B2
                         )
 
             # True Dual Port RAM
@@ -1596,7 +1558,6 @@ class OCM(Module):
                             i_WDATA_B1      = write_data_B1,
                             o_RDATA_A1      = read_data_A1,
                             o_RDATA_B1      = read_data_B1,
-                            i_FLUSH1        = 0,
                             i_WEN_A2        = wen_A,
                             i_WEN_B2        = wen_B,
                             i_REN_A2        = self.ren_A,
@@ -1608,8 +1569,7 @@ class OCM(Module):
                             i_WDATA_A2      = write_data_A2,
                             i_WDATA_B2      = write_data_B2,
                             o_RDATA_A2      = read_data_A2,
-                            o_RDATA_B2      = read_data_B2,
-                            i_FLUSH2        = 0
+                            o_RDATA_B2      = read_data_B2
                         )
                         else: 
                             # Module instance.
@@ -1637,7 +1597,6 @@ class OCM(Module):
                             i_WDATA_B1      = write_data_B1,
                             o_RDATA_A1      = read_data_A1,
                             o_RDATA_B1      = read_data_B1,
-                            i_FLUSH1        = 0,
                             i_WEN_A2        = wen_A,
                             i_WEN_B2        = wen_B,
                             i_REN_A2        = self.ren_A,
@@ -1649,8 +1608,7 @@ class OCM(Module):
                             i_WDATA_A2      = write_data_A2,
                             i_WDATA_B2      = write_data_B2,
                             o_RDATA_A2      = read_data_A2,
-                            o_RDATA_B2      = read_data_B2,
-                            i_FLUSH2        = 0
+                            o_RDATA_B2      = read_data_B2
                         )
         
         # Distributed RAM
