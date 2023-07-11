@@ -287,9 +287,11 @@ class FIFO(Module):
                         self.comb += [
                             If(self.wren,
                                If(~self.overflow,
-                                If(self.wrt_ptr < (k + 1)*memory,
-                                   If(self.wrt_ptr >= (k)*memory,
-                                        self.wren_int[k].eq(1)
+                                  If(~self.full_int[k],
+                                        If(self.wrt_ptr <= (k + 1)*memory,
+                                           If(self.wrt_ptr > (k)*memory,
+                                                self.wren_int[k].eq(1)
+                                           )
                                         )
                                     )
                                 )
@@ -572,7 +574,7 @@ class FIFO(Module):
                     ]
                     self.sync += [
                         If(self.wren,
-                           If(~self.delay_full,
+                           If(~self.full,
                               self.counter.eq(self.counter + 1)
                            )
                         )
@@ -587,9 +589,9 @@ class FIFO(Module):
 
                     self.sync += [
                         If(self.wren,
-                            If(self.wrt_ptr == depth - 1,
+                            If(self.wrt_ptr == depth,
                                If(~self.full,
-                                    self.wrt_ptr.eq(0)
+                                    self.wrt_ptr.eq(1)
                                )
                             )
                         )
@@ -682,7 +684,7 @@ class FIFO(Module):
                 if(synchronous):
                     # Checking if the FIFO is full
                     self.comb += [
-                        If(self.counter >= depth - 1,
+                        If(self.counter >= depth,
                            self.full.eq(1)
                         )
                     ]
@@ -690,19 +692,12 @@ class FIFO(Module):
                     # Checking for Overflow in FIFO
                     self.sync += [
                         If(self.full,
-                           self.delay_full.eq(self.full)
-                           ).Else(
-                        self.delay_full.eq(0)
-                           )
-                    ]
-                    self.comb += [
-                        If(self.wren,
-                           If(self.delay_full,
-                              If(self.counter == depth - 1,
-                                self.overflow.eq(1)
-                              )
+                           If(self.wren,
+                              self.overflow.eq(1)
                             )
-                        )
+                        ).Else(
+                            self.overflow.eq(0)
+                           )
                     ]
 
                     # Checking if the FIFO is empty
@@ -715,19 +710,12 @@ class FIFO(Module):
                     # Checking for underflow in FIFO
                     self.sync += [
                         If(self.empty,
-                           self.delay_empty.eq(self.empty)
-                           ).Else(
-                        self.delay_empty.eq(0)
+                           If(self.rden,
+                            self.underflow.eq(1)
                            )
-                    ]
-                    self.comb += [
-                        If(self.rden,
-                           If(self.delay_empty,
-                              If(self.counter == 0,
-                                self.underflow.eq(1)
-                              )
-                            )
-                        )
+                        ).Else(
+                            self.underflow.eq(0)
+                           )
                     ]
 
                     # Checking for Programmable Full
@@ -1042,20 +1030,20 @@ class FIFO(Module):
 
                     self.sync.wrt += [
                         If(self.wren,
-                            If(self.wrt_ptr[0:math.ceil(math.log2(depth))] == depth - 1 + 2,
+                            If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] == depth,
                                If(~self.full,
-                                    self.wrt_ptr[0:math.ceil(math.log2(depth))].eq(0),
-                                    self.wrt_ptr[math.ceil(math.log2(depth))].eq(~self.wrt_ptr[math.ceil(math.log2(depth))])
+                                    self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1].eq(0),
+                                    self.wrt_ptr[math.ceil(math.log2(depth)) + 1].eq(~self.wrt_ptr[math.ceil(math.log2(depth)) + 1])
                                )
                             )
                         )
                     ]
                     self.sync.rd += [
                         If(self.rd_en_flop,
-                            If(self.rd_ptr[0:math.ceil(math.log2(depth))] == depth - 1 + 2,
+                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == depth,
                                If(~self.empty,
-                                self.rd_ptr[0:math.ceil(math.log2(depth))].eq(0),
-                                self.rd_ptr[math.ceil(math.log2(depth))].eq(~self.rd_ptr[math.ceil(math.log2(depth))])
+                                self.rd_ptr[0:math.ceil(math.log2(depth)) + 1].eq(0),
+                                self.rd_ptr[math.ceil(math.log2(depth)) + 1].eq(~self.rd_ptr[math.ceil(math.log2(depth)) + 1])
                                )
                             )
                         )
@@ -1123,7 +1111,7 @@ class FIFO(Module):
                     # Checking for Programmable Full
                     if (full_threshold):
                         self.comb += [
-                            If(self.wrt_ptr[0:math.ceil(math.log2(depth))] +  (depth - 1 + 2 - (full_value + 0)) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth))] < (depth - 1 + 2 - (full_value + 0)),
+                            If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (depth - 1 + 2 - (full_value + 0)) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1] < (depth - 1 + 2 - (full_value + 0)),
                                 self.prog_full.eq(1)
                             )
                         ]
@@ -1132,9 +1120,9 @@ class FIFO(Module):
                                self.prog_full.eq(1))
                         ]
                         self.comb += [
-                            If(self.wrt_ptr[0:math.ceil(math.log2(depth))] +  (depth - 1 + 2 - (full_value + 0)) >= depth + 2 - 1,
-                               self.wrt_ptr_reg[0:math.ceil(math.log2(depth))].eq(0),
-                               If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth))] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth))],
+                            If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (depth - 1 + 2 - (full_value + 0)) >= depth + 2 - 1,
+                               self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(0),
+                               If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1],
                                self.prog_full.eq(1)
                                )
                             ).Else(
