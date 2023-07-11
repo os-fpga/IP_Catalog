@@ -52,12 +52,23 @@ jobs:
       shell: bash
       run: |
         gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"`
+      
+        new_list=()
+        # Iterate over each element in the original list
+        for element in "${original_list[@]}"; do
+        # Remove the "_gen.py" suffix from the element and add it to the new list
+        new_list+=("${element%_gen.py}")
+        done
 
+        # Print the new list
+        echo "${new_list[@]}"
+      
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
 
         for n in $gen_list
         do  
             ./python3 $n --build --json-template
+            
         done
 
 
