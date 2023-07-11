@@ -72,6 +72,9 @@ jobs:
           element2=${new_list[i]}
           
           echo $element1
+          
+          echo "------------------------------------------------------------"
+          
           echo $element2
           
           ./python3 $element1 --build --json-template
