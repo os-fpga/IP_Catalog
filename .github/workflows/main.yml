@@ -60,16 +60,12 @@ jobs:
         do  
             echo $n
             ./python3 $n --build --json-template
-            echo $n
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
-            
-            
-            #path="/home/runner/work/IP_Catalog/IP_Catalog/rapidsilicon/ip/${ip_name}/v1_0/rapidsilicon/ip/${ip_name}/v1_0/${ip_name}_wrapper/src"
+                        
             path="$GITHUB_WORKSPACE/rapidsilicon/ip/"
             echo $path
-            ls $path
-            find "$path" -type f -name "${ip_name}_wrapper.v"
+            find $path -type f -name *"${ip_name}_wrapper.v"
             echo "IP generated RTL generated"
         done
 
