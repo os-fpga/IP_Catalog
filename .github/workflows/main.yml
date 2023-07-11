@@ -63,11 +63,12 @@ jobs:
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
             tree $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/            
-            find $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/rapidsilicon/ip/i2c_master/v1_0/i2c_master_wrapper/src/ -type f -name *"_gen.py"
+            #find $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/rapidsilicon/ip/i2c_master/v1_0/i2c_master_wrapper/src/ -type f -name *"_gen.py"
             echo "IP generated RTL generated"
         done
 
 
+            tree $GITHUB_WORKSPACE/rapidsilicon/ip/i2c_master/v1_0/            
 
 
     - name: Test IP Generation
