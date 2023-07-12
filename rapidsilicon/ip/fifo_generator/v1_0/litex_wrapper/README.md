@@ -1,1 +1,1 @@
-Directory for Python Wrapper
+Directory for Python Generator
