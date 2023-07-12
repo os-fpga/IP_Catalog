@@ -48,7 +48,7 @@ class FIFOGenerator(Module):
         self.clock_domains.cd_rd	= ClockDomain()
 
 	
-        self.submodules.fifo = fifo = FIFO(platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM)
+        self.submodules.fifo = fifo = FIFO(data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM)
     
         self.comb += fifo.din.eq(platform.request("din"))
         self.comb += platform.request("dout").eq(fifo.dout)
