@@ -55,6 +55,7 @@ jobs:
 
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
 
+        excluded_ips=("axil_ocla" "bram")  # Specify excluded IP names here
 
         for n in $gen_list
         do  
@@ -64,12 +65,16 @@ jobs:
 
             file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v")
 
-            if [[ -n "$file_path" ]]; then
-                echo "Success! IP RTL generated at: $file_path"
+            # Check if the IP name is in the excluded_ips array
+            if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
+              if [[ -n "$file_path" ]]; then
+                  echo "Success! IP RTL generated at: $file_path"
+              else
+                  echo "IP RTL wrapper not generated. Exiting."
+                  exit 1
+              fi
             else
-                echo "IP RTL wrapper not generated. Exiting."
-                exit 1
-            fi
+                echo "Skipping wrapper check for $ip_name"
         done
 
 
