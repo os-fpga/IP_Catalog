@@ -75,6 +75,7 @@ jobs:
               fi
             else
                 echo "Skipping wrapper check for $ip_name"
+            fi
         done
 
 
