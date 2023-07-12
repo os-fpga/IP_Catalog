@@ -561,52 +561,41 @@ class FIFO(Module):
 
                 # wrt_ptr and rd_ptr to check for number of entries in FIFO
                 if(SYNCHRONOUS[synchronous]):
-                    self.sync += [
-                        If(self.wren,
-                           If(~self.full,
-                                self.wrt_ptr.eq(self.wrt_ptr + 1)
-                           )
-                        )
-                    ]
+                    
                     self.sync += [
                         If(self.rden,
                            If(~self.empty,
-                                self.rd_ptr.eq(self.rd_ptr + 1)
-                           )
-                        )
-                    ]
-                    self.sync += [
-                        If(self.wren,
-                           If(~self.full,
-                              self.counter.eq(self.counter + 1)
-                           )
-                        )
-                    ]
-                    self.sync += [
-                        If(self.rden,
-                           If(~self.empty,
-                              self.counter.eq(self.counter - 1)
-                           )
-                        )
+                              self.counter.eq(self.counter - 1),
+                              self.underflow.eq(0),
+                                If(self.rd_ptr == depth,
+                                    self.rd_ptr.eq(1)
+                                ).Else(
+                                    self.rd_ptr.eq(self.rd_ptr + 1)
+                                )
+                           ).Else(
+                                self.underflow.eq(1)    # Checking for Underflow
+                            )
+                        ).Else(
+                                self.underflow.eq(0)
+                            )
                     ]
 
                     self.sync += [
                         If(self.wren,
-                            If(self.wrt_ptr == depth,
-                               If(~self.full,
+                           If(~self.full,
+                                self.counter.eq(self.counter + 1),
+                                self.overflow.eq(0),
+                                If(self.wrt_ptr == depth,
                                     self.wrt_ptr.eq(1)
-                               )
+                               ).Else(
+                                self.wrt_ptr.eq(self.wrt_ptr + 1)
+                                )
+                            ).Else(
+                                self.overflow.eq(1) # Checking for Overflow
                             )
-                        )
-                    ]
-                    self.sync += [
-                        If(self.rden,
-                            If(self.rd_ptr == depth,
-                               If(~self.empty,
-                                self.rd_ptr.eq(1)
-                               )
+                        ).Else(
+                                self.overflow.eq(0)
                             )
-                        )
                     ]
                 else:
                     self.sync.wrt += [
@@ -692,32 +681,10 @@ class FIFO(Module):
                         )
                     ]
 
-                    # Checking for Overflow in FIFO
-                    self.sync += [
-                        If(self.full,
-                           If(self.wren,
-                              self.overflow.eq(1)
-                            )
-                        ).Else(
-                            self.overflow.eq(0)
-                           )
-                    ]
-
                     # Checking if the FIFO is empty
                     self.comb += [
                         If(self.counter == 0,
                            self.empty.eq(1)
-                           )
-                    ]
-
-                    # Checking for underflow in FIFO
-                    self.sync += [
-                        If(self.empty,
-                           If(self.rden,
-                            self.underflow.eq(1)
-                           )
-                        ).Else(
-                            self.underflow.eq(0)
                            )
                     ]
 
