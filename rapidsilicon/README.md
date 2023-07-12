@@ -33,7 +33,7 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── axis_switch
 			├── axis_uart
 			├── axis_width_converter
-			├── dsp
+			├── dsp_generator
 			├── fifo_generator
 			├── i2c_master
 			├── i2c_slave

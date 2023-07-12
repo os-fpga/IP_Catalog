@@ -16,7 +16,7 @@ from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
 
-from litex_wrapper.dsp_litex_wrapper import *
+from litex_wrapper.dsp_litex_generator import *
 
 # IOs / Interface ----------------------------------------------------------------------------------
 def get_clkin_ios():
@@ -155,7 +155,7 @@ def main():
     dep_dict = {}
     
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="dsp", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="dsp_generator", language="verilog")
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
@@ -183,7 +183,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="dsp_wrapper",          help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="dsp_generator",          help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -273,7 +273,7 @@ def main():
             module     = module,
         )
         build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
-        file = os.path.join(args.build_dir, "rapidsilicon/ip/dsp/v1_0", build_name, "sim/dsp_test.v")
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/dsp_generator/v1_0", build_name, "sim/dsp_test.v")
         file = Path(file)
         text = file.read_text()
         text = text.replace("[71:0]a", "[%s:0]a" % (args.a_width-1))
