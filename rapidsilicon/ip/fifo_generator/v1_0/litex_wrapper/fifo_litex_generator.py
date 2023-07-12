@@ -46,13 +46,18 @@ class FIFO(Module):
 
         self.logger.info(f"EMPTY THRESHOLD    : {empty_value}")
         
+        SYNCHRONOUS = {
+            "TRUE"  :   True,
+            "FALSE" :   False
+        }
+
         buses = divide_n_bit_number(data_width)
         size_bram = 36864
         maximum = max(buses, key=len)
         memory = math.ceil(size_bram / len(maximum))
 
         instances = math.ceil(depth / memory)
-        if(synchronous):
+        if(SYNCHRONOUS[synchronous]):
             self.counter = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
             self.wrt_ptr = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
             self.rd_ptr = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
@@ -62,7 +67,7 @@ class FIFO(Module):
             self.wrt_ptr = Signal(math.ceil(math.log2(depth)) + 2, reset=int(starting))
             self.rd_ptr = Signal(math.ceil(math.log2(depth)) + 2, reset=int(starting))
 
-        if (not synchronous):
+        if (not SYNCHRONOUS[synchronous]):
             self.wrt_ptr_rd_clk1 = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
             self.wrt_ptr_rd_clk2 = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
             self.rd_ptr_wrt_clk1 = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
@@ -138,11 +143,15 @@ class FIFO(Module):
                     elif (len(bus) <= 36):
                         data = 36
 
+                    if (data <= 18):
+                        instance = "FIFO18K"
+                    else:
+                        instance = "FIFO36K"
                     # Module Instance.
                     # ----------------
-                    if(synchronous):
+                    if(SYNCHRONOUS[synchronous]):
                         if (instances == 1):
-                            self.specials += Instance("FIFO",
+                            self.specials += Instance(instance,
                             # Parameters.
                             # -----------
                             # Global.
@@ -175,7 +184,7 @@ class FIFO(Module):
                             o_PROG_EMPTY    = self.prog_empty[k]
                         )
                         else:
-                            self.specials += Instance("FIFO",
+                            self.specials += Instance(instance,
                                 # Parameters.
                                 # -----------
                                 # Global.
@@ -209,7 +218,7 @@ class FIFO(Module):
                             )
                     else:
                         if (instances == 1):
-                            self.specials += Instance("FIFO",
+                            self.specials += Instance(instance,
                             # Parameters.
                             # -----------
                             # Global.
@@ -242,7 +251,7 @@ class FIFO(Module):
                             o_PROG_EMPTY    = self.prog_empty[k]
                         )
                         else:
-                            self.specials += Instance("FIFO",
+                            self.specials += Instance(instance,
                                 # Parameters.
                                 # -----------
                                 # Global.
@@ -277,7 +286,7 @@ class FIFO(Module):
                     j = data + j
                 if (instances > 1):
                     # Writing and Reading to FIFOs
-                    if(synchronous):
+                    if(SYNCHRONOUS[synchronous]):
                         self.comb += [
                             If(self.wren,
                                If(~self.overflow,
@@ -529,7 +538,7 @@ class FIFO(Module):
                                     )
                                 ]
             if (instances > 1):
-                if (not synchronous):
+                if (not SYNCHRONOUS[synchronous]):
                     self.sync.rd += self.rd_en_flop.eq(self.rden)
                     self.sync.rd += [
                         If(self.rden,
@@ -551,7 +560,7 @@ class FIFO(Module):
                     ]
 
                 # wrt_ptr and rd_ptr to check for number of entries in FIFO
-                if(synchronous):
+                if(SYNCHRONOUS[synchronous]):
                     self.sync += [
                         If(self.wren,
                            If(~self.full,
@@ -675,7 +684,7 @@ class FIFO(Module):
                     self.comb += self.sync_rdclk_wrtptr_binary[math.ceil(math.log2(depth)) + 1].eq(self.wrt_ptr_rd_clk2[math.ceil(math.log2(depth)) + 1])
                     # -----------------------------------------------------------------------------
 
-                if(synchronous):
+                if(SYNCHRONOUS[synchronous]):
                     # Checking if the FIFO is full
                     self.comb += [
                         If(self.counter >= depth,
@@ -837,7 +846,7 @@ class FIFO(Module):
                               self.rden_int[0].eq(self.rden)
                               )
                 ]
-                if (synchronous):
+                if (SYNCHRONOUS[synchronous]):
                     self.sync += [
                         If(self.full,
                            If(self.wren,
@@ -885,7 +894,7 @@ class FIFO(Module):
                     ]
         # Using Distributed RAM
         else:
-            if (synchronous):
+            if (SYNCHRONOUS[synchronous]):
                 self.submodules.fifo = SyncFIFO(data_width, depth, first_word_fall_through)
             else:
                 self.submodules.fifo = AsyncFIFOBuffered(data_width, depth)
@@ -893,7 +902,7 @@ class FIFO(Module):
                 self.fifo = ClockDomainsRenamer({"read": "rd"})(self.fifo)
                 # depth = depth + 1
             self.wr_en = Signal()
-            if(synchronous):
+            if(SYNCHRONOUS[synchronous]):
                 self.comb += [
                     If(self.wren,
                        If(~self.full,
@@ -913,7 +922,7 @@ class FIFO(Module):
                             self.wr_en.eq(0)
                        )
                 ]
-            if (synchronous):
+            if (SYNCHRONOUS[synchronous]):
                 if (not first_word_fall_through):
                     self.comb += [
                         If(self.wren,
@@ -1126,7 +1135,7 @@ class FIFO(Module):
                            self.prog_empty.eq(1)
                            )
                     ]
-            if (synchronous):
+            if (SYNCHRONOUS[synchronous]):
                 self.sync += [
                     If(self.rden,
                        If(self.empty,
