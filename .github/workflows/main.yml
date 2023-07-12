@@ -63,7 +63,7 @@ jobs:
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
 
-            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.")
+            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v")
 
             # Check if the IP name is in the excluded_ips array
             if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
