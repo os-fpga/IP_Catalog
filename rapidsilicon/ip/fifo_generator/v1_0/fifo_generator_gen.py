@@ -9,7 +9,7 @@ import sys
 import argparse
 import math
 
-from litex_wrapper.fifo_litex_wrapper import *
+from litex_wrapper.fifo_litex_generator import *
 
 from migen import *
 
@@ -38,8 +38,8 @@ def get_clkin_ios(data_width):
         ("prog_empty", 0,  Pins(1))
     ]
 
-# FIFO Wrapper ----------------------------------------------------------------------------------
-class FIFOWrapper(Module):
+# FIFO Generator ----------------------------------------------------------------------------------
+class FIFOGenerator(Module):
     def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(data_width))
@@ -84,7 +84,7 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="fifo", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="fifo_generator", language="verilog")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -99,17 +99,17 @@ def main():
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--synchronous",  			type=bool,   default=True,    help="Synchronous / Asynchronous Clock")
+    core_bool_param_group.add_argument("--synchronous",  			type=bool,   default=False,    help="Synchronous / Asynchronous Clock")
     core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,    help="Fist Word Fall Through")
-    core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	   help="Full Threshold")
-    core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,    help="Empty Threshold")
-    core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
+    core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=True,	   help="Full Threshold")
+    core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=True,    help="Empty Threshold")
+    core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=False,    help="Block or Distributed RAM")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",    help="Build Core")
     build_group.add_argument("--build-dir",     default="./",           help="Build Directory")
-    build_group.add_argument("--build-name",    default="FIFO_wrapper", help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="FIFO_generator", help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -164,9 +164,9 @@ def main():
         depth = args.DEPTH
     else:
         depth = args.depth
-    # Create Wrapper -------------------------------------------------------------------------------
+    # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = FIFOWrapper(platform,
+    module   = FIFOGenerator(platform,
         data_width      				= args.data_width,
         synchronous     				= args.synchronous,
         full_threshold  				= args.full_threshold,
