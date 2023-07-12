@@ -51,12 +51,12 @@ jobs:
     - name: Sanity Check
       shell: bash
       run: |
-        gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"
-
+        gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"`
+        
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
-
-        excluded_ips=("axil_ocla" "bram")  # Specify excluded IP names here
-
+        
+        excluded_ips=("axil_ocla" "bram")
+        
         for n in $gen_list
         do  
             ./python3 $n --build --json-template
