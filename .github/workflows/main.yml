@@ -61,9 +61,18 @@ jobs:
             ./python3 $n --build --json-template
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
-            find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v"
-            echo "IP generated RTL generated"
+
+            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v")
+
+            if [[ -n "$file_path" ]]; then
+                echo "Success! IP RTL generated at: $file_path"
+            else
+                echo "IP RTL wrapper not generated. Exiting."
+                exit 1
+            fi
         done
+
+
 
 
     - name: Test IP Generation
