@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT(Module):
-    def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned):
+    def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned ):
 
         # Get Parameters.
         # ---------------------        
@@ -43,11 +43,9 @@ class RS_DSP_MULT(Module):
         if (unsigned == 0):
             self.a = Signal(bits_sign=(a_width, True))
             self.b = Signal(bits_sign=(b_width, True))
-            self.delay_b = Signal(bits_sign=(b_width, True))
         else:
             self.a = Signal(a_width)
             self.b = Signal(b_width)
-            self.delay_b = Signal(b_width)
         self.z = Signal(a_width + b_width)
         
         if (reg_in == 1 and reg_out == 0):
@@ -68,7 +66,6 @@ class RS_DSP_MULT(Module):
                 i_a             = self.a,
                 i_b             = self.b,
                 o_z             = self.z,  
-                o_dly_b         = self.delay_b,
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
                 i_unsigned_b    = unsigned,
@@ -91,8 +88,7 @@ class RS_DSP_MULT(Module):
                 # IOs
                 i_a             = self.a,
                 i_b             = self.b,
-                o_z             = self.z,    
-                o_dly_b         = self.delay_b,
+                o_z             = self.z,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
                 i_unsigned_b    = unsigned,
@@ -115,8 +111,7 @@ class RS_DSP_MULT(Module):
                 # IOs
                 i_a             = self.a,
                 i_b             = self.b,
-                o_z             = self.z,    
-                o_dly_b         = self.delay_b,
+                o_z             = self.z,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
                 i_unsigned_b    = unsigned,
@@ -135,8 +130,7 @@ class RS_DSP_MULT(Module):
                 # IOs
                 i_a             = self.a,
                 i_b             = self.b,
-                o_z             = self.z,    
-                o_dly_b         = self.delay_b,
+                o_z             = self.z,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
                 i_unsigned_b    = unsigned,
@@ -174,20 +168,16 @@ class RS_DSP_MULT_ABCD(Module):
         if(unsigned == 1):
             self.a  = Signal(a_width)
             self.b  = Signal(b_width)
-            self.delay_b = Signal(b_width)
             self.c  = Signal(c_width)
             self.d  = Signal(d_width)
-            self.delay_d = Signal (d_width)
 
             self.z1 = Signal(a_width + b_width)
             self.z2 = Signal(c_width + d_width)
         else:
             self.a  = Signal(bits_sign=(a_width, True))
             self.b  = Signal(bits_sign=(b_width, True))
-            self.delay_b = Signal(bits_sign=(b_width, True))
             self.c  = Signal(bits_sign=(c_width, True))
             self.d  = Signal(bits_sign=(d_width, True))
-            self.delay_d = Signal (bits_sign=(d_width, True))
 
             self.z1 = Signal(bits_sign=(a_width + b_width, True))
             self.z2 = Signal(bits_sign=(c_width + d_width, True))
@@ -211,8 +201,7 @@ class RS_DSP_MULT_ABCD(Module):
 
                 # IOs
                 i_a             = self.a,
-                i_b             = self.b,  
-                o_dly_b         = self.delay_b,
+                i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -232,8 +221,7 @@ class RS_DSP_MULT_ABCD(Module):
 
                 # IOs
                 i_a             = self.c,
-                i_b             = self.d,  
-                o_dly_b         = self.delay_d,
+                i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -256,8 +244,7 @@ class RS_DSP_MULT_ABCD(Module):
 
                 # IOs
                 i_a             = self.a,
-                i_b             = self.b,  
-                o_dly_b         = self.delay_b,
+                i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -277,8 +264,7 @@ class RS_DSP_MULT_ABCD(Module):
 
                 # IOs
                 i_a             = self.c,
-                i_b             = self.d,  
-                o_dly_b         = self.delay_d,
+                i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -301,8 +287,7 @@ class RS_DSP_MULT_ABCD(Module):
 
                 # IOs
                 i_a             = self.a,
-                i_b             = self.b,  
-                o_dly_b         = self.delay_b,
+                i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -322,8 +307,7 @@ class RS_DSP_MULT_ABCD(Module):
 
                 # IOs
                 i_a             = self.c,
-                i_b             = self.d,  
-                o_dly_b         = self.delay_d,
+                i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -342,8 +326,7 @@ class RS_DSP_MULT_ABCD(Module):
 
                 # IOs
                 i_a             = self.a,
-                i_b             = self.b,  
-                o_dly_b         = self.delay_b,
+                i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -359,8 +342,7 @@ class RS_DSP_MULT_ABCD(Module):
 
                 # IOs
                 i_a             = self.c,
-                i_b             = self.d,  
-                o_dly_b         = self.delay_d,
+                i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -406,17 +388,13 @@ class RS_DSP_MULT_ABCDEFGH(Module):
         if (unsigned):
             self.a  = Signal(a_width)
             self.b  = Signal(b_width)
-            self.delay_b = Signal(b_width)
             self.c  = Signal(c_width)
             self.d  = Signal(d_width)
-            self.delay_d = Signal(d_width)
 
             self.e  = Signal(e_width)
             self.f  = Signal(f_width)
-            self.delay_f = Signal(f_width)
             self.g  = Signal(g_width)
             self.h  = Signal(h_width)
-            self.delay_h = Signal(h_width)
 
             self.z1 = Signal(a_width + b_width)
             self.z2 = Signal(c_width + d_width)
@@ -425,16 +403,12 @@ class RS_DSP_MULT_ABCDEFGH(Module):
         else:
             self.a  = Signal(bits_sign=(a_width, True))
             self.b  = Signal(bits_sign=(b_width, True))
-            self.delay_b = Signal(bits_sign=(b_width, True))
             self.c  = Signal(bits_sign=(c_width, True))
             self.d  = Signal(bits_sign=(d_width, True))
-            self.delay_d = Signal(bits_sign=(d_width, True))
             self.e  = Signal(bits_sign=(e_width, True))
             self.f  = Signal(bits_sign=(f_width, True))
-            self.delay_f = Signal(bits_sign=(f_width, True))
             self.g  = Signal(bits_sign=(g_width, True))
             self.h  = Signal(bits_sign=(h_width, True))
-            self.delay_h = Signal(bits_sign=(h_width, True))
         
             self.z1 = Signal(bits_sign=(a_width + b_width, True))
             self.z2 = Signal(bits_sign=(c_width + d_width, True))
@@ -476,8 +450,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.a,
-                i_b             = self.b,  
-                o_dly_b         = self.delay_b,
+                i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -497,8 +470,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.c,
-                i_b             = self.d,  
-                o_dly_b         = self.delay_d,
+                i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -518,8 +490,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.e,
-                i_b             = self.f,  
-                o_dly_b         = self.delay_f,
+                i_b             = self.f,
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -539,8 +510,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.g,
-                i_b             = self.h,  
-                o_dly_b         = self.delay_h,
+                i_b             = self.h,
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -564,8 +534,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.a,
-                i_b             = self.b,  
-                o_dly_b         = self.delay_b,
+                i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -585,8 +554,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.c,
-                i_b             = self.d,  
-                o_dly_b         = self.delay_d,
+                i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -606,8 +574,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.e,
-                i_b             = self.f,  
-                o_dly_b         = self.delay_f,
+                i_b             = self.f,
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -627,8 +594,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.g,
-                i_b             = self.h,  
-                o_dly_b         = self.delay_h,
+                i_b             = self.h,
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -652,8 +618,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.a,
-                i_b             = self.b,  
-                o_dly_b         = self.delay_b,
+                i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -673,8 +638,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.c,
-                i_b             = self.d,  
-                o_dly_b         = self.delay_d,
+                i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -696,8 +660,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.e,
-                i_b             = self.f,  
-                o_dly_b         = self.delay_f,
+                i_b             = self.f,
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -717,8 +680,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.g,
-                i_b             = self.h,  
-                o_dly_b         = self.delay_h,
+                i_b             = self.h,
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -738,8 +700,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.a,
-                i_b             = self.b,  
-                o_dly_b         = self.delay_b,
+                i_b             = self.b,
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -755,8 +716,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.c,
-                i_b             = self.d,  
-                o_dly_b         = self.delay_d,
+                i_b             = self.d,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -772,8 +732,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.e,
-                i_b             = self.f,  
-                o_dly_b         = self.delay_f,
+                i_b             = self.f,
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -789,8 +748,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
                 # IOs
                 i_a             = self.g,
-                i_b             = self.h,  
-                o_dly_b         = self.delay_h,
+                i_b             = self.h,
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = unsigned,
@@ -821,9 +779,6 @@ class RS_DSP_MULT20(Module):
         
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
-        self.delay_b = Signal(k*2)
-        self.dly_b = Signal(bits_sign=(b_width, True))
-        self.comb += self.dly_b.eq(self.delay_b[0:b_width])
         self.a3 = Signal(bits_sign=(36,True))
         self.b3 = Signal(bits_sign=(36,True))
         
@@ -898,7 +853,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -915,7 +869,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -934,7 +887,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -951,7 +903,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -974,7 +925,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -991,7 +941,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1010,7 +959,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1027,7 +975,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1050,7 +997,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1067,7 +1013,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1086,7 +1031,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1103,7 +1047,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1122,7 +1065,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1136,7 +1078,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1152,7 +1093,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1166,7 +1106,6 @@ class RS_DSP_MULT20(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1196,9 +1135,6 @@ class RS_DSP_MULT36(Module):
 
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
-        self.delay_b = Signal(k*3)
-        self.dly_b = Signal(bits_sign=(b_width, True))
-        self.comb += self.dly_b.eq(self.delay_b[0:b_width])
         self.a3 = Signal(bits_sign=(a_width,True))
         self.b3 = Signal(bits_sign=(b_width,True))
         
@@ -1299,7 +1235,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1316,7 +1251,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1333,7 +1267,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1350,7 +1283,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1367,7 +1299,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1384,7 +1315,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1401,7 +1331,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1418,7 +1347,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1435,7 +1363,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1453,7 +1380,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1470,7 +1396,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1487,7 +1412,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1504,7 +1428,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1521,7 +1444,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1538,7 +1460,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1555,7 +1476,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1572,7 +1492,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1589,7 +1508,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1607,7 +1525,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1624,7 +1541,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1641,7 +1557,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1658,7 +1573,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1675,7 +1589,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1692,7 +1605,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1709,7 +1621,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1726,7 +1637,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1743,7 +1653,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1758,7 +1667,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1772,7 +1680,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1786,7 +1693,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1800,7 +1706,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1814,7 +1719,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1828,7 +1732,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -1842,7 +1745,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1856,7 +1758,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -1870,7 +1771,6 @@ class RS_DSP_MULT36(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -1900,9 +1800,6 @@ class RS_DSP_MULT54(Module):
 
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
-        self.delay_b = Signal(k*4)
-        self.dly_b = Signal(bits_sign=(b_width, True))
-        self.comb += self.dly_b.eq(self.delay_b[0:b_width])
         self.a3 = Signal(bits_sign=(a_width,True))
         self.b3 = Signal(bits_sign=(b_width,True))
         
@@ -2040,7 +1937,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2057,7 +1953,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2074,7 +1969,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2091,7 +1985,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2108,7 +2001,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2125,7 +2017,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2142,7 +2033,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2159,7 +2049,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2176,7 +2065,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2193,7 +2081,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z10,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2210,7 +2097,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z11,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2228,7 +2114,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z12,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2245,7 +2130,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z13,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2262,7 +2146,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z14,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2279,7 +2162,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z15,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2296,7 +2178,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z16,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2315,7 +2196,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2332,7 +2212,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2349,7 +2228,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2366,7 +2244,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2383,7 +2260,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2400,7 +2276,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2417,7 +2292,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2434,7 +2308,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2451,7 +2324,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2468,7 +2340,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z10,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2485,7 +2356,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z11,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2503,7 +2373,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z12,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2520,7 +2389,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z13,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2537,7 +2405,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z14,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2554,7 +2421,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z15,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2571,7 +2437,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z16,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2590,7 +2455,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2607,7 +2471,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2624,7 +2487,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2641,7 +2503,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2658,7 +2519,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2675,7 +2535,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2692,7 +2551,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2709,7 +2567,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2726,7 +2583,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2743,7 +2599,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z10,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2760,7 +2615,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z11,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2777,7 +2631,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z12,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2794,7 +2647,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z13,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2811,7 +2663,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z14,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2828,7 +2679,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z15,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2845,7 +2695,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z16,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2853,18 +2702,17 @@ class RS_DSP_MULT54(Module):
             )
         else:
             self.specials += Instance("RS_DSP_MULT",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                    # Parameters.
+                    # -----------
+                    # Mode Bits to configure DSP 
+                    p_MODE_BITS     =  0,
+                    # IOs
+                    i_a             = self.a0,
+                    i_b             = self.b0,
+                    o_z             = self.z1,  
+                    i_feedback      = 0,
+                    i_unsigned_a    = a0_sign,
+                    i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT",
                 # Parameters.
@@ -2874,7 +2722,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2888,7 +2735,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2902,7 +2748,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2916,7 +2761,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2930,7 +2774,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -2944,7 +2787,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -2958,7 +2800,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -2972,7 +2813,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -2986,7 +2826,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z10,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -3000,7 +2839,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z11,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -3014,7 +2852,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z12,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -3028,7 +2865,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z13,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -3042,7 +2878,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z14,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -3056,7 +2891,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z15,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -3070,7 +2904,6 @@ class RS_DSP_MULT54(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z16,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -3103,8 +2936,6 @@ class RS_DSP_MULT20_pipeline(Module):
             
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
-        self.delay_b = Signal(k*2)
-        self.dly_b = Signal(bits_sign=(b_width, True))
         self.sum = Signal(3, reset=2)
         self.fb = Signal(3)
         
@@ -3163,8 +2994,6 @@ class RS_DSP_MULT20_pipeline(Module):
         self.z = Signal(a_width + b_width)
         self.z_2 = Signal(a_width + b_width)
         self.comb += self.z.eq(Mux(self.sum == 3, (self.z3 << k) + self.z1 + (self.z2 << 2*k), self.z_2))
-        self.dly = Signal(b_width)
-        self.comb += self.dly_b.eq(Mux(self.sum == 3, self.delay_b[0:b_width], self.dly))
         sum_reg = Signal(3, reset=1)
         self.sync += [
             sum_reg.eq(sum_reg + 1),
@@ -3174,8 +3003,7 @@ class RS_DSP_MULT20_pipeline(Module):
         ]
         self.comb += [
             self.sum.eq(sum_reg),
-            self.z_2.eq(self.z),
-            self.dly.eq(self.dly_b)
+            self.z_2.eq(self.z)
         ]
          # Module instance.
         # ----------------
@@ -3191,7 +3019,6 @@ class RS_DSP_MULT20_pipeline(Module):
             i_a             = self.a0,
             i_b             = self.b0,
             o_z             = self.z1,  
-            o_dly_b         = self.delay_b[0:k],
             i_feedback      = 0,
             i_unsigned_a    = a0_sign,
             i_unsigned_b    = b0_sign
@@ -3207,7 +3034,6 @@ class RS_DSP_MULT20_pipeline(Module):
             # IOs
             i_a             = self.a3,
             i_b             = self.b3,
-            o_dly_b         = None,
             o_z             = self.z3,  
             i_feedback      = self.fb,
             i_load_acc      = 1,
@@ -3231,7 +3057,6 @@ class RS_DSP_MULT20_pipeline(Module):
             # IOs
             i_a             = self.a1,
             i_b             = self.b1,
-            o_dly_b         = self.delay_b[k:k*2],
             o_z             = self.z2,  
             i_feedback      = 0,
             i_unsigned_a    = a1_sign,
@@ -3264,8 +3089,6 @@ class RS_DSP_MULT36_pipeline(Module):
 
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
-        self.delay_b = Signal(k*3)
-        self.dly_b = Signal(bits_sign=(b_width, True))
 
         self.a1 = Signal(k)
         self.b1 = Signal(k)
@@ -3416,8 +3239,6 @@ class RS_DSP_MULT36_pipeline(Module):
             self.z_2 = Signal(bits_sign=(a_width + b_width,True))
         self.comb += self.z.eq(Mux(self.sum == 4,(self.z5 << 4*k) + (self.z4 << 3*k)  + (self.z3 << 2*k)
                                                 + (self.z2 << k) + self.z1, self.z_2))
-        self.dly = Signal(b_width)
-        self.comb += self.dly_b.eq(Mux(self.sum == 3, self.delay_b[0:b_width], self.dly))
         sum_reg = Signal(3, reset=1)
         self.sync += [
             sum_reg.eq(sum_reg + 1),
@@ -3427,8 +3248,7 @@ class RS_DSP_MULT36_pipeline(Module):
         ]
         self.comb += [
             self.sum.eq(sum_reg),
-            self.z_2.eq(self.z),
-            self.dly.eq(self.dly_b)
+            self.z_2.eq(self.z)
         ]
 
         # Module instance.
@@ -3444,7 +3264,6 @@ class RS_DSP_MULT36_pipeline(Module):
             # IOs
             i_a             = self.a1,
             i_b             = self.b1,
-            o_dly_b         = self.delay_b[0:k],
             o_z             = self.z1,  
             i_feedback      = 0,
             i_unsigned_a    = a0_sign,
@@ -3461,7 +3280,6 @@ class RS_DSP_MULT36_pipeline(Module):
             # IOs
             i_a             = self.a_2,
             i_b             = self.b_2,
-            o_dly_b         = None,
             o_z             = self.z2,  
             i_feedback      = self.fb_del,
             i_load_acc      = 1,
@@ -3483,7 +3301,6 @@ class RS_DSP_MULT36_pipeline(Module):
             # IOs
             i_a             = self.a_3,
             i_b             = self.b_3,
-            o_dly_b         = None,
             o_z             = self.z3,  
             i_feedback      = self.fb,
             i_load_acc      = 1,
@@ -3505,7 +3322,6 @@ class RS_DSP_MULT36_pipeline(Module):
             # IOs
             i_a             = self.a_4,
             i_b             = self.b_4,
-            o_dly_b         = self.delay_b[k:k*2],
             o_z             = self.z4,  
             i_feedback      = self.fb_del,
             i_load_acc      = 1,
@@ -3527,7 +3343,6 @@ class RS_DSP_MULT36_pipeline(Module):
             # IOs
             i_a             = self.a3,
             i_b             = self.b3,
-            o_dly_b         = self.delay_b[k*2:k*3],
             o_z             = self.z5,  
             i_feedback      = 0,
             i_unsigned_a    = a2_sign,
@@ -3561,9 +3376,7 @@ class RS_DSP_MULT54_pipeline(Module):
 
         self.a = Signal(bits_sign=(a_width,True))
         self.b = Signal(bits_sign=(b_width,True))
-        self.delay_b = Signal(k*4)
-        self.dly_b = Signal(bits_sign=(b_width, True))
-
+        
         self.sum = Signal(3, reset=2)
         self.fb = Signal(3, reset = 1)
         self.fb1 = Signal(3)
@@ -3785,8 +3598,6 @@ class RS_DSP_MULT54_pipeline(Module):
 
         self.comb += self.z.eq(Mux(self.sum == 5, (self.z7 << 6*k) + (self.z6 << 5*k) + (self.z5 << 4*k) + 
                     (self.z4 << 3*k) + (self.z3 << 2*k) + (self.z2 << k) + self.z1, self.z_2))
-        self.dly = Signal(b_width)
-        self.comb += self.dly_b.eq(Mux(self.sum == 5, self.delay_b[0:b_width], self.dly))
         sum_reg = Signal(3, reset=1)
         self.sync += [
             sum_reg.eq(sum_reg + 1),
@@ -3796,8 +3607,7 @@ class RS_DSP_MULT54_pipeline(Module):
         ]
         self.comb += [
             self.sum.eq(sum_reg),
-            self.z_2.eq(self.z),
-            self.dly.eq(self.dly_b)
+            self.z_2.eq(self.z)
         ]
         # Module instance.
         # ----------------
@@ -3812,7 +3622,6 @@ class RS_DSP_MULT54_pipeline(Module):
             # IOs
             i_a             = self.a0,
             i_b             = self.b0,
-            o_dly_b         = self.delay_b[0:k],
             o_z             = self.z1,  
             i_feedback      = 0,
             i_unsigned_a    = a0_sign,
@@ -3829,7 +3638,6 @@ class RS_DSP_MULT54_pipeline(Module):
             # IOs
             i_a             = self.a_2,
             i_b             = self.b_2,
-            o_dly_b         = self.delay_b[k:k*2],
             o_z             = self.z2,  
             i_feedback      = self.fb2,
             i_load_acc      = 1,
@@ -3851,7 +3659,6 @@ class RS_DSP_MULT54_pipeline(Module):
             # IOs
             i_a             = self.a_3,
             i_b             = self.b_3,
-            o_dly_b         = None,
             o_z             = self.z3,  
             i_feedback      = self.fb1,
             i_load_acc      = 1,
@@ -3873,7 +3680,6 @@ class RS_DSP_MULT54_pipeline(Module):
             # IOs
             i_a             = self.a_4,
             i_b             = self.b_4,
-            o_dly_b         = None,
             o_z             = self.z4,  
             i_feedback      = self.fb,
             i_load_acc      = 1,
@@ -3895,7 +3701,6 @@ class RS_DSP_MULT54_pipeline(Module):
             # IOs
             i_a             = self.a_5,
             i_b             = self.b_5,
-            o_dly_b         = None,
             o_z             = self.z5,  
             i_feedback      = self.fb1,
             i_load_acc      = 1,
@@ -3917,7 +3722,6 @@ class RS_DSP_MULT54_pipeline(Module):
             # IOs
             i_a             = self.a_6,
             i_b             = self.b_6,
-            o_dly_b         = self.delay_b[k*2:k*3],
             o_z             = self.z6,  
             i_feedback      = self.fb2,
             i_load_acc      = 1,
@@ -3939,7 +3743,6 @@ class RS_DSP_MULT54_pipeline(Module):
             # IOs
             i_a             = self.a3,
             i_b             = self.b3,
-            o_dly_b         = self.delay_b[k*3:k*4],
             o_z             = self.z7,  
             i_feedback      = 0,
             i_unsigned_a    = a3_sign,
@@ -3972,7 +3775,6 @@ class RS_DSP_MULT20_enhance(Module):
 
         self.a = Signal(bits_sign=(a_width, True))
         self.b = Signal(bits_sign=(b_width, True))
-        self.delay_b = Signal(bits_sign=(b_width, True))
 
         a0_sign = 1
         a1_sign = 1
@@ -4057,7 +3859,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4074,7 +3875,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx, Replicate(self.dx[17], 2)),
                 i_b             = self.dy,
-                o_dly_b         = None,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4093,7 +3893,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4114,7 +3913,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4131,7 +3929,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx, Replicate(self.dx[17], 2)),
                 i_b             = self.dy,
-                o_dly_b         = None,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4150,7 +3947,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4172,7 +3968,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4189,7 +3984,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx, Replicate(self.dx[17], 2)),
                 i_b             = self.dy,
-                o_dly_b         = None,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4208,7 +4002,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4225,7 +4018,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4239,7 +4031,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx, Replicate(self.dx[17], 2)),
                 i_b             = self.dy,
-                o_dly_b         = None,
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4255,7 +4046,6 @@ class RS_DSP_MULT20_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4287,7 +4077,6 @@ class RS_DSP_MULT36_enhance(Module):
 
         self.a = Signal(bits_sign=(a_width, True))
         self.b = Signal(bits_sign=(b_width, True))
-        self.delay_b = Signal(bits_sign=(b_width, True))
         
         a0_sign = 1
         a1_sign = 1
@@ -4394,7 +4183,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4411,7 +4199,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4428,7 +4215,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -4445,7 +4231,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
                 i_b             = self.dy1,
-                o_dly_b         = None,
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4462,7 +4247,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
                 i_b             = self.dy2,
-                o_dly_b         = None,
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4479,7 +4263,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
                 i_b             = self.dy3,
-                o_dly_b         = None,
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4497,7 +4280,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4514,7 +4296,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4531,7 +4312,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -4548,7 +4328,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
                 i_b             = self.dy1,
-                o_dly_b         = None,
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4565,7 +4344,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
                 i_b             = self.dy2,
-                o_dly_b         = None,
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4582,7 +4360,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
                 i_b             = self.dy3,
-                o_dly_b         = None,
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4600,7 +4377,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4617,7 +4393,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4634,7 +4409,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -4651,7 +4425,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
                 i_b             = self.dy1,
-                o_dly_b         = None,
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4668,7 +4441,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
                 i_b             = self.dy2,
-                o_dly_b         = None,
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4685,7 +4457,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
                 i_b             = self.dy3,
-                o_dly_b         = None,
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4700,7 +4471,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a0,
                 i_b             = self.b0,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4714,7 +4484,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4728,7 +4497,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z3,
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -4742,7 +4510,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
                 i_b             = self.dy1,
-                o_dly_b         = None,
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4756,7 +4523,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
                 i_b             = self.dy2,
-                o_dly_b         = None,
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4770,7 +4536,6 @@ class RS_DSP_MULT36_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
                 i_b             = self.dy3,
-                o_dly_b         = None,
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -4779,7 +4544,7 @@ class RS_DSP_MULT36_enhance(Module):
 
 # # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT54_enhance(Module):
-    def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned):
+    def __init__(self, a_width, b_width, equation, reg_in, reg_out, unsigned, ):
 
         # Get Parameters.
         # ---------------------        
@@ -4803,7 +4568,6 @@ class RS_DSP_MULT54_enhance(Module):
 
         self.a = Signal(a_width)
         self.b = Signal(b_width)
-        self.delay_b = Signal(b_width)
         
         a0_sign = 1
         a1_sign = 1
@@ -4958,7 +4722,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -4975,7 +4738,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -4992,7 +4754,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a3,
                 i_b             = self.b3,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -5009,7 +4770,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -5026,7 +4786,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx1,
                 i_b             = self.dy1,
-                o_dly_b         = None,
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5043,7 +4802,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx2,
                 i_b             = self.dy2,
-                o_dly_b         = None,
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5060,7 +4818,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx3,
                 i_b             = self.dy3,
-                o_dly_b         = None,
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5077,7 +4834,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx4,
                 i_b             = self.dy4,
-                o_dly_b         = None,
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5094,7 +4850,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx5,
                 i_b             = self.dy5,
-                o_dly_b         = None,
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5111,7 +4866,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx6,
                 i_b             = self.dy6,
-                o_dly_b         = None,
                 o_z             = self.z10,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5129,7 +4883,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -5146,7 +4899,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -5163,7 +4915,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a3,
                 i_b             = self.b3,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -5180,7 +4931,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -5197,7 +4947,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx1,
                 i_b             = self.dy1,
-                o_dly_b         = None,
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5214,7 +4963,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx2,
                 i_b             = self.dy2,
-                o_dly_b         = None,
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5231,7 +4979,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx3,
                 i_b             = self.dy3,
-                o_dly_b         = None,
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5248,7 +4995,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx4,
                 i_b             = self.dy4,
-                o_dly_b         = None,
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5265,7 +5011,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx5,
                 i_b             = self.dy5,
-                o_dly_b         = None,
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5282,7 +5027,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx6,
                 i_b             = self.dy6,
-                o_dly_b         = None,
                 o_z             = self.z10,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5300,7 +5044,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a1,
                 i_b             = self.b1,
-                o_dly_b         = self.delay_b[0:k],
                 o_z             = self.z1,  
                 i_feedback      = 0,
                 i_unsigned_a    = a0_sign,
@@ -5317,7 +5060,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -5334,7 +5076,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a3,
                 i_b             = self.b3,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -5351,7 +5092,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -5368,7 +5108,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx1,
                 i_b             = self.dy1,
-                o_dly_b         = None,
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5385,7 +5124,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx2,
                 i_b             = self.dy2,
-                o_dly_b         = None,
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5402,7 +5140,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx3,
                 i_b             = self.dy3,
-                o_dly_b         = None,
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5419,7 +5156,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx4,
                 i_b             = self.dy4,
-                o_dly_b         = None,
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5436,7 +5172,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx5,
                 i_b             = self.dy5,
-                o_dly_b         = None,
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5453,7 +5188,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.dx6,
                 i_b             = self.dy6,
-                o_dly_b         = None,
                 o_z             = self.z10,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5461,18 +5195,17 @@ class RS_DSP_MULT54_enhance(Module):
             )
         else:
             self.specials += Instance("RS_DSP_MULT",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_dly_b         = self.delay_b[0:k],
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                    # Parameters.
+                    # -----------
+                    # Mode Bits to configure DSP 
+                    p_MODE_BITS     =  0,
+                    # IOs
+                    i_a             = self.a1,
+                    i_b             = self.b1,
+                    o_z             = self.z1,  
+                    i_feedback      = 0,
+                    i_unsigned_a    = a0_sign,
+                    i_unsigned_b    = b0_sign
             )
             self.specials += Instance("RS_DSP_MULT",
                 # Parameters.
@@ -5482,7 +5215,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a2,
                 i_b             = self.b2,
-                o_dly_b         = self.delay_b[k:k*2],
                 o_z             = self.z2,  
                 i_feedback      = 0,
                 i_unsigned_a    = a1_sign,
@@ -5496,7 +5228,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a3,
                 i_b             = self.b3,
-                o_dly_b         = self.delay_b[k*2:k*3],
                 o_z             = self.z3,  
                 i_feedback      = 0,
                 i_unsigned_a    = a2_sign,
@@ -5510,7 +5241,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = self.a4,
                 i_b             = self.b4,
-                o_dly_b         = self.delay_b[k*3:k*4],
                 o_z             = self.z4,  
                 i_feedback      = 0,
                 i_unsigned_a    = a3_sign,
@@ -5524,7 +5254,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
                 i_b             = self.dy1,
-                o_dly_b         = None,
                 o_z             = self.z5,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5538,7 +5267,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
                 i_b             = self.dy2,
-                o_dly_b         = None,
                 o_z             = self.z6,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5552,7 +5280,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
                 i_b             = self.dy3,
-                o_dly_b         = None,
                 o_z             = self.z7,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5566,7 +5293,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx4, Replicate(self.dx4[17], 2)),
                 i_b             = self.dy4,
-                o_dly_b         = None,
                 o_z             = self.z8,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5580,7 +5306,6 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx5, Replicate(self.dx5[17], 2)),
                 i_b             = self.dy5,
-                o_dly_b         = None,
                 o_z             = self.z9,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
@@ -5594,10 +5319,8 @@ class RS_DSP_MULT54_enhance(Module):
                 # IOs
                 i_a             = Cat(self.dx6, Replicate(self.dx6[17], 2)),
                 i_b             = self.dy6,
-                o_dly_b         = None,
                 o_z             = self.z10,  
                 i_feedback      = 0,
                 i_unsigned_a    = 0,
                 i_unsigned_b    = 0
             )
-
