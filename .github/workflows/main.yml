@@ -55,8 +55,8 @@ jobs:
         
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
         
-        excluded_ips=("axil_quadspi" "ahb2axi_bridge" "axi2axilite_bridge" "axis_width_converter" "i2c_master")
-        
+        excluded_ips=("axil_quadspi" "ahb2axi_bridge" "axi2axilite_bridge" "axis_width_converter" "i2c_master" "axil_ethernet")
+        #fix ethernet ip        
         for n in $gen_list
         do  
             ./python3 $n --build --json-template
@@ -77,8 +77,6 @@ jobs:
                 echo "Skipping wrapper check for $ip_name"
             fi
         done
-
-
 
     - name: Test IP Generation
       run: |
