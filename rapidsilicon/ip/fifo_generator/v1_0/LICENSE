@@ -22,6 +22,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/fifo/v1_0/fifo_gen.py
-rapidsilicon/ip/fifo/v1_0/litex_wrapper/fifo_litex_wrapper.py
+rapidsilicon/ip/fifo/v1_0/litex_wrapper/fifo_litex_generator.py
 
 ---------------------------------------------------------------------------------------

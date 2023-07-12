@@ -4,7 +4,7 @@
 This is a customizable FIFO Core module with various different parameters and features a list of which is given below.
 
 ## Generator Script
-This directory contains the generator script which places the RTL to `rapidsilicon/ip/fifo/v1_0/<build-name>/src/` directory and generates its wrapper in the same directory. 
+This directory contains the generator script which places the RTL to `rapidsilicon/ip/fifo_generator/v1_0/<build-name>/src/` directory.
 
 ## Parameters
 These are the parameters for FIFO core along with their keyword and values: -
@@ -25,9 +25,9 @@ These are the parameters for FIFO core along with their keyword and values: -
 
 To generate RTL with above parameters, run the following command:
 ```
-./fifo_gen.py --data_width=72 --depth=3072 --build-name=fifo_wrapper --build
+./fifo_generator_gen.py --data_width=72 --depth=3072 --build-name=fifo_wrapper --build
 ```
 
 ## TCL File
 
-This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/fifo/v1_0/<build-name>/synth/` directory.
+This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/fifo_generator/v1_0/<build-name>/synth/` directory.
