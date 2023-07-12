@@ -12,7 +12,7 @@ This is a customizable DSP Core module with various algorithms for DSP Decomposi
 For more information, refer to the included documentation.
 
 ## Generator Script
-This directory contains the generator script which places the generated RTL to `rapidsilicon/ip/dsp/v1_0/<build-name>/src/` directory along with the simulation files.
+This directory contains the generator script which places the generated RTL to `rapidsilicon/ip/dsp_generator/v1_0/<build-name>/src/` directory along with the simulation files.
 
 ## Parameters
 These are the parameters for DSP core along with their keyword and values: -
@@ -41,4 +41,4 @@ python3 dsp_gen.py --build --a_width=54 --b_width=54
 
 ## TCL File
 
-This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/dsp/v1_0/<build-name>/synth/` directory.
+This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/dsp_generator/v1_0/<build-name>/synth/` directory.
