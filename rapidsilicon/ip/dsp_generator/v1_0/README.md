@@ -36,7 +36,7 @@ These are the parameters for DSP core along with their keyword and values: -
 
 To generate RTL with above parameters, run the following command:
 ```
-python3 dsp_gen.py --build --a_width=54 --b_width=54
+python3 dsp_generator_gen.py --build --a_width=54 --b_width=54
 ```
 
 ## TCL File
