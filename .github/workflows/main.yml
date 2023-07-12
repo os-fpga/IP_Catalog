@@ -78,7 +78,7 @@ jobs:
             fi
         done
 
-
+        ls /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin/rapidsilicon/ip/i2c_master/v1_0/rapidsilicon/ip/i2c_master/v1_0/i2c_master_wrapper/src
 
 
     - name: Test IP Generation
