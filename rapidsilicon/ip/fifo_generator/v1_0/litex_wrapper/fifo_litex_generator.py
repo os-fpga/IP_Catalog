@@ -28,15 +28,9 @@ def divide_n_bit_number(number):
     
     return buses
 
-def generate_nested_if_statements(signals, index, signal):
-    if (index == len(signals) - 1):
-        return If(signals[index], signal.eq(1))
-    else:
-        return If(signals[index], generate_nested_if_statements(signals, index + 1, signal))
-
-# AXIS_SWITCH ---------------------------------------------------------------------------------------
+# FIFO Generator ---------------------------------------------------------------------------------------
 class FIFO(Module):
-    def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
+    def __init__(self, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
         self.logger = logging.getLogger("FIFO")
         self.logger.propagate = False
         
