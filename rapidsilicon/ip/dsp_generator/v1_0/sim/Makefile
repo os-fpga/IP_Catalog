@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-DUT = dsp
+DUT = dsp_generator
 
 OUT_DIR ?= 3
 
@@ -14,4 +14,4 @@ all:
 	@sed -i "s|$(OUT_DIR)/dsp.vcd|dsp.vcd|g" ./dsp_test.v
 
 clean:
-	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__ dsp dsp_tests_unsigned.log
+	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__ dsp
