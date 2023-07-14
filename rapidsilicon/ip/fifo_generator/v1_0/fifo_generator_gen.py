@@ -7,9 +7,10 @@
 import os
 import sys
 import argparse
+from pathlib import Path
 import math
 
-from litex_wrapper.fifo_litex_wrapper import *
+from litex_wrapper.fifo_litex_generator import *
 
 from migen import *
 
@@ -38,8 +39,8 @@ def get_clkin_ios(data_width):
         ("prog_empty", 0,  Pins(1))
     ]
 
-# FIFO Wrapper ----------------------------------------------------------------------------------
-class FIFOWrapper(Module):
+# FIFO Generator ----------------------------------------------------------------------------------
+class FIFOGenerator(Module):
     def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(data_width))
@@ -47,8 +48,12 @@ class FIFOWrapper(Module):
         self.clock_domains.cd_wrt	= ClockDomain()
         self.clock_domains.cd_rd	= ClockDomain()
 
+        SYNCHRONOUS = {
+            True    :   "TRUE",
+            False   :   "FALSE"
+        }
 	
-        self.submodules.fifo = fifo = FIFO(platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM)
+        self.submodules.fifo = fifo = FIFO(data_width, SYNCHRONOUS[synchronous], full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM)
     
         self.comb += fifo.din.eq(platform.request("din"))
         self.comb += platform.request("dout").eq(fifo.dout)
@@ -84,13 +89,13 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="fifo", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="fifo_generator", language="verilog")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--data_width",     type=int,   default=36,  	choices=range(1,129),   help="FIFO Write/Read Width")
-    core_range_param_group.add_argument("--full_value",     type=int,   default=1010,	choices=range(1,4095),  help="Full Value")
-    core_range_param_group.add_argument("--empty_value",    type=int,   default=20,  	choices=range(0,4095),  help="Empty Value")
+    core_range_param_group.add_argument("--full_value",     type=int,   default=2,	    choices=range(2,4095),  help="Full Value")
+    core_range_param_group.add_argument("--empty_value",    type=int,   default=1,  	choices=range(1,4095),  help="Empty Value")
     core_range_param_group.add_argument("--depth",          type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
 
     # Core fix value parameters.
@@ -109,7 +114,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",    help="Build Core")
     build_group.add_argument("--build-dir",     default="./",           help="Build Directory")
-    build_group.add_argument("--build-name",    default="FIFO_wrapper", help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="FIFO_generator", help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -130,10 +135,6 @@ def main():
                 'empty_value'   :   'True'
             })
         if (args.BRAM == False and args.synchronous == False):
-            dep_dict.update ({
-                'empty_threshold'   :   'True',
-                'full_threshold'    :   'True'
-            })
             option_strings_to_remove = ['--depth']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
@@ -164,9 +165,9 @@ def main():
         depth = args.DEPTH
     else:
         depth = args.depth
-    # Create Wrapper -------------------------------------------------------------------------------
+    # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = FIFOWrapper(platform,
+    module   = FIFOGenerator(platform,
         data_width      				= args.data_width,
         synchronous     				= args.synchronous,
         full_threshold  				= args.full_threshold,
@@ -191,6 +192,38 @@ def main():
             platform   = platform,
             module     = module
         )
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/fifo_generator/v1_0", build_name, "sim/testbench.v")
+        file = Path(file)
+        text = file.read_text()
+        text = text.replace("localparam DEPTH = 2048", "localparam DEPTH = %s" % depth)
+        file.write_text(text)
+        text = text.replace("FIFO_generator", "%s" % build_name)
+        file.write_text(text)
+        text = text.replace("localparam WIDTH = 36", "localparam WIDTH = %s" % args.data_width)
+        file.write_text(text)
+        if (not args.synchronous):
+            if (args.BRAM):
+                text = text.replace("== mem [i]", "== mem[i - 1]")
+                file.write_text(text)
+                text = text.replace("mem[i], dout, i", "mem[i - 1], dout, i - 1")
+                file.write_text(text)
+                text = text.replace("== 0", "<= 1")
+                file.write_text(text)
+            text = text.replace("forever #5 rd_clk = ~rd_clk;", "forever #2.5 rd_clk = ~rd_clk;")
+            file.write_text(text)
+        else:
+            text = text.replace("wrt_clock(wrt_clk)", "clk(wrt_clk)")
+            file.write_text(text)
+            text = text.replace(".rd_clock(rd_clk), ", "")
+            file.write_text(text)
+        if (not args.BRAM and args.synchronous and not args.first_word_fall_through):
+            text = text.replace("== mem [i]", "== mem[i - 1]")
+            file.write_text(text)
+            text = text.replace("mem[i], dout, i", "mem[i - 1], dout, i - 1")
+            file.write_text(text)
+            text = text.replace("== 0", "<= 1")
+            file.write_text(text)
 
 if __name__ == "__main__":
     main()
