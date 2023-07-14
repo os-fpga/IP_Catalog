@@ -865,14 +865,14 @@ class FIFO(Module):
                             self.fifo.din.eq(self.din)
                         ),
                         self.fifo.we.eq(self.wr_en),
-                        self.fifo.re.eq(self.rden),
-                        If(self.rden,
+                        If(self.fifo.re,
                             self.dout.eq(self.fifo.dout)
                         ),
                         If(self.underflow,
                            self.dout.eq(0)
                            )
                         ]
+                    self.sync += self.fifo.re.eq(self.rden)
                 else:
                     self.comb += [
                         If(self.wren,
