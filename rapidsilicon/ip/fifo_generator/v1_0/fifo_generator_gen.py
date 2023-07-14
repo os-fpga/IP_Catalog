@@ -7,6 +7,7 @@
 import os
 import sys
 import argparse
+from pathlib import Path
 import math
 
 from litex_wrapper.fifo_litex_generator import *
@@ -195,6 +196,38 @@ def main():
             platform   = platform,
             module     = module
         )
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/fifo_generator/v1_0", build_name, "sim/testbench.v")
+        file = Path(file)
+        text = file.read_text()
+        text = text.replace("localparam DEPTH = 2048", "localparam DEPTH = %s" % depth)
+        file.write_text(text)
+        text = text.replace("FIFO_generator", "%s" % build_name)
+        file.write_text(text)
+        text = text.replace("localparam WIDTH = 36", "localparam WIDTH = %s" % args.data_width)
+        file.write_text(text)
+        if (not args.synchronous):
+            if (args.BRAM):
+                text = text.replace("== mem [i]", "== mem[i - 1]")
+                file.write_text(text)
+                text = text.replace("mem[i], dout, i", "mem[i - 1], dout, i - 1")
+                file.write_text(text)
+                text = text.replace("== 0", "<= 1")
+                file.write_text(text)
+            text = text.replace("forever #5 rd_clk = ~rd_clk;", "forever #2.5 rd_clk = ~rd_clk;")
+            file.write_text(text)
+        else:
+            text = text.replace("wrt_clock(wrt_clk)", "clk(wrt_clk)")
+            file.write_text(text)
+            text = text.replace(".rd_clock(rd_clk), ", "")
+            file.write_text(text)
+        if (not args.BRAM and args.synchronous and not args.first_word_fall_through):
+            text = text.replace("== mem [i]", "== mem[i - 1]")
+            file.write_text(text)
+            text = text.replace("mem[i], dout, i", "mem[i - 1], dout, i - 1")
+            file.write_text(text)
+            text = text.replace("== 0", "<= 1")
+            file.write_text(text)
 
 if __name__ == "__main__":
     main()
