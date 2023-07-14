@@ -94,8 +94,8 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--data_width",     type=int,   default=36,  	choices=range(1,129),   help="FIFO Write/Read Width")
-    core_range_param_group.add_argument("--full_value",     type=int,   default=1,	    choices=range(2,4095),  help="Full Value")
-    core_range_param_group.add_argument("--empty_value",    type=int,   default=0,  	choices=range(1,4095),  help="Empty Value")
+    core_range_param_group.add_argument("--full_value",     type=int,   default=2,	    choices=range(2,4095),  help="Full Value")
+    core_range_param_group.add_argument("--empty_value",    type=int,   default=1,  	choices=range(1,4095),  help="Empty Value")
     core_range_param_group.add_argument("--depth",          type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
 
     # Core fix value parameters.
