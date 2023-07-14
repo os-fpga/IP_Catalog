@@ -135,10 +135,6 @@ def main():
                 'empty_value'   :   'True'
             })
         if (args.BRAM == False and args.synchronous == False):
-            dep_dict.update ({
-                'empty_threshold'   :   'True',
-                'full_threshold'    :   'True'
-            })
             option_strings_to_remove = ['--depth']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
