@@ -37,21 +37,19 @@ class OCM(Module):
                 self.binary_data    = binary_data
                 self.line_count     = line_count
             return binary_data
-        
-    def data_width_36(self, file_path, file_extension):
+    
+    def memory_init(self, file_path, file_extension):
         self.memory_converter(file_path, file_extension)
         
         sram = {}
-        sram1   = []
-        sram2   = []
         result = []
         
         # Empty File Path
         if file_path == "":
             return "x"
         
-        # If FIle Path Exists
-        if self.write_depth in [2048, 4096, 8192, 16384, 32768]:
+        # If File Path Exists
+        if self.write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
             # 1K Memory Initialization
             if (self.write_depth == 1024):
                 if (len(self.binary_data) > self.write_depth):
@@ -77,13 +75,11 @@ class OCM(Module):
                         self.binary_data.append((self.data_width + (36-(self.data_width % 36))) * 'x')
 
                 for j in range(self.m-1, -1, -1):
-                    number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
                     sram2 = f"sram2_{j}"
                     data1 = f"ram_data1_{j}"
                     data2 = f"ram_data2_{j}"
                     sram_result = f"result_{j}"
-                    sram[number_of_rams] = []
                     sram[sram1] = []
                     sram[sram2] = []
                     sram[data1] = []
@@ -127,13 +123,11 @@ class OCM(Module):
                         self.binary_data.append((self.data_width + (18-(self.data_width % 18))) * 'x')
                         
                 for j in range(self.m-1, -1, -1):
-                    number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
                     sram2 = f"sram2_{j}"
                     data1 = f"ram_data1_{j}"
                     data2 = f"ram_data2_{j}"
                     sram_result = f"result_{j}"
-                    sram[number_of_rams] = []
                     sram[sram1] = []
                     sram[sram2] = []
                     sram[data1] = []
@@ -176,13 +170,11 @@ class OCM(Module):
                         self.binary_data.append((self.data_width + (9-(self.data_width % 9))) * 'x')
                 
                 for j in range(self.m-1, -1, -1):
-                    number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
                     sram2 = f"sram2_{j}"
                     data1 = f"ram_data1_{j}"
                     data2 = f"ram_data2_{j}"
                     sram_result = f"result_{j}"
-                    sram[number_of_rams] = []
                     sram[sram1] = []
                     sram[sram2] = []
                     sram[data1] = []
@@ -225,14 +217,12 @@ class OCM(Module):
                         self.binary_data.append((self.data_width + (4-(self.data_width % 4))) * 'x')
                         
                 for j in range(self.m-1, -1, -1):
-                    number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
                     sram2 = f"sram2_{j}"
                     data1 = f"ram_data1_{j}"
                     data2 = f"ram_data2_{j}"
                     sram_result = f"result_{j}"
                     
-                    sram[number_of_rams] = []
                     sram[sram1] = []
                     sram[sram2] = []
                     sram[data1] = []
@@ -260,6 +250,7 @@ class OCM(Module):
 
                 for i in range(lines):
                     if self.data_width % 4 == 0:
+                        valid_data_width = self.data_width
                         if len(self.binary_data[i]) < self.data_width:
                             self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
                         else:
@@ -268,21 +259,20 @@ class OCM(Module):
                         temp = self.data_width % 2
                         self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
                         self.binary_data[i] = '0' * (2 - temp) + self.binary_data[i]
+                        valid_data_width = (self.data_width + (4-(self.data_width % 4)))
                 
                 # Appending 'x' on vacant addresses
                 x_data = self.write_depth - self.line_count
                 if lines == self.line_count:
                     for i in range(x_data):
-                        self.binary_data.append((self.data_width + (2-(self.data_width % 2))) * 'x')
+                        self.binary_data.append(valid_data_width * 'x')
                 
                 for j in range(self.m-1, -1, -1):
-                    number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
                     sram2 = f"sram2_{j}"
                     data1 = f"ram_data1_{j}"
                     data2 = f"ram_data2_{j}"
                     sram_result = f"result_{j}"
-                    sram[number_of_rams] = []
                     sram[sram1] = []
                     sram[sram2] = []
                     sram[data1] = []
@@ -316,13 +306,11 @@ class OCM(Module):
                     for i in range(x_data):
                         self.binary_data.append(self.data_width * 'x')
                 for j in range(self.m-1, -1, -1):
-                    number_of_rams = f"ram_{j}"
                     sram1 = f"sram1_{j}"
                     sram2 = f"sram2_{j}"
                     data1 = f"ram_data1_{j}"
                     data2 = f"ram_data2_{j}"
                     sram_result = f"result_{j}"
-                    sram[number_of_rams] = []
                     sram[sram1] = []
                     sram[sram2] = []
                     sram[data1] = []
@@ -342,13 +330,10 @@ class OCM(Module):
         
         # Other Memory Size Initialization
         else:
-            if (len(self.binary_data) > self.write_depth):
-                lines = self.write_depth
-            else:
-                lines = self.line_count
-            
+            lines = self.line_count
             for i in range(lines):
                 if self.data_width % 36 == 0:
+                    valid_data_width = self.data_width
                     if len(self.binary_data[i]) < self.data_width:
                         self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
                     else:
@@ -357,36 +342,39 @@ class OCM(Module):
                     temp = self.data_width % 36
                     self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
                     self.binary_data[i] = '0' * (36 - temp) + self.binary_data[i]
+                    valid_data_width = (self.data_width + (36-(self.data_width % 36)))
                 
-            # Appending 'x' on vacant addresses
-            x_data = self.write_depth - self.line_count
-            if lines == self.line_count:
-                for i in range(x_data):
-                    self.binary_data.append(36 * 'x')
-                    
-            for j in range(self.m-1, -1, -1):
-                number_of_rams = f"ram_{j}"
-                sram1 = f"sram1_{j}"
-                sram2 = f"sram2_{j}"
-                data1 = f"ram_data1_{j}"
-                data2 = f"ram_data2_{j}"
-                sram_result = f"result_{j}"
-                sram[number_of_rams] = []
-                sram[sram1] = []
-                sram[sram2] = []
-                sram[data1] = []
-                sram[data2] = []
-                sram[sram_result] = []
+            valid_depth = self.write_depth + (1024-(self.write_depth % 1024))
+            x_data = valid_depth - self.line_count # Appending 'x' on vacant addresses
+            k = 0
+            for i in range(x_data):
+                self.binary_data.append(valid_data_width * 'x')
                 
-                for i in range(1024): # 1024 * (1-line per iteration) = 1024 addresses
-                    bits = self.binary_data[i*1][j*36:(j*36)+36]  # Extract 36 bits from the binary data
-                    sram[sram1].append(bits[:18]) # Extracting First 18 bits from binary data
-                    sram[sram2].append(bits[18:]) # Extracting Next 18 bits from binary data
+            for x in range(self.n-1,-1,-1): # on data_width
+                for j in range(self.m): # on depth
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    bits = f"bits_{k}"
+                    data1 = f"ram_data1_{k}"
+                    data2 = f"ram_data2_{k}"
+                    sram_result = f"result_{k}"
+
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[bits] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    sram[sram_result] = []
+                    k=k+1 # to manage mxn 
                     
-                sram[data1] = "".join(sram[sram1][::-1]) # inverting indexing of SRAM1
-                sram[data2] = "".join(sram[sram2][::-1]) # inverting indexing of SRAM2
-                sram[sram_result] = sram[data1] + sram[data2]
-                result.append(sram[sram_result])
+                    for i in range(1024): # 1024 * (1-line per iteration) = 1024 addresses
+                        sram[bits].append(self.binary_data[i+(j*1024)][x*36:(x*36)+36]) # working 
+                        sram[sram1].append(sram[bits][i][:18]) # Extracting First 18 bits from binary data
+                        sram[sram2].append(sram[bits][i][18:]) # Extracting Next 18 bits from binary data
+                    sram[data1] = "".join(sram[sram1][::-1]) # inverting indexing of SRAM1
+                    sram[data2] = "".join(sram[sram2][::-1]) # inverting indexing of SRAM2
+                    sram[sram_result] = sram[data1] + sram[data2]
+                    result.append(sram[sram_result])
             return result
     
     def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
@@ -460,6 +448,7 @@ class OCM(Module):
                 n = data_width / 36
                 n = math.ceil(n)
         self.m = m
+        self.n = n
         msb = math.ceil(math.log2(write_depth))
         # Internal Addresses
         self.address_A    = Signal(msb)
@@ -668,7 +657,8 @@ class OCM(Module):
                                 self.sync.clk2 += If((self.addr_B[10:msb] == i), self.addr_B_reg[0:msb-10].eq(i))
 
             # Memory Initialization Function Calling
-            init = self.data_width_36(file_path, file_extension)
+            k=0
+            init = self.memory_init(file_path, file_extension)
             
             # Single Port RAM
             if (memory_type == "Single_Port"):
@@ -754,78 +744,88 @@ class OCM(Module):
                         split     = '0'
                         address = self.addr_A[0:msb]
                     else:
+                        address = Cat(Replicate(0,5), self.address_A[0:10])
+                        w_mode_a1 = "110"
+                        w_mode_b1 = "000"
+                        w_mode_a2 = "110"
+                        w_mode_b2 = "000"
+                        r_mode_a1 = "110"
+                        r_mode_b1 = "000"
+                        r_mode_a2 = "110"
+                        r_mode_b2 = "000"
+                        split     = '0'
                         # Mode Bits for other Full Memories
-                        if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2):
-                            w_mode_a1 = "101"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "101"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "101"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "101"
-                            r_mode_b2 = "000"
-                            split     = '1'
-                            address = Cat(self.address_A[0:10], Replicate(0,5))
+                        # if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2):
+                        #     w_mode_a1 = "101"
+                        #     w_mode_b1 = "000"
+                        #     w_mode_a2 = "101"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_a1 = "101"
+                        #     r_mode_b1 = "000"
+                        #     r_mode_a2 = "101"
+                        #     r_mode_b2 = "000"
+                        #     split     = '1'
+                        #     # address = Cat(self.address_A[0:10], Replicate(0,5))
 
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
-                            w_mode_a1 = "011"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "011"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "011"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "011"
-                            r_mode_b2 = "000"
-                            split     = '1'
-                            address = Cat(Replicate(0,1), self.address_A[0:10], Replicate(0,4))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
+                        #     w_mode_a1 = "011"
+                        #     w_mode_b1 = "000"
+                        #     w_mode_a2 = "011"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_a1 = "011"
+                        #     r_mode_b1 = "000"
+                        #     r_mode_a2 = "011"
+                        #     r_mode_b2 = "000"
+                        #     split     = '1'
+                        #     # address = Cat(Replicate(0,1), self.address_A[0:10], Replicate(0,4))
 
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(3,5):
-                            w_mode_a1 = "001"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "001"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "001"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "001"
-                            r_mode_b2 = "000"
-                            split     = '1'
-                            address = Cat(Replicate(0,2), self.address_A[0:10], Replicate(0,3))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(3,5):
+                        #     w_mode_a1 = "001"
+                        #     w_mode_b1 = "000"
+                        #     w_mode_a2 = "001"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_a1 = "001"
+                        #     r_mode_b1 = "000"
+                        #     r_mode_a2 = "001"
+                        #     r_mode_b2 = "000"
+                        #     split     = '1'
+                        #     # address = Cat(Replicate(0,2), self.address_A[0:10], Replicate(0,3))
 
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(5,10):
-                            w_mode_a1 = "100"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "100"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "100"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "100"
-                            r_mode_b2 = "000"
-                            split     = '1'
-                            address = Cat(Replicate(0,3), self.address_A[0:10], Replicate(0,2))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(5,10):
+                        #     w_mode_a1 = "100"
+                        #     w_mode_b1 = "000"
+                        #     w_mode_a2 = "100"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_a1 = "100"
+                        #     r_mode_b1 = "000"
+                        #     r_mode_a2 = "100"
+                        #     r_mode_b2 = "000"
+                        #     split     = '1'
+                        #     # address = Cat(Replicate(0,3), self.address_A[0:10], Replicate(0,2))
 
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(10,19):
-                            w_mode_a1 = "010"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "010"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "010"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "010"
-                            r_mode_b2 = "000"
-                            split     = '1'
-                            address = Cat(Replicate(0,4), self.address_A[0:10], Replicate(0,1))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(10,19):
+                        #     w_mode_a1 = "010"
+                        #     w_mode_b1 = "000"
+                        #     w_mode_a2 = "010"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_a1 = "010"
+                        #     r_mode_b1 = "000"
+                        #     r_mode_a2 = "010"
+                        #     r_mode_b2 = "000"
+                        #     split     = '1'
+                        #     # address = Cat(Replicate(0,4), self.address_A[0:10], Replicate(0,1))
 
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(19,37):
-                            w_mode_a1 = "110"
-                            w_mode_b1 = "000"
-                            w_mode_a2 = "110"
-                            w_mode_b2 = "000"
-                            r_mode_a1 = "110"
-                            r_mode_b1 = "000"
-                            r_mode_a2 = "110"
-                            r_mode_b2 = "000"
-                            split     = '0'
-                            address = Cat(Replicate(0,5), self.address_A[0:10])
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(19,37):
+                        #     w_mode_a1 = "110"
+                        #     w_mode_b1 = "000"
+                        #     w_mode_a2 = "110"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_a1 = "110"
+                        #     r_mode_b1 = "000"
+                        #     r_mode_a2 = "110"
+                        #     r_mode_b2 = "000"
+                        #     split     = '0'
+                            # address = Cat(Replicate(0,5), self.address_A[0:10])
                     
                     # Byte Enable 
                     if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)]) > 8):
@@ -841,7 +841,12 @@ class OCM(Module):
                         if (file_path == ""):
                             value = 'x'
                         else:
-                            value = init[j]
+                            if write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
+                                value = init[j]
+                            else:
+                                value = init[k]
+                                k=k+1
+                                
                         init_i = Instance.PreformattedParam("36864'b{}".format(value))
                         
                         if (write_depth == 1024):
@@ -897,6 +902,9 @@ class OCM(Module):
                         
                         read_data_A1   = self.bram_out_A[j][(i*36):((i*36)+18)]
                         read_data_A2   = self.bram_out_A[j][((i*36)+18):((i*36)+36)]
+                        
+                        self.write_data_A1 = write_data_A1
+                        self.write_data_A2 = write_data_A2
                         
                         # Module instance.
                         # ----------------
@@ -1015,102 +1023,117 @@ class OCM(Module):
                     else:
                         # Mode Bits
                         # Port A
-                        if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2):
-                            w_mode_a1 = "101"
-                            w_mode_a2 = "101"
-                            r_mode_a1 = "000"
-                            r_mode_a2 = "000"
-                            split     = '1'
-                            address_A = Cat(self.address_A[0:10], Replicate(0,5))
-
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
-                            w_mode_a1 = "011"
-                            w_mode_a2 = "011"
-                            r_mode_a1 = "000"
-                            r_mode_a2 = "000"
-                            split     = '1'
-                            address_A = Cat(Replicate(0,1), self.address_A[0:10], Replicate(0,4))
-
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(3,5):
-                            w_mode_a1 = "001"
-                            w_mode_a2 = "001"
-                            r_mode_a1 = "000"
-                            r_mode_a2 = "000"
-                            split     = '1'
-                            address_A = Cat(Replicate(0,2), self.address_A[0:10], Replicate(0,3))
-
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(5,10):
-                            w_mode_a1 = "100"
-                            w_mode_a2 = "100"
-                            r_mode_a1 = "000"
-                            r_mode_a2 = "000"
-                            split     = '1'
-                            address_A = Cat(Replicate(0,3), self.address_A[0:10], Replicate(0,2))
-
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(10,19):
-                            w_mode_a1 = "010"
-                            w_mode_a2 = "010"
-                            r_mode_a1 = "000"
-                            r_mode_a2 = "000"
-                            split     = '1'
-                            address_A = Cat(Replicate(0,4), self.address_A[0:10], Replicate(0,1))
-
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(19,37):
-                            w_mode_a1 = "110"
-                            w_mode_a2 = "110"
-                            r_mode_a1 = "000"
-                            r_mode_a2 = "000"
-                            split     = '0'
-                            address_A = Cat(Replicate(0,5), self.address_A[0:10])
-
+                        w_mode_a1 = "110"
+                        w_mode_a2 = "110"
+                        r_mode_a1 = "000"
+                        r_mode_a2 = "000"
+                        split     = '0'
+                        address_A = Cat(Replicate(0,5), self.address_A[0:10])
+                        
                         # Port B
-                        if (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(2):
-                            w_mode_b1 = "000"
-                            w_mode_b2 = "000"
-                            r_mode_b1 = "101"
-                            r_mode_b2 = "101"
-                            split     = '1'
-                            address_B = Cat(self.address_B[0:10], Replicate(0,5))
+                        w_mode_b1 = "000"
+                        w_mode_b2 = "000"
+                        r_mode_b1 = "110"
+                        r_mode_b2 = "110"
+                        split     = '0'
+                        address_B = Cat(Replicate(0,5), self.address_B[0:10])
+                        
+                        # if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2):
+                        #     w_mode_a1 = "101"
+                        #     w_mode_a2 = "101"
+                        #     r_mode_a1 = "000"
+                        #     r_mode_a2 = "000"
+                        #     split     = '1'
+                        #     address_A = Cat(self.address_A[0:10], Replicate(0,5))
 
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(2,3):
-                            w_mode_b1 = "000"
-                            w_mode_b2 = "000"
-                            r_mode_b1 = "011"
-                            r_mode_b2 = "011"
-                            split     = '1'
-                            address_B = Cat(Replicate(0,1), self.address_B[0:10], Replicate(0,4))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
+                        #     w_mode_a1 = "011"
+                        #     w_mode_a2 = "011"
+                        #     r_mode_a1 = "000"
+                        #     r_mode_a2 = "000"
+                        #     split     = '1'
+                        #     address_A = Cat(Replicate(0,1), self.address_A[0:10], Replicate(0,4))
 
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(3,5):
-                            w_mode_b1 = "000"
-                            w_mode_b2 = "000"
-                            r_mode_b1 = "001"
-                            r_mode_b2 = "001"
-                            split     = '1'
-                            address_B = Cat(Replicate(0,2), self.address_B[0:10], Replicate(0,3))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(3,5):
+                        #     w_mode_a1 = "001"
+                        #     w_mode_a2 = "001"
+                        #     r_mode_a1 = "000"
+                        #     r_mode_a2 = "000"
+                        #     split     = '1'
+                        #     address_A = Cat(Replicate(0,2), self.address_A[0:10], Replicate(0,3))
 
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(5,10):
-                            w_mode_b1 = "000"
-                            w_mode_b2 = "000"
-                            r_mode_b1 = "100"
-                            r_mode_b2 = "100"
-                            split     = '1'
-                            address_B = Cat(Replicate(0,3), self.address_B[0:10], Replicate(0,2))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(5,10):
+                        #     w_mode_a1 = "100"
+                        #     w_mode_a2 = "100"
+                        #     r_mode_a1 = "000"
+                        #     r_mode_a2 = "000"
+                        #     split     = '1'
+                        #     address_A = Cat(Replicate(0,3), self.address_A[0:10], Replicate(0,2))
 
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(10,19):
-                            w_mode_b1 = "000"
-                            w_mode_b2 = "000"
-                            r_mode_b1 = "010"
-                            r_mode_b2 = "010"
-                            split     = '1'
-                            address_B = Cat(Replicate(0,4), self.address_B[0:10], Replicate(0,1))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(10,19):
+                        #     w_mode_a1 = "010"
+                        #     w_mode_a2 = "010"
+                        #     r_mode_a1 = "000"
+                        #     r_mode_a2 = "000"
+                        #     split     = '1'
+                        #     address_A = Cat(Replicate(0,4), self.address_A[0:10], Replicate(0,1))
 
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(19,37):
-                            w_mode_b1 = "000"
-                            w_mode_b2 = "000"
-                            r_mode_b1 = "110"
-                            r_mode_b2 = "110"
-                            split     = '0'
-                            address_B = Cat(Replicate(0,5), self.address_B[0:10])
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(19,37):
+                        #     w_mode_a1 = "110"
+                        #     w_mode_a2 = "110"
+                        #     r_mode_a1 = "000"
+                        #     r_mode_a2 = "000"
+                        #     split     = '0'
+                        #     address_A = Cat(Replicate(0,5), self.address_A[0:10])
+
+                        # # Port B
+                        # if (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(2):
+                        #     w_mode_b1 = "000"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_b1 = "101"
+                        #     r_mode_b2 = "101"
+                        #     split     = '1'
+                        #     address_B = Cat(self.address_B[0:10], Replicate(0,5))
+
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(2,3):
+                        #     w_mode_b1 = "000"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_b1 = "011"
+                        #     r_mode_b2 = "011"
+                        #     split     = '1'
+                        #     address_B = Cat(Replicate(0,1), self.address_B[0:10], Replicate(0,4))
+
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(3,5):
+                        #     w_mode_b1 = "000"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_b1 = "001"
+                        #     r_mode_b2 = "001"
+                        #     split     = '1'
+                        #     address_B = Cat(Replicate(0,2), self.address_B[0:10], Replicate(0,3))
+
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(5,10):
+                        #     w_mode_b1 = "000"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_b1 = "100"
+                        #     r_mode_b2 = "100"
+                        #     split     = '1'
+                        #     address_B = Cat(Replicate(0,3), self.address_B[0:10], Replicate(0,2))
+
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(10,19):
+                        #     w_mode_b1 = "000"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_b1 = "010"
+                        #     r_mode_b2 = "010"
+                        #     split     = '1'
+                        #     address_B = Cat(Replicate(0,4), self.address_B[0:10], Replicate(0,1))
+
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(19,37):
+                        #     w_mode_b1 = "000"
+                        #     w_mode_b2 = "000"
+                        #     r_mode_b1 = "110"
+                        #     r_mode_b2 = "110"
+                        #     split     = '0'
+                        #     address_B = Cat(Replicate(0,5), self.address_B[0:10])
                     
                     if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)]) > 8):
                         ben_A = 3
@@ -1125,7 +1148,12 @@ class OCM(Module):
                         if (file_path == ""):
                             value = 'x'
                         else:
-                            value = init[j]
+                            if write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
+                                value = init[j]
+                            else:
+                                value = init[k]
+                                k=k+1
+                            
                         init_i = Instance.PreformattedParam("36864'b{}".format(value))
                         
                         if (write_depth == 1024):
@@ -1341,96 +1369,115 @@ class OCM(Module):
                     else:
                         # Mode Bits
                         # Port A Write
-                        if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2):
-                            w_mode_a1 = "101"
-                            w_mode_a2 = "101"
-                            address_A = Cat(self.address_A[0:10], Replicate(0,5))
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
-                            w_mode_a1 = "011"
-                            w_mode_a2 = "011"
-                            address_A = Cat(Replicate(0,1), self.address_A[0:10], Replicate(0,4))
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(3,5):
-                            w_mode_a1 = "001"
-                            w_mode_a2 = "001"
-                            address_A = Cat(Replicate(0,2), self.address_A[0:10], Replicate(0,3))
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(5,10):
-                            w_mode_a1 = "100"
-                            w_mode_a2 = "100"
-                            address_A = Cat(Replicate(0,3), self.address_A[0:10], Replicate(0,2))
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(10,19):
-                            w_mode_a1 = "010"
-                            w_mode_a2 = "010"
-                            address_A = Cat(Replicate(0,4), self.address_A[0:10], Replicate(0,1))
-                        elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(19,37):
-                            w_mode_a1 = "110"
-                            w_mode_a2 = "110"
-                            address_A = Cat(Replicate(0,5), self.address_A[0:10])
-
+                        w_mode_a1 = "110"
+                        w_mode_a2 = "110"
+                        address_A = Cat(Replicate(0,5), self.address_A[0:10])
+                        
                         # Port A Read
-                        if (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(2):
-                            r_mode_a1 = "101"
-                            r_mode_a2 = "101"
-                        elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
-                            r_mode_a1 = "011"
-                            r_mode_a2 = "011"
-                        elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(3,5):
-                            r_mode_a1 = "001"
-                            r_mode_a2 = "001"
-                        elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(5,10):
-                            r_mode_a1 = "100"
-                            r_mode_a2 = "100"
-                        elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(10,19):
-                            r_mode_a1 = "010"
-                            r_mode_a2 = "010"
-                        elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(19,37):
-                            r_mode_a1 = "110"
-                            r_mode_a2 = "110"
-
+                        r_mode_a1 = "110"
+                        r_mode_a2 = "110"
+                        
                         # Port B Write
-                        if (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(2):
-                            w_mode_b1 = "101"
-                            w_mode_b2 = "101"
-                            address_B = Cat(self.address_B[0:10], Replicate(0,5))
-                        elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(2,3):
-                            w_mode_b1 = "011"
-                            w_mode_b2 = "011"
-                            address_B = Cat(Replicate(0,1), self.address_B[0:10], Replicate(0,4))
-                        elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(3,5):
-                            w_mode_b1 = "001"
-                            w_mode_b2 = "001"
-                            address_B = Cat(Replicate(0,2), self.address_B[0:10], Replicate(0,3))
-                        elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(5,10):
-                            w_mode_b1 = "100"
-                            w_mode_b2 = "100"
-                            address_B = Cat(Replicate(0,3), self.address_B[0:10], Replicate(0,2))
-                        elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(10,19):
-                            w_mode_b1 = "010"
-                            w_mode_b2 = "010"
-                            address_B = Cat(Replicate(0,4), self.address_B[0:10], Replicate(0,1))
-                        elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(19,37):
-                            w_mode_b1 = "110"
-                            w_mode_b2 = "110"
-                            address_B = Cat(Replicate(0,5), self.address_B[0:10])
-
+                        w_mode_b1 = "110"
+                        w_mode_b2 = "110"
+                        address_B = Cat(Replicate(0,5), self.address_B[0:10])
+                        
                         # Port B Read
-                        if (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(2):
-                            r_mode_b1 = "101"
-                            r_mode_b2 = "101"
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(2,3):
-                            r_mode_b1 = "011"
-                            r_mode_b2 = "011"
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(3,5):
-                            r_mode_b1 = "001"
-                            r_mode_b2 = "001"
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(5,10):
-                            r_mode_b1 = "100"
-                            r_mode_b2 = "100"
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(10,19):
-                            r_mode_b1 = "010"
-                            r_mode_b2 = "010"
-                        elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(19,37):
-                            r_mode_b1 = "110"
-                            r_mode_b2 = "110"
+                        r_mode_b1 = "110"
+                        r_mode_b2 = "110"
+                        
+                        # Mode Bits
+                        # Port A Write
+                        # if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2):
+                        #     w_mode_a1 = "101"
+                        #     w_mode_a2 = "101"
+                        #     address_A = Cat(self.address_A[0:10], Replicate(0,5))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
+                        #     w_mode_a1 = "011"
+                        #     w_mode_a2 = "011"
+                        #     address_A = Cat(Replicate(0,1), self.address_A[0:10], Replicate(0,4))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(3,5):
+                        #     w_mode_a1 = "001"
+                        #     w_mode_a2 = "001"
+                        #     address_A = Cat(Replicate(0,2), self.address_A[0:10], Replicate(0,3))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(5,10):
+                        #     w_mode_a1 = "100"
+                        #     w_mode_a2 = "100"
+                        #     address_A = Cat(Replicate(0,3), self.address_A[0:10], Replicate(0,2))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(10,19):
+                        #     w_mode_a1 = "010"
+                        #     w_mode_a2 = "010"
+                        #     address_A = Cat(Replicate(0,4), self.address_A[0:10], Replicate(0,1))
+                        # elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(19,37):
+                        #     w_mode_a1 = "110"
+                        #     w_mode_a2 = "110"
+                        #     address_A = Cat(Replicate(0,5), self.address_A[0:10])
+
+                        # # Port A Read
+                        # if (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(2):
+                        #     r_mode_a1 = "101"
+                        #     r_mode_a2 = "101"
+                        # elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
+                        #     r_mode_a1 = "011"
+                        #     r_mode_a2 = "011"
+                        # elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(3,5):
+                        #     r_mode_a1 = "001"
+                        #     r_mode_a2 = "001"
+                        # elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(5,10):
+                        #     r_mode_a1 = "100"
+                        #     r_mode_a2 = "100"
+                        # elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(10,19):
+                        #     r_mode_a1 = "010"
+                        #     r_mode_a2 = "010"
+                        # elif (len(self.dout_A[(i*36):((i*36)+18)])+len(self.dout_A[(((i*36)+18)):((i*36)+36)])) in range(19,37):
+                        #     r_mode_a1 = "110"
+                        #     r_mode_a2 = "110"
+
+                        # # Port B Write
+                        # if (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(2):
+                        #     w_mode_b1 = "101"
+                        #     w_mode_b2 = "101"
+                        #     address_B = Cat(self.address_B[0:10], Replicate(0,5))
+                        # elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(2,3):
+                        #     w_mode_b1 = "011"
+                        #     w_mode_b2 = "011"
+                        #     address_B = Cat(Replicate(0,1), self.address_B[0:10], Replicate(0,4))
+                        # elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(3,5):
+                        #     w_mode_b1 = "001"
+                        #     w_mode_b2 = "001"
+                        #     address_B = Cat(Replicate(0,2), self.address_B[0:10], Replicate(0,3))
+                        # elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(5,10):
+                        #     w_mode_b1 = "100"
+                        #     w_mode_b2 = "100"
+                        #     address_B = Cat(Replicate(0,3), self.address_B[0:10], Replicate(0,2))
+                        # elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(10,19):
+                        #     w_mode_b1 = "010"
+                        #     w_mode_b2 = "010"
+                        #     address_B = Cat(Replicate(0,4), self.address_B[0:10], Replicate(0,1))
+                        # elif (len(self.din_B[(i*36):((i*36)+18)])+len(self.din_B[(((i*36)+18)):((i*36)+36)])) in range(19,37):
+                        #     w_mode_b1 = "110"
+                        #     w_mode_b2 = "110"
+                        #     address_B = Cat(Replicate(0,5), self.address_B[0:10])
+
+                        # # Port B Read
+                        # if (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(2):
+                        #     r_mode_b1 = "101"
+                        #     r_mode_b2 = "101"
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(2,3):
+                        #     r_mode_b1 = "011"
+                        #     r_mode_b2 = "011"
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(3,5):
+                        #     r_mode_b1 = "001"
+                        #     r_mode_b2 = "001"
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(5,10):
+                        #     r_mode_b1 = "100"
+                        #     r_mode_b2 = "100"
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(10,19):
+                        #     r_mode_b1 = "010"
+                        #     r_mode_b2 = "010"
+                        # elif (len(self.dout_B[(i*36):((i*36)+18)])+len(self.dout_B[(((i*36)+18)):((i*36)+36)])) in range(19,37):
+                        #     r_mode_b1 = "110"
+                        #     r_mode_b2 = "110"
                     
                     if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)]) > 8):
                         ben_A = 3
@@ -1450,7 +1497,11 @@ class OCM(Module):
                         if (file_path == ""):
                             value = 'x'
                         else:
-                            value = init[j]
+                            if write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
+                                value = init[j]
+                            else:
+                                value = init[k]
+                                k=k+1
                         init_i = Instance.PreformattedParam("36864'b{}".format(value))
                         
                         if (write_depth == 1024):
