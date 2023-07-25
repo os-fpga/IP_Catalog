@@ -35,7 +35,7 @@ class AXICDMA(Module):
         # ---------------------        
         self.logger = logging.getLogger("AXI_CDMA")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
 
         # Clock Domain.
         self.logger.info(f"Clock Domain     : {m_axi.clock_domain}")

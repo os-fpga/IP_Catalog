@@ -9,12 +9,19 @@
 
 import os
 import logging
+import datetime
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
+logging.info("IP GENERATION for AXI CROSSBAR V1_0")
 
 # AXI CROSSBAR ---------------------------------------------------------------------------------
 class AXICROSSBAR(Module):
@@ -23,7 +30,7 @@ class AXICROSSBAR(Module):
         
         self.logger = logging.getLogger("AXI_CROSSBAR")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
 
         # AXI Inputs (slave interfaces).
         s_count = len(s_axi)
