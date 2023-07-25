@@ -20,8 +20,7 @@ User can enable different OCLA IP Core features using the following Macros:
 | Sr.No.|     Feature                 |      Macro                     |    Description                   |
 |-------|-----------------------------|--------------------------------|----------------------------------|
 |   1.  |   Value Compare Feature     |   value_compare                | To enable Value Compare feature  |
-|   2.  |   Advance Trigger Mode      |   advance_trigger              | To enable Advance Trigger Mode   |
-|   3.  |   Enable Trigger Inputs     |   trigger_inputs_en            | To enable Trigger inputs         |
+|   2.  |   Enable Trigger Inputs     |   trigger_inputs_en            | To enable Trigger inputs         |
 
 To generate RTL with above parameters, run the following command:
 ```
