@@ -8,13 +8,20 @@
 # LiteX wrapper around on chip memory.
 
 import math
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
+# logging.info("IP GENERATION    : On Chip Memory Generator V1_0")
 
 # On Chip Memory ------------------------------------------------------------------------------------------
 class OCM(Module):
@@ -25,17 +32,35 @@ class OCM(Module):
         with open(file_path, "r") as f:
             file_content = f.readlines()
             line_count = 0
+            self.logger.info(f"========== MEMORY INITIALIZATION STARTED ==========")
+            logging.info("Reading Memory File...")
+            if (file_extension == ".hex"):
+                logging.info("Found (.hex) File...")
+                logging.info("Processing...")
+            elif (file_extension == ".bin"):
+                logging.info("Found (.bin) File...")
+                logging.info("Processing...")
+            else:
+                logging.error("Memory Initialization Failed !!! Invalid File Format...")
+            
             for line in file_content:
                 line_count += 1
                 if (file_extension == ".hex"):
                     mem_file_data = int(line.strip(), 16)
                     binary = format(mem_file_data, 'b') # hexadecimal to binary conversion
+                    binary_data.append(binary)
+                    self.binary_data    = binary_data
+                    self.line_count     = line_count
                 elif (file_extension == ".bin"):
                     mem_file_data = int(line.strip(), 2) # binary(0b10101) to binary(10101) conversion
                     binary = format(mem_file_data, 'b')
-                binary_data.append(binary)
-                self.binary_data    = binary_data
-                self.line_count     = line_count
+                    binary_data.append(binary)
+                    self.binary_data    = binary_data
+                    self.line_count     = line_count
+                else:
+                    exit
+                    self.binary_data    = 0
+                    self.line_count     = 0
             return binary_data
     
     def memory_init(self, file_path, file_extension):
@@ -45,11 +70,12 @@ class OCM(Module):
         result = []
         
         # Empty File Path
-        if file_path == "":
+        if (file_path == "") or (self.line_count == 0):
             return "x"
         
         # If File Path Exists
         if self.write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
+            
             # 1K Memory Initialization
             if (self.write_depth == 1024):
                 if (len(self.binary_data) > self.write_depth):
@@ -95,6 +121,8 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1]) # inverting indexing of list
                     sram[sram_result] = sram[data1] + sram[data2]
                     result.append(sram[sram_result])
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
                 return result
             
             # 2K Memory Initialization
@@ -143,6 +171,8 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1])
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
                 return result
 
             # 4K Memory Initialization
@@ -190,6 +220,8 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1])
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
                 return result
 
             # 8K Memory
@@ -239,6 +271,8 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1])
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
                 return result
                 
             # 16K Memory
@@ -287,6 +321,8 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1])
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
                 return result
             
             # 32K Memory
@@ -326,11 +362,14 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1])
                     sram[sram_result] = sram[data2] + sram[data1]
                     result.append(sram[sram_result])
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
                 return result
         
         # Other Memory Size Initialization
         else:
             lines = self.line_count
+            
             for i in range(lines):
                 if self.data_width % 36 == 0:
                     valid_data_width = self.data_width
@@ -375,6 +414,8 @@ class OCM(Module):
                     sram[data2] = "".join(sram[sram2][::-1]) # inverting indexing of SRAM2
                     sram[sram_result] = sram[data1] + sram[data2]
                     result.append(sram[sram_result])
+            logging.info("Memory Initialized Successfully !!!")
+            self.logger.info(f"===================================================")
             return result
     
     def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
@@ -386,15 +427,19 @@ class OCM(Module):
         # ---------------------
         self.logger = logging.getLogger("\tON CHIP MEMORY")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
         
-        self.logger.info(f"\tMEMORY TYPE      : {memory_type}")
+        self.logger.info(f"=================== PARAMETERS ====================")
         
-        self.logger.info(f"\tDEPTH            : {write_depth}")
+        self.logger.info(f"MEMORY_TYPE      : {memory_type}")
         
-        self.logger.info(f"\tDATA WIDTH       : {data_width}")
+        self.logger.info(f"DATA_WIDTH       : {data_width}")
         
-        self.logger.info(f"\tCOMMON CLK       : {common_clk}")
+        self.logger.info(f"WRITE_DEPTH      : {write_depth}")
+        
+        self.logger.info(f"COMMON_CLK       : {common_clk}")
+        
+        self.logger.info(f"BRAM             : {bram}")
         
         self.addr_A    = Signal(math.ceil(math.log2(write_depth)))
         self.addr_B    = Signal(math.ceil(math.log2(write_depth)))
@@ -449,6 +494,12 @@ class OCM(Module):
                 n = math.ceil(n)
         self.m = m
         self.n = n
+        
+        if (bram == 1):
+            self.logger.info(f"NUMBER OF BRAMS  : {m*n}")
+            
+        self.logger.info(f"===================================================")
+            
         msb = math.ceil(math.log2(write_depth))
         # Internal Addresses
         self.address_A    = Signal(msb)
@@ -838,7 +889,7 @@ class OCM(Module):
                     mode_bits = Instance.PreformattedParam("81'b{:d}".format(mode))
                     
                     for j in range(m):
-                        if (file_path == ""):
+                        if (file_path == "") or (self.line_count == 0):
                             value = 'x'
                         else:
                             if write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
