@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 
 from litex_wrapper.jtag_to_axi_litex_wrapper import JTAGAXI
@@ -45,9 +46,8 @@ class JTAG2AXIWrapper(Module):
         self.clock_domains.cd_sys  = ClockDomain()
         self.comb += self.cd_sys.clk.eq(platform.request("ACLK"))
         self.comb += self.cd_sys.rst.eq(platform.request("ARESET"))
-      
+    
         m_id_width = s_id_width
-                 
         m_axis = []  
 
         m_axi = AXIInterface(data_width = data_width , address_width = addr_width, id_width = m_id_width, aw_user_width = aw_user_width,
@@ -85,6 +85,10 @@ def main():
     # IP Builder
     rs_builder = IP_Builder(device="gemini", ip_name="jtag_to_axi", language="sverilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core fixed values parameters
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,  default=32, choices=[32, 64],                  help="AXI Data Width.")

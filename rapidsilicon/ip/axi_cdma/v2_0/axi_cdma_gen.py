@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 
 from litex_wrapper.axi_cdma_litex_wrapper import AXICDMA
@@ -18,7 +19,6 @@ from litex.build.osfpga import OSFPGAPlatform
 
 from litex.soc.interconnect.axi import AXIInterface, AXILiteInterface
 
-
 # IOs / Interface ----------------------------------------------------------------------------------
 def get_clkin_ios():
     return [
@@ -26,8 +26,6 @@ def get_clkin_ios():
         ("rst",   0, Pins(1)),
         ("o_int", 0, Pins(1))
         ]
-
-
 
 # AXI-CDMA Wrapper --------------------------------------------------------------------------------
 class AXICDMAWrapper(Module):
@@ -45,13 +43,10 @@ class AXICDMAWrapper(Module):
             data_width         = axi_data_width,
             address_width      = axi_addr_width
         )
-
         
-
         platform.add_extension(axi.get_ios("m_axi"))
         self.comb += axi.connect_to_pads(platform.request("m_axi"), mode="master")
-
-
+        
         # AXI-LITE 
         axil = AXILiteInterface(
             address_width      = axil_addr_width,
@@ -60,14 +55,9 @@ class AXICDMAWrapper(Module):
         platform.add_extension(axil.get_ios("s_axil"))
         self.comb += axil.connect_to_pads(platform.request("s_axil"), mode="slave")
         
-        
         # AXI_CDMA
         self.submodules.cdma = cdma = AXICDMA(platform, axi,axil)
-
         self.comb += platform.request("o_int").eq(cdma.o_int)
-
-        
-      
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -85,7 +75,11 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_cdma", language="verilog")
-
+    
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--axi_data_width",        type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256], help="CDMA AXI4 full Data Width.")
@@ -93,11 +87,9 @@ def main():
     core_fix_param_group.add_argument("--axil_data_width",       type=int,      default=32,     choices=[32],                      help="CDMA AXI4 lite Data Width.")
     core_fix_param_group.add_argument("--axil_addr_width",       type=int,      default=5,      choices=range(1, 65),              help="CDMA AXI4 lite addr Width.")
 
-
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--id_width",          type=int,    default=8,      choices=range(1, 33),    help="CDMA ID Width.")
-    
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")

@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 
 from litex_wrapper.axil_crossbar_litex_wrapper import AXILITECROSSBAR
@@ -114,11 +115,14 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_crossbar", language="verilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[32, 64],  help="Crossbar Data Width.")
     core_fix_param_group.add_argument("--addr_width",    type=int,      default=32,     choices=[32, 64, 128, 256],         help="Crossbar Address Width.")
-
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")

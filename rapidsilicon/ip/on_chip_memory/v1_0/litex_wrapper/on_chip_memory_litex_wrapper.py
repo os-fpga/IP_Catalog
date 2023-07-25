@@ -21,8 +21,6 @@ logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 logging.info(f'Log started at {timestamp}')
 
-# logging.info("IP GENERATION    : On Chip Memory Generator V1_0")
-
 # On Chip Memory ------------------------------------------------------------------------------------------
 class OCM(Module):
     def memory_converter(self, file_path, file_extension):

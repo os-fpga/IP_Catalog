@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich verilog-i2c's i2c_slave_axil_master.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # I2C_SLAVE  -------------------------------------------------------------------------------------
 class I2CSLAVE(Module):
@@ -22,7 +27,9 @@ class I2CSLAVE(Module):
         
         self.logger = logging.getLogger("I2C_SLAVE")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
         
         # DATA_WIDTH
         data_width = len(m_axil.w.data)
@@ -34,6 +41,8 @@ class I2CSLAVE(Module):
         
         # FILTER_LENGTH
         self.logger.info(f"FILTER_LENGTH  : {filter_len}")
+        
+        self.logger.info(f"===================================================")
         
         # I2C interface
         self.i2c_scl_i        = Signal()

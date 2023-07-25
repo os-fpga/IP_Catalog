@@ -8,8 +8,16 @@
 # LiteX wrapper around SpinalHDL VexRiscv
 
 import os
+import datetime
+import logging
 
 from migen import *
+
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 ## ----------------VexRiscv Configuration without Cache and MMU----------------------------------------
 
@@ -54,9 +62,6 @@ class vexriscv_nocache_nommu(Module):
         self.ibus_r_id         = Signal()       
         self.ibus_r_resp       = Signal(2)       
         self.ibus_r_last       = Signal()       
-
-
-
 
         # CPU Instance.
         self.specials += Instance("vexriscv_uncached_nommu",

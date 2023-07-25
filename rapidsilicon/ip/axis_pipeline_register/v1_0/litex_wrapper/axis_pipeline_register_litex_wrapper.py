@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXIS's axis_pipeline_register.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXIS_PIPELINE_REGISTER ---------------------------------------------------------------------------------------
 class AXISPIPELINEREGISTER(Module):
@@ -22,7 +27,9 @@ class AXISPIPELINEREGISTER(Module):
         
         self.logger = logging.getLogger("AXIS_PIPELINE_REGISTER")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
 
         # Data
         data_width = len(s_axis.data)
@@ -48,6 +55,8 @@ class AXISPIPELINEREGISTER(Module):
         self.logger.info(f"REG_TYPE         : {reg_type}")
         self.logger.info(f"LENGTH           : {length}")
         
+        self.logger.info(f"===================================================")
+
         # Module instance.
         # ----------------
         self.specials += Instance("axis_pipeline_register",

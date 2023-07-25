@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 import math
 
@@ -132,15 +133,17 @@ def main():
                 'ar_user_width' :   'ar_user_en',
                 'r_user_width'  :   'r_user_en',
     }            
-
-   # IP Builder.
+    # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_crossbar", language="verilog")
+
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256],    help="AXI Data Width.")
     core_fix_param_group.add_argument("--addr_width",    type=int,      default=32,     choices=[32, 64],                     help="AXI Address Width.")
-
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -150,7 +153,6 @@ def main():
     core_bool_param_group.add_argument("--ar_user_en",    type=bool,    default=True,      help="AR-Channel User Enable.")
     core_bool_param_group.add_argument("--r_user_en",     type=bool,    default=False,     help="R-Channel User Enable.")  
     core_bool_param_group.add_argument("--bram",          type=bool,    default=True,      help="Memory type")       
-
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -162,8 +164,6 @@ def main():
     core_range_param_group.add_argument("--b_user_width",       type=int,       default=1,      choices=range(1, 1025),      help="B-Channel User Width.")
     core_range_param_group.add_argument("--ar_user_width",      type=int,       default=1,      choices=range(1, 1025),      help="AR-Channel User Width.")
     core_range_param_group.add_argument("--r_user_width",       type=int,       default=1,      choices=range(1, 1025),      help="R-Channel User Width.")
-
-  
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")

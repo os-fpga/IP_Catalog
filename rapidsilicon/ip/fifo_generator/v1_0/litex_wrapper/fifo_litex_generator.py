@@ -7,6 +7,7 @@
 #
 
 import os
+import datetime
 import logging
 import math
 from migen.genlib.fifo import SyncFIFO, AsyncFIFOBuffered
@@ -14,8 +15,11 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
 
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 def divide_n_bit_number(number):
     # Convert the number to a binary string
@@ -32,19 +36,23 @@ def divide_n_bit_number(number):
 class FIFO(Module):
     def __init__(self, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
         self.logger = logging.getLogger("FIFO")
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
         
         # Data Width
         self.logger.info(f"DATA_WIDTH       : {data_width}")
 
         # User Width
-        self.logger.info(f"Synchronous      : {synchronous}")
+        self.logger.info(f"SYNCHRONOUS      : {synchronous}")
 
-        self.logger.info(f"FULL THRESHOLD       : {full_value}")
+        self.logger.info(f"FULL THRESHOLD   : {full_value}")
 
         # Destination Width
 
-        self.logger.info(f"EMPTY THRESHOLD    : {empty_value}")
+        self.logger.info(f"EMPTY THRESHOLD  : {empty_value}")
+        
+        self.logger.info(f"===================================================")
         
         SYNCHRONOUS = {
             "TRUE"  :   True,

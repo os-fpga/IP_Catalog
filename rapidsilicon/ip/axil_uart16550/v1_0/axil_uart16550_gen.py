@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 
 from litex_wrapper.axil_uart16550_litex_wrapper import AXILITEUART
@@ -95,6 +96,10 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_uart16550", language="verilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--addr_width",       type=int,       default=16,     choices=[8, 16, 32],        help="UART Address Width.")

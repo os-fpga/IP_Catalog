@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 from pathlib import Path
 import math
@@ -25,8 +26,8 @@ def get_clkin_ios(data_width):
     return [
         ("clk",        0,  Pins(1)),
         ("rst",        0,  Pins(1)),
-		("wrt_clock",  0,	Pins(1)),
-        ("rd_clock",   0,	Pins(1)),
+		("wrt_clock",  0,  Pins(1)),
+        ("rd_clock",   0,  Pins(1)),
         ("din",        0,  Pins(data_width)),
         ("dout",       0,  Pins(data_width)),
         ("wr_en",      0,  Pins(1)),
@@ -90,6 +91,10 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="fifo_generator", language="verilog")
+
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")

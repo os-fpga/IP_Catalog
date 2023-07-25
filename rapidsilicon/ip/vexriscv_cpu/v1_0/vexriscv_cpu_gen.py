@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 import shutil
 from pathlib import Path
@@ -259,6 +260,10 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="vexriscv_cpu", language="verilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--variant",     type=str,      default="Cacheless",      choices=["Cacheless", "Cache_MMU", "Cache_MMU_PLIC_CLINT"],    help="Select Variant")

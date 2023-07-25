@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXIS's axis_crosspoint.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXIS_INTERCONNECT ---------------------------------------------------------------------------------------
 class AXISTREAMINTERCONNECT(Module):
@@ -22,7 +27,9 @@ class AXISTREAMINTERCONNECT(Module):
         
         self.logger = logging.getLogger("AXI_STREAM_INTERCONNECT")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
 
         # Clock Domain.
         clock_domain = s_axis[0].clock_domain
@@ -55,6 +62,8 @@ class AXISTREAMINTERCONNECT(Module):
         self.logger.info(f"USER_ENABLE      : {user_en}")
         user_width = len(s_axis[0].user)
         self.logger.info(f"USER_WIDTH       : {user_width}")
+        
+        self.logger.info(f"===================================================")
 
         # Control Signal
         self.select = [Signal(select_width) for m_count in range(m_count)]
