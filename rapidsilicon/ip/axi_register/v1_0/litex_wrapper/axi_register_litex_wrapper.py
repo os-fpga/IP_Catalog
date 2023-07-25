@@ -8,15 +8,20 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_register.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
 
-# AXI DP RAM ---------------------------------------------------------------------------------------
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
+# AXI Register ---------------------------------------------------------------------------------------
 class AXIREGISTER(Module):
     def __init__(self, platform, s_axi, m_axi, size=1024,
         aw_reg_type         = 1,
@@ -30,9 +35,8 @@ class AXIREGISTER(Module):
         # ---------------------
         self.logger = logging.getLogger("AXI_REGISTER")
 
-        self.logger.propagate = False
-
-        
+        self.logger.propagate = True
+        self.logger.info(f"=================== PARAMETERS ====================")
         # Clock Domain.
         self.logger.info(f"Clock Domain   : {s_axi.clock_domain}")
 
@@ -73,7 +77,7 @@ class AXIREGISTER(Module):
         self.logger.info(f"B_REG_TYPE     : {b_reg_type}")
         self.logger.info(f"AR_REG_TYPE    : {ar_reg_type}")
         self.logger.info(f"R_REG_TYPE     : {r_reg_type}")
-
+        self.logger.info(f"===================================================")
         # Module instance.
         # ----------------
         self.specials += Instance("axi_register",

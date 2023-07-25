@@ -8,13 +8,18 @@
 # LiteX wrapper around western digital's ahb2axi4.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AHB_2_AXI4_BRIDGE ---------------------------------------------------------------------------------------
 class AHB2AXI4(Module):
@@ -24,11 +29,11 @@ class AHB2AXI4(Module):
         # ---------------------        
         self.logger = logging.getLogger("AHB_2_AXI4")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
 
         # Clock Domain.
-       # self.logger.info(f"CLOCK_DOMAIN     : {s_ahb.clock_domain}")
-
+        # self.logger.info(f"CLOCK_DOMAIN     : {s_ahb.clock_domain}")
+        self.logger.info(f"=================== PARAMETERS ====================")
         # Address width.
         address_width = len(m_axi.aw.addr)
         self.logger.info(f"C_AXI_ADDR_WIDTH : {address_width}")
@@ -40,6 +45,8 @@ class AHB2AXI4(Module):
         # ID width.
         id_width = len(m_axi.aw.id)
         self.logger.info(f"C_AXI_ID_WIDTH   : {id_width}")
+        
+        self.logger.info(f"===================================================")
         
         self.ahb_haddr               = Signal(address_width)
         self.ahb_hburst              = Signal(3)
@@ -56,8 +63,6 @@ class AHB2AXI4(Module):
         self.ahb_hreadyout           = Signal(1)
         self.ahb_hresp               = Signal(1)
         
-        
-
         # Module instance.
         # ----------------
         self.specials += Instance("ahb2axi4",

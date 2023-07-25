@@ -7,6 +7,7 @@
 import os
 import sys
 import json
+import logging
 import argparse
 import math
 
@@ -87,6 +88,10 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_async_fifo", language="verilog")
+
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")

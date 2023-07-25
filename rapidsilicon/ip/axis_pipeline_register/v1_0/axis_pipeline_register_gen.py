@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 
 from litex_wrapper.axis_pipeline_register_litex_wrapper import AXISPIPELINEREGISTER
@@ -97,6 +98,10 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axis_pipeline_register", language="verilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--reg_type",    type=str,        default="Bypass",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],      help="Register Type; bypass, simple buffer, skid buffer")

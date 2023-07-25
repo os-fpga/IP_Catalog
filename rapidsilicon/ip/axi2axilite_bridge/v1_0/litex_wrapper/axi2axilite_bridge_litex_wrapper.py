@@ -8,13 +8,19 @@
 # LiteX wrapper around Dan Gisselquist ZipCPU/wb2axip's axi2axilite.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
 
 # AXI_2_AXILITE_BRIDGE ---------------------------------------------------------------------------------------
 class AXI2AXILITE(Module):
@@ -24,8 +30,8 @@ class AXI2AXILITE(Module):
         # ---------------------        
         self.logger = logging.getLogger("AXI_2_AXILITE")
         
-        self.logger.propagate = False
-
+        self.logger.propagate = True
+        self.logger.info(f"=================== PARAMETERS ====================")
         # Clock Domain.
         self.logger.info(f"CLOCK_DOMAIN     : {s_axi.clock_domain}")
 
@@ -40,7 +46,7 @@ class AXI2AXILITE(Module):
         # ID width.
         id_width = len(s_axi.aw.id)
         self.logger.info(f"C_AXI_ID_WIDTH   : {id_width}")
-
+        self.logger.info(f"===================================================")
         # Module instance.
         # ----------------
         self.specials += Instance("axi2axilite",

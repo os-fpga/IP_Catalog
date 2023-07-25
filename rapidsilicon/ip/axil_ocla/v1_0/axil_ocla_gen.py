@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import json
 import argparse
 
@@ -65,7 +66,6 @@ class AXILITEOCLAWrapper(Module):
         self.comb += s_axil.connect_to_pads(platform.request("s_axil"), mode="slave")
 
         # AXI-LITE-OCLA ----------------------------------------------------------------------------------
-       
         self.submodules.ocla = ocla =  AXILITEOCLA(platform, 
             s_axil             = s_axil,
             nprobes          = nprobes,
@@ -94,32 +94,36 @@ def main():
 
     sys.path.append(common_path)
 
-
     from common import IP_Builder
-   # Parameter Dependency dictionary a 2 b 3 c 4  9
-
+    # Parameter Dependency dictionary a 2 b 3 c 4  9
     #                Ports     :    Dependency
     dep_dict = {}            
-
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_ocla", language="sverilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="OCLA IP Core fix parameters")
-
-    core_fix_param_group.add_argument("--mem_depth",       type=int,  default=32, choices=[32, 64, 128, 256, 512, 1024],          help="OCLA Trace Memory Depth.")
-   
-    
-    core_fix_param_group.add_argument("--s_axi_addr_width",      type=int,  default=32, choices=[8, 16, 32],     help="OCLA Address Width.")
-    core_fix_param_group.add_argument("--s_axi_data_width",      type=int,  default=32, choices=[32], help="OCLA Data Width.")
+    core_fix_param_group.add_argument("--mem_depth",             type=int,  default=32, choices=[32, 64, 128, 256, 512, 1024],          help="OCLA Trace Memory Depth.")
+    core_fix_param_group.add_argument("--s_axi_addr_width",      type=int,  default=32, choices=[8, 16, 32],                            help="OCLA Address Width.")
+    core_fix_param_group.add_argument("--s_axi_data_width",      type=int,  default=32, choices=[32],                                   help="OCLA Data Width.")
     
     # Core range value parameters.
-
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
-    core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1, choices=range(1,1025),         help="Number of Probes.")
+    core_range_param_group.add_argument("--no_of_probes",         type=int,     default=1,      choices=range(1,1025),         help="Number of Probes.")
 
- 
+    # Core bool value macros.
+    core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
+    core_bool_param_group.add_argument("--value_compare",                         type=bool, default=False,                                   help="To enable Value Compare feature")
+    core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,         choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
+
+    core_bool_param_group.add_argument("--trigger_inputs_en",       type=bool, default=False,                                     help="To enable Trigger inputs")
+    core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,           choices=range(1,32),          help="Number of Input Triggers.")
+    core_bool_param_group.add_argument("--advance_trigger",         type=bool, default=False,                                     help="To enable Advance Trigger Mode")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -127,14 +131,6 @@ def main():
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axil_ocla_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
-  # Core bool value macros.
-    core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
-    core_bool_param_group.add_argument("--value_compare",     type=bool, default=False,              help="To enable Value Compare feature")
-    core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,  choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
-
-    core_bool_param_group.add_argument("--trigger_inputs_en",     type=bool, default=False,              help="To enable Trigger inputs")
-    core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,  choices=range(1,32),          help="Number of Input Triggers.")
-    core_bool_param_group.add_argument("--advance_trigger",     type=bool, default=False,              help="To enable Advance Trigger Mode")
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")

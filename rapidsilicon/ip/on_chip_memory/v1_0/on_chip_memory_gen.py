@@ -139,7 +139,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                        help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                               help="Build Directory")
-    build_group.add_argument("--build-name",    default="on_chip_memory_wrapper",           help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="on_chip_memory",                   help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")

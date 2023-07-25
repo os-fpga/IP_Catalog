@@ -8,13 +8,18 @@
 # LiteX wrapper around jtag_to_axi_top.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # JTAG_AXILIT ---------------------------------------------------------------------------------
 class JTAGAXI(Module):
@@ -22,7 +27,9 @@ class JTAGAXI(Module):
         
         self.logger = logging.getLogger("JTAG_TO_AXI")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
         
         # Clock Domain.
         clock_domain = m_axi[0].clock_domain
@@ -59,6 +66,8 @@ class JTAGAXI(Module):
         # R User width.
         r_user_width = len(m_axi[0].r.user)
         self.logger.info(f"RUSER_WIDTH  : {r_user_width}")
+        
+        self.logger.info(f"===================================================")
         
         self.JTAG_TCK              = Signal(1)
         self.JTAG_TMS              = Signal(1)

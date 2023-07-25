@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXIS's axis_ram_switch.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXIS_RAM_SWITCH ---------------------------------------------------------------------------------------
 class AXISTREAMRAMSWITCH(Module):
@@ -31,7 +36,9 @@ class AXISTREAMRAMSWITCH(Module):
     ):
         
         self.logger = logging.getLogger("AXI_STREAM_RAM_SWITCH")
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
         
         # Data Width
         data_width = len(s_axis[0].data)
@@ -53,7 +60,9 @@ class AXISTREAMRAMSWITCH(Module):
 
         # Destination Width
         self.logger.info(f"M_DEST_WIDTH     : {m_dest_width}")
-
+        
+        self.logger.info(f"===================================================")
+        
         # Status Signals
         self.status_overflow            = Signal()
         self.status_bad_frame           = Signal()

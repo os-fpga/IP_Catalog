@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 
 from litex_wrapper.ahb2axi_bridge_litex_wrapper import AHB2AXI4
@@ -104,6 +105,10 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="ahb2axi_bridge", language="System verilog")
+
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")

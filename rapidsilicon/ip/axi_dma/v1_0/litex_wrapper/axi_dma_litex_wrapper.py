@@ -8,13 +8,19 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_dma.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
 
 # AXI DMA ---------------------------------------------------------------------------------------
 class AXIDMA(Module):
@@ -34,8 +40,8 @@ class AXIDMA(Module):
         # ---------------------
         self.logger = logging.getLogger("AXI_DMA")
         
-        self.logger.propagate = False
-        
+        self.logger.propagate = True
+        self.logger.info(f"=================== PARAMETERS ====================")
         self.logger.info(f"Clock Domain         : {m_axi.clock_domain}")
 
         address_width = len(m_axi.aw.addr)
@@ -68,7 +74,7 @@ class AXIDMA(Module):
         self.logger.info(f"TAG_WIDTH            : {tag_width}")
         self.logger.info(f"ENABLE_SG            : {enable_sg}")
         self.logger.info(f"ENABLE_UNALIGNED     : {enable_unaligned}")
-
+        self.logger.info(f"===================================================")
         # Non-Stnadard IOs
         self.s_axis_read_desc_addr          = Signal(address_width)
         self.s_axis_read_desc_len           = Signal(len_width)

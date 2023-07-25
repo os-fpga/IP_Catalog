@@ -9,11 +9,16 @@
 
 import os
 import math
+import datetime
 import logging
 
 from migen import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # RESET RELEASE  ---------------------------------------------------------------------------------------
 class RESETRELEASE(Module):
@@ -22,13 +27,17 @@ class RESETRELEASE(Module):
         # Logger
         self.logger = logging.getLogger("RESET_RELEASE")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
         
-        self.logger.info(f"External reset window : {EXT_RESET_WIDTH}")
-        self.logger.info(f"INTERCONNECTS  : {INTERCONNECTS}")
-        self.logger.info(f"BUS_RESET  : {BUS_RESET}")
-        self.logger.info(f"PERIPHERAL_RESET  : {PERIPHERAL_RESET}")
-        self.logger.info(f"PERIPHERAL_ARESETN  : {PERIPHERAL_ARESETN}")
+        self.logger.info(f"=================== PARAMETERS ====================")
+        
+        self.logger.info(f"EXTERNAL RESET WINDOW    : {EXT_RESET_WIDTH}")
+        self.logger.info(f"INTERCONNECTS            : {INTERCONNECTS}")
+        self.logger.info(f"BUS_RESET                : {BUS_RESET}")
+        self.logger.info(f"PERIPHERAL_RESET         : {PERIPHERAL_RESET}")
+        self.logger.info(f"PERIPHERAL_ARESETN       : {PERIPHERAL_ARESETN}")
+        
+        self.logger.info(f"===================================================")
         
         self.slow_clk               = Signal() 
         self.ext_rst                = Signal()         
