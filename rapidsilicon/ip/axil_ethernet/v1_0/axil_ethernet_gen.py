@@ -6,7 +6,6 @@
 
 import os
 import sys
-import logging
 import argparse
 
 from migen import *
@@ -48,7 +47,6 @@ _io = [
 ]
 
 # Core ---------------------------------------------------------------------------------------------
-
 def LiteEthCore(platform, phy="mii", bus_endianness="big", ntxslots=2, nrxslots=2):
     core_config = {
         "phy"              : getattr(liteeth_phys, f"LiteEthPHY{phy.upper()}"),
@@ -78,10 +76,6 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_ethernet", language="verilog")
-
-    logging.info("===================================================")
-    logging.info("IP    : %s", rs_builder.ip_name.upper())
-    logging.info(("==================================================="))
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
