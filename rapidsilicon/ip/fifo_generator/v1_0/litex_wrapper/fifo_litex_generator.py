@@ -52,7 +52,6 @@ class FIFO(Module):
         size_bram = 36864
         maximum = max(buses, key=len)
         memory = 1024
-        print(buses)
 
         instances = math.ceil(depth / memory)
         if(SYNCHRONOUS[synchronous]):
@@ -99,7 +98,7 @@ class FIFO(Module):
         self.prog_empty     = Signal()
         self.almost_full    = Signal()
         self.almost_empty   = Signal()
-        print(instances)
+
         # Using Block RAM
         if (BRAM):
             self.rden_int           = Array(Signal() for _ in range(instances))
@@ -190,12 +189,12 @@ class FIFO(Module):
                                     # Global.
                                     p_DATA_WIDTH1        = C(data), 
                                     p_FIFO_TYPE1         = synchronous,
-                                    p_PROG_FULL_THRESH1  = C(depth - full_value, 12),
-                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 12),
+                                    p_PROG_FULL_THRESH1  = C(depth - full_value, 11),
+                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 11),
                                     p_DATA_WIDTH2        = C(data), 
                                     p_FIFO_TYPE2         = synchronous,
-                                    p_PROG_FULL_THRESH2  = C(depth - full_value, 12),
-                                    p_PROG_EMPTY_THRESH2 = C(empty_value, 12),
+                                    p_PROG_FULL_THRESH2  = C(depth - full_value, 11),
+                                    p_PROG_EMPTY_THRESH2 = C(empty_value, 11),
                                     # Clk / Rst.
                                     # ----------
                                     i_RD_CLK1        = ClockSignal(),
@@ -278,12 +277,12 @@ class FIFO(Module):
                                     # Global.
                                     p_DATA_WIDTH1        = C(data), 
                                     p_FIFO_TYPE1         = synchronous,
-                                    p_PROG_FULL_THRESH1  = C(4095, 12),
-                                    p_PROG_EMPTY_THRESH1 = C(0, 12),
+                                    p_PROG_FULL_THRESH1  = C(3072, 11),
+                                    p_PROG_EMPTY_THRESH1 = C(0, 11),
                                     p_DATA_WIDTH2        = C(data), 
                                     p_FIFO_TYPE2         = synchronous,
-                                    p_PROG_FULL_THRESH2  = C(4095, 12),
-                                    p_PROG_EMPTY_THRESH2 = C(0, 12),
+                                    p_PROG_FULL_THRESH2  = C(3072, 11),
+                                    p_PROG_EMPTY_THRESH2 = C(0, 11),
                                     # Clk / Rst.
                                     # ----------
                                     i_RD_CLK1        = ClockSignal(),
@@ -367,12 +366,12 @@ class FIFO(Module):
                                     # Global.
                                     p_DATA_WIDTH1        = C(data), 
                                     p_FIFO_TYPE1         = synchronous,
-                                    p_PROG_FULL_THRESH1  = C(depth - full_value, 12),
-                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 12),
+                                    p_PROG_FULL_THRESH1  = C(depth - full_value, 11),
+                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 11),
                                     p_DATA_WIDTH2        = C(data), 
                                     p_FIFO_TYPE2         = synchronous,
-                                    p_PROG_FULL_THRESH2  = C(depth - full_value, 12),
-                                    p_PROG_EMPTY_THRESH2 = C(empty_value, 12),
+                                    p_PROG_FULL_THRESH2  = C(depth - full_value, 11),
+                                    p_PROG_EMPTY_THRESH2 = C(empty_value, 11),
                                     # Clk / Rst.
                                     # ----------
                                     i_RD_CLK1        = ClockSignal(),
@@ -455,12 +454,12 @@ class FIFO(Module):
                                     # Global.
                                     p_DATA_WIDTH1        = C(data), 
                                     p_FIFO_TYPE1         = synchronous,
-                                    p_PROG_FULL_THRESH1  = C(4095, 12),
-                                    p_PROG_EMPTY_THRESH1 = C(0, 12),
+                                    p_PROG_FULL_THRESH1  = C(4095, 11),
+                                    p_PROG_EMPTY_THRESH1 = C(0, 11),
                                     p_DATA_WIDTH2        = C(data), 
                                     p_FIFO_TYPE2         = synchronous,
-                                    p_PROG_FULL_THRESH2  = C(4095, 12),
-                                    p_PROG_EMPTY_THRESH2 = C(0, 12),
+                                    p_PROG_FULL_THRESH2  = C(4095, 11),
+                                    p_PROG_EMPTY_THRESH2 = C(0, 11),
                                     # Clk / Rst.
                                     # ----------
                                     i_RD_CLK1        = ClockSignal("rd"),
