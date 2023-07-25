@@ -1,11 +1,15 @@
-// Copyright (C) 2023 RapidSilicon
+// --------------------------------------------------------------------------
+// ---------------- Copyright (C) 2023 RapidSilicon -------------------------
+// --------------------------------------------------------------------------
+// ---------------------- FIFO Primitive ------------------------------------
+// --------------------------------------------------------------------------
 
 module FIFO #(
     // Parameter Definition
-    parameter   DATA_WIDTH          = 36,
-    parameter   SYNC_FIFO           = "TRUE",
-    parameter   PROG_FULL_THRESH    = 12'b100000000000,
-    parameter   PROG_EMPTY_THRESH   = 12'b111111111100
+    parameter   DATA_WIDTH          = 6'd36,
+    parameter   SYNC_FIFO           = "SYNCHRONOUS",
+    parameter   PROG_FULL_THRESH    = 12'b111111111100,
+    parameter   PROG_EMPTY_THRESH   = 12'b000000000000
 )
 (
     // Input/Output
@@ -32,17 +36,17 @@ wire TEMP_CLK;
 // Initial Block
 initial 
 begin
-    if (!(SYNC_FIFO === "TRUE" || SYNC_FIFO === "FALSE")) begin
-        $error("Incorrect SYNC_FIFO Value: '%s'\nEnter valid SYNC_FIFO value: 'TRUE'/'FALSE'", SYNC_FIFO);
+    if (!(SYNC_FIFO === "SYNCHRONOUS" || SYNC_FIFO === "ASYNCHRONOUS")) begin
+        $error("Incorrect SYNC_FIFO Value: '%s'\nEnter valid SYNC_FIFO value: 'SYNCHRONOUS'/'ASYNCHRONOUS'", SYNC_FIFO);
         $finish;
     end
 end
 
 // Common Clock when Synchronous Selected
-assign TEMP_CLK         = (SYNC_FIFO == "TRUE")     ? WRCLK     : RDCLK;
+assign TEMP_CLK         = (SYNC_FIFO == "SYNCHRONOUS")     ? WRCLK     : RDCLK;
 
 // Synchronous/Asynchronous FIFO 
-localparam SYNC_FIFO1   = (SYNC_FIFO == "TRUE")     ? 1'b1      : 1'b0;
+localparam SYNC_FIFO1   = (SYNC_FIFO == "SYNCHRONOUS")     ? 1'b1      : 1'b0;
 
 // FIFO
 generate
@@ -51,7 +55,7 @@ if (DATA_WIDTH == 36)
         RS_TDP36K #(
             .MODE_BITS({SYNC_FIFO1, {4{3'b110}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b0})
             )
-        RS_TDP36K_inst1(
+        RS_TDP36K_36 (
             .WEN_A1(WREN),
             .REN_B1(RDEN),
             .CLK_A1(WRCLK),
@@ -70,9 +74,10 @@ if (DATA_WIDTH == 36)
 else if (DATA_WIDTH == 18)
     begin
         RS_TDP36K #(
-            .MODE_BITS({SYNC_FIFO1, {4{3'b010}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b1})
+            // ----------------------------------------------------------Appending 12th bit as dont care bit
+            .MODE_BITS({SYNC_FIFO1, {4{3'b010}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
             )
-        RS_TDP36K_inst1(
+        RS_TDP36K_18 (
             .WEN_A1(WREN),
             .REN_B1(RDEN),
             .CLK_A1(WRCLK),
@@ -89,9 +94,10 @@ else if (DATA_WIDTH == 18)
 else if (DATA_WIDTH == 9)
     begin
         RS_TDP36K #(
-            .MODE_BITS({SYNC_FIFO1, {4{3'b100}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b1})
+            // ----------------------------------------------------------Appending 12th bit as dont care bit
+            .MODE_BITS({SYNC_FIFO1, {4{3'b100}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
             )
-        RS_TDP36K_inst1(
+        RS_TDP36K_9 (
             .WEN_A1(WREN),
             .REN_B1(RDEN),
             .CLK_A1(WRCLK),
@@ -108,9 +114,10 @@ else if (DATA_WIDTH == 9)
 else if (DATA_WIDTH == 4)
     begin
         RS_TDP36K #(
-            .MODE_BITS({SYNC_FIFO1, {4{3'b001}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b1})
+            // ----------------------------------------------------------Appending 12th bit as dont care bit
+            .MODE_BITS({SYNC_FIFO1, {4{3'b001}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
             )
-        RS_TDP36K_inst1(
+        RS_TDP36K_4 (
             .WEN_A1(WREN),
             .REN_B1(RDEN),
             .CLK_A1(WRCLK),
@@ -127,9 +134,10 @@ else if (DATA_WIDTH == 4)
 else if (DATA_WIDTH == 2)
     begin
         RS_TDP36K #(
-            .MODE_BITS({SYNC_FIFO1, {4{3'b011}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b1})
+            // ----------------------------------------------------------Appending 12th bit as dont care bit
+            .MODE_BITS({SYNC_FIFO1, {4{3'b011}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
             )
-        RS_TDP36K_inst1(
+        RS_TDP36K_2 (
             .WEN_A1(WREN),
             .REN_B1(RDEN),
             .CLK_A1(WRCLK),
@@ -146,9 +154,10 @@ else if (DATA_WIDTH == 2)
 else
     begin
         RS_TDP36K #(
-            .MODE_BITS({SYNC_FIFO1, {4{3'b101}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b1})
+            // ----------------------------------------------------------Appending 12th bit as dont care bit
+            .MODE_BITS({SYNC_FIFO1, {4{3'b101}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
             )
-        RS_TDP36K_inst1(
+        RS_TDP36K_1 (
             .WEN_A1(WREN),
             .REN_B1(RDEN),
             .CLK_A1(WRCLK),

@@ -31,30 +31,28 @@ def divide_n_bit_number(number):
 # FIFO Generator ---------------------------------------------------------------------------------------
 class FIFO(Module):
     def __init__(self, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
+        SYNCHRONOUS = {
+            "SYNCHRONOUS"  :   True,
+            "ASYNCHRONOUS" :   False
+        }
         self.logger = logging.getLogger("FIFO")
         self.logger.propagate = False
         
         # Data Width
         self.logger.info(f"DATA_WIDTH       : {data_width}")
-
-        # User Width
-        self.logger.info(f"Synchronous      : {synchronous}")
-
+        # Synchronous / Asynchronous
+        self.logger.info(f"Synchronous      : {SYNCHRONOUS[synchronous]}")
+        # Full and Empty Thresholds
         self.logger.info(f"FULL THRESHOLD       : {full_value}")
-
-        # Destination Width
-
         self.logger.info(f"EMPTY THRESHOLD    : {empty_value}")
-        
-        SYNCHRONOUS = {
-            "TRUE"  :   True,
-            "FALSE" :   False
-        }
+        # Depth
+        self.logger.info(f"DEPTH    : {depth}")
 
         buses = divide_n_bit_number(data_width)
         size_bram = 36864
         maximum = max(buses, key=len)
-        memory = math.ceil(size_bram / len(maximum))
+        memory = 1024
+        print(buses)
 
         instances = math.ceil(depth / memory)
         if(SYNCHRONOUS[synchronous]):
@@ -101,7 +99,7 @@ class FIFO(Module):
         self.prog_empty     = Signal()
         self.almost_full    = Signal()
         self.almost_empty   = Signal()
-        
+        print(instances)
         # Using Block RAM
         if (BRAM):
             self.rden_int           = Array(Signal() for _ in range(instances))
@@ -144,145 +142,366 @@ class FIFO(Module):
                         data = 36
 
                     if (data <= 18):
-                        instance = "FIFO18K"
+                        instance = "FIFO18KX2"
                     else:
                         instance = "FIFO36K"
+                        
                     # Module Instance.
                     # ----------------
                     if(SYNCHRONOUS[synchronous]):
                         if (instances == 1):
-                            self.specials += Instance(instance,
-                            # Parameters.
-                            # -----------
-                            # Global.
-                            p_DATA_WIDTH        = C(data), 
-                            p_SYNC_FIFO         = synchronous,
-                            p_PROG_FULL_THRESH  = C(depth - full_value, 12),
-                            p_PROG_EMPTY_THRESH = C(empty_value, 12),
+                            if (instance == "FIFO36K"):
+                                self.specials += Instance(instance,
+                                    # Parameters.
+                                    # -----------
+                                    # Global.
+                                    p_DATA_WIDTH        = C(data), 
+                                    p_FIFO_TYPE         = synchronous,
+                                    p_PROG_FULL_THRESH  = C(depth - full_value, 12),
+                                    p_PROG_EMPTY_THRESH = C(empty_value, 12),
 
-                            # Clk / Rst.
-                            # ----------
-                            i_RDCLK         = ClockSignal(),
-                            i_WRCLK         = ClockSignal(),
-                            i_RESET         = ResetSignal(),
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK        = ClockSignal(),
+                                    i_WR_CLK        = ClockSignal(),
+                                    i_RESET         = ResetSignal(),
 
-                            # AXI Input
-                            # -----------------
-                            i_WR_DATA       = self.din[j:data + j],
-                            i_RDEN          = self.rden_int[k],
-                            i_WREN          = self.wren_int[k],
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA       = self.din[j:data + j],
+                                    i_RD_EN         = self.rden_int[k],
+                                    i_WR_EN         = self.wren_int[k],
 
-                            # AXI Output      
-                            o_RD_DATA       = self.dout[j:data + j],
-                            o_EMPTY         = self.empty[k],
-                            o_FULL          = self.full[k],
-                            o_UNDERFLOW     = self.underflow_int[k],
-                            o_OVERFLOW      = self.overflow_int[k],
-                            o_ALMOST_EMPTY  = self.almost_empty[k],
-                            o_ALMOST_FULL   = self.almost_full[k],
-                            o_PROG_FULL     = self.prog_full[k],
-                            o_PROG_EMPTY    = self.prog_empty[k]
-                        )
+                                    # AXI Output      
+                                    o_RD_DATA       = self.dout[j:data + j],
+                                    o_EMPTY         = self.empty[k],
+                                    o_FULL          = self.full[k],
+                                    o_UNDERFLOW     = self.underflow_int[k],
+                                    o_OVERFLOW      = self.overflow_int[k],
+                                    o_ALMOST_EMPTY  = self.almost_empty[k],
+                                    o_ALMOST_FULL   = self.almost_full[k],
+                                    o_PROG_FULL     = self.prog_full[k],
+                                    o_PROG_EMPTY    = self.prog_empty[k]
+                                )
+                            else:
+                                self.specials += Instance(instance,
+                                    # Parameters.
+                                    # -----------
+                                    # Global.
+                                    p_DATA_WIDTH1        = C(data), 
+                                    p_FIFO_TYPE1         = synchronous,
+                                    p_PROG_FULL_THRESH1  = C(depth - full_value, 12),
+                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 12),
+                                    p_DATA_WIDTH2        = C(data), 
+                                    p_FIFO_TYPE2         = synchronous,
+                                    p_PROG_FULL_THRESH2  = C(depth - full_value, 12),
+                                    p_PROG_EMPTY_THRESH2 = C(empty_value, 12),
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK1        = ClockSignal(),
+                                    i_WR_CLK1        = ClockSignal(),
+                                    i_RESET1         = ResetSignal(),
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA1       = self.din[j:data + j],
+                                    i_RD_EN1         = self.rden_int[k-1],
+                                    i_WR_EN1         = self.wren_int[k-1],
+                                    # AXI Output      
+                                    o_RD_DATA1       = self.dout[j:data + j],
+                                    o_EMPTY1         = self.empty[k-1],
+                                    o_FULL1          = self.full[k-1],
+                                    o_UNDERFLOW1     = self.underflow_int[k-1],
+                                    o_OVERFLOW1      = self.overflow_int[k-1],
+                                    o_ALMOST_EMPTY1  = self.almost_empty[k-1],
+                                    o_ALMOST_FULL1   = self.almost_full[k-1],
+                                    o_PROG_FULL1     = self.prog_full[k-1],
+                                    o_PROG_EMPTY1    = self.prog_empty[k-1],
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK2        = ClockSignal(),
+                                    i_WR_CLK2        = ClockSignal(),
+                                    i_RESET2         = ResetSignal(),
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA2       = self.din[j:data + j],
+                                    i_RD_EN2         = self.rden_int[k],
+                                    i_WR_EN2         = self.wren_int[k],
+                                    # AXI Output      
+                                    o_RD_DATA2       = self.dout[j:data + j],
+                                    o_EMPTY2         = self.empty[k],
+                                    o_FULL2          = self.full[k],
+                                    o_UNDERFLOW2     = self.underflow_int[k],
+                                    o_OVERFLOW2      = self.overflow_int[k],
+                                    o_ALMOST_EMPTY2  = self.almost_empty[k],
+                                    o_ALMOST_FULL2   = self.almost_full[k],
+                                    o_PROG_FULL2     = self.prog_full[k],
+                                    o_PROG_EMPTY2    = self.prog_empty[k]
+                                )
                         else:
-                            self.specials += Instance(instance,
-                                # Parameters.
-                                # -----------
-                                # Global.
-                                p_DATA_WIDTH        = C(data), 
-                                p_SYNC_FIFO         = synchronous,
-                                p_PROG_FULL_THRESH  = C(4095, 12),
-                                p_PROG_EMPTY_THRESH = C(0, 12),
+                            if (instance == "FIFO36K"):
+                                self.specials += Instance(instance,
+                                    # Parameters.
+                                    # -----------
+                                    # Global.
+                                    p_DATA_WIDTH        = C(data), 
+                                    p_FIFO_TYPE         = synchronous,
+                                    p_PROG_FULL_THRESH  = C(4095, 12),
+                                    p_PROG_EMPTY_THRESH = C(0, 12),
 
-                                # Clk / Rst.
-                                # ----------
-                                i_RDCLK         = ClockSignal(),
-                                i_WRCLK         = ClockSignal(),
-                                i_RESET         = ResetSignal(),
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK        = ClockSignal(),
+                                    i_WR_CLK        = ClockSignal(),
+                                    i_RESET         = ResetSignal(),
 
-                                # AXI Input
-                                # -----------------
-                                i_WR_DATA       = self.din[j:data + j],
-                                i_RDEN          = self.rden_int[k],
-                                i_WREN          = self.wren_int[k],
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA       = self.din[j:data + j],
+                                    i_RD_EN         = self.rden_int[k],
+                                    i_WR_EN         = self.wren_int[k],
 
-                                # AXI Output      
-                                o_RD_DATA       = self.dout_int[k][j:data + j],
-                                o_EMPTY         = self.empty_int[k],
-                                o_FULL          = self.full_int[k],
-                                o_UNDERFLOW     = self.underflow_int[k],
-                                o_OVERFLOW      = self.overflow_int[k],
-                                o_ALMOST_EMPTY  = self.almost_empty_int[k],
-                                o_ALMOST_FULL   = self.almost_full_int[k],
-                                o_PROG_FULL     = self.prog_full_int[k],
-                                o_PROG_EMPTY    = self.prog_empty_int[k]
-                            )
+                                    # AXI Output      
+                                    o_RD_DATA       = self.dout_int[k][j:data + j],
+                                    o_EMPTY         = self.empty_int[k],
+                                    o_FULL          = self.full_int[k],
+                                    o_UNDERFLOW     = self.underflow_int[k],
+                                    o_OVERFLOW      = self.overflow_int[k],
+                                    o_ALMOST_EMPTY  = self.almost_empty_int[k],
+                                    o_ALMOST_FULL   = self.almost_full_int[k],
+                                    o_PROG_FULL     = self.prog_full_int[k],
+                                    o_PROG_EMPTY    = self.prog_empty_int[k]
+                                )
+                            elif(k % 2 == 1):
+                                self.specials += Instance(instance,
+                                    # Parameters.
+                                    # -----------
+                                    # Global.
+                                    p_DATA_WIDTH1        = C(data), 
+                                    p_FIFO_TYPE1         = synchronous,
+                                    p_PROG_FULL_THRESH1  = C(4095, 12),
+                                    p_PROG_EMPTY_THRESH1 = C(0, 12),
+                                    p_DATA_WIDTH2        = C(data), 
+                                    p_FIFO_TYPE2         = synchronous,
+                                    p_PROG_FULL_THRESH2  = C(4095, 12),
+                                    p_PROG_EMPTY_THRESH2 = C(0, 12),
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK1        = ClockSignal(),
+                                    i_WR_CLK1        = ClockSignal(),
+                                    i_RESET1         = ResetSignal(),
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA1       = self.din[j:data + j],
+                                    i_RD_EN1         = self.rden_int[k-1],
+                                    i_WR_EN1         = self.wren_int[k-1],
+                                    # AXI Output      
+                                    o_RD_DATA1       = self.dout_int[k-1][j:data + j],
+                                    o_EMPTY1         = self.empty_int[k-1],
+                                    o_FULL1          = self.full_int[k-1],
+                                    o_UNDERFLOW1     = self.underflow_int[k-1],
+                                    o_OVERFLOW1      = self.overflow_int[k-1],
+                                    o_ALMOST_EMPTY1  = self.almost_empty_int[k-1],
+                                    o_ALMOST_FULL1   = self.almost_full_int[k-1],
+                                    o_PROG_FULL1     = self.prog_full_int[k-1],
+                                    o_PROG_EMPTY1    = self.prog_empty_int[k-1],
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK2        = ClockSignal(),
+                                    i_WR_CLK2        = ClockSignal(),
+                                    i_RESET2         = ResetSignal(),
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA2       = self.din[j:data + j],
+                                    i_RD_EN2         = self.rden_int[k],
+                                    i_WR_EN2         = self.wren_int[k],
+                                    # AXI Output      
+                                    o_RD_DATA2       = self.dout_int[k][j:data + j],
+                                    o_EMPTY2         = self.empty_int[k],
+                                    o_FULL2          = self.full_int[k],
+                                    o_UNDERFLOW2     = self.underflow_int[k],
+                                    o_OVERFLOW2      = self.overflow_int[k],
+                                    o_ALMOST_EMPTY2  = self.almost_empty_int[k],
+                                    o_ALMOST_FULL2   = self.almost_full_int[k],
+                                    o_PROG_FULL2     = self.prog_full_int[k],
+                                    o_PROG_EMPTY2    = self.prog_empty_int[k]
+                                )
                     else:
                         if (instances == 1):
-                            self.specials += Instance(instance,
-                            # Parameters.
-                            # -----------
-                            # Global.
-                            p_DATA_WIDTH        = C(data), 
-                            p_SYNC_FIFO         = synchronous,
-                            p_PROG_FULL_THRESH  = C(depth - full_value, 12),
-                            p_PROG_EMPTY_THRESH = C(empty_value, 12),
+                            if (instance == "FIFO36K"):
+                                self.specials += Instance(instance,
+                                    # Parameters.
+                                    # -----------
+                                    # Global.
+                                    p_DATA_WIDTH        = C(data), 
+                                    p_FIFO_TYPE         = synchronous,
+                                    p_PROG_FULL_THRESH  = C(depth - full_value, 12),
+                                    p_PROG_EMPTY_THRESH = C(empty_value, 12),
 
-                            # Clk / Rst.
-                            # ----------
-                            i_RDCLK         = ClockSignal("rd"),
-                            i_WRCLK         = ClockSignal("wrt"),
-                            i_RESET         = ResetSignal(),
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK        = ClockSignal("rd"),
+                                    i_WR_CLK        = ClockSignal("wrt"),
+                                    i_RESET         = ResetSignal(),
 
-                            # AXI Input
-                            # -----------------
-                            i_WR_DATA       = self.din[j:data + j],
-                            i_RDEN          = self.rden_int[k],
-                            i_WREN          = self.wren_int[k],
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA       = self.din[j:data + j],
+                                    i_RD_EN         = self.rden_int[k],
+                                    i_WR_EN         = self.wren_int[k],
 
-                            # AXI Output      
-                            o_RD_DATA       = self.dout[j:data + j],
-                            o_EMPTY         = self.empty[k],
-                            o_FULL          = self.full[k],
-                            o_UNDERFLOW     = self.underflow_int[k],
-                            o_OVERFLOW      = self.overflow_int[k],
-                            o_ALMOST_EMPTY  = self.almost_empty[k],
-                            o_ALMOST_FULL   = self.almost_full[k],
-                            o_PROG_FULL     = self.prog_full[k],
-                            o_PROG_EMPTY    = self.prog_empty[k]
-                        )
+                                    # AXI Output      
+                                    o_RD_DATA       = self.dout[j:data + j],
+                                    o_EMPTY         = self.empty[k],
+                                    o_FULL          = self.full[k],
+                                    o_UNDERFLOW     = self.underflow_int[k],
+                                    o_OVERFLOW      = self.overflow_int[k],
+                                    o_ALMOST_EMPTY  = self.almost_empty[k],
+                                    o_ALMOST_FULL   = self.almost_full[k],
+                                    o_PROG_FULL     = self.prog_full[k],
+                                    o_PROG_EMPTY    = self.prog_empty[k]
+                                )
+                            else:
+                                self.specials += Instance(instance,
+                                    # Parameters.
+                                    # -----------
+                                    # Global.
+                                    p_DATA_WIDTH1        = C(data), 
+                                    p_FIFO_TYPE1         = synchronous,
+                                    p_PROG_FULL_THRESH1  = C(depth - full_value, 12),
+                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 12),
+                                    p_DATA_WIDTH2        = C(data), 
+                                    p_FIFO_TYPE2         = synchronous,
+                                    p_PROG_FULL_THRESH2  = C(depth - full_value, 12),
+                                    p_PROG_EMPTY_THRESH2 = C(empty_value, 12),
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK1        = ClockSignal(),
+                                    i_WR_CLK1        = ClockSignal(),
+                                    i_RESET1         = ResetSignal(),
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA1       = self.din[j:data + j],
+                                    i_RD_EN1         = self.rden_int[k-1],
+                                    i_WR_EN1         = self.wren_int[k-1],
+                                    # AXI Output      
+                                    o_RD_DATA1       = self.dout[j:data + j],
+                                    o_EMPTY1         = self.empty[k-1],
+                                    o_FULL1          = self.full[k-1],
+                                    o_UNDERFLOW1     = self.underflow_int[k-1],
+                                    o_OVERFLOW1      = self.overflow_int[k-1],
+                                    o_ALMOST_EMPTY1  = self.almost_empty[k-1],
+                                    o_ALMOST_FULL1   = self.almost_full[k-1],
+                                    o_PROG_FULL1     = self.prog_full[k-1],
+                                    o_PROG_EMPTY1    = self.prog_empty[k-1],
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK2        = ClockSignal(),
+                                    i_WR_CLK2        = ClockSignal(),
+                                    i_RESET2         = ResetSignal(),
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA2       = self.din[j:data + j],
+                                    i_RD_EN2         = self.rden_int[k],
+                                    i_WR_EN2         = self.wren_int[k],
+                                    # AXI Output      
+                                    o_RD_DATA2       = self.dout[j:data + j],
+                                    o_EMPTY2         = self.empty[k],
+                                    o_FULL2          = self.full[k],
+                                    o_UNDERFLOW2     = self.underflow_int[k],
+                                    o_OVERFLOW2      = self.overflow_int[k],
+                                    o_ALMOST_EMPTY2  = self.almost_empty[k],
+                                    o_ALMOST_FULL2   = self.almost_full[k],
+                                    o_PROG_FULL2     = self.prog_full[k],
+                                    o_PROG_EMPTY2    = self.prog_empty[k]
+                                )
                         else:
-                            self.specials += Instance(instance,
-                                # Parameters.
-                                # -----------
-                                # Global.
-                                p_DATA_WIDTH        = C(data), 
-                                p_SYNC_FIFO         = synchronous,
-                                p_PROG_FULL_THRESH  = C(4095, 12),
-                                p_PROG_EMPTY_THRESH = C(0, 12),
+                            if (instance == "FIFO36K"):
+                                self.specials += Instance(instance,
+                                    # Parameters.
+                                    # -----------
+                                    # Global.
+                                    p_DATA_WIDTH        = C(data), 
+                                    p_FIFO_TYPE         = synchronous,
+                                    p_PROG_FULL_THRESH  = C(4095, 12),
+                                    p_PROG_EMPTY_THRESH = C(0, 12),
 
-                                # Clk / Rst.
-                                # ----------
-                                i_RDCLK         = ClockSignal("rd"),
-                                i_WRCLK         = ClockSignal("wrt"),
-                                i_RESET         = ResetSignal(),
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK        = ClockSignal("rd"),
+                                    i_WR_CLK        = ClockSignal("wrt"),
+                                    i_RESET         = ResetSignal(),
 
-                                # AXI Input
-                                # -----------------
-                                i_WR_DATA       = self.din[j:data + j],
-                                i_RDEN          = self.rden_int[k],
-                                i_WREN          = self.wren_int[k],
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA       = self.din[j:data + j],
+                                    i_RD_EN         = self.rden_int[k],
+                                    i_WR_EN         = self.wren_int[k],
 
-                                # AXI Output      
-                                o_RD_DATA       = self.dout_int[k][j:data + j],
-                                o_EMPTY         = self.empty_int[k],
-                                o_FULL          = self.full_int[k],
-                                o_UNDERFLOW     = self.underflow_int[k],
-                                o_OVERFLOW      = self.overflow_int[k],
-                                o_ALMOST_EMPTY  = self.almost_empty_int[k],
-                                o_ALMOST_FULL   = self.almost_full_int[k],
-                                o_PROG_FULL     = self.prog_full_int[k],
-                                o_PROG_EMPTY    = self.prog_empty_int[k]
-                            )
+                                    # AXI Output      
+                                    o_RD_DATA       = self.dout_int[k][j:data + j],
+                                    o_EMPTY         = self.empty_int[k],
+                                    o_FULL          = self.full_int[k],
+                                    o_UNDERFLOW     = self.underflow_int[k],
+                                    o_OVERFLOW      = self.overflow_int[k],
+                                    o_ALMOST_EMPTY  = self.almost_empty_int[k],
+                                    o_ALMOST_FULL   = self.almost_full_int[k],
+                                    o_PROG_FULL     = self.prog_full_int[k],
+                                    o_PROG_EMPTY    = self.prog_empty_int[k]
+                                )
+                            elif(k % 2 == 1):
+                                self.specials += Instance(instance,
+                                    # Parameters.
+                                    # -----------
+                                    # Global.
+                                    p_DATA_WIDTH1        = C(data), 
+                                    p_FIFO_TYPE1         = synchronous,
+                                    p_PROG_FULL_THRESH1  = C(4095, 12),
+                                    p_PROG_EMPTY_THRESH1 = C(0, 12),
+                                    p_DATA_WIDTH2        = C(data), 
+                                    p_FIFO_TYPE2         = synchronous,
+                                    p_PROG_FULL_THRESH2  = C(4095, 12),
+                                    p_PROG_EMPTY_THRESH2 = C(0, 12),
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK1        = ClockSignal("rd"),
+                                    i_WR_CLK1        = ClockSignal("wrt"),
+                                    i_RESET1         = ResetSignal(),
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA1       = self.din[j:data + j],
+                                    i_RD_EN1         = self.rden_int[k-1],
+                                    i_WR_EN1         = self.wren_int[k-1],
+                                    # AXI Output      
+                                    o_RD_DATA1       = self.dout_int[k-1][j:data + j],
+                                    o_EMPTY1         = self.empty_int[k-1],
+                                    o_FULL1          = self.full_int[k-1],
+                                    o_UNDERFLOW1     = self.underflow_int[k-1],
+                                    o_OVERFLOW1      = self.overflow_int[k-1],
+                                    o_ALMOST_EMPTY1  = self.almost_empty_int[k-1],
+                                    o_ALMOST_FULL1   = self.almost_full_int[k-1],
+                                    o_PROG_FULL1     = self.prog_full_int[k-1],
+                                    o_PROG_EMPTY1    = self.prog_empty_int[k-1],
+                                    # Clk / Rst.
+                                    # ----------
+                                    i_RD_CLK2        = ClockSignal("rd"),
+                                    i_WR_CLK2        = ClockSignal("wrt"),
+                                    i_RESET2         = ResetSignal(),
+                                    # AXI Input
+                                    # -----------------
+                                    i_WR_DATA2       = self.din[j:data + j],
+                                    i_RD_EN2         = self.rden_int[k],
+                                    i_WR_EN2         = self.wren_int[k],
+                                    # AXI Output      
+                                    o_RD_DATA2       = self.dout_int[k][j:data + j],
+                                    o_EMPTY2         = self.empty_int[k],
+                                    o_FULL2          = self.full_int[k],
+                                    o_UNDERFLOW2     = self.underflow_int[k],
+                                    o_OVERFLOW2      = self.overflow_int[k],
+                                    o_ALMOST_EMPTY2  = self.almost_empty_int[k],
+                                    o_ALMOST_FULL2   = self.almost_full_int[k],
+                                    o_PROG_FULL2     = self.prog_full_int[k],
+                                    o_PROG_EMPTY2    = self.prog_empty_int[k]
+                                )
                     j = data + j
                 if (instances > 1):
                     # Writing and Reading to FIFOs
@@ -300,7 +519,6 @@ class FIFO(Module):
                                 )
                             )
                         ]
-
                         self.comb += [
                             If(self.rden,
                                If(~self.underflow,
@@ -314,7 +532,6 @@ class FIFO(Module):
                                )
                             )
                         ]
-
                         # First Word Fall Through Implmentation
                         if (first_word_fall_through):
                             if (k == 0):
@@ -400,7 +617,6 @@ class FIFO(Module):
                                    )
                                 )
                             ]
-
                             self.sync.wrt += [
                                 If(self.wren,
                                    If(~self.full,
@@ -509,8 +725,6 @@ class FIFO(Module):
                                    )
                                 )
                             ]
-
-
                         # First Word Fall Through Implmentation
                         if (first_word_fall_through):
                             if (k == instances - 1):
@@ -537,6 +751,7 @@ class FIFO(Module):
                                        )
                                     )
                                 ]
+                
             if (instances > 1):
                 if (not SYNCHRONOUS[synchronous]):
                     self.sync.rd += self.rd_en_flop.eq(self.rden)
