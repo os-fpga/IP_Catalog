@@ -134,7 +134,7 @@ def main():
 
     core_bool_param_group.add_argument("--trigger_inputs_en",     type=bool, default=False,              help="To enable Trigger inputs")
     core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,  choices=range(1,32),          help="Number of Input Triggers.")
-    core_bool_param_group.add_argument("--advance_trigger",     type=bool, default=False,              help="To enable Advance Trigger Mode")
+    #core_bool_param_group.add_argument("--advance_trigger",     type=bool, default=False,              help="To enable Advance Trigger Mode")
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
@@ -163,7 +163,7 @@ def main():
     )
     # Arguments ----------------------------------------------------------------------------
     value_compare     = args.value_compare
-    advance_trigger   = args.advance_trigger
+   # advance_trigger   = args.advance_trigger
     triginpts_en      = args.trigger_inputs_en
     nofprobes         = args.no_of_probes  
     ntrigger_inputs   = args.no_of_trigger_inputs  
@@ -183,28 +183,6 @@ def main():
             platform   = platform,
             module     = module,
         )
-        # Update the macro definition file ---------------------------------------------------------
-        #rtl_dir = os.path.join(os.path.dirname(__file__),rs_builder.src_path+"/ocla.sv")
-        rtl_dir = rs_builder.src_path
-        rtl_dir = rtl_dir + "/ocla.sv"
-        f = open(rtl_dir,"r+")
-        content = f.read()
-        f.seek(0, 0)
-        f.write("// ---------------------------------------------------------------\n")
-        f.write("// User specified macros\n")
-        f.write("// ---------------------------------------------------------------\n")
-        f.write("`define NUM_OF_PROBES  " + str(nofprobes) +"\n")
-        f.write("`define MEMORY_DEPTH  " + str(memory_depth) +"\n")
-        f.write("`define NUM_OF_TRIGGER_INPUTS  "+ str(ntrigger_inputs)+"\n")
-        f.write("`define PROBE_WIDHT_BITS "+ str(nprobe_widht)+"\n")   
-        if(value_compare):
-            f.write("`define VALUE_COMPARE_TRIGGER   \n")
-        if(triginpts_en):
-            f.write("`define TRIGGER_INPUTS \n")
-        if(advance_trigger):
-            f.write("`define ADVANCE_TRIGGER \n\n")
-        f.write(content)
-        f.close()
 
 
 if __name__ == "__main__":
