@@ -296,7 +296,7 @@ class IP_Builder:
 
     def generate_wrapper(self, platform, module):
         assert self.prepared
-        build_path     = "litex_build"
+        build_path     = self.build_path + "build_dir"
         build_filename = os.path.join(build_path, self.build_name) + ".v"
 
         # Build LiteX module.
