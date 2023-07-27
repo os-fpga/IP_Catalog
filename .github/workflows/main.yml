@@ -52,19 +52,31 @@ jobs:
       shell: bash
       run: |
         gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"`
-
+        
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
-
-
+        
+        excluded_ips=("axil_quadspi" "ahb2axi_bridge" "axi2axilite_bridge" "axis_width_converter" "i2c_master" "axil_ethernet" "fifo")
+        #fix ethernet ip        
         for n in $gen_list
         do  
             ./python3 $n --build --json-template
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
-            find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v"
-            echo "IP generated RTL generated"
-        done
 
+            #file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v")
+            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name "${ip_name}_wrapper.v" -o -name "${ip_name}_wrapper.sv")
+            # Check if the IP name is in the excluded_ips array
+            if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
+              if [[ -n "$file_path" ]]; then
+                  echo "Success! IP RTL generated at: $file_path"
+              else
+                  echo "IP RTL wrapper not generated. Exiting."
+                  exit 1
+              fi
+            else
+                echo "Skipping wrapper check for $ip_name"
+            fi
+        done
 
     - name: Test IP Generation
       run: |
