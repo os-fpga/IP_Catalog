@@ -8,7 +8,9 @@
 # LiteX wrapper around RS OCLA IP CORE ocla.v
 
 import os
-import logging
+import logging 
+
+from datetime import datetime
 
 from migen import *
 
@@ -19,34 +21,34 @@ logging.basicConfig(level=logging.INFO)
 # AXI LITE OCLA -------------------------------------------------------------------------------------
 class AXILITEOCLA(Module):
     def __init__(self, platform, 
-                 s_axil, 
-                 nprobes, 
-                 trigger_inputs, 
-                 probe_widht,
-                 mem_depth, 
-                 trigger_inputs_en):
+                s_axil, 
+                nprobes, 
+                trigger_inputs, 
+                probe_widht,
+                mem_depth, 
+                trigger_inputs_en):
         
-        #self.logger = logging.getLogger("AXI_LITE_OCLA")
+        self.logger = logging.getLogger("AXI_LITE_OCLA")
         
-        #self.logger.propagate = True
+        self.logger.propagate = False
         
         # Clock Domain
         clock_domain = s_axil.clock_domain
-        #self.logger.info(f"CLOCK_DOMAIN     : {clock_domain}")
+        self.logger.info(f"CLOCK_DOMAIN          : {clock_domain}")
         
         # Address width.
         address_width = len(s_axil.aw.addr)
-        #self.logger.info(f"ADDRESS_WIDTH    : {address_width}")
+        self.logger.info(f"ADDRESS_WIDTH         : {address_width}")
         
         # Read Data width.
         data_width = len(s_axil.r.data)
-        #self.logger.info(f"DATA_WIDTH       : {data_width}")
+        self.logger.info(f"DATA_WIDTH            : {data_width}")
         
         # OCLA features.
-        #self.logger.info(f"NO_OF_PROBES          : {nprobes}")
-        #self.logger.info(f"NO_OF_TRIGGER_INPUTS  : {trigger_inputs}")
-        #self.logger.info(f"PROBE_WIDHT           : {probe_widht}")
-        #self.logger.info(f"MEM_DEPTH             : {mem_depth}")
+        self.logger.info(f"NO_OF_PROBES          : {nprobes}")
+        self.logger.info(f"NO_OF_TRIGGER_INPUTS  : {trigger_inputs}")
+        self.logger.info(f"PROBE_WIDHT           : {probe_widht}")
+        self.logger.info(f"MEM_DEPTH             : {mem_depth}")
 
         
         # OCLA Signals
@@ -59,9 +61,10 @@ class AXILITEOCLA(Module):
         # Module instance.
         # ----------------
             self.specials += Instance("ocla",
-                                                    
-        # Parameters.
-            # -----------            
+            # Parameters.
+            # -----------  
+            p_IP_TYPE                 = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                   = Instance.PreformattedParam("IP_ID"),
             p_NO_OF_PROBES            = Instance.PreformattedParam(nprobes),
             p_NO_OF_TRIGGER_INPUTS    = Instance.PreformattedParam(trigger_inputs),
             p_PROBE_WIDHT             = Instance.PreformattedParam(probe_widht),
@@ -118,9 +121,10 @@ class AXILITEOCLA(Module):
             
         else:
             self.specials += Instance("ocla",
-                                                    
-        # Parameters.
-            # -----------            
+            # Parameters.
+            # -----------     
+            p_IP_TYPE                 = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                   = Instance.PreformattedParam("IP_ID"),       
             p_NO_OF_PROBES            = Instance.PreformattedParam(nprobes),
             p_NO_OF_TRIGGER_INPUTS    = Instance.PreformattedParam(trigger_inputs),
             p_PROBE_WIDHT             = Instance.PreformattedParam(probe_widht),
