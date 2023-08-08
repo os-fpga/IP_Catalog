@@ -9,6 +9,8 @@ import sys
 import json
 import argparse
 
+from datetime import datetime
+
 from litex_wrapper.axil_ocla_litex_wrapper import AXILITEOCLA
 
 from migen import *
@@ -35,7 +37,7 @@ def get_samplingclknrst_ios():
     
 def get_ocla_ios(nprobes,trigger_inputs):
     return [
-        ("i_probes",       0, Pins(nprobes)),
+        ("i_probes",          0, Pins(nprobes)),
         ("i_trigger_input",   0, Pins(trigger_inputs)), 
     ]
 
@@ -65,7 +67,6 @@ class AXILITEOCLAWrapper(Module):
         self.comb += s_axil.connect_to_pads(platform.request("s_axil"), mode="slave")
 
         # AXI-LITE-OCLA ----------------------------------------------------------------------------------
-       
         self.submodules.ocla = ocla =  AXILITEOCLA(platform, 
             s_axil             = s_axil,
             nprobes          = nprobes,
@@ -83,7 +84,6 @@ class AXILITEOCLAWrapper(Module):
         if(trigger_inputs_en == True):
             self.comb += ocla.trigger_input_i.eq(platform.request("i_trigger_input"))
     
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXI LITE OCLA CORE")
@@ -94,32 +94,23 @@ def main():
 
     sys.path.append(common_path)
 
-
     from common import IP_Builder
-   # Parameter Dependency dictionary a 2 b 3 c 4  9
-
+    # Parameter Dependency dictionary a 2 b 3 c 4  9
     #                Ports     :    Dependency
     dep_dict = {}            
-
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_ocla", language="sverilog")
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="OCLA IP Core fix parameters")
-
-    core_fix_param_group.add_argument("--mem_depth",       type=int,  default=32, choices=[32, 64, 128, 256, 512, 1024],          help="OCLA Trace Memory Depth.")
-   
-    
-    core_fix_param_group.add_argument("--s_axi_addr_width",      type=int,  default=32, choices=[8, 16, 32],     help="OCLA Address Width.")
-    core_fix_param_group.add_argument("--s_axi_data_width",      type=int,  default=32, choices=[32], help="OCLA Data Width.")
+    core_fix_param_group.add_argument("--mem_depth",             type=int,      default=32,     choices=[32, 64, 128, 256, 512, 1024],   help="OCLA Trace Memory Depth.")
+    core_fix_param_group.add_argument("--s_axi_addr_width",      type=int,      default=32,     choices=[8, 16, 32],                     help="OCLA Address Width.")
+    core_fix_param_group.add_argument("--s_axi_data_width",      type=int,      default=32,     choices=[32],                            help="OCLA Data Width.")
     
     # Core range value parameters.
-
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
     core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1, choices=range(1,1025),         help="Number of Probes.")
-
- 
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -127,14 +118,15 @@ def main():
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axil_ocla_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
-  # Core bool value macros.
+    # Core bool value macros.
     core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
-    core_bool_param_group.add_argument("--value_compare",     type=bool, default=False,              help="To enable Value Compare feature")
-    core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,  choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
+    core_bool_param_group.add_argument("--value_compare",                         type=bool, default=False,                                   help="To enable Value Compare feature")
+    core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,         choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
 
-    core_bool_param_group.add_argument("--trigger_inputs_en",     type=bool, default=False,              help="To enable Trigger inputs")
-    core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,  choices=range(1,32),          help="Number of Input Triggers.")
+    core_bool_param_group.add_argument("--trigger_inputs_en",       type=bool, default=False,                                 help="To enable Trigger inputs")
+    core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,       choices=range(1,32),          help="Number of Input Triggers.")
     #core_bool_param_group.add_argument("--advance_trigger",     type=bool, default=False,              help="To enable Advance Trigger Mode")
+    
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
@@ -163,7 +155,7 @@ def main():
     )
     # Arguments ----------------------------------------------------------------------------
     value_compare     = args.value_compare
-   # advance_trigger   = args.advance_trigger
+    # advance_trigger   = args.advance_trigger
     triginpts_en      = args.trigger_inputs_en
     nofprobes         = args.no_of_probes  
     ntrigger_inputs   = args.no_of_trigger_inputs  
@@ -183,8 +175,40 @@ def main():
             platform   = platform,
             module     = module,
         )
-
-
+        
+        ip_version = "10"
+        now = datetime.now()
+        
+        # Binary IP_ID
+        current_year    = now.year % 100
+        # year_binary     = (bin(current_year)[2:]).zfill(7)  # Removing '0b' prefix
+        # month_binary    = (bin(now.month)[2:]).zfill(4)
+        # day_binary      = (bin(now.day)[2:]).zfill(5)
+        # hour_binary     = (bin(now.hour)[2:]).zfill(5)
+        # minute_binary   = (bin(now.minute)[2:]).zfill(6)
+        
+        # Integer IP_ID
+        year_binary     = (current_year)
+        month_binary    = (now.month)
+        day_binary      = (now.day)
+        hour_binary     = (now.hour)
+        minute_binary   = (now.minute)
+        
+        # Calculations for IP_ID Parameter
+        ip_id = Instance.PreformattedParam("29'd{}{}{}{}{}{}".format(ip_version, year_binary, month_binary, day_binary, hour_binary, minute_binary)) 
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axil_ocla", "v1_0", args.build_name, "src",args.build_name+".sv")
+        new_lines = []
+        with open (wrapper, "r") as file:
+            lines = file.readlines()
+            for i, line in enumerate(lines):
+                if ("module {}".format(args.build_name)) in line:
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t= \"ocla\",\n\tparameter IP_ID \t= {}\n)\n(".format(args.build_name,ip_id))
+                else:
+                    new_lines.append(line)
+                
+        with open(os.path.join(wrapper), "w") as file:
+            file.writelines(new_lines)
+        
 if __name__ == "__main__":
     main()
 
