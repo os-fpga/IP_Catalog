@@ -176,28 +176,14 @@ def main():
             module     = module,
         )
         
-        
+        # IP_ID Parameter
         now = datetime.now()
-        
-        # Binary IP_ID
-        # current_year    = now.year % 100
         my_year         = now.year - 2022
         year            = (bin(my_year)[2:]).zfill(7)  # Removing '0b' prefix
         month           = (bin(now.month)[2:]).zfill(4) # 4-bits
         day             = (bin(now.day)[2:]).zfill(5) # 5-bits
-        # hour          = (bin(now.hour)[2:]).zfill(8) # 8-bits
-        # minute        = (bin(now.minute)[2:]).zfill(8) # 8-bits
-        
-        # print("Year: ", year)
-        # print("Month", month)
-        # print("Day: ", day)
-        
-        # Integer IP_ID
-        # year     = hex(my_year)[2:]
-        # month    = hex(now.month)[2:]
-        # day      = hex(now.day)[2:]
-        hour     = (now.hour)
-        minute   = (now.minute)
+        hour            = (now.hour) # 8-bits
+        minute          = (now.minute) # 8-bits
         
         if minute in range(10):
             minute = ("0{}".format(minute))
@@ -205,15 +191,12 @@ def main():
         if hour in range(10):
             hour = ("0{}".format(hour))
         
-        print("Year: ", year)
-        print("Month", month)
-        print("Day: ", day)
-        print(("Time: {}:{}").format( hour, minute))
-        
-        # Calculations for IP_ID Parameter
+        # Concatenation for IP_ID Parameter
         ip_id = ("{}{}{}".format(year, day, month)) 
         ip_id = ("32'h{}{}{}").format((hex(int(ip_id, 2))[2:]), hour, minute)
         
+        # IP_VERSION parameter
+        #               Base  _  Major _ Minor
         ip_version = "00000000_00000000_0000000000000001"
         ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
         
