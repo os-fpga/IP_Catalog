@@ -176,33 +176,54 @@ def main():
             module     = module,
         )
         
-        ip_version = "10"
+        
         now = datetime.now()
         
         # Binary IP_ID
-        current_year    = now.year % 100
-        # year_binary     = (bin(current_year)[2:]).zfill(7)  # Removing '0b' prefix
-        # month_binary    = (bin(now.month)[2:]).zfill(4)
-        # day_binary      = (bin(now.day)[2:]).zfill(5)
-        # hour_binary     = (bin(now.hour)[2:]).zfill(5)
-        # minute_binary   = (bin(now.minute)[2:]).zfill(6)
+        # current_year    = now.year % 100
+        my_year         = now.year - 2022
+        year            = (bin(my_year)[2:]).zfill(7)  # Removing '0b' prefix
+        month           = (bin(now.month)[2:]).zfill(4) # 4-bits
+        day             = (bin(now.day)[2:]).zfill(5) # 5-bits
+        # hour          = (bin(now.hour)[2:]).zfill(8) # 8-bits
+        # minute        = (bin(now.minute)[2:]).zfill(8) # 8-bits
+        
+        # print("Year: ", year)
+        # print("Month", month)
+        # print("Day: ", day)
         
         # Integer IP_ID
-        year_binary     = (current_year)
-        month_binary    = (now.month)
-        day_binary      = (now.day)
-        hour_binary     = (now.hour)
-        minute_binary   = (now.minute)
+        # year     = hex(my_year)[2:]
+        # month    = hex(now.month)[2:]
+        # day      = hex(now.day)[2:]
+        hour     = (now.hour)
+        minute   = (now.minute)
+        
+        if minute in range(10):
+            minute = ("0{}".format(minute))
+            
+        if hour in range(10):
+            hour = ("0{}".format(hour))
+        
+        print("Year: ", year)
+        print("Month", month)
+        print("Day: ", day)
+        print(("Time: {}:{}").format( hour, minute))
         
         # Calculations for IP_ID Parameter
-        ip_id = Instance.PreformattedParam("29'd{}{}{}{}{}{}".format(ip_version, year_binary, month_binary, day_binary, hour_binary, minute_binary)) 
+        ip_id = ("{}{}{}".format(year, day, month)) 
+        ip_id = ("32'h{}{}{}").format((hex(int(ip_id, 2))[2:]), hour, minute)
+        
+        ip_version = "00000000_00000000_0000000000000001"
+        ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
+        
         wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axil_ocla", "v1_0", args.build_name, "src",args.build_name+".sv")
         new_lines = []
         with open (wrapper, "r") as file:
             lines = file.readlines()
             for i, line in enumerate(lines):
                 if ("module {}".format(args.build_name)) in line:
-                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t= \"ocla\",\n\tparameter IP_ID \t= {}\n)\n(".format(args.build_name,ip_id))
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"ocla\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
                 else:
                     new_lines.append(line)
                 
