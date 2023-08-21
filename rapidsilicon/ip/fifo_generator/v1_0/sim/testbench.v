@@ -9,6 +9,7 @@ FIFO_generator fifo(.din(din), .dout(dout), .wrt_clock(wrt_clk), .rd_clock(rd_cl
 .full(full), .empty(empty), .underflow(underflow), .overflow(overflow));
 integer mismatch = 0; integer i = 0;
 reg [WIDTH - 1:0] mem [0:DEPTH];
+reg [WIDTH - 1:0] a;
 initial begin
     rst = 1'b1;
     rd_en = 1'b0;
@@ -31,8 +32,9 @@ initial begin
     repeat (1) @ (posedge wrt_clk);
     wr_en = 1'b1;
     for (i=1; i<=DEPTH; i=i+1) begin
-        din <= i;
-        mem [i] <= i;
+        a = $random;
+        din <= a;
+        mem [i] <= a;
         repeat (1) @ (posedge wrt_clk);
     end
 
@@ -52,12 +54,14 @@ initial begin
         $display("\n**** All Comparison Matched ****\n**** Simulation Passed ****");
     else
         $display("%0d comparison(s) mismatched\nERROR: SIM: Simulation Failed", mismatch);
+    #500;
+    $finish;
 end
 
 initial begin
     $dumpfile("fifo.vcd");
     $dumpvars;
-    #600000;
-    $finish;
+    // #6000000;
+    // $finish;
 end
 endmodule

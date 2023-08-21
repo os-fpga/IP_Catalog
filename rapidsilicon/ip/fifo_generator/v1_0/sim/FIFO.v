@@ -91,8 +91,10 @@ else if (DATA_WIDTH == 18)
         );
     end
 
-else if (DATA_WIDTH == 9)
+else
     begin
+        wire [17:0] rd_data;
+        assign RD_DATA = {rd_data[16], rd_data[7:0]};
         RS_TDP36K #(
             // ----------------------------------------------------------Appending 12th bit as dont care bit
             .MODE_BITS({SYNC_FIFO1, {4{3'b100}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
@@ -102,74 +104,15 @@ else if (DATA_WIDTH == 9)
             .REN_B1(RDEN),
             .CLK_A1(WRCLK),
             .CLK_B1(TEMP_CLK),
-            .WDATA_A1(WR_DATA[8:0]),
+            .WDATA_A1({1'dx, WR_DATA[8], {8{1'dx}}, WR_DATA[7:0]}),
             .RDATA_A1({EMPTY, ALMOST_EMPTY, PROG_EMPTY, UNDERFLOW, FULL, ALMOST_FULL, PROG_FULL, OVERFLOW}),
-            .RDATA_B1(RD_DATA[8:0]),
+            .RDATA_B1(rd_data),
             .FLUSH1(RESET),
             .CLK_A2(WRCLK),
             .CLK_B2(TEMP_CLK)
         );
     end
 
-else if (DATA_WIDTH == 4)
-    begin
-        RS_TDP36K #(
-            // ----------------------------------------------------------Appending 12th bit as dont care bit
-            .MODE_BITS({SYNC_FIFO1, {4{3'b001}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
-            )
-        RS_TDP36K_4 (
-            .WEN_A1(WREN),
-            .REN_B1(RDEN),
-            .CLK_A1(WRCLK),
-            .CLK_B1(TEMP_CLK),
-            .WDATA_A1(WR_DATA[3:0]),
-            .RDATA_A1({EMPTY, ALMOST_EMPTY, PROG_EMPTY, UNDERFLOW, FULL, ALMOST_FULL, PROG_FULL, OVERFLOW}),
-            .RDATA_B1(RD_DATA[3:0]),
-            .FLUSH1(RESET),
-            .CLK_A2(WRCLK),
-            .CLK_B2(TEMP_CLK)
-        );
-    end
-
-else if (DATA_WIDTH == 2)
-    begin
-        RS_TDP36K #(
-            // ----------------------------------------------------------Appending 12th bit as dont care bit
-            .MODE_BITS({SYNC_FIFO1, {4{3'b011}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
-            )
-        RS_TDP36K_2 (
-            .WEN_A1(WREN),
-            .REN_B1(RDEN),
-            .CLK_A1(WRCLK),
-            .CLK_B1(TEMP_CLK),
-            .WDATA_A1(WR_DATA[1:0]),
-            .RDATA_A1({EMPTY, ALMOST_EMPTY, PROG_EMPTY, UNDERFLOW, FULL, ALMOST_FULL, PROG_FULL, OVERFLOW}),
-            .RDATA_B1(RD_DATA[1:0]),
-            .FLUSH1(RESET),
-            .CLK_A2(WRCLK),
-            .CLK_B2(TEMP_CLK)
-        );
-    end
-
-else
-    begin
-        RS_TDP36K #(
-            // ----------------------------------------------------------Appending 12th bit as dont care bit
-            .MODE_BITS({SYNC_FIFO1, {4{3'b101}}, 1'b1, 1'b0, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH[10:0], 1'b0, PROG_FULL_THRESH[10:0], 39'd0, 1'b1})
-            )
-        RS_TDP36K_1 (
-            .WEN_A1(WREN),
-            .REN_B1(RDEN),
-            .CLK_A1(WRCLK),
-            .CLK_B1(TEMP_CLK),
-            .WDATA_A1(WR_DATA[0:0]),
-            .RDATA_A1({EMPTY, ALMOST_EMPTY, PROG_EMPTY, UNDERFLOW, FULL, ALMOST_FULL, PROG_FULL, OVERFLOW}),
-            .RDATA_B1(RD_DATA[0:0]),
-            .FLUSH1(RESET),
-            .CLK_A2(WRCLK),
-            .CLK_B2(TEMP_CLK)
-        );
-    end
 endgenerate
 
 endmodule

@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------
 
 module FIFO36K #(
-    parameter   DATA_WIDTH          = 6'd36,               // Supported Data Width > 36
+    parameter   DATA_WIDTH          = 6'd36,               // Supported Data Width 1 - 36
     parameter   FIFO_TYPE           = "SYNCHRONOUS",       // Synchronous or Asynchronous
     parameter   PROG_FULL_THRESH    = 12'hffa,             // Threshold indicating that the FIFO buffer is considered Full
     parameter   PROG_EMPTY_THRESH   = 12'h004              // Threshold indicating that the FIFO buffer is considered Empty
@@ -28,17 +28,28 @@ module FIFO36K #(
     input wire  RESET                                      // 1-bit input:  Active Low Synchronous Reset
 );
 
-initial 
-begin
-    if (DATA_WIDTH != 36)
-        begin
-        $error("Incorrect DATA_WIDTH: %0d\nEnter valid DATA_WIDTH: 36", DATA_WIDTH);
-        $finish;
-        end
+localparam data_width = 
+    (DATA_WIDTH > 5'd18) ? 6'd36 :
+    (DATA_WIDTH > 4'd9)  ? 5'd18 :
+                          DATA_WIDTH;
+
+initial begin
+    if ((DATA_WIDTH < 1'd1) || (DATA_WIDTH > 6'd36)) begin
+       $display("FIFO36K instance %m DATA_WIDTH set to incorrect value, %d.  Values must be between 1 and 36.", DATA_WIDTH);
+    #1 $stop;
+    end
+    case(FIFO_TYPE)
+      "SYNCHRONOUS" ,
+      "ASYNCHRONOUS": begin end
+      default: begin
+        $display("\nError: FIFO36K instance %m has parameter FIFO_TYPE set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE);
+        #1 $stop ;
+      end
+    endcase
 end
 
 FIFO #(
-    .DATA_WIDTH(DATA_WIDTH),
+    .DATA_WIDTH(data_width),
     .SYNC_FIFO(FIFO_TYPE),
     .PROG_FULL_THRESH(PROG_FULL_THRESH),
     .PROG_EMPTY_THRESH(PROG_EMPTY_THRESH)

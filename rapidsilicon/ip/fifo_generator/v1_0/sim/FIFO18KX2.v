@@ -7,8 +7,8 @@
 module FIFO18KX2 #(
     parameter DATA_WIDTH1 = 5'd18,              // Data Width of FIFO1 from 1, 2, 4, 9, 18
     parameter FIFO_TYPE1 = "SYNCHRONOUS",       // Synchronous or Asynchronous FIFO1     
-    parameter PROG_EMPTY_THRESH1 = 11'h004,     // Threshold indicating that the FIFO1 buffer is considered Empty
-    parameter PROG_FULL_THRESH1 = 11'h4fa,      // Threshold indicating that the FIFO1 buffer is considered Full
+    parameter PROG_EMPTY_THRESH1 = 12'h004,     // Threshold indicating that the FIFO1 buffer is considered Empty
+    parameter PROG_FULL_THRESH1 = 12'h8fa,      // Threshold indicating that the FIFO1 buffer is considered Full
     
     parameter DATA_WIDTH2 = 5'd18,              // Data Width of FIFO2 from 1, 2, 4, 9, 18
     parameter FIFO_TYPE2 = "SYNCHRONOUS",       // Synchronous or Asynchronous FIFO2    
@@ -51,22 +51,39 @@ module FIFO18KX2 #(
     output wire UNDERFLOW2                      // 1-bit output: Underflow Flag
 );
 
-initial 
-begin
-    if (!(DATA_WIDTH1 == 1 || DATA_WIDTH1 == 2 || DATA_WIDTH1 == 4 || DATA_WIDTH1 == 9 || DATA_WIDTH1 == 18)) 
-        begin
-        $error("Incorrect DATA_WIDTH1: %0d\nEnter valid DATA_WIDTH1: 1, 2, 4, 8, 9, 18", DATA_WIDTH1);
-        $finish;
-        end
-    if (!(DATA_WIDTH2 == 1 || DATA_WIDTH2 == 2 || DATA_WIDTH2 == 4 || DATA_WIDTH2 == 9 || DATA_WIDTH2 == 18)) 
-        begin
-        $error("Incorrect DATA_WIDTH2: %0d\nEnter valid DATA_WIDTH2: 1, 2, 4, 8, 9, 18", DATA_WIDTH2);
-        $finish;
+localparam data_width1 = (DATA_WIDTH1 > 4'd9) ? 5'd18 : DATA_WIDTH1;
+localparam data_width2 = (DATA_WIDTH2 > 4'd9) ? 5'd18 : DATA_WIDTH2;
+
+initial begin
+    if ((DATA_WIDTH1 < 1'd1) || (DATA_WIDTH1 > 5'd18)) begin
+       $display("FIFO18KX2 instance %m DATA_WIDTH1 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WIDTH1);
+    #1 $stop;
     end
+    case(FIFO_TYPE1)
+      "SYNCHRONOUS" ,
+      "ASYNCHRONOUS": begin end
+      default: begin
+        $display("\nError: FIFO18KX2 instance %m has parameter FIFO_TYPE1 set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE1);
+        #1 $stop ;
+      end
+    endcase
+
+    if ((DATA_WIDTH2 < 1'd1) || (DATA_WIDTH2 > 5'd18)) begin
+       $display("FIFO18KX2 instance %m DATA_WIDTH2 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WIDTH2);
+    #1 $stop;
+    end
+    case(FIFO_TYPE2)
+      "SYNCHRONOUS" ,
+      "ASYNCHRONOUS": begin end
+      default: begin
+        $display("\nError: FIFO18KX2 instance %m has parameter FIFO_TYPE2 set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE2);
+        #1 $stop ;
+      end
+    endcase
 end
 
 FIFO #(
-    .DATA_WIDTH(DATA_WIDTH1),
+    .DATA_WIDTH(data_width1),
     .SYNC_FIFO(FIFO_TYPE1),
     .PROG_FULL_THRESH(PROG_FULL_THRESH1),
     .PROG_EMPTY_THRESH(PROG_EMPTY_THRESH1)
@@ -90,7 +107,7 @@ FIFO18K_1 (
 );
 
 FIFO #(
-    .DATA_WIDTH(DATA_WIDTH2),
+    .DATA_WIDTH(data_width2),
     .SYNC_FIFO(FIFO_TYPE2),
     .PROG_FULL_THRESH(PROG_FULL_THRESH2),
     .PROG_EMPTY_THRESH(PROG_EMPTY_THRESH2)
