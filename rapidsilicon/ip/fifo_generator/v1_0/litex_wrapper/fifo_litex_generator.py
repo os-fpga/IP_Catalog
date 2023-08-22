@@ -81,14 +81,9 @@ class FIFO(Module):
                         memory = 1024
                         num_36K = num_36K + 1
                         remaining_memory = remaining_memory + (len(bus) * memory)
-        print("instances of 9K = ", (math.ceil(num_9K/4)))
-        print("instances of 18K = ", (math.ceil(num_18K/2)))
-        print("instances of 36K = ", (math.ceil(num_36K)))
         total_mem = num_36K + math.ceil(num_18K/2) + math.ceil(num_9K/4)
         memory = 1024
         instances = math.ceil(depth / memory)
-        print("total memory = ", total_mem)
-        print("instances of 1024 = ", num_18K + num_36K + num_9K)
         if(SYNCHRONOUS[synchronous]):
             self.counter = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
             self.wrt_ptr = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
@@ -373,7 +368,7 @@ class FIFO(Module):
                                     # Global.
                                     p_DATA_WIDTH1        = C(data), 
                                     p_FIFO_TYPE1         = synchronous,
-                                    p_PROG_FULL_THRESH1  = C(full_empty, 12),
+                                    p_PROG_FULL_THRESH1  = C(full_value, 12),
                                     p_PROG_EMPTY_THRESH1 = C(empty_value, 12),
                                     p_DATA_WIDTH2        = C(data), 
                                     p_FIFO_TYPE2         = synchronous,
@@ -586,8 +581,8 @@ class FIFO(Module):
                                                     self.comb += [
                                                             If(~self.rden,
                                                                 If(~self.underflow,
-                                                                    If(self.rd_ptr <= (k_loop + 1 + l + count18K + 0)*memory,
-                                                                        If(self.rd_ptr >= (k_loop + l + count18K + 0)*memory,
+                                                                    If(self.rd_ptr <= (k_loop + 1 + l + count18K)*memory,
+                                                                        If(self.rd_ptr >= (k_loop + l + count18K)*memory,
                                                                             self.dout[j:data + j].eq(self.dout_int[count + l]
                                                                         )
                                                                     )
@@ -601,7 +596,6 @@ class FIFO(Module):
                                     count18K = count18K + 1
                                 elif (data == 9):
                                     count9K = count9K + 1
-                                # print(count18K, old_count18K)
                                 if (count18K != old_count18K):
                                     if (not k9_flag):
                                         k_loop = k_loop + 1
@@ -1180,8 +1174,8 @@ class FIFO(Module):
                                                     self.sync.rd += [
                                                         If(~self.rden,
                                                             If(~self.underflow,
-                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k_loop + 1 + l + count18K + 0)*memory) + int(starting),
-                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K + 0)*memory) + int(starting),
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k_loop + 1 + l + count18K)*memory) + int(starting),
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K)*memory) + int(starting),
                                                                         self.dout[j:data + j].eq(self.dout_int[count + l]
                                                                         )
                                                                     )
@@ -1195,7 +1189,6 @@ class FIFO(Module):
                                     count18K = count18K + 1
                                 elif (data == 9):
                                     count9K = count9K + 1
-                                # print(count18K, old_count18K)
                                 if (count18K != old_count18K):
                                     if (not k9_flag):
                                         k_loop = k_loop + 1
@@ -1222,7 +1215,6 @@ class FIFO(Module):
                     if (total_mem > 1):
                         for i in range (k, k + math.ceil(data_width/36)):
                             if (i not in index_array and i < count):
-                                # print(i)
                                 count_loop = count_loop + 1
                                 # Writing and Reading to FIFOs
                                 if(SYNCHRONOUS[synchronous]):
