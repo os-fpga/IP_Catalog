@@ -238,12 +238,12 @@ class FIFO(Module):
                                     # Global.
                                     p_DATA_WIDTH1        = C(data), 
                                     p_FIFO_TYPE1         = synchronous,
-                                    p_PROG_FULL_THRESH1  = C(3072, 12),
-                                    p_PROG_EMPTY_THRESH1 = C(0, 12),
+                                    p_PROG_FULL_THRESH1  = C(depth - full_value, 12),
+                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 12),
                                     p_DATA_WIDTH2        = C(data), 
                                     p_FIFO_TYPE2         = synchronous,
-                                    p_PROG_FULL_THRESH2  = C(2047, 11),
-                                    p_PROG_EMPTY_THRESH2 = C(0, 11),
+                                    p_PROG_FULL_THRESH2  = C(depth - full_value, 11),
+                                    p_PROG_EMPTY_THRESH2 = C(empty_value, 11),
                                     # Clk / Rst.
                                     # ----------
                                     i_RD_CLK1        = ClockSignal(),
@@ -312,6 +312,19 @@ class FIFO(Module):
                                             )
                                         )
                                     ]
+                                    if (first_word_fall_through):
+                                        self.comb += [
+                                            If(~self.rden,
+                                                If(~self.underflow,
+                                                    If(self.rd_ptr <= (count + l + 1)*memory,
+                                                        If(self.rd_ptr >= (count + l)*memory,
+                                                            self.dout[j:data + j].eq(self.dout_int[count + l]
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        ]
                                 count = count + 2
                         else:
                             if (instance == "FIFO36K" and count_36K < num_36K):
@@ -624,20 +637,21 @@ class FIFO(Module):
                                     # Input
                                     # -----------------
                                     i_WR_DATA       = self.din[j:data + j],
-                                    i_RD_EN         = self.rden_int[k],
-                                    i_WR_EN         = self.wren_int[k],
+                                    i_RD_EN         = self.rden_int[count],
+                                    i_WR_EN         = self.wren_int[count],
 
                                     # Output      
                                     o_RD_DATA       = self.dout[j:data + j],
-                                    o_EMPTY         = self.empty[k],
-                                    o_FULL          = self.full[k],
-                                    o_UNDERFLOW     = self.underflow_int[k],
-                                    o_OVERFLOW      = self.overflow_int[k],
-                                    o_ALMOST_EMPTY  = self.almost_empty[k],
-                                    o_ALMOST_FULL   = self.almost_full[k],
-                                    o_PROG_FULL     = self.prog_full[k],
-                                    o_PROG_EMPTY    = self.prog_empty[k]
+                                    o_EMPTY         = self.empty[count],
+                                    o_FULL          = self.full[count],
+                                    o_UNDERFLOW     = self.underflow_int[count],
+                                    o_OVERFLOW      = self.overflow_int[count],
+                                    o_ALMOST_EMPTY  = self.almost_empty[count],
+                                    o_ALMOST_FULL   = self.almost_full[count],
+                                    o_PROG_FULL     = self.prog_full[count],
+                                    o_PROG_EMPTY    = self.prog_empty[count]
                                 )
+                                count = count + 1
                             else:
                                 self.specials += Instance(instance,
                                     # Parameters.
@@ -645,57 +659,132 @@ class FIFO(Module):
                                     # Global.
                                     p_DATA_WIDTH1        = C(data), 
                                     p_FIFO_TYPE1         = synchronous,
-                                    p_PROG_FULL_THRESH1  = C(depth - full_value, 11),
-                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 11),
+                                    p_PROG_FULL_THRESH1  = C(50, 12),
+                                    p_PROG_EMPTY_THRESH1 = C(empty_value, 12),
                                     p_DATA_WIDTH2        = C(data), 
                                     p_FIFO_TYPE2         = synchronous,
-                                    p_PROG_FULL_THRESH2  = C(depth - full_value, 11),
+                                    p_PROG_FULL_THRESH2  = C(50, 11),
                                     p_PROG_EMPTY_THRESH2 = C(empty_value, 11),
                                     # Clk / Rst.
                                     # ----------
-                                    i_RD_CLK1        = ClockSignal(),
-                                    i_WR_CLK1        = ClockSignal(),
+                                    i_RD_CLK1        = ClockSignal("rd"),
+                                    i_WR_CLK1        = ClockSignal("wrt"),
                                     i_RESET1         = ResetSignal(),
                                     # Input
                                     # -----------------
                                     i_WR_DATA1       = self.din[j:data + j],
-                                    i_RD_EN1         = self.rden_int[k-1],
-                                    i_WR_EN1         = self.wren_int[k-1],
+                                    i_RD_EN1         = self.rden_int[count],
+                                    i_WR_EN1         = self.wren_int[count],
                                     # Output
                                     # ----------------
-                                    o_RD_DATA1       = self.dout[j:data + j],
-                                    o_EMPTY1         = self.empty[k-1],
-                                    o_FULL1          = self.full[k-1],
-                                    o_UNDERFLOW1     = self.underflow_int[k-1],
-                                    o_OVERFLOW1      = self.overflow_int[k-1],
-                                    o_ALMOST_EMPTY1  = self.almost_empty[k-1],
-                                    o_ALMOST_FULL1   = self.almost_full[k-1],
-                                    o_PROG_FULL1     = self.prog_full[k-1],
-                                    o_PROG_EMPTY1    = self.prog_empty[k-1],
+                                    o_RD_DATA1       = self.dout_int[count][j:data + j],
+                                    o_EMPTY1         = self.empty_int[count],
+                                    o_FULL1          = self.full_int[count],
+                                    o_UNDERFLOW1     = self.underflow_int[count],
+                                    o_OVERFLOW1      = self.overflow_int[count],
+                                    o_ALMOST_EMPTY1  = self.almost_empty_int[count],
+                                    o_ALMOST_FULL1   = self.almost_full_int[count],
+                                    o_PROG_FULL1     = self.prog_full_int[count],
+                                    o_PROG_EMPTY1    = self.prog_empty_int[count],
                                     # Clk / Rst.
                                     # ----------
-                                    i_RD_CLK2        = ClockSignal(),
-                                    i_WR_CLK2        = ClockSignal(),
+                                    i_RD_CLK2        = ClockSignal("rd"),
+                                    i_WR_CLK2        = ClockSignal("wrt"),
                                     i_RESET2         = ResetSignal(),
                                     # Input
                                     # -----------------
                                     i_WR_DATA2       = self.din[j:data + j],
-                                    i_RD_EN2         = self.rden_int[k],
-                                    i_WR_EN2         = self.wren_int[k],
+                                    i_RD_EN2         = self.rden_int[count + 1],
+                                    i_WR_EN2         = self.wren_int[count + 1],
                                     # Output
                                     # -----------------
-                                    o_RD_DATA2       = self.dout[j:data + j],
-                                    o_EMPTY2         = self.empty[k],
-                                    o_FULL2          = self.full[k],
-                                    o_UNDERFLOW2     = self.underflow_int[k],
-                                    o_OVERFLOW2      = self.overflow_int[k],
-                                    o_ALMOST_EMPTY2  = self.almost_empty[k],
-                                    o_ALMOST_FULL2   = self.almost_full[k],
-                                    o_PROG_FULL2     = self.prog_full[k],
-                                    o_PROG_EMPTY2    = self.prog_empty[k]
+                                    o_RD_DATA2       = self.dout_int[count + 1][j:data + j],
+                                    o_EMPTY2         = self.empty_int[count + 1],
+                                    o_FULL2          = self.full_int[count + 1],
+                                    o_UNDERFLOW2     = self.underflow_int[count + 1],
+                                    o_OVERFLOW2      = self.overflow_int[count + 1],
+                                    o_ALMOST_EMPTY2  = self.almost_empty_int[count + 1],
+                                    o_ALMOST_FULL2   = self.almost_full_int[count + 1],
+                                    o_PROG_FULL2     = self.prog_full_int[count + 1],
+                                    o_PROG_EMPTY2    = self.prog_empty_int[count + 1]
                                 )
+                                for l in range (2):
+                                    self.sync.wrt += [
+                                        If(self.wren,
+                                           If(~self.full,
+                                                If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((count + 1 + l)*memory) + int(starting),
+                                                   If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((count + l)*memory) + int(starting),
+                                                        self.wren_int[count + l].eq(1)
+                                                    )
+                                                    .Else(
+                                                        self.wren_int[count + l].eq(0)
+                                                    )
+                                                )
+                                                .Else(
+                                                        self.wren_int[count + l].eq(0)
+                                                    )
+                                            )
+                                            .Else(
+                                                self.wren_int[count + l].eq(0)
+                                                    )
+                                        )
+                                        .Else(
+                                            self.wren_int[count + l].eq(0)
+                                                    )
+                                    ]
+                                    if (count + l == 0):
+                                        self.sync.rd += [
+                                            If(self.rden,
+                                               If(~self.empty,
+                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((count + 1 + l)*memory) + int(starting - 1),
+                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((count + l)*memory) + int(starting),
+                                                        self.rden_int[count + l].eq(1)
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Elif(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == int(ending),
+                                                               self.rden_int[count + l].eq(1)
+                                                               ).Else(self.rden_int[count + l].eq(0))
+                                                ).Else(self.rden_int[count + l].eq(0))
+                                            ).Else(self.rden_int[count + l].eq(0))
+                                        ]
+                                    else:
+                                        self.sync.rd += [
+                                            If(self.rden,
+                                               If(~self.empty,
+                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((count + 1 + l)*memory) + int(starting - 1),
+                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((count + l)*memory) + int(starting - 1),
+                                                        self.rden_int[count + l].eq(1)
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ).Else(self.rden_int[count + l].eq(0))
+                                            ).Else(self.rden_int[count + l].eq(0))
+                                        ]
+                                    self.sync.rd += [
+                                        If(self.rd_en_flop1,
+                                           If(~self.underflow,
+                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((count + 1 + l)*memory) + int(starting),
+                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((count + l)*memory) + int(starting),
+                                                        self.dout[j:data + j].eq(self.dout_int[count + l])
+                                                )
+                                              )
+                                           )
+                                        )
+                                    ]
+                                    if (first_word_fall_through):
+                                        self.sync.rd += [
+                                            If(~self.rden,
+                                                If(~self.underflow,
+                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((count + 1 + l)*memory) + int(starting),
+                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((count + l)*memory) + int(starting),
+                                                            self.dout[j:data + j].eq(self.dout_int[count + l]
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        ]
+                                count = count + 2
                         else:
-                            if (instance == "FIFO36K"):
+                            if (instance == "FIFO36K" and count_36K < num_36K):
                                 self.specials += Instance(instance,
                                     # Parameters.
                                     # -----------
@@ -714,32 +803,37 @@ class FIFO(Module):
                                     # Input
                                     # -----------------
                                     i_WR_DATA       = self.din[j:data + j],
-                                    i_RD_EN         = self.rden_int[k],
-                                    i_WR_EN         = self.wren_int[k],
+                                    i_RD_EN         = self.rden_int[count],
+                                    i_WR_EN         = self.wren_int[count],
 
                                     # Output      
-                                    o_RD_DATA       = self.dout_int[k][j:data + j],
-                                    o_EMPTY         = self.empty_int[k],
-                                    o_FULL          = self.full_int[k],
-                                    o_UNDERFLOW     = self.underflow_int[k],
-                                    o_OVERFLOW      = self.overflow_int[k],
-                                    o_ALMOST_EMPTY  = self.almost_empty_int[k],
-                                    o_ALMOST_FULL   = self.almost_full_int[k],
-                                    o_PROG_FULL     = self.prog_full_int[k],
-                                    o_PROG_EMPTY    = self.prog_empty_int[k]
+                                    o_RD_DATA       = self.dout_int[count],
+                                    o_EMPTY         = self.empty_int[count],
+                                    o_FULL          = self.full_int[count],
+                                    o_UNDERFLOW     = self.underflow_int[count],
+                                    o_OVERFLOW      = self.overflow_int[count],
+                                    o_ALMOST_EMPTY  = self.almost_empty_int[count],
+                                    o_ALMOST_FULL   = self.almost_full_int[count],
+                                    o_PROG_FULL     = self.prog_full_int[count],
+                                    o_PROG_EMPTY    = self.prog_empty_int[count]
                                 )
-                            elif(k % 2 == 1):
+                                count = count + 1
+                                mem = mem + 1
+                                count_36K = count_36K + 1
+                            elif(instance == "FIFO18KX2" and mem < total_mem and ((((k % (instances/(instances/2)) == 1 and data == 18 and count18K < (num_18K/2)) or (k + 2 == total_mem) or (k % (instances/(instances/4)) == 1 and data == 9 and count9K < (num_9K/4)) or (not k36_flag and data == 9 and count9K < num_9K/4) or (not k36_flag and data == 18 and count18K < num_18K/2))))):
+                                index_array.append(count)
+                                index_array.append(count + 1)
                                 self.specials += Instance(instance,
                                     # Parameters.
                                     # -----------
                                     # Global.
                                     p_DATA_WIDTH1        = C(data), 
                                     p_FIFO_TYPE1         = synchronous,
-                                    p_PROG_FULL_THRESH1  = C(4095, 11),
-                                    p_PROG_EMPTY_THRESH1 = C(0, 11),
+                                    p_PROG_FULL_THRESH1  = C(4095, 12),
+                                    p_PROG_EMPTY_THRESH1 = C(0, 12),
                                     p_DATA_WIDTH2        = C(data), 
                                     p_FIFO_TYPE2         = synchronous,
-                                    p_PROG_FULL_THRESH2  = C(4095, 11),
+                                    p_PROG_FULL_THRESH2  = C(2000, 11),
                                     p_PROG_EMPTY_THRESH2 = C(0, 11),
                                     # Clk / Rst.
                                     # ----------
@@ -749,19 +843,19 @@ class FIFO(Module):
                                     # Input
                                     # -----------------
                                     i_WR_DATA1       = self.din[j:data + j],
-                                    i_RD_EN1         = self.rden_int[k-1],
-                                    i_WR_EN1         = self.wren_int[k-1],
+                                    i_RD_EN1         = self.rden_int[count],
+                                    i_WR_EN1         = self.wren_int[count],
                                     # Output     
                                     # ----------------- 
-                                    o_RD_DATA1       = self.dout_int[k-1][j:data + j],
-                                    o_EMPTY1         = self.empty_int[k-1],
-                                    o_FULL1          = self.full_int[k-1],
-                                    o_UNDERFLOW1     = self.underflow_int[k-1],
-                                    o_OVERFLOW1      = self.overflow_int[k-1],
-                                    o_ALMOST_EMPTY1  = self.almost_empty_int[k-1],
-                                    o_ALMOST_FULL1   = self.almost_full_int[k-1],
-                                    o_PROG_FULL1     = self.prog_full_int[k-1],
-                                    o_PROG_EMPTY1    = self.prog_empty_int[k-1],
+                                    o_RD_DATA1       = self.dout_int[count],
+                                    o_EMPTY1         = self.empty_int[count],
+                                    o_FULL1          = self.full_int[count],
+                                    o_UNDERFLOW1     = self.underflow_int[count],
+                                    o_OVERFLOW1      = self.overflow_int[count],
+                                    o_ALMOST_EMPTY1  = self.almost_empty_int[count],
+                                    o_ALMOST_FULL1   = self.almost_full_int[count],
+                                    o_PROG_FULL1     = self.prog_full_int[count],
+                                    o_PROG_EMPTY1    = self.prog_empty_int[count],
                                     # Clk / Rst.
                                     # ----------
                                     i_RD_CLK2        = ClockSignal("rd"),
@@ -770,19 +864,350 @@ class FIFO(Module):
                                     # Input
                                     # -----------------
                                     i_WR_DATA2       = self.din[j:data + j],
-                                    i_RD_EN2         = self.rden_int[k],
-                                    i_WR_EN2         = self.wren_int[k],
+                                    i_RD_EN2         = self.rden_int[count + 1],
+                                    i_WR_EN2         = self.wren_int[count + 1],
                                     # Output      
-                                    o_RD_DATA2       = self.dout_int[k][j:data + j],
-                                    o_EMPTY2         = self.empty_int[k],
-                                    o_FULL2          = self.full_int[k],
-                                    o_UNDERFLOW2     = self.underflow_int[k],
-                                    o_OVERFLOW2      = self.overflow_int[k],
-                                    o_ALMOST_EMPTY2  = self.almost_empty_int[k],
-                                    o_ALMOST_FULL2   = self.almost_full_int[k],
-                                    o_PROG_FULL2     = self.prog_full_int[k],
-                                    o_PROG_EMPTY2    = self.prog_empty_int[k]
+                                    o_RD_DATA2       = self.dout_int[count + 1],
+                                    o_EMPTY2         = self.empty_int[count + 1],
+                                    o_FULL2          = self.full_int[count + 1],
+                                    o_UNDERFLOW2     = self.underflow_int[count + 1],
+                                    o_OVERFLOW2      = self.overflow_int[count + 1],
+                                    o_ALMOST_EMPTY2  = self.almost_empty_int[count + 1],
+                                    o_ALMOST_FULL2   = self.almost_full_int[count + 1],
+                                    o_PROG_FULL2     = self.prog_full_int[count + 1],
+                                    o_PROG_EMPTY2    = self.prog_empty_int[count + 1]
                                 )
+                                for l in range (2):
+                                    if (data == 9):
+                                        if (k18_flag):
+                                            self.sync.wrt += [
+                                                If(self.wren,
+                                                   If(~self.full,
+                                                        If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + two_block)*memory) + int(starting),
+                                                           If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block)*memory) + int(starting),
+                                                                self.wren_int[count + l].eq(1)
+                                                            )
+                                                            .Else(
+                                                                self.wren_int[count + l].eq(0)
+                                                            )
+                                                        )
+                                                        .Else(
+                                                                self.wren_int[count + l].eq(0)
+                                                            )
+                                                    )
+                                                    .Else(
+                                                        self.wren_int[count + l].eq(0)
+                                                            )
+                                                )
+                                                .Else(
+                                                    self.wren_int[count + l].eq(0)
+                                                            )
+                                            ]
+                                        else:
+                                            self.sync.wrt += [
+                                                If(self.wren,
+                                                   If(~self.full,
+                                                        If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + two_block + count9K)*memory) + int(starting),
+                                                           If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block + count9K)*memory) + int(starting),
+                                                                self.wren_int[count + l].eq(1)
+                                                            )
+                                                            .Else(
+                                                                self.wren_int[count + l].eq(0)
+                                                            )
+                                                        )
+                                                        .Else(
+                                                                self.wren_int[count + l].eq(0)
+                                                            )
+                                                    )
+                                                    .Else(
+                                                        self.wren_int[count + l].eq(0)
+                                                            )
+                                                )
+                                                .Else(
+                                                    self.wren_int[count + l].eq(0)
+                                                            )
+                                            ]
+                                    else:
+                                        if (k9_flag):
+                                            self.sync.wrt += [
+                                                If(self.wren,
+                                                   If(~self.full,
+                                                        If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + count18K + count9K)*memory) + int(starting),
+                                                           If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K + count9K)*memory) + int(starting),
+                                                                self.wren_int[count + l].eq(1)
+                                                            )
+                                                            .Else(
+                                                                self.wren_int[count + l].eq(0)
+                                                            )
+                                                        )
+                                                        .Else(
+                                                                self.wren_int[count + l].eq(0)
+                                                            )
+                                                    )
+                                                    .Else(
+                                                        self.wren_int[count + l].eq(0)
+                                                            )
+                                                )
+                                                .Else(
+                                                    self.wren_int[count + l].eq(0)
+                                                            )
+                                            ]
+                                        else:
+                                            self.sync.wrt += [
+                                                If(self.wren,
+                                                   If(~self.full,
+                                                        If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + count18K)*memory) + int(starting),
+                                                           If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K)*memory) + int(starting),
+                                                                self.wren_int[count + l].eq(1)
+                                                            )
+                                                            .Else(
+                                                                self.wren_int[count + l].eq(0)
+                                                            )
+                                                        )
+                                                        .Else(
+                                                                self.wren_int[count + l].eq(0)
+                                                            )
+                                                    )
+                                                    .Else(
+                                                        self.wren_int[count + l].eq(0)
+                                                            )
+                                                )
+                                                .Else(
+                                                    self.wren_int[count + l].eq(0)
+                                                            )
+                                            ]
+                                    if (data == 9):
+                                        if (k18_flag):
+                                            if ((count + l + count_36K == 0) or (count_36K > 0 and l == 0 and (count9K == 0))):
+                                                self.sync.rd += [
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + two_block)*memory) + int(starting) - 1,
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block)*memory) + int(starting),
+                                                                self.rden_int[count + l].eq(1)
+                                                                ).Else(self.rden_int[count + l].eq(0))
+                                                            ).Elif(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == int(ending),
+                                                                       self.rden_int[count + l].eq(1)
+                                                                       ).Else(self.rden_int[count + l].eq(0))
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ]
+                                            else:
+                                                self.sync.rd += [
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + two_block)*memory) + int(starting) - 1,
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block)*memory) + int(starting) - 1,
+                                                                self.rden_int[count + l].eq(1)
+                                                                ).Else(self.rden_int[count + l].eq(0))
+                                                            ).Else(self.rden_int[count + l].eq(0))
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ]
+                                            self.sync.rd += [
+                                                If(self.rd_en_flop1,
+                                                   If(~self.underflow,
+                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + two_block)*memory) + int(starting),
+                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block)*memory) + int(starting),
+                                                                self.dout[j:data + j].eq(self.dout_int[count + l])
+                                                        )
+                                                      )
+                                                   )
+                                                )
+                                            ]
+                                        else:
+                                            if ((count + l + count_36K == 0) or (count_36K > 0 and l == 0 and (count18K + count9K == 0))):
+                                                self.sync.rd += [
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + two_block + count9K)*memory) + int(starting) - 1,
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block + count9K)*memory) + int(starting),
+                                                                self.rden_int[count + l].eq(1)
+                                                                ).Else(self.rden_int[count + l].eq(0))
+                                                            ).Elif(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == int(ending),
+                                                                       self.rden_int[count + l].eq(1)
+                                                                       ).Else(self.rden_int[count + l].eq(0))
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ]
+                                            else:
+                                                self.sync.rd += [
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + two_block + count9K)*memory) + int(starting) - 1,
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block + count9K)*memory) + int(starting) - 1,
+                                                                self.rden_int[count + l].eq(1)
+                                                                ).Else(self.rden_int[count + l].eq(0))
+                                                            ).Else(self.rden_int[count + l].eq(0))
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ]
+                                            self.sync.rd += [
+                                                If(self.rd_en_flop1,
+                                                   If(~self.underflow,
+                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + two_block + count9K)*memory) + int(starting),
+                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block + count9K)*memory) + int(starting),
+                                                                self.dout[j:data + j].eq(self.dout_int[count + l])
+                                                        )
+                                                      )
+                                                   )
+                                                )
+                                            ]
+                                    else:
+                                        if (k9_flag):
+                                            if ((count + l + count_36K == 0) or (count_36K > 0 and l == 0 and (count18K == 0))):
+                                                self.sync.rd += [
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + count18K + count9K)*memory) + int(starting) - 1,
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K + count9K)*memory) + int(starting),
+                                                                self.rden_int[count + l].eq(1)
+                                                                ).Else(self.rden_int[count + l].eq(0))
+                                                            ).Elif(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == int(ending),
+                                                                       self.rden_int[count + l].eq(1)
+                                                                       ).Else(self.rden_int[count + l].eq(0))
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ]
+                                            else:
+                                                self.sync.rd += [
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + count18K + count9K)*memory) + int(starting) - 1,
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K + count9K)*memory) + int(starting) - 1,
+                                                                self.rden_int[count + l].eq(1)
+                                                                ).Else(self.rden_int[count + l].eq(0))
+                                                            ).Else(self.rden_int[count + l].eq(0))
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ]
+                                            self.sync.rd += [
+                                                If(self.rd_en_flop1,
+                                                   If(~self.underflow,
+                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + count18K + count9K)*memory) + int(starting),
+                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K + count9K)*memory) + int(starting),
+                                                                self.dout[j:data + j].eq(self.dout_int[count + l])
+                                                        )
+                                                      )
+                                                   )
+                                                )
+                                            ]
+                                        else:
+                                            if ((count + l + count_36K == 0) or (count_36K > 0 and l == 0 and (count18K + count9K == 0))):
+                                                self.sync.rd += [
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + count18K)*memory) + int(starting) - 1,
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K)*memory) + int(starting),
+                                                                self.rden_int[count + l].eq(1)
+                                                                ).Else(self.rden_int[count + l].eq(0))
+                                                            ).Elif(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == int(ending),
+                                                                       self.rden_int[count + l].eq(1)
+                                                                       ).Else(self.rden_int[count + l].eq(0))
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ]
+                                            else:
+                                                self.sync.rd += [
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((k_loop + 1 + l + count18K)*memory) + int(starting) - 1,
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K)*memory) + int(starting)- 1,
+                                                                self.rden_int[count + l].eq(1)
+                                                                ).Else(self.rden_int[count + l].eq(0))
+                                                            ).Else(self.rden_int[count + l].eq(0))
+                                                        ).Else(self.rden_int[count + l].eq(0))
+                                                    ).Else(self.rden_int[count + l].eq(0))
+                                                ]
+                                            self.sync.rd += [
+                                                If(self.rd_en_flop1,
+                                                   If(~self.underflow,
+                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k_loop + 1 + l + count18K)*memory) + int(starting),
+                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K)*memory) + int(starting),
+                                                                self.dout[j:data + j].eq(self.dout_int[count + l])
+                                                        )
+                                                      )
+                                                   )
+                                                )
+                                            ]
+                                    if (first_word_fall_through):
+                                        if (data == 9):
+                                            if (k18_flag):
+                                                self.sync.rd += [
+                                                    If(~self.rden,
+                                                        If(~self.underflow,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k_loop + 1 + l + two_block)*memory) + int(starting),
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block)*memory) + int(starting),
+                                                                    self.dout[j:data + j].eq(self.dout_int[count + l]
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                ]
+                                            else:
+                                                self.sync.rd += [
+                                                    If(~self.rden,
+                                                        If(~self.underflow,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k_loop + 1 + l + two_block + count9K)*memory) + int(starting),
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + two_block + count9K)*memory) + int(starting),
+                                                                    self.dout[j:data + j].eq(self.dout_int[count + l]
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                ]
+                                        else:
+                                            if (k9_flag):
+                                                self.sync.rd += [
+                                                    If(~self.rden,
+                                                        If(~self.underflow,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k_loop + 1 + l + count18K + count9K)*memory) + int(starting),
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K + count9K)*memory) + int(starting),
+                                                                    self.dout[j:data + j].eq(self.dout_int[count + l]
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                ]
+                                            else:
+                                                self.sync.rd += [
+                                                    If(~self.rden,
+                                                        If(~self.underflow,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((k_loop + 1 + l + count18K + 0)*memory) + int(starting),
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((k_loop + l + count18K + 0)*memory) + int(starting),
+                                                                    self.dout[j:data + j].eq(self.dout_int[count + l]
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                ]
+                                count = count + 2
+                                mem = mem + 1
+                                if (data == 18):
+                                    count18K = count18K + 1
+                                elif (data == 9):
+                                    count9K = count9K + 1
+                                # print(count18K, old_count18K)
+                                if (count18K != old_count18K):
+                                    if (not k9_flag):
+                                        k_loop = k_loop + 1
+                                    elif (k9_flag or k36_flag):
+                                        if (count18K % 2 == 0 and count18K != 0):
+                                            k_loop = k_loop + 1
+                                    else:
+                                        k_loop = k_loop + 1
+                                if (count9K != old_count9K):
+                                    if (k18_flag or k36_flag):
+                                        if (count9K % 1 == 0 and count9K != 0):
+                                            two_block = two_block + 1
+                                    else:
+                                        two_block = two_block + 1
+                            old_count18K = count18K
+                            old_count9K = count9K
                     j = data + j
             memory = 1024
             j_loop = 0
@@ -855,7 +1280,7 @@ class FIFO(Module):
                                             self.sync.rd += [
                                             If(self.rden,
                                                If(~self.empty,
-                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting - 1),
+                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting) - 1,
                                                       If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting),
                                                             self.rden_int[i].eq(1)
                                                     )
@@ -878,8 +1303,8 @@ class FIFO(Module):
                                             self.sync.rd += [
                                             If(self.rden,
                                                If(~self.empty,
-                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting - 1),
-                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting - 1),
+                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting) - 1,
+                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting) - 1,
                                                             self.rden_int[i].eq(1)
                                                     )
                                                     .Else(
@@ -959,7 +1384,7 @@ class FIFO(Module):
                                             self.sync.rd += [
                                                 If(self.rden,
                                                    If(~self.empty,
-                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting - 1),
+                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting) - 1,
                                                           If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting),
                                                                 self.rden_int[i].eq(1)
                                                         )
@@ -985,8 +1410,8 @@ class FIFO(Module):
                                             self.sync.rd += [
                                             If(self.rden,
                                                If(~self.empty,
-                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting - 1),
-                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting - 1),
+                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting) - 1,
+                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting) - 1,
                                                             self.rden_int[i].eq(1)
                                                     )
                                                     .Else(
