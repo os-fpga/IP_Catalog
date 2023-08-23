@@ -115,12 +115,7 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
-    core_range_param_group.add_argument("--no_of_probes",         type=int,     default=1,      choices=range(1,1025),         help="Number of Probes.")
-
-    # Core bool value macros.
-    core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
-    core_bool_param_group.add_argument("--value_compare",                         type=bool, default=False,                                   help="To enable Value Compare feature")
-    core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,         choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
+    core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1, choices=range(1,1025),         help="Number of Probes.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
