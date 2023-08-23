@@ -64,9 +64,10 @@ class AXILITEOCLA(Module):
         # Module instance.
         # ----------------
             self.specials += Instance("ocla",
-                                                    
-        # Parameters.
-            # -----------            
+            # Parameters.
+            # -----------  
+            p_IP_TYPE                 = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                   = Instance.PreformattedParam("IP_ID"),
             p_NO_OF_PROBES            = Instance.PreformattedParam(nprobes),
             p_NO_OF_TRIGGER_INPUTS    = Instance.PreformattedParam(trigger_inputs),
             p_PROBE_WIDHT             = Instance.PreformattedParam(probe_widht),
@@ -123,9 +124,10 @@ class AXILITEOCLA(Module):
             
         else:
             self.specials += Instance("ocla",
-                                                    
-        # Parameters.
-            # -----------            
+            # Parameters.
+            # -----------     
+            p_IP_TYPE                 = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                   = Instance.PreformattedParam("IP_ID"),       
             p_NO_OF_PROBES            = Instance.PreformattedParam(nprobes),
             p_NO_OF_TRIGGER_INPUTS    = Instance.PreformattedParam(trigger_inputs),
             p_PROBE_WIDHT             = Instance.PreformattedParam(probe_widht),
