@@ -31,15 +31,15 @@ class OCM(Module):
             file_content = f.readlines()
             line_count = 0
             self.logger.info(f"========== MEMORY INITIALIZATION STARTED ==========")
-            logging.info("Reading Memory File...")
+            logging.info("Reading Memory File")
             if (file_extension == ".hex"):
-                logging.info("Found (.hex) File...")
-                logging.info("Processing...")
+                logging.info("Found (.hex) File")
+                logging.info("Processing")
             elif (file_extension == ".bin"):
-                logging.info("Found (.bin) File...")
-                logging.info("Processing...")
+                logging.info("Found (.bin) File")
+                logging.info("Processing")
             else:
-                logging.error("Memory Initialization Failed !!! Invalid File Format...")
+                logging.error("Memory Initialization Failed. Invalid File Format")
             
             for line in file_content:
                 line_count += 1
