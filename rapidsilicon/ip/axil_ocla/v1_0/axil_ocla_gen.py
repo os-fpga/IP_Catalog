@@ -10,6 +10,8 @@ import logging
 import json
 import argparse
 
+from datetime import datetime
+
 from litex_wrapper.axil_ocla_litex_wrapper import AXILITEOCLA
 
 from migen import *
@@ -36,7 +38,7 @@ def get_samplingclknrst_ios():
     
 def get_ocla_ios(nprobes,trigger_inputs):
     return [
-        ("i_probes",       0, Pins(nprobes)),
+        ("i_probes",          0, Pins(nprobes)),
         ("i_trigger_input",   0, Pins(trigger_inputs)), 
     ]
 
@@ -83,7 +85,6 @@ class AXILITEOCLAWrapper(Module):
         if(trigger_inputs_en == True):
             self.comb += ocla.trigger_input_i.eq(platform.request("i_trigger_input"))
     
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="AXI LITE OCLA CORE")
@@ -108,9 +109,9 @@ def main():
     
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="OCLA IP Core fix parameters")
-    core_fix_param_group.add_argument("--mem_depth",             type=int,  default=32, choices=[32, 64, 128, 256, 512, 1024],          help="OCLA Trace Memory Depth.")
-    core_fix_param_group.add_argument("--s_axi_addr_width",      type=int,  default=32, choices=[8, 16, 32],                            help="OCLA Address Width.")
-    core_fix_param_group.add_argument("--s_axi_data_width",      type=int,  default=32, choices=[32],                                   help="OCLA Data Width.")
+    core_fix_param_group.add_argument("--mem_depth",             type=int,      default=32,     choices=[32, 64, 128, 256, 512, 1024],   help="OCLA Trace Memory Depth.")
+    core_fix_param_group.add_argument("--s_axi_addr_width",      type=int,      default=32,     choices=[8, 16, 32],                     help="OCLA Address Width.")
+    core_fix_param_group.add_argument("--s_axi_data_width",      type=int,      default=32,     choices=[32],                            help="OCLA Data Width.")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
@@ -121,16 +122,21 @@ def main():
     core_bool_param_group.add_argument("--value_compare",                         type=bool, default=False,                                   help="To enable Value Compare feature")
     core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,         choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
 
-    core_bool_param_group.add_argument("--trigger_inputs_en",       type=bool, default=False,                                     help="To enable Trigger inputs")
-    core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,           choices=range(1,32),          help="Number of Input Triggers.")
-    core_bool_param_group.add_argument("--advance_trigger",         type=bool, default=False,                                     help="To enable Advance Trigger Mode")
-
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
     build_group.add_argument("--build-name",    default="axil_ocla_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
 
+    # Core bool value macros.
+    core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
+    core_bool_param_group.add_argument("--value_compare",                         type=bool, default=False,                                   help="To enable Value Compare feature")
+    core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,         choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
+
+    core_bool_param_group.add_argument("--trigger_inputs_en",       type=bool, default=False,                                 help="To enable Trigger inputs")
+    core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,       choices=range(1,32),          help="Number of Input Triggers.")
+    #core_bool_param_group.add_argument("--advance_trigger",     type=bool, default=False,              help="To enable Advance Trigger Mode")
+    
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
@@ -159,7 +165,7 @@ def main():
     )
     # Arguments ----------------------------------------------------------------------------
     value_compare     = args.value_compare
-    advance_trigger   = args.advance_trigger
+    # advance_trigger   = args.advance_trigger
     triginpts_en      = args.trigger_inputs_en
     nofprobes         = args.no_of_probes  
     ntrigger_inputs   = args.no_of_trigger_inputs  
@@ -179,30 +185,44 @@ def main():
             platform   = platform,
             module     = module,
         )
-        # Update the macro definition file ---------------------------------------------------------
-        #rtl_dir = os.path.join(os.path.dirname(__file__),rs_builder.src_path+"/ocla.sv")
-        rtl_dir = rs_builder.src_path
-        rtl_dir = rtl_dir + "/ocla.sv"
-        f = open(rtl_dir,"r+")
-        content = f.read()
-        f.seek(0, 0)
-        f.write("// ---------------------------------------------------------------\n")
-        f.write("// User specified macros\n")
-        f.write("// ---------------------------------------------------------------\n")
-        f.write("`define NUM_OF_PROBES  " + str(nofprobes) +"\n")
-        f.write("`define MEMORY_DEPTH  " + str(memory_depth) +"\n")
-        f.write("`define NUM_OF_TRIGGER_INPUTS  "+ str(ntrigger_inputs)+"\n")
-        f.write("`define PROBE_WIDHT_BITS "+ str(nprobe_widht)+"\n")   
-        if(value_compare):
-            f.write("`define VALUE_COMPARE_TRIGGER   \n")
-        if(triginpts_en):
-            f.write("`define TRIGGER_INPUTS \n")
-        if(advance_trigger):
-            f.write("`define ADVANCE_TRIGGER \n\n")
-        f.write(content)
-        f.close()
-
-
+        
+        # IP_ID Parameter
+        now = datetime.now()
+        my_year         = now.year - 2022
+        year            = (bin(my_year)[2:]).zfill(7)  # Removing '0b' prefix
+        month           = (bin(now.month)[2:]).zfill(4) # 4-bits
+        day             = (bin(now.day)[2:]).zfill(5) # 5-bits
+        hour            = (now.hour) # 8-bits
+        minute          = (now.minute) # 8-bits
+        
+        if minute in range(10):
+            minute = ("0{}".format(minute))
+            
+        if hour in range(10):
+            hour = ("0{}".format(hour))
+        
+        # Concatenation for IP_ID Parameter
+        ip_id = ("{}{}{}".format(year, day, month)) 
+        ip_id = ("32'h{}{}{}").format((hex(int(ip_id, 2))[2:]), hour, minute)
+        
+        # IP_VERSION parameter
+        #               Base  _  Major _ Minor
+        ip_version = "00000000_00000000_0000000000000001"
+        ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
+        
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axil_ocla", "v1_0", args.build_name, "src",args.build_name+".sv")
+        new_lines = []
+        with open (wrapper, "r") as file:
+            lines = file.readlines()
+            for i, line in enumerate(lines):
+                if ("module {}".format(args.build_name)) in line:
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"ocla\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                else:
+                    new_lines.append(line)
+                
+        with open(os.path.join(wrapper), "w") as file:
+            file.writelines(new_lines)
+        
 if __name__ == "__main__":
     main()
 
