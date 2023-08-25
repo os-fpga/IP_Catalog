@@ -65,6 +65,7 @@ class AXILITEOCLA(Module):
             # -----------  
             p_IP_TYPE                 = Instance.PreformattedParam("IP_TYPE"),
             p_IP_ID                   = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION              = Instance.PreformattedParam("IP_VERSION"),
             p_NO_OF_PROBES            = Instance.PreformattedParam(nprobes),
             p_NO_OF_TRIGGER_INPUTS    = Instance.PreformattedParam(trigger_inputs),
             p_PROBE_WIDHT             = Instance.PreformattedParam(probe_widht),
