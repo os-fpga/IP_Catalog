@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 
 from litex_wrapper.axi_register_litex_wrapper import AXIREGISTER
@@ -102,6 +103,10 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_register", language="verilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--aw_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")

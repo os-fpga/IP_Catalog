@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXIS's axis_async_fifo.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXIS_ASYNC_FIFO ---------------------------------------------------------------------------------------
 class AXISASYNCFIFO(Module):
@@ -35,7 +40,9 @@ class AXISASYNCFIFO(Module):
         
         self.logger = logging.getLogger("AXI_STREAM_ASYNCHRONUS_FIFO")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
 
         # Depth
         self.logger.info(f"DEPTH                : {depth}")
@@ -68,6 +75,8 @@ class AXISASYNCFIFO(Module):
         self.logger.info(f"USER_BAD_FRAME_MASK  : {bad_frame_mask}")
         self.logger.info(f"DROP_BAD_FRAME       : {drop_bad_frame}")
         self.logger.info(f"DROP_WHEN_FULL       : {drop_when_full}")
+        
+        self.logger.info(f"===================================================")
         
         # Status Signals
         self.s_status_overflow     = Signal()

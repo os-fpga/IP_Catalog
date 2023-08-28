@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 import math
 
@@ -52,7 +53,6 @@ class PRIORITYENCODERWrapper(Module):
         self.comb += platform.request("output_encoded").eq(priority_encoder.output_encoded)
         self.comb += platform.request("output_unencoded").eq(priority_encoder.output_unencoded)
         
-
 # Build --------------------------------------------------------------------------------------------
 def main():
     parser = argparse.ArgumentParser(description="PRIORITY_ENCODER")
@@ -70,6 +70,10 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="priority_encoder", language="verilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--lsb_high_priority",   type=bool,      default=False,      help="LSB High Priority.")

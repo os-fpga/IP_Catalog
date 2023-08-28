@@ -8,13 +8,18 @@
 # LiteX wrapper around ZipCPU Verilog-AXI's axicdma.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXI CDMA ---------------------------------------------------------------------------------------
 class AXICDMA(Module):
@@ -24,8 +29,9 @@ class AXICDMA(Module):
         # ---------------------        
         self.logger = logging.getLogger("AXI_CDMA")
         
-        self.logger.propagate = False
-
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
         # Clock Domain.
         self.logger.info(f"Clock Domain     : {axi.clock_domain}")
 
@@ -43,10 +49,10 @@ class AXICDMA(Module):
         id_width = len(axi.aw.id)
         self.logger.info(f"AXI_ID_WIDTH     : {id_width}")
         
-       
+        self.logger.info(f"===================================================")
+        
         self.o_int   = Signal()
     
-
         # Module instance.
         # ----------------
         self.specials += Instance("axi_cdma",

@@ -5,13 +5,18 @@
 #
 # SPDX-License-Identifier: MIT
 
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
 class RS_DSP_MULT(Module):
@@ -21,7 +26,9 @@ class RS_DSP_MULT(Module):
         # ---------------------        
         self.logger = logging.getLogger("\tRS_DSP_MULT")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
 
         # Input A.
         self.logger.info(f"INPUT_A      : {a_width}")
@@ -36,10 +43,13 @@ class RS_DSP_MULT(Module):
         self.logger.info(f"REG_OUT      : {reg_out}")
         
         # Unsigned Input A.
-        self.logger.info(f"unsigned   : {unsigned}")
+        self.logger.info(f"UNSIGNED     : {unsigned}")
 
         # Equation.
-        self.logger.info(f"equation      : {equation}")
+        self.logger.info(f"EQUATION     : {equation}")
+        
+        self.logger.info(f"===================================================")
+        
         if (unsigned == 0):
             self.a = Signal(bits_sign=(a_width, True))
             self.b = Signal(bits_sign=(b_width, True))

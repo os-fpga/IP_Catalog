@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 from pathlib import Path
 from migen import *
@@ -156,11 +157,15 @@ def main():
     
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="dsp_generator", language="verilog")
+
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--equation",     type=str,      default="AxB",      choices=["AxB","AxB+CxD","AxB+CxD+ExF+GxH"],    help="Select Equation")
-    core_string_param_group.add_argument("--feature",  type=str,   default="Base", choices=["Base", "Enhanced", "Pipeline"],    help="Select Feature")
+    core_string_param_group.add_argument("--feature",      type=str,      default="Base",     choices=["Base", "Enhanced", "Pipeline"],       help="Select Feature")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -177,7 +182,7 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--reg_in",      type=bool,    default=False,    help="Registered Inputs")
     core_bool_param_group.add_argument("--reg_out",     type=bool,    default=False,    help="Registered Outputs")
-    core_bool_param_group.add_argument("--unsigned",  type=bool,    default=True,     help="Unsigned Input")
+    core_bool_param_group.add_argument("--unsigned",    type=bool,    default=True,     help="Unsigned Input")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")

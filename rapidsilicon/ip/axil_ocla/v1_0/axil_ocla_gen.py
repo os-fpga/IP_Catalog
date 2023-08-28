@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import json
 import argparse
 
@@ -102,6 +103,10 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axil_ocla", language="sverilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="OCLA IP Core fix parameters")
     core_fix_param_group.add_argument("--mem_depth",             type=int,      default=32,     choices=[32, 64, 128, 256, 512, 1024],   help="OCLA Trace Memory Depth.")
