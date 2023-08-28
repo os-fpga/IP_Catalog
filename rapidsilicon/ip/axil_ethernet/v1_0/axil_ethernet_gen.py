@@ -47,7 +47,6 @@ _io = [
 ]
 
 # Core ---------------------------------------------------------------------------------------------
-
 def LiteEthCore(platform, phy="mii", bus_endianness="big", ntxslots=2, nrxslots=2):
     core_config = {
         "phy"              : getattr(liteeth_phys, f"LiteEthPHY{phy.upper()}"),

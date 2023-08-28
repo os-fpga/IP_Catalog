@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXIS's axis_broadcast.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXIS_BROADCAST ---------------------------------------------------------------------------------------
 class AXISBROADCAST(Module):
@@ -22,7 +27,9 @@ class AXISBROADCAST(Module):
         
         self.logger = logging.getLogger("AXIS_BROADCAST")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
 
         # Master Interfaces
         m_count = len(m_axis)
@@ -47,6 +54,8 @@ class AXISBROADCAST(Module):
         self.logger.info(f"USER_ENABLE      : {user_en}")
         user_width = len(s_axis.user)
         self.logger.info(f"USER_WIDTH       : {user_width}")
+        
+        self.logger.info(f"===================================================")
         
         # Module instance.
         # ----------------

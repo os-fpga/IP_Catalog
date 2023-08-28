@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 
 from litex_wrapper.on_chip_memory_litex_wrapper import *
@@ -111,7 +112,11 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="on_chip_memory", language="verilog")
-
+    
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--memory_type",    type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
@@ -134,7 +139,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                        help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                               help="Build Directory")
-    build_group.add_argument("--build-name",    default="on_chip_memory_wrapper",           help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="on_chip_memory",                   help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")

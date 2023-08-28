@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 import math
 
@@ -16,7 +17,6 @@ from migen import *
 from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
-
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 def get_clkin_ios():
@@ -85,6 +85,10 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="reset_release", language="verilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--ext_reset_width",          type=int,    default=5,     choices=[4,5,6,7,8,9,10],           help="External reset window.")
@@ -92,7 +96,6 @@ def main():
     core_fix_param_group.add_argument("--interconnects",            type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],     help="Number of Interconnects.")
     core_fix_param_group.add_argument("--bus_reset",                type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],     help="Number of bus reserts.")
     core_fix_param_group.add_argument("--peripheral_reset",         type=int,    default=1,     choices=[1,2,3,4,5,6,7,8,9,10],     help="Number of peripheral resets.")
-
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
