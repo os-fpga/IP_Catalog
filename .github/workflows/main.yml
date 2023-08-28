@@ -55,7 +55,7 @@ jobs:
         
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
         
-        excluded_ips=("axil_quadspi" "ahb2axi_bridge" "axi2axilite_bridge" "axis_width_converter" "i2c_master" "axil_ethernet" "fifo_generator" "dsp_generator")
+        excluded_ips=("on_chip_memory" "axil_quadspi" "ahb2axi_bridge" "axi2axilite_bridge" "axis_width_converter" "i2c_master" "axil_ethernet" "fifo_generator" "dsp_generator")
         #fix ethernet ip        
         for n in $gen_list
         do  
@@ -109,6 +109,7 @@ jobs:
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axil_ocla/v1_0/axil_ocla_gen.py --build-name=axil_ocla_wrapper --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_async_fifo/v1_0/axi_async_fifo_gen.py --data_width=32 --fifo_depth=64 --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_async_fifo/v1_0/axis_async_fifo_gen.py --data_width=32 --depth=64 --build
+        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/on_chip_memory/v1_0/on_chip_memory_gen.py --data_width=32 --write_depth=1024 --bram=true --build
 
 #--------------------------CentOS------------------------------------
   centos7-gcc:
