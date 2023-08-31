@@ -134,11 +134,6 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
-    if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict , summary=summary)
-    #Exporting Details.json
-        rs_builder.import_ip_details_json(json_filename=args.json, details=details)
-
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -163,6 +158,13 @@ def main():
             platform   = platform,
             module     = module,
         )
+
+    if args.json_template:
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict , summary=summary)
+    #Exporting Details.json
+        rs_builder.import_ip_details_json(json_filename=args.json, build_dir=args.build_dir ,details=details)
+
+
 
 if __name__ == "__main__":
     main()

@@ -192,10 +192,10 @@ class IP_Builder:
             args = parser.parse_args(namespace=t_args)
         return args
     
-    def import_ip_details_json(self, json_filename, details):
-        with open(("ip_Details.json"), "w") as f:
+    def import_ip_details_json(self, json_filename, build_dir,details):
+        new_json_filename   = os.path.join(build_dir, "details.json")
+        with open(new_json_filename, "w") as f:
             json.dump(details, f, indent=4, default=None,)
-
 
 
     def prepare(self, build_dir, build_name, version):
