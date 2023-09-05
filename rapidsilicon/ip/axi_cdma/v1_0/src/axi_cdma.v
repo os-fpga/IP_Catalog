@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axi_cdma #
 (
+    parameter IP_TYPE 		= "cdma1",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2591446,
+    
     // Width of data bus in bits
     parameter AXI_DATA_WIDTH = 32,
     // Width of address bus in bits
