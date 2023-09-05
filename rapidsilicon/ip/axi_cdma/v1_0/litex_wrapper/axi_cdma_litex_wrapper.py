@@ -79,6 +79,10 @@ class AXICDMA(Module):
         self.specials += Instance("axi_cdma",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE                   = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                     = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION                = Instance.PreformattedParam("IP_VERSION"),
             # Global AXI
             p_AXI_DATA_WIDTH            = Instance.PreformattedParam(data_width),
             p_AXI_ADDR_WIDTH            = Instance.PreformattedParam(address_width),
