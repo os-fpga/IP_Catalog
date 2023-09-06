@@ -26,6 +26,10 @@
 
 module axi4lite_gpio #
 (
+  parameter IP_TYPE 		= "GPIO",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		  = 32'h2591754,
+  
   // width of data bus in bits
   parameter DATA_WIDTH = 32,
   // width of address bus in bits

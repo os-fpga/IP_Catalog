@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axis_adapter #
 (
+    parameter IP_TYPE 		= "AXIS_ADP",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2591810,
+    
     // Width of input AXI stream interface in bits
     parameter S_DATA_WIDTH = 8,
     // Propagate tkeep signal on input interface

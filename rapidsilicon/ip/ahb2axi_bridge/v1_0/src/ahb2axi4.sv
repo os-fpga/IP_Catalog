@@ -36,7 +36,7 @@
 
 
 module ahb2axi4 #(
-  parameter IP_TYPE 		= "ahb2axi",
+  parameter IP_TYPE 		= "AHB2AXI",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		  = 32'h2591324,
 parameter id_width	    = 1,
