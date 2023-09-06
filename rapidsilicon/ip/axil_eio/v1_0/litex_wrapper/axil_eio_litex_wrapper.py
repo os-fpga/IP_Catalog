@@ -61,6 +61,10 @@ class AXILEIO(Module):
         self.specials += Instance("eio_top",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE               = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                 = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION            = Instance.PreformattedParam("IP_VERSION"),
             p_C_S_AXI_DATA_WIDTH    = Instance.PreformattedParam(data_width),
             p_C_S_AXI_ADDR_WIDTH    = Instance.PreformattedParam(address_width),
             p_INPUT_PROBE_WIDTH     = Instance.PreformattedParam(input_probe_width),

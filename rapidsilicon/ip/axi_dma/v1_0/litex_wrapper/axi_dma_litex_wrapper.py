@@ -112,12 +112,17 @@ class AXIDMA(Module):
         self.specials += Instance("axi_dma",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE                           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION                        = Instance.PreformattedParam("IP_VERSION"),
+            
             # Global AXI
             p_AXI_DATA_WIDTH                    = Instance.PreformattedParam(axi_data_width),
             p_AXI_ADDR_WIDTH                    = Instance.PreformattedParam(address_width),
             p_AXI_ID_WIDTH                      = Instance.PreformattedParam(axi_id_width),
             p_AXIS_DATA_WIDTH                   = Instance.PreformattedParam(axi_data_width),    
-
+            
             # IP Params.
             p_AXI_MAX_BURST_LEN                 = Instance.PreformattedParam(axi_max_burst_len),    
             p_AXIS_ID_WIDTH                     = Instance.PreformattedParam(axis_id_width),

@@ -51,19 +51,22 @@
 `default_nettype	none
 // }}}
 module axi2axilite #(
-		// {{{
-		parameter integer C_AXI_ID_WIDTH	= 2,
-		parameter integer C_AXI_DATA_WIDTH	= 32,
-		parameter integer C_AXI_ADDR_WIDTH	= 6,
-		parameter	 [0:0]	OPT_WRITES	= 1,
-		parameter	 [0:0]	OPT_READS	= 1,
-		parameter	 [0:0]	OPT_LOWPOWER    = 0,
-		// Log (based two) of the maximum number of outstanding AXI
-		// (not AXI-lite) transactions.  If you multiply 2^LGFIFO * 256,
-		// you'll get the maximum number of outstanding AXI-lite
-		// transactions
-		parameter	LGFIFO			= 4
-		// }}}
+	parameter IP_TYPE 					= "AXI2AXIL",
+	parameter IP_VERSION 				= 32'h1, 
+	parameter IP_ID 					= 32'h2591529,
+	// {{{
+	parameter integer C_AXI_ID_WIDTH	= 2,
+	parameter integer C_AXI_DATA_WIDTH	= 32,
+	parameter integer C_AXI_ADDR_WIDTH	= 6,
+	parameter	 [0:0]	OPT_WRITES		= 1,
+	parameter	 [0:0]	OPT_READS		= 1,
+	parameter	 [0:0]	OPT_LOWPOWER    = 0,
+	// Log (based two) of the maximum number of outstanding AXI
+	// (not AXI-lite) transactions.  If you multiply 2^LGFIFO * 256,
+	// you'll get the maximum number of outstanding AXI-lite
+	// transactions
+	parameter	LGFIFO					= 4
+	// }}}
 	) (
 		// {{{
 		input	wire								S_AXI_ACLK,

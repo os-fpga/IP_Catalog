@@ -59,6 +59,10 @@ class AXISADAPTER(Module):
         self.specials += Instance("axis_adapter",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             # Global.
             p_S_DATA_WIDTH      = Instance.PreformattedParam(s_data_width),
             p_S_KEEP_WIDTH      = Instance.PreformattedParam(int((s_data_width+7)/8)),

@@ -20,6 +20,10 @@
 
 module eio_top #
                (
+                parameter IP_TYPE 		= "EIO",
+	            parameter IP_VERSION 	= 32'h1, 
+	            parameter IP_ID 		= 32'h2591655,
+                
                 // AXI-L related parameters
                 parameter integer C_S_AXI_DATA_WIDTH	= 32,
                 parameter integer C_S_AXI_ADDR_WIDTH    = 32, 
