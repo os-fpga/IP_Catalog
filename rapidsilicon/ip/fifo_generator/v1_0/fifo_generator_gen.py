@@ -21,14 +21,14 @@ from litex.build.osfpga import OSFPGAPlatform
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
-def get_clkin_ios(data_width):
+def get_clkin_ios(data_width_write, data_width_read):
     return [
         ("clk",        0,  Pins(1)),
         ("rst",        0,  Pins(1)),
 		("wrt_clock",  0,	Pins(1)),
         ("rd_clock",   0,	Pins(1)),
-        ("din",        0,  Pins(data_width)),
-        ("dout",       0,  Pins(data_width)),
+        ("din",        0,  Pins(data_width_write)),
+        ("dout",       0,  Pins(data_width_read)),
         ("wr_en",      0,  Pins(1)),
         ("rd_en",      0,  Pins(1)),
         ("full",       0,  Pins(1)),
@@ -41,9 +41,9 @@ def get_clkin_ios(data_width):
 
 # FIFO Generator ----------------------------------------------------------------------------------
 class FIFOGenerator(Module):
-    def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
+    def __init__(self, platform, data_width_write, data_width_read, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
         # Clocking ---------------------------------------------------------------------------------
-        platform.add_extension(get_clkin_ios(data_width))
+        platform.add_extension(get_clkin_ios(data_width_write, data_width_read))
         self.clock_domains.cd_sys  = ClockDomain()
         self.clock_domains.cd_wrt	= ClockDomain()
         self.clock_domains.cd_rd	= ClockDomain()
@@ -53,7 +53,7 @@ class FIFOGenerator(Module):
             False   :   "ASYNCHRONOUS"
         }
 	
-        self.submodules.fifo = fifo = FIFO(data_width, SYNCHRONOUS[synchronous], full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM)
+        self.submodules.fifo = fifo = FIFO(data_width_write, data_width_read, SYNCHRONOUS[synchronous], full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM)
     
         self.comb += fifo.din.eq(platform.request("din"))
         self.comb += platform.request("dout").eq(fifo.dout)
@@ -93,10 +93,12 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",     type=int,   default=36,  	choices=range(1,129),   help="FIFO Write/Read Width")
-    core_range_param_group.add_argument("--full_value",     type=int,   default=2,	    choices=range(2,4095),  help="Full Value")
-    core_range_param_group.add_argument("--empty_value",    type=int,   default=1,  	choices=range(1,4095),  help="Empty Value")
-    core_range_param_group.add_argument("--depth",          type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
+    core_range_param_group.add_argument("--data_width",         type=int,   default=36,  	choices=range(1,129),   help="FIFO Write/Read Width")
+    core_range_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=range(1,129),   help="FIFO Write Width")
+    core_range_param_group.add_argument("--data_width_read",    type=int,   default=36,  	choices=range(1,129),   help="FIFO Read Width")
+    core_range_param_group.add_argument("--full_value",         type=int,   default=2,	    choices=range(2,4095),  help="Full Value")
+    core_range_param_group.add_argument("--empty_value",        type=int,   default=1,  	choices=range(1,4095),  help="Empty Value")
+    core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
@@ -105,10 +107,11 @@ def main():
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--synchronous",  			type=bool,   default=True,    help="Synchronous / Asynchronous Clock")
-    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,    help="Fist Word Fall Through")
-    core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	   help="Full Threshold")
-    core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,    help="Empty Threshold")
+    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,   help="Fist Word Fall Through")
+    core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=True,	  help="Full Threshold")
+    core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
     core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
+    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -126,6 +129,10 @@ def main():
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        if (args.BRAM == False):
+            dep_dict.update({
+                'asymmetric'    :   'True'
+            })
         if (args.full_threshold == False):
             dep_dict.update({
                 'full_value'    :   'True'
@@ -137,23 +144,53 @@ def main():
         if (args.BRAM == False and args.synchronous == False):
             option_strings_to_remove = ['--depth']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
-                parser._actions[4].default = 2 ** round(math.log2(args.depth))
-            parser._actions[2].choices = range(2, args.DEPTH)
-            parser._actions[3].choices = range(1, args.DEPTH)
-            if (args.full_value >= args.DEPTH):
-                parser._actions[2].default = args.DEPTH - 1
-            if (args.empty_value >= args.DEPTH):    
-                parser._actions[3].default = 1
+            if (args.asymmetric):
+                option_strings_to_remove = ['--data_width']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
+                    parser._actions[5].default = 2 ** round(math.log2(args.depth))
+                parser._actions[3].choices = range(2, args.DEPTH)
+                parser._actions[4].choices = range(1, args.DEPTH)
+                if (args.full_value >= args.DEPTH):
+                    parser._actions[3].default = args.DEPTH - 1
+                if (args.empty_value >= args.DEPTH):    
+                    parser._actions[4].default = 1
+            else:
+                option_strings_to_remove = ['--data_width_read']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                option_strings_to_remove = ['--data_width_write']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
+                    parser._actions[4].default = 2 ** round(math.log2(args.depth))
+                parser._actions[2].choices = range(2, args.DEPTH)
+                parser._actions[3].choices = range(1, args.DEPTH)
+                if (args.full_value >= args.DEPTH):
+                    parser._actions[2].default = args.DEPTH - 1
+                if (args.empty_value >= args.DEPTH):    
+                    parser._actions[3].default = 1
         else:
             option_strings_to_remove = ['--DEPTH']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            parser._actions[2].choices = range(2, args.depth)
-            parser._actions[3].choices = range(1, args.depth)
-            if (args.full_value >= args.depth):
-                parser._actions[2].default = args.depth - 1
-            if (args.empty_value >= args.depth):    
-                parser._actions[3].default = 1
+            if (args.asymmetric):
+                option_strings_to_remove = ['--data_width']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                parser._actions[3].choices = range(2, args.depth)
+                parser._actions[4].choices = range(1, args.depth)
+                if (args.full_value >= args.depth):
+                    parser._actions[3].default = args.depth - 1
+                if (args.empty_value >= args.depth):    
+                    parser._actions[4].default = 1
+            else:
+                option_strings_to_remove = ['--data_width_read']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                option_strings_to_remove = ['--data_width_write']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                parser._actions[2].choices = range(2, args.depth)
+                parser._actions[3].choices = range(1, args.depth)
+                if (args.full_value >= args.depth):
+                    parser._actions[2].default = args.depth - 1
+                if (args.empty_value >= args.depth):    
+                    parser._actions[3].default = 1
         
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
@@ -165,10 +202,17 @@ def main():
         depth = args.DEPTH
     else:
         depth = args.depth
+    if (args.asymmetric):
+        data_width_read  = args.data_width_read
+        data_width_write = args.data_width_write
+    else:
+        data_width_read  = args.data_width
+        data_width_write = args.data_width
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = FIFOGenerator(platform,
-        data_width      				= args.data_width,
+        data_width_read   				= data_width_read,
+        data_width_write                = data_width_write,
         synchronous     				= args.synchronous,
         full_threshold  				= args.full_threshold,
         empty_threshold 				= args.empty_threshold,
@@ -204,9 +248,9 @@ def main():
         file.write_text(text)
         if (not args.synchronous):
             if (args.BRAM):
-                text = text.replace("== mem [i]", "== mem[i - 1]")
+                text = text.replace("== mem [i]", "== mem[i - 2]")
                 file.write_text(text)
-                text = text.replace("mem[i], dout, i", "mem[i - 1], dout, i - 1")
+                text = text.replace("mem[i], dout, i", "mem[i - 2], dout, i - 2")
                 file.write_text(text)
                 text = text.replace("== 0", "<= 1")
                 file.write_text(text)
