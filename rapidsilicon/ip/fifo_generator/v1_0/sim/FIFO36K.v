@@ -5,14 +5,15 @@
 // --------------------------------------------------------------------------
 
 module FIFO36K #(
-    parameter   DATA_WIDTH          = 6'd36,               // Supported Data Width 1 - 36
+    parameter   DATA_WIDTH_WRITE    = 6'd36,               // Supported Data Width 1 - 36
+    parameter   DATA_WIDTH_READ     = 6'd36,               // Supported Data Width 1 - 36
     parameter   FIFO_TYPE           = "SYNCHRONOUS",       // Synchronous or Asynchronous
     parameter   PROG_FULL_THRESH    = 12'hffa,             // Threshold indicating that the FIFO buffer is considered Full
     parameter   PROG_EMPTY_THRESH   = 12'h004              // Threshold indicating that the FIFO buffer is considered Empty
 )
 (
-    input wire  [DATA_WIDTH-1:0] WR_DATA,                  // 36-bits Data coming inside FIFO
-    output wire [DATA_WIDTH-1:0] RD_DATA,                  // 36-bits Data coming out from FIFO
+    input wire  [DATA_WIDTH_WRITE-1:0] WR_DATA,            // 36-bits Data coming inside FIFO
+    output wire [DATA_WIDTH_READ-1:0] RD_DATA,             // 36-bits Data coming out from FIFO
     output wire EMPTY,                                     // 1-bit output: Empty Flag
     output wire FULL,                                      // 1-bit output: Full Flag
     output wire OVERFLOW,                                  // 1-bit output: Overflow Flag 
@@ -28,14 +29,22 @@ module FIFO36K #(
     input wire  RESET                                      // 1-bit input:  Active Low Synchronous Reset
 );
 
-localparam data_width = 
-    (DATA_WIDTH > 5'd18) ? 6'd36 :
-    (DATA_WIDTH > 4'd9)  ? 5'd18 :
-                          DATA_WIDTH;
+localparam data_width_width = 
+    (DATA_WIDTH_WRITE > 5'd18) ? 6'd36 :
+    (DATA_WIDTH_WRITE > 4'd9)  ? 5'd18 :
+                          DATA_WIDTH_WRITE;
+localparam data_width_read = 
+    (DATA_WIDTH_READ > 5'd18) ? 6'd36 :
+    (DATA_WIDTH_READ > 4'd9)  ? 5'd18 :
+                          DATA_WIDTH_READ;
 
 initial begin
-    if ((DATA_WIDTH < 1'd1) || (DATA_WIDTH > 6'd36)) begin
-       $display("FIFO36K instance %m DATA_WIDTH set to incorrect value, %d.  Values must be between 1 and 36.", DATA_WIDTH);
+    if ((DATA_WIDTH_WRITE < 1'd1) || (DATA_WIDTH_WRITE > 6'd36)) begin
+       $display("FIFO36K instance %m DATA_WIDTH_WRITE set to incorrect value, %d.  Values must be between 1 and 36.", DATA_WIDTH_WRITE);
+    #1 $stop;
+    end
+    if ((DATA_WIDTH_READ < 1'd1) || (DATA_WIDTH_READ > 6'd36)) begin
+       $display("FIFO36K instance %m DATA_WIDTH_READ set to incorrect value, %d.  Values must be between 1 and 36.", DATA_WIDTH_READ);
     #1 $stop;
     end
     case(FIFO_TYPE)
@@ -49,7 +58,8 @@ initial begin
 end
 
 FIFO #(
-    .DATA_WIDTH(data_width),
+    .DATA_WIDTH_WRITE(data_width_width),
+    .DATA_WIDTH_READ(data_width_read),
     .SYNC_FIFO(FIFO_TYPE),
     .PROG_FULL_THRESH(PROG_FULL_THRESH),
     .PROG_EMPTY_THRESH(PROG_EMPTY_THRESH)
