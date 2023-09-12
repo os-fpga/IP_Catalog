@@ -9,7 +9,7 @@ import sys
 import logging
 import argparse
 
-from litex_wrapper.axi_ram_litex_wrapper import AXIRAM
+from litex_wrapper.pll_litex_wrapper import PLL
 
 from migen import *
 
@@ -113,12 +113,28 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = AXIRAMWrapper(platform,
-        data_width = args.data_width,
-        addr_width = args.addr_width,
-        id_width   = args.id_width,
-        pip_out    = args.pip_out
-    )
+    module   = PLL(platform,
+              DIVIDE_CLK_IN_BY_2=args.divide_clk_in_by_2,
+              PLL_MULT=args.pll_mult,
+              PLL_DIV=args.pll_div,
+              CLK_OUT0_DIV=args.clk_out0_div,
+              CLK_OUT1_DIV=args.clk_out1_div,
+              CLK_OUT2_DIV=args.clk_out2_div,
+              CLK_OUT3_DIV=args.clk_out3_div,
+              # Connect your signals appropriately
+              pll_en=Signal(),
+              clk_in=Signal(),
+              clk_out0_en=Signal(),
+              clk_out1_en=Signal(),
+              clk_out2_en=Signal(),
+              clk_out3_en=Signal(),
+              clk_out0=Signal(),
+              clk_out1=Signal(),
+              clk_out2=Signal(),
+              clk_out3=Signal(),
+              gearbox_fast_clk=Signal(),
+              lock=Signal())
+
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:

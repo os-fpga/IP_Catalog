@@ -54,14 +54,3 @@ class BOOT_CLOCK(Module):
     def add_sources(platform):
         rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
         platform.add_source(os.path.join(rtl_dir, "boot_clock.v"))
-
-# Main -------------------------------------------------------------------------------------------
-
-if __name__ == "__main__":
-    platform = None  # Create or load your platform here
-    logging.basicConfig(filename="IP.log", filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
-    
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    logging.info(f'Log started at {timestamp}')
-
-    boot_clock = BOOT_CLOCK(platform)

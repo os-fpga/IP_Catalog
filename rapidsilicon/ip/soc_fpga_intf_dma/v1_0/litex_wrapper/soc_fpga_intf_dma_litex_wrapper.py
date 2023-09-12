@@ -1,3 +1,11 @@
+#
+# This file is part of RapidSilicon's IP_Catalog.
+#
+# This file is Copyright (c) 2022 RapidSilicon.
+#
+# SPDX-License-Identifier: MIT
+#
+
 import os
 import datetime
 import logging

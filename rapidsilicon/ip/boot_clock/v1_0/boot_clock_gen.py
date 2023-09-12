@@ -9,7 +9,7 @@ import sys
 import logging
 import argparse
 
-from litex_wrapper.axi_ram_litex_wrapper import AXIRAM
+from litex_wrapper.boot_clock_litex_wrapper import BOOT_CLOCK
 
 from migen import *
 
@@ -17,44 +17,31 @@ from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
 
-from litex.soc.interconnect.axi import AXIInterface
 
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
-def get_clkin_ios():
+def get_other_ios():
     return [
-        ("clk",  0, Pins(1)),
-        ("rst",  0, Pins(1)),
+        ("O",  0, Pins(1)),
     ]
 
 # AXI RAM Wrapper ----------------------------------------------------------------------------------
-class AXIRAMWrapper(Module):
-    def __init__(self, platform, data_width, addr_width, id_width, pip_out):
-        # Clocking ---------------------------------------------------------------------------------
-        platform.add_extension(get_clkin_ios())
-        self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+class BOOTCLOCKWrapper(Module):
+    def __init__(self, platform, period):
 
-        # AXI --------------------------------------------------------------------------------------
-        axi = AXIInterface(
-            data_width    = data_width,
-            address_width = addr_width,
-            id_width      = id_width,
-        )
-        platform.add_extension(axi.get_ios("s_axi"))
-        self.comb += axi.connect_to_pads(platform.request("s_axi"), mode="slave")
 
-        # AXI-RAM ----------------------------------------------------------------------------------
-        self.submodules += AXIRAM(platform, axi,
-            pipeline_output   = pip_out, 
-            size              = (2**addr_width)*data_width//8
+        # Boot Clock ----------------------------------------------------------------------------------
+        self.submodules.boot_clock = boot_clock = BOOT_CLOCK(platform, period = period
             )
+        
+        # Ports ---------------------------------------------------------------------------------
+        platform.add_extension(get_other_ios())
+        self.comb += platform.request("O").eq(boot_clock.O)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="AXI RAM CORE")
+    parser = argparse.ArgumentParser(description="Boot CLock")
 
     # Import Common Modules.
     common_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib")
@@ -67,34 +54,23 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="axi_ram", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="boot_clock", language="verilog")
 
     logging.info("===================================================")
     logging.info("IP    : %s", rs_builder.ip_name.upper())
     logging.info(("==================================================="))
     
-    # Core fix value parameters.
-    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width",   type=int,   default=32,     choices=[8, 16, 32, 64],    help="RAM Data Width")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--addr_width",     type=int,   default=16,     choices=range(8,17),     help="RAM Address Width")
-    core_range_param_group.add_argument("--id_width",       type=int,   default=8,      choices=range(1, 9),     help="RAM ID Width")
+    core_range_param_group.add_argument("--period",     type=int,   default=25,     choices=range(1,1000),     help="Clock period in ns")
     
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--pip_out",    type=bool,   default=False,    help="RAM Pipelined Output")
-
-    # Core file path parameters.
-    # core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    # core_file_path_group.add_argument("--file_path", type=argparse.FileType('r'), help="File Path for memory initialization file")
-
+ 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="axi_ram_wrapper",      help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="boot_clock_wrapper",      help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -113,11 +89,8 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = AXIRAMWrapper(platform,
-        data_width = args.data_width,
-        addr_width = args.addr_width,
-        id_width   = args.id_width,
-        pip_out    = args.pip_out
+    module   = BOOTCLOCKWrapper(platform,
+        period = args.period,
     )
 
     # Build Project --------------------------------------------------------------------------------

@@ -38,7 +38,7 @@ def colorer(s, color="bright"):
 # PLL Wrapper ------------------------------------------------------------------------------------
 
 class PLL(Module):
-    def __init__(self, platform, **kwargs):
+    def __init__(self, platform, divide_clk_in_by_2, pll_mult, pll_div, clk_out0_div, clk_out1_div, clk_out2_div, clk_out3_div, **kwargs):
         self.logger = logging.getLogger("PLL")
         self.logger.propagate = True
 
@@ -61,26 +61,26 @@ class PLL(Module):
         self.specials += Instance("PLL",
             **kwargs,
 
-            p_DIVIDE_CLK_IN_BY_2=Instance.PreformattedParam(),
-            p_PLL_MULT=Instance.PreformattedParam(),
-            p_PLL_DIV=Instance.PreformattedParam(),
-            p_CLK_OUT0_DIV=Instance.PreformattedParam(),
-            p_CLK_OUT1_DIV=Instance.PreformattedParam(),
-            p_CLK_OUT2_DIV=Instance.PreformattedParam(),
-            p_CLK_OUT3_DIV=Instance.PreformattedParam(),
+            p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
+            p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
+            p_PLL_DIV               = Instance.PreformattedParam(pll_div),
+            p_CLK_OUT0_DIV          = Instance.PreformattedParam(clk_out0_div),
+            p_CLK_OUT1_DIV          = Instance.PreformattedParam(clk_out1_div),
+            p_CLK_OUT2_DIV          = Instance.PreformattedParam(clk_out2_div),
+            p_CLK_OUT3_DIV          = Instance.PreformattedParam(clk_out3_div),
 
-            i_PLL_EN=                    self.pll_en,
-            i_CLK_IN=                    self.clk_in,
-            i_CLK_OUT0_EN=                   self.clk_out0_en,
-            i_CLK_OUT1_EN=                   self.clk_out1_en,
-            i_CLK_OUT2_EN=                   self.clk_out2_en,
-            i_CLK_OUT3_EN=                   self.clk_out3_en,
-            o_CLK_OUT0=                  self.clk_out0,
-            o_CLK_OUT1=                  self.clk_out1,
-            o_CLK_OUT2=                  self.clk_out2,
-            o_CLK_OUT3=                  self.clk_out3,
-            o_GEARBOX_FAST_CLK=                  self.gearbox_fast_clk,
-            o_LOCK=                  self.lock
+            i_PLL_EN                = self.pll_en,
+            i_CLK_IN                = self.clk_in,
+            i_CLK_OUT0_EN           = self.clk_out0_en,
+            i_CLK_OUT1_EN           = self.clk_out1_en,
+            i_CLK_OUT2_EN           = self.clk_out2_en,
+            i_CLK_OUT3_EN           = self.clk_out3_en,
+            o_CLK_OUT0              = self.clk_out0,
+            o_CLK_OUT1              = self.clk_out1,
+            o_CLK_OUT2              = self.clk_out2,
+            o_CLK_OUT3              = self.clk_out3,
+            o_GEARBOX_FAST_CLK      = self.gearbox_fast_clk,
+            o_LOCK                  = self.lock
         )
 
         self.add_sources(platform)
@@ -99,24 +99,3 @@ if __name__ == "__main__":
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     logging.info(f'Log started at {timestamp}')
 
-    pll = PLL(platform,
-              DIVIDE_CLK_IN_BY_2="FALSE",
-              PLL_MULT=16,
-              PLL_DIV=1,
-              CLK_OUT0_DIV=2,
-              CLK_OUT1_DIV=2,
-              CLK_OUT2_DIV=2,
-              CLK_OUT3_DIV=2,
-              # Connect your signals appropriately
-              pll_en=Signal(),
-              clk_in=Signal(),
-              clk_out0_en=Signal(),
-              clk_out1_en=Signal(),
-              clk_out2_en=Signal(),
-              clk_out3_en=Signal(),
-              clk_out0=Signal(),
-              clk_out1=Signal(),
-              clk_out2=Signal(),
-              clk_out3=Signal(),
-              gearbox_fast_clk=Signal(),
-              lock=Signal())
