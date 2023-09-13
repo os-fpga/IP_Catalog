@@ -42,8 +42,23 @@ class PLL(Module):
         self.logger = logging.getLogger("PLL")
         self.logger.propagate = True
 
-        self.logger.info("Creating PLL module.")
-
+        
+        # Logger
+        self.logger = logging.getLogger("PLL")
+        
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
+        
+        self.logger.info(f"DIVIDE_CLK_IN_BY_2   : {divide_clk_in_by_2}")
+        self.logger.info(f"PLL_MULT             : {pll_mult}")
+        self.logger.info(f"PLL_DIV              : {pll_div}")
+        self.logger.info(f"CLK_OUT0_DIV         : {clk_out0_div}")
+        self.logger.info(f"CLK_OUT1_DIV         : {clk_out1_div}")
+        self.logger.info(f"CLK_OUT2_DIV         : {clk_out2_div}")
+        self.logger.info(f"CLK_OUT3_DIV         : {clk_out3_div}")        
+        self.logger.info(f"===================================================")
+        
         # Create input/output signals
         self.pll_en = Signal()
         self.clk_in = Signal()
@@ -88,14 +103,4 @@ class PLL(Module):
     @staticmethod
     def add_sources(platform):
         rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "pll.v"))
-
-# Main -------------------------------------------------------------------------------------------
-
-if __name__ == "__main__":
-    platform = None  # Create or load your platform here
-    logging.basicConfig(filename="IP.log", filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
-    
-    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    logging.info(f'Log started at {timestamp}')
-
+        platform.add_source(os.path.join(rtl_dir, "PLL.v"))

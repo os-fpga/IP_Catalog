@@ -41,11 +41,11 @@ class BOOT_CLOCK(Module):
         self.logger.info(f"PERIOD  : {colorer(period)}")
 
         # Clock output
-        self.o_clock = Signal()
+        self.O = Signal()
 
         self.specials += Instance("BOOT_CLOCK",
             p_PERIOD=Instance.PreformattedParam(period),
-            o_O=self.o_clock
+            o_O=self.O
         )
 
         self.add_sources(platform)

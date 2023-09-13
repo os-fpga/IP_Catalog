@@ -84,14 +84,14 @@ module PLL #(
   parameter CLK_OUT0_DIV = 2, // CLK_OUT0 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)
   parameter CLK_OUT1_DIV = 2, // CLK_OUT1 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)
   parameter CLK_OUT2_DIV = 2, // CLK_OUT2 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)
-  parameter CLK_OUT3_DIV = 2 // CLK_OUT3 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)
+  parameter CLK_OUT3_DIV = 2 //  CLK_OUT3 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)
 ) (
-  input PLL_EN, // PLL Enable
-  input CLK_IN, // Clock input
-  input CLK_OUT0_EN, // Enable CLK_OUT0
-  input CLK_OUT1_EN, // Enable CLK_OUT1
-  input CLK_OUT2_EN, // Enable CLK_OUT2
-  input CLK_OUT3_EN, // Enable CLK_OUT3
+  input  PLL_EN, // PLL Enable
+  input  CLK_IN, // Clock input
+  input  CLK_OUT0_EN, // Enable CLK_OUT0
+  input  CLK_OUT1_EN, // Enable CLK_OUT1
+  input  CLK_OUT2_EN, // Enable CLK_OUT2
+  input  CLK_OUT3_EN, // Enable CLK_OUT3
   output CLK_OUT0, // CLK_OUT0 output
   output CLK_OUT1, // CLK_OUT1 output
   output CLK_OUT2, // CLK_OUT2 output
