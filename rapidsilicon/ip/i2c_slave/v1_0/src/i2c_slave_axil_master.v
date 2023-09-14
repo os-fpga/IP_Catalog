@@ -31,6 +31,10 @@ THE SOFTWARE.
  */
 module i2c_slave_axil_master #
 (
+    parameter IP_TYPE 		= "I2CSLAVE",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2e91202,
+    
     parameter FILTER_LEN = 4,
     parameter DATA_WIDTH = 32,  // width of data bus in bits
     parameter ADDR_WIDTH = 16,  // width of address bus in bits

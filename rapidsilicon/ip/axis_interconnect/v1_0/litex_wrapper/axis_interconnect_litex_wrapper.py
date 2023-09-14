@@ -73,6 +73,10 @@ class AXISTREAMINTERCONNECT(Module):
         self.specials += Instance("axis_crosspoint",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             # Global.
             p_S_COUNT           = Instance.PreformattedParam(len(s_axis)),
             p_M_COUNT           = Instance.PreformattedParam(len(m_axis)),

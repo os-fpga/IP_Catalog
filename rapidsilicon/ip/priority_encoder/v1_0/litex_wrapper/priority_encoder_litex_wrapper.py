@@ -49,6 +49,10 @@ class PRIORITYENCODER(Module):
         self.specials += Instance("priority_encoder",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             p_WIDTH             = Instance.PreformattedParam(width),
             p_LSB_HIGH_PRIORITY = lsb_high_priority,
 
