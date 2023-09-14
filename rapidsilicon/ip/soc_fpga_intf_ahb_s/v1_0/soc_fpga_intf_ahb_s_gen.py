@@ -9,7 +9,7 @@ import sys
 import logging
 import argparse
 
-from litex_wrapper.pll_litex_wrapper import PLL
+from litex_wrapper.soc_fpga_intf_axi_m0_litex_wrapper import SOC_FPGA_INTF_AHB_S
 
 from migen import *
 
@@ -19,42 +19,41 @@ from litex.build.osfpga import OSFPGAPlatform
 
 from litex.soc.interconnect.axi import AXIInterface
 
+from litex.soc.interconnect.ahb import Interface
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
 def get_clkin_ios():
     return [
-        ("clk",  0, Pins(1)),
-        ("rst",  0, Pins(1)),
+        ("M0_ACLK",  0, Pins(1)),
+        ("M0_ARESETN_I",  0, Pins(1)),
     ]
 
 # AXI RAM Wrapper ----------------------------------------------------------------------------------
-class AXIRAMWrapper(Module):
-    def __init__(self, platform, data_width, addr_width, id_width, pip_out):
+class AHBSLAVEWrapper(Module):
+    def __init__(self, platform, data_width, addr_width, id_width):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
-        self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("rst"))
+        self.comb += self.cd_sys.clk.eq(platform.request("M0_ACLK"))
+        self.comb += self.cd_sys.rst.eq(platform.request("M0_ARESETN_I"))
 
         # AXI --------------------------------------------------------------------------------------
-        axi = AXIInterface(
-            data_width    = data_width,
-            address_width = addr_width,
-            id_width      = id_width,
+
+        ahb = Interface(
+            adr_width = addr_width,
+            data_width = data_width
         )
-        platform.add_extension(axi.get_ios("s_axi"))
-        self.comb += axi.connect_to_pads(platform.request("s_axi"), mode="slave")
+
+        platform.add_extension(ahb.get_ios("s_ahb"))
+        self.comb += ahb.connect_to_pads(platform.request("s_ahb"), mode="master")
 
         # AXI-RAM ----------------------------------------------------------------------------------
-        self.submodules += AXIRAM(platform, axi,
-            pipeline_output   = pip_out, 
-            size              = (2**addr_width)*data_width//8
-            )
+        self.submodules += SOC_FPGA_INTF_AHB_S(platform, axi)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="AXI RAM CORE")
+    parser = argparse.ArgumentParser(description="SOC FPGA AXI M0 INTF")
 
     # Import Common Modules.
     common_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib")
@@ -67,7 +66,7 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="gemini", ip_name="axi_ram", language="verilog")
+    rs_builder = IP_Builder(device="gemini", ip_name="soc_fpga_intf_axi_m0", language="verilog")
 
     logging.info("===================================================")
     logging.info("IP    : %s", rs_builder.ip_name.upper())
@@ -82,10 +81,6 @@ def main():
     core_range_param_group.add_argument("--addr_width",     type=int,   default=16,     choices=range(8,17),     help="RAM Address Width")
     core_range_param_group.add_argument("--id_width",       type=int,   default=8,      choices=range(1, 9),     help="RAM ID Width")
     
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--pip_out",    type=bool,   default=False,    help="RAM Pipelined Output")
-
     # Core file path parameters.
     # core_file_path_group = parser.add_argument_group(title="Core file path parameters")
     # core_file_path_group.add_argument("--file_path", type=argparse.FileType('r'), help="File Path for memory initialization file")
@@ -94,7 +89,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="axi_ram_wrapper",      help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="soc_fpga_intf_axi_m0_wrapper",      help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -113,28 +108,11 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = PLL(platform,
-              DIVIDE_CLK_IN_BY_2=args.divide_clk_in_by_2,
-              PLL_MULT=args.pll_mult,
-              PLL_DIV=args.pll_div,
-              CLK_OUT0_DIV=args.clk_out0_div,
-              CLK_OUT1_DIV=args.clk_out1_div,
-              CLK_OUT2_DIV=args.clk_out2_div,
-              CLK_OUT3_DIV=args.clk_out3_div,
-              # Connect your signals appropriately
-              pll_en=Signal(),
-              clk_in=Signal(),
-              clk_out0_en=Signal(),
-              clk_out1_en=Signal(),
-              clk_out2_en=Signal(),
-              clk_out3_en=Signal(),
-              clk_out0=Signal(),
-              clk_out1=Signal(),
-              clk_out2=Signal(),
-              clk_out3=Signal(),
-              gearbox_fast_clk=Signal(),
-              lock=Signal())
-
+    module   = AHBSLAVEWrapper(platform,
+        data_width = args.data_width,
+        addr_width = args.addr_width,
+        id_width   = args.id_width
+    )
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:

@@ -23,18 +23,18 @@ from litex.build.osfpga import OSFPGAPlatform
 
 def get_clkin_ios():
     return [
-        ("pll_en",          0, Pins(1)),
-        ("clk_in",          0, Pins(1)),
-        ("clk_out0_en",     0, Pins(1)),
-        ("clk_out1_en",     0, Pins(1)),
-        ("clk_out2_en",     0, Pins(1)),
-        ("clk_out3_en",     0, Pins(1)),
-        ("clk_out0",        0, Pins(1)),
-        ("clk_out1",        0, Pins(1)),
-        ("clk_out2",        0, Pins(1)),
-        ("clk_out3",        0, Pins(1)),
-        ("gearbox_fast_clk",0, Pins(1)),
-        ("lock",            0, Pins(1)),
+        ("PLL_EN",          0, Pins(1)),
+        ("CLK_IN",          0, Pins(1)),
+        ("CLK_OUT0_EN",     0, Pins(1)),
+        ("CLK_OUT1_EN",     0, Pins(1)),
+        ("CLK_OUT2_EN",     0, Pins(1)),
+        ("CLK_OUT3_EN",     0, Pins(1)),
+        ("CLK_OUT0",        0, Pins(1)),
+        ("CLK_OUT1",        0, Pins(1)),
+        ("CLK_OUT2",        0, Pins(1)),
+        ("CLK_OUT3",        0, Pins(1)),
+        ("GEARBOX_FAST_CLK",0, Pins(1)),
+        ("LOCK",            0, Pins(1)),
             ]
 
 # AXI RAM Wrapper ----------------------------------------------------------------------------------
@@ -55,19 +55,19 @@ class PLLWrapper(Module):
             )
 
         platform.add_extension(get_clkin_ios())
-        self.comb += pll.pll_en.eq(platform.request("pll_en"))
-        self.comb += pll.clk_in.eq(platform.request("clk_in"))
-        self.comb += pll.clk_out0_en.eq(platform.request("clk_out0_en"))
-        self.comb += pll.clk_out1_en.eq(platform.request("clk_out1_en"))
-        self.comb += pll.clk_out2_en.eq(platform.request("clk_out2_en"))
-        self.comb += pll.clk_out3_en.eq(platform.request("clk_out3_en"))
+        self.comb += pll.PLL_EN.eq(platform.request("PLL_EN"))
+        self.comb += pll.CLK_IN.eq(platform.request("CLK_IN"))
+        self.comb += pll.CLK_OUT0_EN.eq(platform.request("CLK_OUT0_EN"))
+        self.comb += pll.CLK_OUT1_EN.eq(platform.request("CLK_OUT1_EN"))
+        self.comb += pll.CLK_OUT2_EN.eq(platform.request("CLK_OUT2_EN"))
+        self.comb += pll.CLK_OUT3_EN.eq(platform.request("CLK_OUT3_EN"))
 
-        self.comb += platform.request("clk_out0").eq(pll.clk_out0)
-        self.comb += platform.request("clk_out1").eq(pll.clk_out1)
-        self.comb += platform.request("clk_out2").eq(pll.clk_out2)
-        self.comb += platform.request("clk_out3").eq(pll.clk_out3)
-        self.comb += platform.request("gearbox_fast_clk").eq(pll.gearbox_fast_clk)
-        self.comb += platform.request("lock").eq(pll.lock)
+        self.comb += platform.request("CLK_OUT0").eq(pll.CLK_OUT0)
+        self.comb += platform.request("CLK_OUT1").eq(pll.CLK_OUT1)
+        self.comb += platform.request("CLK_OUT2").eq(pll.CLK_OUT2)
+        self.comb += platform.request("CLK_OUT3").eq(pll.CLK_OUT3)
+        self.comb += platform.request("GEARBOX_FAST_CLK").eq(pll.GEARBOX_FAST_CLK)
+        self.comb += platform.request("LOCK").eq(pll.LOCK)
 
 # Build --------------------------------------------------------------------------------------------
 def main():

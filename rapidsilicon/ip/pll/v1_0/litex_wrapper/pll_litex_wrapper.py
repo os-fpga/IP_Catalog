@@ -60,18 +60,18 @@ class PLL(Module):
         self.logger.info(f"===================================================")
         
         # Create input/output signals
-        self.pll_en = Signal()
-        self.clk_in = Signal()
-        self.clk_out0_en = Signal()
-        self.clk_out1_en = Signal()
-        self.clk_out2_en = Signal()
-        self.clk_out3_en = Signal()
-        self.clk_out0 = Signal()
-        self.clk_out1 = Signal()
-        self.clk_out2 = Signal()
-        self.clk_out3 = Signal()
-        self.gearbox_fast_clk = Signal()
-        self.lock = Signal()
+        self.PLL_EN = Signal()
+        self.CLK_IN = Signal()
+        self.CLK_OUT0_EN = Signal()
+        self.CLK_OUT1_EN = Signal()
+        self.CLK_OUT2_EN = Signal()
+        self.CLK_OUT3_EN = Signal()
+        self.CLK_OUT0 = Signal()
+        self.CLK_OUT1 = Signal()
+        self.CLK_OUT2 = Signal()
+        self.CLK_OUT3 = Signal()
+        self.GEARBOX_FAST_CLK = Signal()
+        self.LOCK = Signal()
 
         self.specials += Instance("PLL",
             **kwargs,
@@ -84,18 +84,18 @@ class PLL(Module):
             p_CLK_OUT2_DIV          = Instance.PreformattedParam(clk_out2_div),
             p_CLK_OUT3_DIV          = Instance.PreformattedParam(clk_out3_div),
 
-            i_PLL_EN                = self.pll_en,
-            i_CLK_IN                = self.clk_in,
-            i_CLK_OUT0_EN           = self.clk_out0_en,
-            i_CLK_OUT1_EN           = self.clk_out1_en,
-            i_CLK_OUT2_EN           = self.clk_out2_en,
-            i_CLK_OUT3_EN           = self.clk_out3_en,
-            o_CLK_OUT0              = self.clk_out0,
-            o_CLK_OUT1              = self.clk_out1,
-            o_CLK_OUT2              = self.clk_out2,
-            o_CLK_OUT3              = self.clk_out3,
-            o_GEARBOX_FAST_CLK      = self.gearbox_fast_clk,
-            o_LOCK                  = self.lock
+            i_PLL_EN                = self.PLL_EN,
+            i_CLK_IN                = self.CLK_IN,
+            i_CLK_OUT0_EN           = self.CLK_OUT0_EN,
+            i_CLK_OUT1_EN           = self.CLK_OUT1_EN,
+            i_CLK_OUT2_EN           = self.CLK_OUT2_EN,
+            i_CLK_OUT3_EN           = self.CLK_OUT3_EN,
+            o_CLK_OUT0              = self.CLK_OUT0,
+            o_CLK_OUT1              = self.CLK_OUT1,
+            o_CLK_OUT2              = self.CLK_OUT2,
+            o_CLK_OUT3              = self.CLK_OUT3,
+            o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
+            o_LOCK                  = self.LOCK
         )
 
         self.add_sources(platform)
