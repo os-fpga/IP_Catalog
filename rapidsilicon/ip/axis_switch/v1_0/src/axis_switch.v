@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axis_switch #
 (
+    parameter IP_TYPE 		= "AXISSWTH",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2e91145,
+    
     // Number of AXI stream inputs
     parameter S_COUNT = 4,
     // Number of AXI stream outputs

@@ -33,7 +33,10 @@ THE SOFTWARE.
  */
 module priority_encoder #
 (
-    parameter WIDTH = 4,
+    parameter IP_TYPE 		    = "P_ENCODR",
+	parameter IP_VERSION 	    = 32'h1, 
+	parameter IP_ID 		    = 32'h2e91207,
+    parameter WIDTH             = 4,
     // LSB priority selection
     parameter LSB_HIGH_PRIORITY = 0
 )

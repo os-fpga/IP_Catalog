@@ -30,8 +30,12 @@ THE SOFTWARE.
  * Processor system reset IP
  */
 
-module reset_release
-     #(
+module reset_release #
+(
+    parameter IP_TYPE 		        = "RST_RLSE",
+	parameter IP_VERSION 	        = 32'h1, 
+	parameter IP_ID 		        = 32'h2e91209,
+
     parameter EXT_RESET_WIDTH       = 5,
     parameter PERIPHERAL_ARESETN    = 1,
     parameter INTERCONNECTS         = 1,

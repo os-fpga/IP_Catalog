@@ -73,6 +73,10 @@ class AXISTREAMRAMSWITCH(Module):
         self.specials += Instance("axis_ram_switch",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE                   = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                     = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION                = Instance.PreformattedParam("IP_VERSION"),
             # Global.
             p_FIFO_DEPTH                = Instance.PreformattedParam(fifo_depth),
             p_CMD_FIFO_DEPTH            = Instance.PreformattedParam(cmd_fifo_depth),
