@@ -21,6 +21,8 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
-rapidsilicon/ip/axis_width_converter/v1_0/axis_width_converter_gen.py
-
+rapidsilicon/ip/pll/v1_0/pll_gen.py
+rapidsilicon/ip/pll/v1_0/litex_wrapper/pll_litex_wrapper.py
+rapidsilicon/ip/pll/v1_0/src/pll.v
 ---------------------------------------------------------------------------------------
+
