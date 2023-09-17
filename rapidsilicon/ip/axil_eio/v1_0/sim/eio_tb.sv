@@ -6,7 +6,7 @@ module eio_tb;
 
   // Parameters
  `define AXI_DATA_WIDTH 32
- localparam NUM_OF_PROBE = 100;
+ localparam NUM_OF_PROBE = 8;
   // Ports
   reg                            i_S_AXI_ACLK    = 0;
   reg                            i_S_AXI_ARESETN = 1;
@@ -51,15 +51,7 @@ module eio_tb;
   // AXI clock : 100 MHz (variable)
   always #5ns      i_S_AXI_ACLK = ~i_S_AXI_ACLK;  
 
-  eio_top # (
-             .C_S_AXI_DATA_WIDTH    (`AXI_DATA_WIDTH),
-             .C_S_AXI_ADDR_WIDTH    (32),
-             .INPUT_PROBE_WIDTH     (NUM_OF_PROBE),
-             .OUTPUT_PROBE_WIDTH    (NUM_OF_PROBE),
-             .AXI_IN_CLOCKS_SYNCED  (0),
-             .AXI_OUT_CLOCKS_SYNCED (0)    
-            )
-             UUT    
+  axil_eio_wrapper  UUT    
             (
              // Global signals
              .IP_CLK        (ipclk),
@@ -68,64 +60,30 @@ module eio_tb;
              .S_AXI_ARESETN (i_S_AXI_ARESETN),
              
              // AXI-L signals
-             .S_AXI_AWADDR  (s_axil_awaddr),
-             .S_AXI_AWPROT  (s_axil_awprot),
-             .S_AXI_AWVALID (s_axil_awvalid),
-             .S_AXI_AWREADY (s_axil_awready),
-             .S_AXI_WDATA   (s_axil_wdata),
-             .S_AXI_WSTRB   (s_axil_wstrb),
-             .S_AXI_WVALID  (s_axil_wvalid),
-             .S_AXI_WREADY  (s_axil_wready),
-             .S_AXI_BRESP   (s_axil_bresp),
-             .S_AXI_BVALID  (s_axil_bvalid),
-             .S_AXI_BREADY  (s_axil_bready),
-             .S_AXI_ARADDR  (s_axil_araddr),
-             .S_AXI_ARPROT  (s_axil_arprot),
-             .S_AXI_ARVALID (s_axil_arvalid),
-             .S_AXI_ARREADY (s_axil_arready),
-             .S_AXI_RDATA   (s_axil_rdata),
-             .S_AXI_RRESP   (s_axil_rresp),
-             .S_AXI_RVALID  (s_axil_rvalid),
-             .S_AXI_RREADY  (s_axil_rready),
+             .s_axil_awaddr  (s_axil_awaddr),
+             .s_axil_awprot  (s_axil_awprot),
+             .s_axil_awvalid (s_axil_awvalid),
+             .s_axil_awready (s_axil_awready),
+             .s_axil_wdata   (s_axil_wdata),
+             .s_axil_wstrb   (s_axil_wstrb),
+             .s_axil_wvalid  (s_axil_wvalid),
+             .s_axil_wready  (s_axil_wready),
+             .s_axil_bresp   (s_axil_bresp),
+             .s_axil_bvalid  (s_axil_bvalid),
+             .s_axil_bready  (s_axil_bready),
+             .s_axil_araddr  (s_axil_araddr),
+             .s_axil_arprot  (s_axil_arprot),
+             .s_axil_arvalid (s_axil_arvalid),
+             .s_axil_arready (s_axil_arready),
+             .s_axil_rdata   (s_axil_rdata),
+             .s_axil_rresp   (s_axil_rresp),
+             .s_axil_rvalid  (s_axil_rvalid),
+             .s_axil_rready  (s_axil_rready),
              
              // i/o probes
              .probe_in      (input_probes),
              .probe_out     (output_probes)
             );
-
-//  axil_eio_wrapper  UUT    
-//            (
-//             // Global signals
-//             .IP_CLK        (ipclk),
-//             .OP_CLK        (opclk),
-//             .S_AXI_ACLK    (i_S_AXI_ACLK),
-//             .S_AXI_ARESETN (i_S_AXI_ARESETN),
-             
-//             // AXI-L signals
-//             .s_axil_awaddr  (s_axil_awaddr),
-//             .s_axil_awprot  (s_axil_awprot),
-//             .s_axil_awvalid (s_axil_awvalid),
-//             .s_axil_awready (s_axil_awready),
-//             .s_axil_wdata   (s_axil_wdata),
-//             .s_axil_wstrb   (s_axil_wstrb),
-//             .s_axil_wvalid  (s_axil_wvalid),
-//             .s_axil_wready  (s_axil_wready),
-//             .s_axil_bresp   (s_axil_bresp),
-//             .s_axil_bvalid  (s_axil_bvalid),
-//             .s_axil_bready  (s_axil_bready),
-//             .s_axil_araddr  (s_axil_araddr),
-//             .s_axil_arprot  (s_axil_arprot),
-//             .s_axil_arvalid (s_axil_arvalid),
-//             .s_axil_arready (s_axil_arready),
-//             .s_axil_rdata   (s_axil_rdata),
-//             .s_axil_rresp   (s_axil_rresp),
-//             .s_axil_rvalid  (s_axil_rvalid),
-//             .s_axil_rready  (s_axil_rready),
-             
-//             // i/o probes
-//             .probe_in      (input_probes),
-//             .probe_out     (output_probes)
-//            );
 
   initial 
   begin
