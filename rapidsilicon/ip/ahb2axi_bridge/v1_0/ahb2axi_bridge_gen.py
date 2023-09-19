@@ -170,21 +170,17 @@ def main():
         # IP_ID Parameter
         now = datetime.now()
         my_year         = now.year - 2022
-        year            = (bin(my_year)[2:]).zfill(7)  # Removing '0b' prefix
+        year            = (bin(my_year)[2:]).zfill(7) # 7-bits  # Removing '0b' prefix = [2:]
         month           = (bin(now.month)[2:]).zfill(4) # 4-bits
         day             = (bin(now.day)[2:]).zfill(5) # 5-bits
-        hour            = (now.hour) # 8-bits
-        minute          = (now.minute) # 8-bits
-        
-        if minute in range(10):
-            minute = ("0{}".format(minute))
-            
-        if hour in range(10):
-            hour = ("0{}".format(hour))
+        mod_hour        = now.hour % 12 # 12 hours Format
+        hour            = (bin(mod_hour)[2:]).zfill(4) # 4-bits
+        minute          = (bin(now.minute)[2:]).zfill(6) # 6-bits
+        second          = (bin(now.second)[2:]).zfill(6) # 6-bits
         
         # Concatenation for IP_ID Parameter
-        ip_id = ("{}{}{}".format(year, day, month)) 
-        ip_id = ("32'h{}{}{}").format((hex(int(ip_id, 2))[2:]), hour, minute)
+        ip_id = ("{}{}{}{}{}{}").format(year, day, month, hour, minute, second)
+        ip_id = ("32'h{}").format(hex(int(ip_id,2))[2:])
         
         # IP_VERSION parameter
         #               Base  _  Major _ Minor
