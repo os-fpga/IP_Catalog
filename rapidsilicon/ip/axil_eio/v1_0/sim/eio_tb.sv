@@ -100,7 +100,7 @@ module eio_tb;
     
     addr_axi = 32'h00000000;
         
-    for (integer i=0 ; i<((NUM_OF_PROBE/`AXI_DATA_WIDTH) + ((NUM_OF_PROBE % `AXI_DATA_WIDTH) != 0)) ; i++)
+    for (integer i=0 ; i<((NUM_OF_PROBE/`AXI_DATA_WIDTH) + ((NUM_OF_PROBE % `AXI_DATA_WIDTH) != 0) + 3) ; i++)
     begin
         addr_axi = addr_axi + `AXI_DATA_WIDTH/8;
         #40  axi_read_transaction(addr_axi);
