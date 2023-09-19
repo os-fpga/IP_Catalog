@@ -31,6 +31,10 @@ THE SOFTWARE.
  */
 module i2c_master_axil #
 (
+    parameter IP_TYPE 		= "I2C_MSTR",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2e91158,
+    
     parameter DEFAULT_PRESCALE = 1,
     parameter FIXED_PRESCALE = 0,
     parameter CMD_FIFO = 1,

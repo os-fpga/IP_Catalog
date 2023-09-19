@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axi_dma #
 (
+    parameter IP_TYPE 		= "AXI_DMA",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2591512,
+    
     // Width of AXI data bus in bits
     parameter AXI_DATA_WIDTH = 32,
     // Width of AXI address bus in bits

@@ -55,6 +55,10 @@ class RESETRELEASE(Module):
         self.specials += Instance("reset_release",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE               = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                 = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION            = Instance.PreformattedParam("IP_VERSION"),
             p_EXT_RESET_WIDTH       = Instance.PreformattedParam(EXT_RESET_WIDTH),
             p_INTERCONNECTS         = Instance.PreformattedParam(INTERCONNECTS),
             p_BUS_RESET             = Instance.PreformattedParam(BUS_RESET),

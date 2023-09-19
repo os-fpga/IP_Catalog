@@ -21,6 +21,10 @@
 `include "./timescale.v"
 
 module axi4lite_uart_top #(
+    parameter IP_TYPE 		    = "AXIL_URT",
+	parameter IP_VERSION 	    = 32'h1, 
+	parameter IP_ID 		    = 32'h2591807,
+    
     parameter ADDRESS_WIDTH     = 16,
     parameter DATA_WIDTH        = 32,
     parameter PROT_WIDTH        = 3,

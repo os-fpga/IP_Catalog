@@ -62,6 +62,10 @@ class AXISPIPELINEREGISTER(Module):
         self.specials += Instance("axis_pipeline_register",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             # Global.
             p_DATA_WIDTH        = Instance.PreformattedParam(data_width),
             p_KEEP_WIDTH        = Instance.PreformattedParam(int((data_width+7)/8)),

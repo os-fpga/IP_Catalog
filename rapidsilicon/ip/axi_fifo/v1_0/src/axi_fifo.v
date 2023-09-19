@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axi_fifo #
 (
+    parameter IP_TYPE 		= "AXI_FIFO",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2591520,
+    
     // Width of data bus in bits
     parameter DATA_WIDTH = 32,
     // Width of address bus in bits

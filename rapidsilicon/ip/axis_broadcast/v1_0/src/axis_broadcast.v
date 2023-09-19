@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axis_broadcast #
 (
+    parameter IP_TYPE 		= "AXIS_BRD",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2691033,
+    
     // Number of AXI stream outputs
     parameter M_COUNT = 4,
     // Width of AXI stream interfaces in bits

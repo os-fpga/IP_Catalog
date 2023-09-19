@@ -19,6 +19,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module jtag_to_axi_top #(
+                         parameter IP_TYPE 		                 = "JTAG2AXI",
+	                     parameter IP_VERSION 	                 = 32'h1, 
+	                     parameter IP_ID 		                 = 32'h2691748,
+                         
                          parameter integer C_S_AXI_ID_WIDTH      = 4,
                          parameter integer C_S_AXI_DATA_WIDTH    = 32,
                          parameter integer C_S_AXI_ADDR_WIDTH    = 32,

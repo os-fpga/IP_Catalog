@@ -68,6 +68,10 @@ class AHB2AXI4(Module):
         self.specials += Instance("ahb2axi4",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             # Global AXI
             p_data_width        = Instance.PreformattedParam(data_width),
             p_addr_width        = Instance.PreformattedParam(address_width),

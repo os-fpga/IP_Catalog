@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axil_interconnect #
 (
+    parameter IP_TYPE 		= "AXIL_IC",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2591801,
+    
     // Number of AXI inputs (slave interfaces)
     parameter S_COUNT = 4,
     // Number of AXI outputs (master interfaces)

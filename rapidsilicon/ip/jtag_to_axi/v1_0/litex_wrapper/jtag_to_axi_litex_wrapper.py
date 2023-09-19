@@ -80,6 +80,10 @@ class JTAGAXI(Module):
         self.specials += Instance("jtag_to_axi_top",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE               = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                 = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION            = Instance.PreformattedParam("IP_VERSION"),
             p_C_S_AXI_ID_WIDTH      = Instance.PreformattedParam(m_id_width),
             p_C_S_AXI_DATA_WIDTH    = Instance.PreformattedParam(data_width),
             p_C_S_AXI_ADDR_WIDTH    = Instance.PreformattedParam(address_width),
