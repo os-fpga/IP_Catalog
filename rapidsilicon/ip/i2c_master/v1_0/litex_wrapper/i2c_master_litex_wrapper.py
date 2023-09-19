@@ -70,6 +70,10 @@ class I2CMASTER(Module):
         self.specials += Instance("i2c_master_axil",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE               = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                 = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION            = Instance.PreformattedParam("IP_VERSION"),
             p_CMD_FIFO_ADDR_WIDTH   = Instance.PreformattedParam(cmd_addr_width),
             p_WRITE_FIFO_ADDR_WIDTH = Instance.PreformattedParam(write_addr_width),
             p_READ_FIFO_ADDR_WIDTH  = Instance.PreformattedParam(read_addr_width),

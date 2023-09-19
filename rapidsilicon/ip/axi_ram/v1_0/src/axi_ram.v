@@ -30,6 +30,10 @@ THE SOFTWARE.
 
 module axi_ram #
 (
+    parameter IP_TYPE 		= "AXI_RAM",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2591524,
+    
     // Width of data bus in bits
     parameter DATA_WIDTH = 32,
     // Width of address bus in bits

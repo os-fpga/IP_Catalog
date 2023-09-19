@@ -54,6 +54,10 @@ class AXILITECROSSBAR(Module):
         self.specials += Instance("axil_crossbar",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             p_S_COUNT           = Instance.PreformattedParam(len(s_axil)),
             p_M_COUNT           = Instance.PreformattedParam(len(m_axil)),
             p_DATA_WIDTH        = Instance.PreformattedParam(data_width),

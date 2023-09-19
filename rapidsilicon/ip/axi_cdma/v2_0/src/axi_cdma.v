@@ -64,6 +64,9 @@
 // `define			AXI3
 // }}}
 module	axi_cdma #(
+		parameter IP_TYPE 		= "CDMA2",
+		parameter IP_VERSION 	= 32'h1, 
+		parameter IP_ID 		= 32'h2591451,
 		// {{{
 		parameter	C_AXI_ID_WIDTH = 1,
 		parameter	C_AXI_ADDR_WIDTH = 32,
