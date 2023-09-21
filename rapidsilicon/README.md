@@ -32,13 +32,14 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── axis_ram_switch
 			├── axis_switch
 			├── axis_uart
-			├── axis_width_converter
+			├── boot_clock
 			├── dsp_generator
 			├── fifo_generator
 			├── i2c_master
 			├── i2c_slave
 			├── jtag_to_axi
 			├── on_chip_memory
+			├── pll
 			├── priority_encoder
 			├── reset_release
 			└── vexriscv_cpu
