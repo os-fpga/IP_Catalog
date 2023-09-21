@@ -95,8 +95,8 @@ initial begin
 end
 
 FIFO #(
-    .DATA_WIDTH_WRITE(data_width_write1),
-    .DATA_WIDTH_READ(data_width_read1),
+    .DATA_WRITE_WIDTH(data_width_write1),
+    .DATA_READ_WIDTH(data_width_read1),
     .SYNC_FIFO(FIFO_TYPE1),
     .PROG_FULL_THRESH(PROG_FULL_THRESH1),
     .PROG_EMPTY_THRESH(PROG_EMPTY_THRESH1)
@@ -120,8 +120,8 @@ FIFO18K_1 (
 );
 
 FIFO #(
-    .DATA_WIDTH_WRITE(data_width_write2),
-    .DATA_WIDTH_READ(data_width_read2),
+    .DATA_WRITE_WIDTH(data_width_write2),
+    .DATA_READ_WIDTH(data_width_read2),
     .SYNC_FIFO(FIFO_TYPE2),
     .PROG_FULL_THRESH(PROG_FULL_THRESH2),
     .PROG_EMPTY_THRESH(PROG_EMPTY_THRESH2)
