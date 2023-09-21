@@ -223,9 +223,9 @@ class FIFO(Module):
                                     i_WR_EN         = self.wren_int[count],
 
                                     # Output      
-                                    o_RD_DATA       = self.dout[j:data + j],
-                                    o_EMPTY         = self.empty[count],
-                                    o_FULL          = self.full[count],
+                                    o_RD_DATA       = self.dout_int[count][j:data + j],
+                                    o_EMPTY         = self.empty_int[count],
+                                    o_FULL          = self.full_int[count],
                                     o_UNDERFLOW     = self.underflow_int[count],
                                     o_OVERFLOW      = self.overflow_int[count],
                                     o_ALMOST_EMPTY  = self.almost_empty[count],
@@ -651,9 +651,9 @@ class FIFO(Module):
                                     i_WR_EN         = self.wren_int[count],
 
                                     # Output      
-                                    o_RD_DATA       = self.dout[j:data + j],
-                                    o_EMPTY         = self.empty[count],
-                                    o_FULL          = self.full[count],
+                                    o_RD_DATA       = self.dout_int[count][j:data + j],
+                                    o_EMPTY         = self.empty_int[count],
+                                    o_FULL          = self.full_int[count],
                                     o_UNDERFLOW     = self.underflow_int[count],
                                     o_OVERFLOW      = self.overflow_int[count],
                                     o_ALMOST_EMPTY  = self.almost_empty[count],
@@ -1231,7 +1231,7 @@ class FIFO(Module):
             count_loop = 0
             if (k36_flag):
                 for k in range (0, int(mem + (count18K/2)) * math.ceil(data_width/36) + 1, math.ceil(data_width/36)):
-                    if (total_mem > 1):
+                    # if (total_mem > 1):
                         for i in range (k, k + math.ceil(data_width/36)):
                             if (i not in index_array and i < count):
                                 count_loop = count_loop + 1
@@ -1494,7 +1494,7 @@ class FIFO(Module):
                                     count_loop = 0
                         
                 
-            if ((total_mem > 1 and instance == "FIFO36K") or (total_mem >= 1 and instance == "FIFO18KX2")):
+            if ((total_mem >= 1 and instance == "FIFO36K") or (total_mem >= 1 and instance == "FIFO18KX2")):
                 if (not SYNCHRONOUS[synchronous]):
                     self.sync.rd += self.rd_en_flop.eq(self.rden)
                     self.sync.rd += [
