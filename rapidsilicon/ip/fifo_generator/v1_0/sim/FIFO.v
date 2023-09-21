@@ -6,16 +6,16 @@
 
 module FIFO #(
     // Parameter Definition
-    parameter   DATA_WIDTH_WRITE    = 6'd36,
-    parameter   DATA_WIDTH_READ     = 6'd36,
+    parameter   DATA_WRITE_WIDTH    = 6'd36,
+    parameter   DATA_READ_WIDTH     = 6'd36,
     parameter   SYNC_FIFO           = "SYNCHRONOUS",
     parameter   PROG_FULL_THRESH    = 12'b111111111100,
     parameter   PROG_EMPTY_THRESH   = 12'b000000000000
 )
 (
     // Input/Output
-    input wire  [DATA_WIDTH_WRITE-1:0] WR_DATA,
-    output wire [DATA_WIDTH_READ-1:0] RD_DATA,
+    input wire  [DATA_WRITE_WIDTH-1:0] WR_DATA,
+    output wire [DATA_READ_WIDTH-1:0] RD_DATA,
     output wire EMPTY,
     output wire FULL,
     output wire OVERFLOW,
@@ -51,7 +51,7 @@ localparam sync_fifo   = (SYNC_FIFO == "SYNCHRONOUS")     ? 1'b1      : 1'b0;
 
 // FIFO
 generate
-if (DATA_WIDTH_WRITE == 6'd36 && DATA_WIDTH_READ == 6'd36)
+if (DATA_WRITE_WIDTH == 6'd36 && DATA_READ_WIDTH == 6'd36)
     begin
         RS_TDP36K #(
             .MODE_BITS({sync_fifo, {4{3'b110}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b0})
@@ -72,7 +72,7 @@ if (DATA_WIDTH_WRITE == 6'd36 && DATA_WIDTH_READ == 6'd36)
         );
     end
 
-else if (DATA_WIDTH_WRITE == 5'd18 && DATA_WIDTH_READ == 5'd18)
+else if (DATA_WRITE_WIDTH == 5'd18 && DATA_READ_WIDTH == 5'd18)
     begin
         RS_TDP36K #(
             // ----------------------------------------------------------Appending 12th bit as dont care bit
@@ -92,7 +92,7 @@ else if (DATA_WIDTH_WRITE == 5'd18 && DATA_WIDTH_READ == 5'd18)
         );
     end
 
-else if (DATA_WIDTH_WRITE == 4'd9 && DATA_WIDTH_READ == 4'd9)
+else if (DATA_WRITE_WIDTH == 4'd9 && DATA_READ_WIDTH == 4'd9)
     begin
         wire [17:0] rd_data;
         assign RD_DATA = {rd_data[16], rd_data[7:0]};
@@ -113,7 +113,7 @@ else if (DATA_WIDTH_WRITE == 4'd9 && DATA_WIDTH_READ == 4'd9)
             .CLK_B2(second_clk)
         );
     end
-else if (DATA_WIDTH_WRITE == 6'd36 && DATA_WIDTH_READ == 5'd18)
+else if (DATA_WRITE_WIDTH == 6'd36 && DATA_READ_WIDTH == 5'd18)
     begin
         RS_TDP36K #(
             .MODE_BITS({sync_fifo, {2{3'b010}}, {2{3'b110}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b0})
@@ -132,7 +132,7 @@ else if (DATA_WIDTH_WRITE == 6'd36 && DATA_WIDTH_READ == 5'd18)
             .CLK_B2(second_clk)
         );
     end
-else if (DATA_WIDTH_WRITE == 6'd36 && DATA_WIDTH_READ == 4'd9)
+else if (DATA_WRITE_WIDTH == 6'd36 && DATA_READ_WIDTH == 4'd9)
     begin
         wire [17:0] rd_data;
         assign RD_DATA = {rd_data[16], rd_data[7:0]};
@@ -153,7 +153,7 @@ else if (DATA_WIDTH_WRITE == 6'd36 && DATA_WIDTH_READ == 4'd9)
             .CLK_B2(second_clk)
         );
     end
-else if (DATA_WIDTH_WRITE == 5'd18 && DATA_WIDTH_READ == 4'd9)
+else if (DATA_WRITE_WIDTH == 5'd18 && DATA_READ_WIDTH == 4'd9)
     begin
         wire [17:0] rd_data;
         assign RD_DATA = {rd_data[16], rd_data[7:0]};
@@ -174,7 +174,7 @@ else if (DATA_WIDTH_WRITE == 5'd18 && DATA_WIDTH_READ == 4'd9)
             .CLK_B2(second_clk)
         );
     end
-else if (DATA_WIDTH_WRITE == 4'd9 && DATA_WIDTH_READ == 5'd18)
+else if (DATA_WRITE_WIDTH == 4'd9 && DATA_READ_WIDTH == 5'd18)
     begin
         wire [17:0] rd_data;
         assign RD_DATA = {rd_data[17], rd_data[15:8], rd_data[16], rd_data[7:0]};
@@ -195,7 +195,7 @@ else if (DATA_WIDTH_WRITE == 4'd9 && DATA_WIDTH_READ == 5'd18)
             .CLK_B2(second_clk)
         );
     end
-else if (DATA_WIDTH_WRITE == 5'd18 && DATA_WIDTH_READ == 6'd36)
+else if (DATA_WRITE_WIDTH == 5'd18 && DATA_READ_WIDTH == 6'd36)
     begin
         RS_TDP36K #(
             .MODE_BITS({sync_fifo, {2{3'b110}}, {2{3'b010}}, 1'b1, 1'b0, 1'b0, 1'b0, PROG_EMPTY_THRESH, PROG_FULL_THRESH, 39'd0, 1'b0})
