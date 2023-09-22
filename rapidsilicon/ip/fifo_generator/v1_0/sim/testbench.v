@@ -52,12 +52,12 @@ initial begin
         $display("\n**** All Comparison Matched ****\n**** Simulation Passed ****");
     else
         $display("%0d comparison(s) mismatched\nERROR: SIM: Simulation Failed", mismatch);
+    
+    $finish;
 end
 
 initial begin
     $dumpfile("fifo.vcd");
     $dumpvars;
-    #600000;
-    $finish;
 end
 endmodule

@@ -50,8 +50,8 @@ class FIFOGenerator(Module):
         self.clock_domains.cd_rd	= ClockDomain()
 
         SYNCHRONOUS = {
-            True    :   "TRUE",
-            False   :   "FALSE"
+            True    :   "SYNCHRONOUS",
+            False   :   "ASYNCHRONOUS"
         }
 	
         self.submodules.fifo = fifo = FIFO(data_width, SYNCHRONOUS[synchronous], full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM)
