@@ -93,7 +93,7 @@ def main():
 
 
     summary =  { 
-    "Frequency in MHz =": 40,
+    "Frequency in MHz " : 40,
   }
 
 
