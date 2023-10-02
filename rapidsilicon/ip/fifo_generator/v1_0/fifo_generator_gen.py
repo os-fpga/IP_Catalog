@@ -6,6 +6,7 @@
 
 import os
 import sys
+import logging
 import argparse
 from pathlib import Path
 import math
@@ -25,8 +26,8 @@ def get_clkin_ios(data_width_write, data_width_read):
     return [
         ("clk",        0,  Pins(1)),
         ("rst",        0,  Pins(1)),
-		("wrt_clock",  0,	Pins(1)),
-        ("rd_clock",   0,	Pins(1)),
+		("wrt_clock",  0,  Pins(1)),
+        ("rd_clock",   0,  Pins(1)),
         ("din",        0,  Pins(data_width_write)),
         ("dout",       0,  Pins(data_width_read)),
         ("wr_en",      0,  Pins(1)),
@@ -38,6 +39,25 @@ def get_clkin_ios(data_width_write, data_width_read):
         ("prog_full",  0,  Pins(1)),
         ("prog_empty", 0,  Pins(1))
     ]
+
+# Data Width Read Limitations ---------------------------------------------------------------------
+
+def factors_multiples(number):
+    factors = []
+    for i in range(2, number + 1):
+        if number % i == 0:
+            factors.append(i)
+    sequence = []
+    while (number not in sequence):
+        sequence = [min(factors)]
+        while sequence[-1] * 2 <= 128:
+            next_number = sequence[-1] * 2
+            sequence.append(next_number)
+        if number in sequence:
+            break
+        else:
+            factors.pop(0)
+    return sequence
 
 # FIFO Generator ----------------------------------------------------------------------------------
 class FIFOGenerator(Module):
@@ -90,28 +110,32 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="fifo_generator", language="verilog")
+
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--data_width",         type=int,   default=36,  	choices=range(1,129),   help="FIFO Write/Read Width")
     core_range_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=range(1,129),   help="FIFO Write Width")
-    core_range_param_group.add_argument("--data_width_read",    type=int,   default=36,  	choices=range(1,129),   help="FIFO Read Width")
-    core_range_param_group.add_argument("--full_value",         type=int,   default=2,	    choices=range(2,4095),  help="Full Value")
-    core_range_param_group.add_argument("--empty_value",        type=int,   default=1,  	choices=range(1,4095),  help="Empty Value")
+    core_range_param_group.add_argument("--full_value",         type=int,   default=2,      choices=range(2,4095),  help="Full Value")
+    core_range_param_group.add_argument("--empty_value",        type=int,   default=1,      choices=range(1,4095),  help="Empty Value")
     core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--DEPTH",      type=int,     default=1024,   choices=[4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768],   help="FIFO Depth")
+    core_fix_param_group.add_argument("--data_width_read",  type=int,   default=36,  	choices=[1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23 , 24 , 25 , 26 , 27 , 28 , 29 , 30 , 31 , 32 , 33 , 34 , 35 , 36 , 37 , 38 , 39 , 40 , 41 , 42 , 43 , 44 , 45 , 46 , 47 , 48 , 49 , 50 , 51 , 52 , 53 , 54 , 55 , 56 , 57 , 58 , 59 , 60 , 61 , 62 , 63 , 64 , 65 , 66 , 67 , 68 , 69 , 70 , 71 , 72 , 73 , 74 , 75 , 76 , 77 , 78 , 79 , 80 , 81 , 82 , 83 , 84 , 85 , 86 , 87 , 88 , 89 , 90 , 91 , 92 , 93 , 94 , 95 , 96 , 97 , 98 , 99 , 100 , 101 , 102 , 103 , 104 , 105 , 106 , 107 , 108 , 109 , 110 , 111 , 112 , 113 , 114 , 115 , 116 , 117 , 118 , 119 , 120 , 121 , 122 , 123 , 124 , 125 , 126 , 127 , 128, 144],   help="FIFO Read Width")
+    core_fix_param_group.add_argument("--DEPTH",            type=int,   default=1024,   choices=[4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768],   help="FIFO Depth")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--synchronous",  			type=bool,   default=True,    help="Synchronous / Asynchronous Clock")
+    core_bool_param_group.add_argument("--synchronous",             type=bool,   default=True,    help="Synchronous / Asynchronous Clock")
     core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,   help="Fist Word Fall Through")
-    core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=True,	  help="Full Threshold")
+    core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	  help="Full Threshold")
     core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
     core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
-    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
+    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=True,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -149,12 +173,14 @@ def main():
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
                 if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
                     parser._actions[5].default = 2 ** round(math.log2(args.depth))
-                parser._actions[3].choices = range(2, args.DEPTH)
-                parser._actions[4].choices = range(1, args.DEPTH)
+                parser._actions[2].choices = range(2, args.DEPTH)
+                parser._actions[3].choices = range(1, args.DEPTH)
                 if (args.full_value >= args.DEPTH):
-                    parser._actions[3].default = args.DEPTH - 1
+                    parser._actions[2].default = args.DEPTH - 1
                 if (args.empty_value >= args.DEPTH):    
-                    parser._actions[4].default = 1
+                    parser._actions[3].default = 1
+                parser._actions[4].choices = factors_multiples(args.data_width_write)
+                parser._actions[4].default = args.data_width_write
             else:
                 option_strings_to_remove = ['--data_width_read']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -174,12 +200,14 @@ def main():
             if (args.asymmetric):
                 option_strings_to_remove = ['--data_width']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                parser._actions[3].choices = range(2, args.depth)
-                parser._actions[4].choices = range(1, args.depth)
+                parser._actions[2].choices = range(2, args.depth)
+                parser._actions[3].choices = range(1, args.depth)
                 if (args.full_value >= args.depth):
-                    parser._actions[3].default = args.depth - 1
+                    parser._actions[2].default = args.depth - 1
                 if (args.empty_value >= args.depth):    
-                    parser._actions[4].default = 1
+                    parser._actions[3].default = 1
+                parser._actions[5].choices = factors_multiples(args.data_width_write)
+                parser._actions[5].default = args.data_width_write
             else:
                 option_strings_to_remove = ['--data_width_read']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -244,7 +272,9 @@ def main():
         file.write_text(text)
         text = text.replace("FIFO_generator", "%s" % build_name)
         file.write_text(text)
-        text = text.replace("localparam WIDTH = 36", "localparam WIDTH = %s" % args.data_width)
+        text = text.replace("localparam WRITE_WIDTH = 36", "localparam WRITE_WIDTH = %s" % data_width_write)
+        file.write_text(text)
+        text = text.replace("localparam READ_WIDTH = 36", "localparam READ_WIDTH = %s" % data_width_read)
         file.write_text(text)
         if (not args.synchronous):
             if (args.BRAM):
