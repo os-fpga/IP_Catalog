@@ -95,7 +95,7 @@ def main():
     
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--divided_clks",   type=int,   default=4,     choices=[1,2,3,4],    help="Divided clocks to be generated from fast clock")
+    core_fix_param_group.add_argument("--divided_clks",   type=int,   default=4,     choices=[1,2,3,4],                                     help="Divided clocks to be generated from fast clock")
     core_fix_param_group.add_argument("--clk_out0_div",   type=int,   default=2,     choices=[2,3,4,5,6,7,8,10,12,16,20.24,32,40,48,64],    help="CLK_OUT0 divider value")
     core_fix_param_group.add_argument("--clk_out1_div",   type=int,   default=2,     choices=[2,3,4,5,6,7,8,10,12,16,20.24,32,40,48,64],    help="CLK_OUT1 divider value")
     core_fix_param_group.add_argument("--clk_out2_div",   type=int,   default=2,     choices=[2,3,4,5,6,7,8,10,12,16,20.24,32,40,48,64],    help="CLK_OUT2 divider value")
@@ -104,11 +104,11 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--fast_clk_freq",     type=int,   default=1600,     choices=range(800,3201),     help="Freq in MHz")
-    core_range_param_group.add_argument("--ref_clk_freq",       type=int,   default=5,      choices=range(5, 1201),     help="RAM ID Width")
+    core_range_param_group.add_argument("--ref_clk_freq",       type=int,   default=5,      choices=range(5, 1201),     help="Freq in MHz")
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--divide_clk_in_by_2",    type=bool,   default=False,    help="RAM Pipelined Output")
+    core_bool_param_group.add_argument("--divide_clk_in_by_2",    type=bool,   default=False,    help="Divide input clock by 2")
 
 
     # Build Parameters.
@@ -145,11 +145,11 @@ def main():
     'Interface' : 'Native',
     'Description' : "PLL IP core is a key component in chip design, used to generate stable clock signals from an input reference clock. Its essential for precise synchronization and clock management in modern integrated circuits, ensuring reliable performance across various applications."}}
 
-
     summary =  { 
-    "Frequency in MHz =": 40,
+    "Number of divided clocks ": args.divided_clks,
+    "Fast clock frequency selected": args.fast_clk_freq,
+    "Input reference clock frequency": args.ref_clk_freq,
   }
-
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
@@ -171,7 +171,7 @@ def main():
               clk_out1_div=args.clk_out1_div,
               clk_out2_div=args.clk_out2_div,
               clk_out3_div=args.clk_out3_div)
-
+a
     # Build Project --------------------------------------------------------------------------------
     if args.build:
         rs_builder.prepare(
