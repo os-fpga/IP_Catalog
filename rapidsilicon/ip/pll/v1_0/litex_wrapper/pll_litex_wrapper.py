@@ -38,7 +38,7 @@ def colorer(s, color="bright"):
 # PLL Wrapper ------------------------------------------------------------------------------------
 
 class PLL(Module):
-    def __init__(self, platform, divide_clk_in_by_2, pll_mult, pll_div, clk_out0_div, clk_out1_div, clk_out2_div, clk_out3_div, **kwargs):
+    def __init__(self, platform, divided_clks, divide_clk_in_by_2, fast_clk_freq, ref_clk_freq, clk_out0_div, clk_out1_div, clk_out2_div, clk_out3_div, **kwargs):
         self.logger = logging.getLogger("PLL")
         self.logger.propagate = True
 
@@ -51,8 +51,8 @@ class PLL(Module):
         self.logger.info(f"=================== PARAMETERS ====================")
         
         self.logger.info(f"DIVIDE_CLK_IN_BY_2   : {divide_clk_in_by_2}")
-        self.logger.info(f"PLL_MULT             : {pll_mult}")
-        self.logger.info(f"PLL_DIV              : {pll_div}")
+#        self.logger.info(f"PLL_MULT             : {pll_mult}")
+#        self.logger.info(f"PLL_DIV              : {pll_div}")
         self.logger.info(f"CLK_OUT0_DIV         : {clk_out0_div}")
         self.logger.info(f"CLK_OUT1_DIV         : {clk_out1_div}")
         self.logger.info(f"CLK_OUT2_DIV         : {clk_out2_div}")
@@ -73,32 +73,34 @@ class PLL(Module):
         self.GEARBOX_FAST_CLK = Signal()
         self.LOCK = Signal()
 
-        self.specials += Instance("PLL",
-            **kwargs,
-
-            p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
-            p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
-            p_PLL_DIV               = Instance.PreformattedParam(pll_div),
-            p_CLK_OUT0_DIV          = Instance.PreformattedParam(clk_out0_div),
-            p_CLK_OUT1_DIV          = Instance.PreformattedParam(clk_out1_div),
-            p_CLK_OUT2_DIV          = Instance.PreformattedParam(clk_out2_div),
-            p_CLK_OUT3_DIV          = Instance.PreformattedParam(clk_out3_div),
-
-            i_PLL_EN                = self.PLL_EN,
-            i_CLK_IN                = self.CLK_IN,
-            i_CLK_OUT0_EN           = self.CLK_OUT0_EN,
-            i_CLK_OUT1_EN           = self.CLK_OUT1_EN,
-            i_CLK_OUT2_EN           = self.CLK_OUT2_EN,
-            i_CLK_OUT3_EN           = self.CLK_OUT3_EN,
-            o_CLK_OUT0              = self.CLK_OUT0,
-            o_CLK_OUT1              = self.CLK_OUT1,
-            o_CLK_OUT2              = self.CLK_OUT2,
-            o_CLK_OUT3              = self.CLK_OUT3,
-            o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
-            o_LOCK                  = self.LOCK
-        )
-
-        self.add_sources(platform)
+        if divided_clks == 3:
+            self.specials += Instance("PLL",
+                **kwargs,
+    
+                p_DIVIDED_CLKS          = Instance.PreformattedParam(divided_clks),
+                P_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
+                p_FAST_CLK_FREQ         = Instance.PreformattedParam(fast_clk_freq),
+                p_REF_CLK_FREQ          = Instance.PreformattedParam(ref_clk_freq),
+                p_CLK_OUT0_DIV          = Instance.PreformattedParam(clk_out0_div),
+                p_CLK_OUT1_DIV          = Instance.PreformattedParam(clk_out1_div),
+                p_CLK_OUT2_DIV          = Instance.PreformattedParam(clk_out2_div),
+                p_CLK_OUT3_DIV          = Instance.PreformattedParam(clk_out3_div),
+    
+                i_PLL_EN                = 1,
+                i_CLK_IN                = self.CLK_IN,
+                i_CLK_OUT0_EN           = self.CLK_OUT0_EN,
+                i_CLK_OUT1_EN           = 0,
+                i_CLK_OUT2_EN           = 0,
+                i_CLK_OUT3_EN           = 0,
+                o_CLK_OUT0              = self.CLK_OUT0,
+                o_CLK_OUT1              = self.CLK_OUT1,
+                o_CLK_OUT2              = self.CLK_OUT2,
+                o_CLK_OUT3              = self.CLK_OUT3,
+                o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
+                o_LOCK                  = self.LOCK
+            )
+    
+            self.add_sources(platform)
 
     @staticmethod
     def add_sources(platform):
