@@ -139,9 +139,12 @@ def main():
 
     args = parser.parse_args()
 
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     fabric_mem = 4194432
     if args.json:
+            #Exporting Details.json
+
         args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         for key, value in vars(args).items():
             if args_1.data_width <= 128 and args_1.data_width > 64 :
@@ -169,9 +172,28 @@ def main():
                 parser._actions[3].default = 1024
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
+        rs_builder.import_ip_details_json(json_filename=args.json, build_dir=args.build_dir ,details=details , build_name = args.build_name, version= "v1_0")
+
+
+
+    details =  {   "IP details": {
+    'Name' : 'axi_asynchronus_fifo',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'The AXI Async FIFO is an AXI full compliant customize-able asynchronous FIFO. It can be used to store and retrieve ordered data at different clock domains, while using optimal resources.'}}
+
+
+    summary =  { 
+    "AXI Data width programmed": args.data_width,
+    "Write depth selected": args.write_depth,
+    "Memory Type selected": args.memory_type,
+  }
+    if args.common_clk:
+        summary["common clock has been selected"] = args.common_clk
+
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict , summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
