@@ -2,14 +2,15 @@
 
 module testbench;
 localparam DEPTH = 2048;
-localparam WIDTH = 36;
-reg [WIDTH - 1:0] din; wire [WIDTH - 1:0] dout;
+localparam WRITE_WIDTH = 36;
+localparam READ_WIDTH = 36;
+reg [WRITE_WIDTH - 1:0] din; wire [READ_WIDTH - 1:0] dout;
 reg wrt_clk, rd_clk, rst, wr_en, rd_en; wire full, empty, almost_empty, almost_full, underflow, overflow, prog_empty, prog_full;
 FIFO_generator fifo(.din(din), .dout(dout), .wrt_clock(wrt_clk), .rd_clock(rd_clk), .rst(rst), .wr_en(wr_en), .rd_en(rd_en),
 .full(full), .empty(empty), .underflow(underflow), .overflow(overflow));
 integer mismatch = 0; integer i = 0;
-reg [WIDTH - 1:0] mem [0:DEPTH];
-reg [WIDTH - 1:0] a;
+reg [WRITE_WIDTH - 1:0] mem [0:DEPTH];
+reg [WRITE_WIDTH - 1:0] a;
 initial begin
     rst = 1'b1;
     rd_en = 1'b0;
@@ -41,12 +42,13 @@ initial begin
     repeat (1) @ (posedge wrt_clk);
     wr_en = 1'b0;
     rd_en = 1'b1;
-    for (integer i=1; i<=DEPTH; i=i+1) begin
-        repeat (1) @ (posedge rd_clk);
+    for (integer i=1; i<=DEPTH+1; i=i+1) begin
+        
         if (dout !== mem [i]) begin
             $display("DOUT mismatch. din: %0d, dout: %0d, Entry No.: %0d", mem[i], dout, i);
             mismatch = mismatch+1;
         end
+        repeat (1) @ (posedge rd_clk);
     end
     rd_en = 1'b0;
 
