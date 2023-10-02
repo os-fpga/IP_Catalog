@@ -56,7 +56,7 @@ def main():
 
     # Parameter Dependency dictionary
     #                Ports     :    Dependency
-    dep_dict = {}            
+    dep_dict = {'period' :   'True'}            
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="boot_clock", language="verilog")
@@ -84,13 +84,27 @@ def main():
 
     args = parser.parse_args()
 
+
+    details =  {"IP details": {
+    'Name' : 'Boot Clock',
+    'Version' : 'V1_0',
+    'Interface' : 'Native',
+    'Description' : 'This is an oscillator IP.'}}
+
+
+    summary =  { 
+    "Frequency in MHz " : 40,
+  }
+
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict , summary=summary)
+        rs_builder.import_ip_details_json(json_filename=args.json, build_dir=args.build_dir ,details=details)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
