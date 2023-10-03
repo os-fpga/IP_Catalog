@@ -282,14 +282,44 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    details =  {   "IP details": {
+    'Name' : 'VexRiscv_CPU',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'The VexRiscv CPU is a 32 bit, AXI4 compliant socomputations on FPGAs in the form of soft SoCs. It is a modern and complete soft processor that can be used to boot Operating Systems or used in a bare metal fashion.'}
+    }
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
 
+    summary =  { 
+    "AXI Data Width": "32",
+    "AXI ID Width": "1",
+    "CPU Mode Selected": args.variant,
+    }
+    # Calculate the value based on args.variant
+    if args.variant == "Cache_MMU_PLIC_CLINT":
+        cached_value = "  0x00000000-0xEFFFFFFF "
+        uncached_value = " >0xF0000000 "
+        interrupt = "PLIC and CLINT"
+    elif args.variant == "Cache_MMU":
+        cached_value = " 0x00000000-0xEFFFFFFF"
+        uncached_value = " >0xF0000000 "
+        interrupt = "Timers, External and Software"
+    else:
+        cached_value = " - "  # Provide a default value if needed
+        uncached_value = " Entire Range "
+        interrupt = "Timers, External and Software"
+    summary["Cached Region"] = cached_value
+    summary["Uncached Region"] = uncached_value
+    summary["Interrupt Type"] = interrupt
+        
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
