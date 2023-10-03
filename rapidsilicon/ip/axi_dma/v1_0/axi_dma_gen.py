@@ -233,9 +233,17 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'AXI Direct Memory Access',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI4, AXI-Stream',
+    'Description' : 'The AXI DMA soft IP facilitates seamless, high-speed data transfer between memory and peripherals bypassing any CPU, enhancing overall FPGA system efficiency and performance. This IP core simplifies complex data handling tasks, making it a valuable addition to various FPGA designs.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
 
         if (args.axis_id_enable == False):
             dep_dict.update({
@@ -263,10 +271,22 @@ def main():
             })        
 
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    
+    summary =  { 
+    "AXI Data Width": args.axi_data_width,
+    "AXI Address Width": args.axi_addr_width,
+    "Read Descriptor Input": "AXI",
+    "Read Descriptor Status Output": "AXI",
+    "Read Data Output": "AXI-Stream",
+    "Write Descriptor Input" : "AXI",
+    "Write Descriptor Status Output": "AXI",
+    "Write Data Input" : "AXI-Stream",
+    "Master Interface" : "AXI"
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
