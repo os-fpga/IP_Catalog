@@ -196,10 +196,19 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    details =  {   "IP details": {
+    'Name' : 'DSP Generator',
+    'Version' : 'V1_0',
+    'Interface' : 'Native',
+    'Description' : 'DSP Generator IP is a versatile solution that tailors DSP IPs based on specified parameters. It offers pre-built functions, optimizing performance by allowing the configuration of different multiplicative algorithms suited for custom requirements.'}
+    }
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+
         if (args.equation == "AxB"):
             dep_dict.update({
                 'c_width'     :     'True',
@@ -241,10 +250,91 @@ def main():
                     'h_width'     :     'True'
                 })
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    
+    summary =  { 
+    "Multiplier" : args.equation
+    }
+    if(args.feature == "Base"):
+        summary["Algorithm"] = "Karatsuba Algorithm"
+        summary["Latency (clock cycles)"] = "1"
+        if(args.equation == "AxB"):
+            if ((args.a_width > 54 and args.a_width <=72) or (args.b_width > 54 and args.b_width <=72)):
+                summary["Count of DSPs"] = "16"
+            elif ((args.a_width > 36 and args.a_width <=54) or (args.b_width > 36 and args.b_width <=54)):
+                summary["Count of DSPs"] = "9"
+            elif ((args.a_width > 20 and args.a_width <=36) or (args.b_width > 18 and args.b_width <=36)):
+                summary["Count of DSPs"] = "4"
+            else:
+                summary["Count of DSPs"] = "1"
+        elif (args.equation == "AxB+CxD"):
+            summary["Count of DSPs"] = "2"
+        else:
+            summary["Count of DSPs"] = "4"
+    elif (args.feature == "Enhanced"):
+        summary["Algorithm"] = "Karatsuba-Offman Algorithm"
+        summary["Latency (clock cycles)"] = "1"
+        if(args.unsigned):
+            if ((args.a_width > 51 and args.a_width <=68) or (args.b_width > 51 and args.b_width <=68)):
+                summary["Count of DSPs"] = "10"
+            elif ((args.a_width > 34 and args.a_width <=51) or (args.b_width > 34 and args.b_width <=51)):
+                summary["Count of DSPs"] = "6"
+            elif ((args.a_width > 20 and args.a_width <=34) or (args.b_width > 18 and args.b_width <=34)):
+                summary["Count of DSPs"] = "3"
+            else:
+                summary["Count of DSPs"] = "1"
+        else:
+            if ((args.a_width > 48 and args.a_width <=64) or (args.b_width > 48 and args.b_width <=64)):
+                summary["Count of DSPs"] = "10"
+            elif ((args.a_width > 32 and args.a_width <=48) or (args.b_width > 32 and args.b_width <=48)):
+                summary["Count of DSPs"] = "6"
+            elif ((args.a_width > 20 and args.a_width <=32) or (args.b_width > 18 and args.b_width <=32)):
+                summary["Count of DSPs"] = "3"
+            else:
+                summary["Count of DSPs"] = "1"
+    else:
+        summary["Algorithm"] = "Pipelined Algorithm"
+        if(args.unsigned):
+            if ((args.a_width > 54 and args.a_width <=72) or (args.b_width > 54 and args.b_width <=72)):
+                summary["Count of DSPs"] = "7"
+                summary["Latency (clock cycles)"] = "4"
+            elif ((args.a_width > 36 and args.a_width <=54) or (args.b_width > 36 and args.b_width <=54)):
+                summary["Count of DSPs"] = "5"
+                summary["Latency (clock cycles)"] = "3"
+            elif ((args.a_width > 20 and args.a_width <=36) or (args.b_width > 18 and args.b_width <=36)):
+                summary["Count of DSPs"] = "3"
+                summary["Latency (clock cycles)"] = "2"
+            else:
+                summary["Count of DSPs"] = "1"
+                summary["Latency (clock cycles)"] = "1"
+        else:
+            if ((args.a_width > 51 and args.a_width <=68) or (args.b_width > 51 and args.b_width <=68)):
+                summary["Count of DSPs"] = "7"
+                summary["Latency (clock cycles)"] = "4"
+            elif ((args.a_width > 34 and args.a_width <=51) or (args.b_width > 34 and args.b_width <=51)):
+                summary["Count of DSPs"] = "5"
+                summary["Latency (clock cycles)"] = "3"
+            elif ((args.a_width > 20 and args.a_width <=34) or (args.b_width > 18 and args.b_width <=34)):
+                summary["Count of DSPs"] = "3"
+                summary["Latency (clock cycles)"] = "2"
+            else:
+                summary["Count of DSPs"] = "1"
+                summary["Latency (clock cycles)"] = "1"
+    if (args.unsigned and not args.reg_in):
+        summary["Input"] = "Unregistered and Unsigned"
+    elif (args.unsigned and args.reg_in):
+        summary["Input"] = "Registered and Unsigned"
+    elif (not args.unsigned and args.reg_in):
+        summary["Input"] = "Registered and Signed"
+    else:
+        summary["Input"] = "Unregistered and Signed"
+    if (args.reg_out):
+        summary["Output"] = "Registered Output"
+    else:
+        summary["Output"] = "Unregistered Output"
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
