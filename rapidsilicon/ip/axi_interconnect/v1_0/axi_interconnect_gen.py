@@ -113,14 +113,6 @@ def main():
     core_fix_param_group.add_argument("--data_width",     type=int,     default=32,     choices=[8, 16, 32, 64, 128, 256],  help="AXI Data Width.")
     core_fix_param_group.add_argument("--addr_width",     type=int,     default=32,     choices=[32, 64, 128],              help="AXI Address Width.")
 
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--aw_user_en",     type=bool,   default=True,   help="AW-Channel User Enable.")
-    core_bool_param_group.add_argument("--w_user_en",      type=bool,   default=True,   help="W-Channel User Enable.")
-    core_bool_param_group.add_argument("--b_user_en",      type=bool,   default=True,   help="B-Channel User Enable.")
-    core_bool_param_group.add_argument("--ar_user_en",     type=bool,   default=True,   help="AR-Channel User Enable.")
-    core_bool_param_group.add_argument("--r_user_en",      type=bool,   default=True,   help="R-Channel User Enable.")
-
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--m_count",        type=int,       default=4,      choices=range(1,17),          help="Interconnect Master Interfaces.")
@@ -131,6 +123,14 @@ def main():
     core_range_param_group.add_argument("--b_user_width",   type=int,       default=1,      choices=range(1, 1025),       help="B-Channel User Width.")
     core_range_param_group.add_argument("--ar_user_width",  type=int,       default=1,      choices=range(1, 1025),       help="AR-Channel User Width.")
     core_range_param_group.add_argument("--r_user_width",   type=int,       default=1,      choices=range(1, 1025),       help="R-Channel User Width.")
+    
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--aw_user_en",     type=bool,   default=True,   help="AW-Channel User Enable.")
+    core_bool_param_group.add_argument("--w_user_en",      type=bool,   default=True,   help="W-Channel User Enable.")
+    core_bool_param_group.add_argument("--b_user_en",      type=bool,   default=True,   help="B-Channel User Enable.")
+    core_bool_param_group.add_argument("--ar_user_en",     type=bool,   default=True,   help="AR-Channel User Enable.")
+    core_bool_param_group.add_argument("--r_user_en",      type=bool,   default=True,   help="R-Channel User Enable.")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -144,14 +144,40 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    
+    details =  {   "IP details": {
+    'Name' : 'AXI INTERCONNECT',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'AXI INTERCONNECT is a AXI4 compliant IP Core. This IP Core serves as a crucial bridge in FPGA and SoC designs, facilitating efficient and scalable communication between various components and peripherals. It acts as a central hub, connecting multiple AXI masters to AXI slaves within the system.'}
+    }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
+    summary =  { 
+    "NUMBER OF MASTER INTERFACES": args.m_count,
+    "NUMBER OF SLAVE INTERFACES": args.s_count,
+    "AXI DATA PORT WIDTH": args.data_width,
+    "AXI ADDR PORT WIDTH": args.addr_width
+    # "ID WIDTH": args.id_width,
+    # "AW USER WIDTH": args.aw_user_width,
+    # "W USER WIDTH": args.w_user_width,
+    # "B USER WIDTH": args.b_user_width,
+    # "AR USER WIDTH": args.ar_user_width,
+    # "R USER WIDTH": args.r_user_width,
+    # "AW USER ENABLE": args.aw_user_en,
+    # "W USER ENABLE": args.w_user_en,
+    # "B USER ENABLE": args.b_user_en,
+    # "AR USER ENABLE": args.ar_user_en,
+    # "R USER ENABLE": args.r_user_en
+    }
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

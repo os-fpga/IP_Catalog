@@ -108,14 +108,6 @@ def main():
     logging.info("===================================================")
     logging.info("IP    : %s", rs_builder.ip_name.upper())
     logging.info(("==================================================="))
-    
-    # Core string parameters.
-    core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--aw_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
-    core_string_param_group.add_argument("--w_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
-    core_string_param_group.add_argument("--b_reg_type",    type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
-    core_string_param_group.add_argument("--ar_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
-    core_string_param_group.add_argument("--r_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
 
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
@@ -131,6 +123,14 @@ def main():
     core_range_param_group.add_argument("--ar_user_width",      type=int,       default=1,      choices=range(1, 1025),     help="Register AR-User Width.")
     core_range_param_group.add_argument("--r_user_width",       type=int,       default=1,      choices=range(1, 1025),     help="Register R-User Width.")
 
+# Core string parameters.
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
+    core_string_param_group.add_argument("--aw_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--w_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--b_reg_type",    type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--ar_reg_type",   type=str,      default="Simple_Buffer",    choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+    core_string_param_group.add_argument("--r_reg_type",    type=str,      default="Skid_Buffer",      choices=["Bypass", "Simple_Buffer", "Skid_Buffer"],   help="Type of Register")
+
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                help="Build Core")
@@ -144,13 +144,38 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'AXI REGISTER',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'AXI REGISTER is a AXI4 compliant IP Core. This IP Core enables designers to easily integrate customizable registers into their projects, allowing for efficient data storage, control, and configuration. Its adaptability and simplicity make it a valuable addition to FPGA and SoC designs, contributing to their flexibility and ease of customization.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    # "DEPTH": 2**(args.addr_width),
+    "REGISTER SIZE (BYTES)": int(args.data_width/(8))
+    # "ID WIDTH": args.id_width,
+    # "AW USER WIDTH": args.aw_user_width,
+    # "W USER WIDTH": args.w_user_width,
+    # "B USER WIDTH": args.b_user_width,
+    # "AR USER WIDTH": args.ar_user_width,
+    # "R USER WIDTH": args.r_user_width,
+    # "AW REG TYPE": args.aw_reg_type,
+    # "W REG TYPE": args.w_reg_type,
+    # "R REG TYPE": args.r_reg_type,
+    # "AR REG TYPE": args.ar_reg_type,
+    # "R REG TYPE": args.r_reg_type
+    }
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
