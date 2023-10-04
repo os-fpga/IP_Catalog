@@ -138,10 +138,18 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    
+    details =  {   "IP details": {
+    'Name' : 'AXI-STREAM PIPELINE REGISTER',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI-STREAM',
+    'Description' : 'AXI-STREAM PIPELINE REGISTER is a AXI-STREAM compliant IP Core. This IP Core is designed to optimize the flow and processing of data streams using the AXI-Stream protocol. This IP core provides a valuable mechanism for inserting pipeline registers into a data stream, which can help enhance data throughput, reduce latency, and improve system performance. It has ability to add pipeline stages to the data stream, effectively breaking down data processing tasks into smaller, more manageable segments.'}
+    }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
         if (args.id_en == False):
             dep_dict.update({
@@ -168,11 +176,15 @@ def main():
                 'user_width' :   'False',
             })        
 
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-
+    summary =  { 
+    "DATA PORT WIDTH": args.data_width,
+    "REGISTER TYPE IN PIPELINE": args.reg_type,
+    "NUMBER OF REGISTERS IN PIPELINE": args.length
+    }
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
