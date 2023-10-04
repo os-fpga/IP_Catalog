@@ -245,9 +245,17 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'AXI-Stream RAM Switch',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI-Streaming',
+    'Description' : 'The AXIS RAM Switch core is an AXI4-Streaming compliant customizable switch that is designed to be used in applications that require configurable buffered routing between masters and slaves with multiple arbitration options.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         if(args.m_count):
             if (args.m_count == 1):
                 parser._actions[17].choices = range(1, 17)
@@ -262,9 +270,21 @@ def main():
                 parser._actions[18].choices = range(1, math.floor(31/args.s_count) + 1)
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
+    summary =  { 
+    "Master Data Width" : args.m_data_width,
+    "Slave Data Width" : args.s_data_width,
+    "FIFO Depth" : args.fifo_depth,
+    "RAM Pipeline stages" : args.ram_pipeline,
+    "Number of Masters" : args.m_count,
+    "Number of Slaves" : args.s_count,
+    "Masters base address offset" : args.m_base,
+    "Masters top address offset" : args.m_top,
+    "Speed Scale Factor" : args.speedup
+    }
+
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
