@@ -171,7 +171,7 @@ def main():
               clk_out1_div=args.clk_out1_div,
               clk_out2_div=args.clk_out2_div,
               clk_out3_div=args.clk_out3_div)
-a
+
     # Build Project --------------------------------------------------------------------------------
     if args.build:
         rs_builder.prepare(
