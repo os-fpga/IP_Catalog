@@ -7,6 +7,8 @@
 import os
 import sys
 import argparse
+from pathlib import Path
+from datetime import datetime
 
 from migen import *
 
@@ -79,7 +81,7 @@ def main():
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--core_phy",            type=str,  default="mii",        choices=["mii", "model"],  help="Type or PHY (mii or model (Sim)).")
+    core_string_param_group.add_argument("--core_phy",            type=str,  default="model",        choices=["mii", "model"],  help="Type of PHY (mii or model (Sim)).")
     core_string_param_group.add_argument("--core_ntxslots",       type=str,  default="2",          choices=["1", "2", "4"],   help="Number of TX Slots.")
     core_string_param_group.add_argument("--core_nrxslots",       type=str,  default="2",          choices=["1", "2", "4"],   help="Number of RX Slots.")
     core_string_param_group.add_argument("--core_bus_endianness", type=str,  default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
@@ -133,6 +135,39 @@ def main():
             platform   = platform,
             module     = module,
         )
-
+        
+        # IP_ID Parameter
+        now = datetime.datetime.now()
+        my_year         = now.year - 2022
+        year            = (bin(my_year)[2:]).zfill(7) # 7-bits  # Removing '0b' prefix = [2:]
+        month           = (bin(now.month)[2:]).zfill(4) # 4-bits
+        day             = (bin(now.day)[2:]).zfill(5) # 5-bits
+        mod_hour        = now.hour % 12 # 12 hours Format
+        hour            = (bin(mod_hour)[2:]).zfill(4) # 4-bits
+        minute          = (bin(now.minute)[2:]).zfill(6) # 6-bits
+        second          = (bin(now.second)[2:]).zfill(6) # 6-bits
+        
+        # Concatenation for IP_ID Parameter
+        ip_id = ("{}{}{}{}{}{}").format(year, day, month, hour, minute, second)
+        ip_id = ("32'h{}").format(hex(int(ip_id,2))[2:])
+        
+        # IP_VERSION parameter
+        #               Base  _  Major _ Minor
+        ip_version = "00000000_00000000_0000000000000001"
+        ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
+        
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axil_ethernet", "v1_0", args.build_name, "src",args.build_name+".v")
+        new_lines = []
+        with open (wrapper, "r") as file:
+            lines = file.readlines()
+            for i, line in enumerate(lines):
+                if ("module {}".format(args.build_name)) in line:
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"AXILETH\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                else:
+                    new_lines.append(line)
+                
+        with open(os.path.join(wrapper), "w") as file:
+            file.writelines(new_lines)
+        
 if __name__ == "__main__":
     main()
