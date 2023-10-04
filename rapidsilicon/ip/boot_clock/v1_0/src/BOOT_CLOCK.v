@@ -7,7 +7,7 @@
 // Copyright (c) 2023 Rapid Silicon, Inc.  All rights reserved.
 //
 
-module BOOT_CLOCK #(
+module BOOT_CLOCK #( 
   parameter PERIOD = 25.0 // Clock period for simulation purposes (nS)
 ) (
   output reg O = 1'b0 // Clock output
