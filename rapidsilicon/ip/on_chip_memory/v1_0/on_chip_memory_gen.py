@@ -12,6 +12,8 @@ import math
 
 from datetime import datetime
 
+from datetime import datetime
+
 from litex_wrapper.on_chip_memory_litex_wrapper import *
 
 from migen import *
