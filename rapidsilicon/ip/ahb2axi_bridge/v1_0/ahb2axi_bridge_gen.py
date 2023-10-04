@@ -133,6 +133,34 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
+
+
+   #IP Details generation
+    details =  {   "IP details": {
+    'Name' : 'ahb2axi4 bridge',
+    'Version' : 'V1_0',
+    'Interface' : 'AHB and AXI',
+    'Description' : 'This bridge acts as a translator and mediator, facilitating seamless data transfer and control signal synchronization between devices or subsystems designed with AHB-based interfaces and those using AXI4-based interfaces.'}}
+
+
+
+    # Import JSON (Optional) -----------------------------------------------------------------------
+    if args.json:
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version  = "v1_0")
+
+    #IP Summary generation
+    summary =  { 
+    "Data width programmed": args.data_width,
+    "Address width programmed": args.address_width,
+    "AXI ID width programmed": args.id_width,
+    }
+
+
+    # Export JSON Template (Optional) --------------------------------------------------------------
+    if args.json_template:
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+        
     
     
     ahb_interface(args.addr_width,args.data_width)

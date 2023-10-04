@@ -84,27 +84,26 @@ def main():
 
     args = parser.parse_args()
 
-
+    #IP Details generation
     details =  {"IP details": {
     'Name' : 'Boot Clock',
     'Version' : 'V1_0',
     'Interface' : 'Native',
-    'Description' : 'This is an oscillator IP.'}}
-
-
-    summary =  { 
-    "Frequency in MHz " : 40,
-  }
+    'Description' : 'This is an oscillator/clock generation IP.'}}
 
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
+    #IP Summary generation
+    summary =  { 
+    "Frequency in MHz " : 40,
+  }
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict , summary=summary)
-        rs_builder.import_ip_details_json(json_filename=args.json, build_dir=args.build_dir ,details=details)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
