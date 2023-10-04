@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 import argparse
+import math
 
 from datetime import datetime
 
@@ -105,13 +106,28 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'AXI RAM',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'AXI RAM is a AXI4 compliant IP Core. This IP Core can be tailored to meet specific memory size and bandwidth requirements, making it ideal for various embedded systems. Its reliability and scalability make it a valuable component for building efficient and high-performance FPGA and SoC-based designs.'}
+    }
+    
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+        
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "DEPTH": 2**(args.addr_width),
+    "MEMORY SIZE (KB)": math.ceil(((args.data_width * args.addr_width)/(8*1024))*100)
+    # "PIPELINE OUTPUT": args.pip_out
+    }
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
