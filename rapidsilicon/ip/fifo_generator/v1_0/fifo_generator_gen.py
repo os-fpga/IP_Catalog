@@ -40,6 +40,57 @@ def get_clkin_ios(data_width):
         ("prog_empty", 0,  Pins(1))
     ]
 
+
+# Checking the number of clocks for the output to appear -------------------------------------------
+def clock_cycles_to_obtain_desired_output(desired_output_size):
+    max_output_per_block = 36
+    if desired_output_size <= max_output_per_block:
+        # If the desired size can be obtained from a single block, return 1 clock cycle
+        return 1
+    else:
+        # Calculate the number of clock cycles required to obtain the desired size
+        return (desired_output_size + max_output_per_block - 1) // max_output_per_block
+    
+# Counting the total number of BRAMs used ---------------------------------------------------------
+def total_mem(data_width, depth):
+    remaining_memory = 0
+    num_18K = 0
+    num_36K = 0
+    num_9K = 0
+    while remaining_memory < data_width * depth:
+        for i, bus in enumerate(divide_n_bit_number(data_width, depth)):
+            if (len(bus) <= 9):
+                memory = 1024
+                remaining_memory = remaining_memory + (len(bus) * memory)
+                num_9K = num_9K + 1
+            elif (len(bus) <= 18):
+                memory = 1024
+                num_18K = num_18K + 1
+                remaining_memory = remaining_memory + (len(bus) * memory)
+            elif (len(bus) <= 36):
+                memory = 1024
+                num_36K = num_36K + 1
+                remaining_memory = remaining_memory + (len(bus) * memory)
+    return(num_36K + num_18K/2 + num_9K/4)
+
+# Making the read and write data widths into their own buses
+def divide_n_bit_number(number, depth):
+    # Convert the number to a binary string
+    binary_string = '0' * number
+    buses = []
+
+    for i in range(0, len(binary_string), 36):
+        bus = binary_string[i:i+36]
+        buses.append(bus)
+    if (len(buses[-1]) < 36 and len(buses[-1]) > 18 and depth > 1024):
+        for i in range(len(binary_string) - len(buses[-1]), len(binary_string), 18):
+            bus = binary_string[i:i+18]
+            buses.append(bus)
+        buses.pop(-3)
+    
+    return buses
+    
+
 # FIFO Generator ----------------------------------------------------------------------------------
 class FIFOGenerator(Module):
     def __init__(self, platform, data_width, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
@@ -128,9 +179,18 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'FIFO Generator',
+    'Version' : 'V1_0',
+    'Interface' : 'Native',
+    'Description' : 'FIFO Generator IP is a versatile solution that tailors FIFO IPs based on specified parameters. It optimizes data flow, synchronizes components with different data rates, and adapts to various design requirements, offering efficient and customizable data management.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+
         if (args.full_threshold == False):
             dep_dict.update({
                 'full_value'    :   'True'
@@ -162,14 +222,32 @@ def main():
         
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-    # Export JSON Template (Optional) --------------------------------------------------------------
-    if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
-
     if (args.BRAM == False and args.synchronous == False):
         depth = args.DEPTH
     else:
         depth = args.depth
+
+    summary =  { 
+    "Data Width" : args.data_width,
+    "FIFO Depth" : depth,
+    "Latency (clock cycles)" : "1"
+    }
+
+    if(args.first_word_fall_through):
+        summary["FIFO Mode"] = "First Word Fall Through"
+    else:
+        summary["FIFO Mode"] = "Standard"
+    if (args.BRAM):
+        summary["Count of BRAMs"] = total_mem(args.data_width, depth)
+    if (args.empty_threshold):
+        summary["Programmable Empty"] = "Programmble Empty will be asserted at data count %s" % args.empty_value
+    if (args.full_threshold):
+        summary["Programmable Full"] = "Programmble Full will be asserted at data count %s" % args.full_value
+    
+    # Export JSON Template (Optional) --------------------------------------------------------------
+    if args.json_template:
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = FIFOGenerator(platform,
