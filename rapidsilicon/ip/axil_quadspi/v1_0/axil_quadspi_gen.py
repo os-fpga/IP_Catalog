@@ -101,7 +101,7 @@ def main():
         )
         
         # IP_ID Parameter
-        now = datetime.datetime.now()
+        now = datetime.now()
         my_year         = now.year - 2022
         year            = (bin(my_year)[2:]).zfill(7) # 7-bits  # Removing '0b' prefix = [2:]
         month           = (bin(now.month)[2:]).zfill(4) # 4-bits
