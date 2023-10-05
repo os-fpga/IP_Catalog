@@ -41,8 +41,7 @@ class IP_Builder:
 
 
     # JSON template for GUI parsing
-#    def export_json_template(self, parser, dep_dict, summary):
-    def export_json_template(self, parser, dep_dict):
+    def export_json_template(self, parser, dep_dict, summary):
 
         # Get "core_fix_param_group" group.
         core_fix_param_group = None
