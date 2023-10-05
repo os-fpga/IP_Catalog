@@ -127,7 +127,7 @@ def main():
     #IP Summary generation
     summary =  { 
     "External reset window": args.ext_reset_width,
-    "Number of peripheral resets N": args.peripheral_aresetn,
+    "Number of peripheral resets": args.peripheral_aresetn,
     "Number of Interconnects": args.interconnects,
     "Number of bus reserts": args.bus_reset,
     "Number of peripheral resets": args.peripheral_reset,

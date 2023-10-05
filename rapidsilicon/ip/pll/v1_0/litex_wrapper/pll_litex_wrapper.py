@@ -35,13 +35,9 @@ def freq_calc(self, fast_clk_freq, ref_clk_freq, c_range, d_range):
         for d in range(d_range):
             # Calculate 2 * (a / b)
             product_candidate = 2 * (a/ b)
-#            print("product_candidate",product_candidate)
-#            print(f" values found - C: {c}, D: {d}")
             # Check if the candidate product matches the formula with c and d
-#            print("candidate match", ((c+1) / (d+1)))
             if product_candidate == ((c+1) / (d+1)):
                 # If a match is found, assign c, d, and the product to the respective signals
-#                print(f"Matching values found - C: {c}, D: {d}")
                 pll_mult = c + 1
                 pll_div  = d + 1
                 return pll_mult, pll_div
@@ -100,7 +96,7 @@ class PLL(Module):
         self.LOCK = Signal()
 
         pll_mult, pll_div = freq_calc(self, fast_clk_freq, ref_clk_freq, c_range=63, d_range=1000)
-        print("pll_mult", pll_mult , "pll_div", pll_div)
+
 
         if divided_clks == 4:
             self.specials += Instance("PLL",
