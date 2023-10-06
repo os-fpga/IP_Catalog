@@ -81,7 +81,7 @@ module PLL #(
   parameter DIVIDE_CLK_IN_BY_2 = "FALSE", // Enable input divider (TRUE/FALSE)
   parameter PLL_MULT = 16, // Clock multiplier value (16-1000)
   parameter PLL_DIV = 1, // Clock divider value (1-63)
-  parameter CLK_OUT0_DIV = 2, // CLK_OUT0 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)
+  parameter CLK_OUT0_DIV = 2, // CLK_OUT0 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64) 
   parameter CLK_OUT1_DIV = 2, // CLK_OUT1 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)
   parameter CLK_OUT2_DIV = 2, // CLK_OUT2 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)
   parameter CLK_OUT3_DIV = 2 //  CLK_OUT3 divider value (2,3,4,5,6,7,8,10,12,16,20.24.32.40,48,64)

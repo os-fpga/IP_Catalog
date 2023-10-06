@@ -96,14 +96,27 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    
+    details =  {   "IP details": {
+    'Name' : 'PRIORITY ENCODER',
+    'Version' : 'V1_0',
+    'Interface' : 'NATIVE',
+    'Description' : 'PRIORITY ENCODER is a native interface IP Core. This IP Core is designed to efficiently encode and prioritize multiple input signals. This IP Core takes a set of input signals and assigns a priority to each based on their order of occurrence or other specified criteria. It then generates an encoded output, indicating the highest-priority input that is active. Priority Encoders help streamline decision-making processes in digital circuits by efficiently identifying and responding to the most critical events or requests.'}
+    }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
+    summary =  { 
+    "WIDTH OF ENCODING": args.width,
+    "LSB PRIORITY SELECTION": args.lsb_high_priority
+    }
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
