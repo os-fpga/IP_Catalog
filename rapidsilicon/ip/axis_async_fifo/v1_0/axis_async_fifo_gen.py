@@ -187,7 +187,7 @@ def main():
 
     #IP Details generation
     details =  {   "IP details": {
-    'Name' : 'axis_async_fifo',
+    'Name' : 'AXIS Async FIFO',
     'Version' : 'V1_0',
     'Interface' : 'AXI',
     'Description' : 'The AXI Streaming Async FIFO is a customize-able asynchronous FIFO. It can be used to store and retrieve ordered data at different clock domains, while using optimal resources.'}}
