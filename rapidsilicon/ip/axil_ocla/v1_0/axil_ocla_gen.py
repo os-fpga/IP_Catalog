@@ -117,13 +117,7 @@ def main():
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
     core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1, choices=range(1,1025),         help="Number of Probes.")
 
-    # Build Parameters.
-    build_group = parser.add_argument_group(title="Build parameters")
-    build_group.add_argument("--build",         action="store_true",            help="Build Core")
-    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
-    build_group.add_argument("--build-name",    default="axil_ocla_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
-
-    # Core bool value macros.
+ # Core bool value macros.
     core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
     core_bool_param_group.add_argument("--value_compare",                         type=bool, default=False,                                   help="To enable Value Compare feature")
     core_range_param_group.add_argument("--value_compare_probe_width",            type=int,  default=1,         choices=range(1, 32),         help="Width of probe for Value Compare. Only applicable when value compare feature is enable")
@@ -131,6 +125,14 @@ def main():
     core_bool_param_group.add_argument("--trigger_inputs_en",       type=bool, default=False,                                 help="To enable Trigger inputs")
     core_range_param_group.add_argument("--no_of_trigger_inputs",   type=int,  default=1,       choices=range(1,32),          help="Number of Input Triggers.")
     #core_bool_param_group.add_argument("--advance_trigger",     type=bool, default=False,              help="To enable Advance Trigger Mode")
+   
+   
+    # Build Parameters.
+    build_group = parser.add_argument_group(title="Build parameters")
+    build_group.add_argument("--build",         action="store_true",            help="Build Core")
+    build_group.add_argument("--build-dir",     default="./",                   help="Build Directory")
+    build_group.add_argument("--build-name",    default="axil_ocla_wrapper",    help="Build Folder Name, Build RTL File Name and Module Name")
+
     
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -138,14 +140,29 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    details =  {   "IP details": {
+    'Name' : 'OCLA',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI4 Lite ',
+    'Description' : 'The On Chip Logic Analyzer (OCLA) core is a customizable logic analyzer that conforms to the AXI4-Lite specifi-cation and is intended for use in applications that necessitate verification or debugging through the monitoring ofinternal signals within a design on FPGAs'}
+    }
+
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "Number of Probes":args.no_of_probes,
+    "Buffer size": args.mem_depth,
+    # "PIPELINE OUTPUT": args.pip_out
+    }
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")

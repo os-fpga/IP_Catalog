@@ -118,16 +118,30 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'JTAG to AXI',
+    'Version' : 'V1_0',
+    'Interface' : 'JTAG/AXI4 ',
+    'Description' : 'The JTAG-to-AXI IP is an AXI4 compliant IP that can be used to initiate AXI4 transactions inside the FPGA. The IP provides an AXI4 master interface on one side and a JTAG interface on the other side.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "DATA WIDTH":args.data_width,
+    "ADDR WIDTH": args.addr_width,
+    # "PIPELINE OUTPUT": args.pip_out
+    }
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
     # Create Wrapper -------------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini",summary=summary)
     module   = JTAG2AXIWrapper(platform,
         data_width    = args.data_width,
         addr_width    = args.addr_width,
