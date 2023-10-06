@@ -102,13 +102,30 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'AXI-to-AXILite Bridge',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI4, AXI-Lite',
+    'Description' : 'The AXI to AXI-Lite bridge is a hardware component that facilitates communication between devices operating with the AXI protocol and those operating with the AXI-Lite protocol in a system-on-chip (SoC) design. The bridge acts as a mediator between high speed and low speed peripherals.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
+
+    summary =  { 
+    "Data Width": args.data_width,
+    "Address Width": args.addr_width,
+    "ID Width" : args.id_width,
+    "Maximum outstanding AXI-Lite Transactions" : "4096",
+    "Performance" : "One clock per transaction is maintained in most cases. Latency may increase depending on the slave's data path."
+
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

@@ -144,12 +144,20 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-    
+
+
+    #IP Details generation
+    details =  {   "IP details": {
+    'Name' : 'AXI Sync FIFO',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'The AXI FIFO is an AXI full compliant customize-able synchronus FIFO. It can be used to store and retrieve ordered data, while using optimal resources.'}}
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-        if (args_1.aw_user_en == False):
+        if (args.aw_user_en == False):
             dep_dict.update({
                 'aw_user_width' :   'True',
             })
@@ -157,7 +165,7 @@ def main():
             dep_dict.update({
                 'aw_user_width' :   'False',
             })
-        if (args_1.w_user_en == False):
+        if (args.w_user_en == False):
             dep_dict.update({
                 'w_user_width' :   'True',
             })
@@ -165,7 +173,7 @@ def main():
             dep_dict.update({
                 'w_user_width' :   'False',
             })
-        if (args_1.b_user_en == False):
+        if (args.b_user_en == False):
             dep_dict.update({
                 'b_user_width' :   'True',
             })
@@ -173,7 +181,7 @@ def main():
             dep_dict.update({
                 'b_user_width' :   'False',
             })        
-        if (args_1.ar_user_en == False):
+        if (args.ar_user_en == False):
             dep_dict.update({
                 'ar_user_width' :   'True',
             })
@@ -181,7 +189,7 @@ def main():
             dep_dict.update({
                 'ar_user_width' :   'False',
             })
-        if (args_1.r_user_en == False):
+        if (args.r_user_en == False):
             dep_dict.update({
                 'r_user_width' :   'True',
             })
@@ -190,11 +198,24 @@ def main():
                 'r_user_width' :   'False',
             })
 
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
+
+
+
+    #IP Summary generation
+    summary =  { 
+    "AXI FIFO Write Depth selected": args.write_fifo_depth,
+    "AXI FIFO Read Depth selected": args.read_fifo_depth,
+    "AXI FIFO Data width selected": args.data_width,
+#    "AXI Address width programmed": args.addr_width,
+    "AXI ID width selected": args.id_width,
+    }
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+        
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

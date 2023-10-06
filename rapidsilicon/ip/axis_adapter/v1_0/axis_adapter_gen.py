@@ -124,11 +124,19 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    
+    details =  {   "IP details": {
+    'Name' : 'AXI-STREAM INTERCONNECT',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI-STREAM',
+    'Description' : 'AXI-STREAM INTERCONNECT is a AXI-STREAM compliant IP Core. This IP Core is dedicated to facilitating efficient data streaming between various IP blocks and peripherals. Its primary function is to serve as a central hub that connects multiple AXI-Stream data sources and consumers, ensuring smooth and low-latency data flow.'}
+    }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+        
         if (args.id_en == False):
             dep_dict.update({
                 'id_width' :   'True',
@@ -154,11 +162,14 @@ def main():
                 'user_width' :   'False',
             })        
 
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    summary =  { 
+    "MASTER INTERFACE DATA PORT WIDTH": args.m_data_width,
+    "SLAVE INTERFACE DATA PORT WIDTH": args.s_data_width
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

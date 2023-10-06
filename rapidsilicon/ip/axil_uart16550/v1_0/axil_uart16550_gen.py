@@ -119,15 +119,31 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    details =  {   "IP details": {
+    'Name' : 'AXILite UART 16550',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI-Lite',
+    'Description' : 'AXI Lite UART is a type of Universal Asynchronous Receiver-Transmitter (UART) that uses the AXI Lite protocol to interface with other devices in an embedded system. UARTs are commonly used to transmit and receive data between a microcontroller or processor and other devices.'}
+    }
+
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
+
+    summary =  { 
+    "AXILite Data Width": args.data_width,
+    "AXILite Address Width": args.addr_width,
+    "AXILite Protection Width": "3",
+    "Registers": "0x00000000 - 0x00000006"
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
-
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+        
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
     module     = AXILITEUARTWrapper(platform,
