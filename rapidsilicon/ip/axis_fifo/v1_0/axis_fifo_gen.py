@@ -155,6 +155,14 @@ def main():
 
     args = parser.parse_args()
 
+   #IP Details generation
+    details =  {   "IP details": {
+    'Name' : 'AXI Streaming Async FIFO',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI Stream',
+    'Description' : 'The AXIS Async FIFO is an AXI streaming compliant customize-able asynchronous FIFO. It can be used to store and retrieve ordered data at different clock domains, while using optimal resources.'}}
+
+ 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
@@ -184,7 +192,15 @@ def main():
                 'user_width' :   'False',
             })        
 
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
+
+    #IP Summary generation
+    summary =  { 
+    "AXI stream FIFO Depth selected": args.depth,
+    "AXI stream Data width programmed": args.data_width,
+    "AXI stream ID width programmed": args.id_width,
+    }
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:

@@ -144,7 +144,15 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-    
+
+
+    #IP Details generation
+    details =  {   "IP details": {
+    'Name' : 'AXI Sync FIFO',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'The AXI FIFO is an AXI full compliant customize-able synchronus FIFO. It can be used to store and retrieve ordered data, while using optimal resources.'}}
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
@@ -190,11 +198,24 @@ def main():
                 'r_user_width' :   'False',
             })
 
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
+
+
+
+    #IP Summary generation
+    summary =  { 
+    "AXI FIFO Write Depth selected": args.write_fifo_depth,
+    "AXI FIFO Read Depth selected": args.read_fifo_depth,
+    "AXI FIFO Data width programmed": args.data_width,
+#    "AXI Address width programmed": args.addr_width,
+    "AXI ID width programmed": args.id_width,
+    }
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+        
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
