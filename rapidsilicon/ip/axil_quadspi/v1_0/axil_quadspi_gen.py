@@ -62,10 +62,10 @@ def main():
 
     #IP Details generation
     details =  {   "IP details": {
-    'Name' : 'axi_asynchronus_fifo',
+    'Name' : 'AXI Lite QuadSPI',
     'Version' : 'V1_0',
-    'Interface' : 'AXI',
-    'Description' : 'The AXI Async FIFO is an AXI full compliant customize-able asynchronous FIFO. It can be used to store and retrieve ordered data at different clock domains, while using optimal resources.'}}
+    'Interface' : 'AXI Lite',
+    'Description' : ' QuadSPI is a high-speed and efficient serial communication protocol commonly used for flash memory and other storage devices. The QuadSPI IP core enables seamless communication between the host system and QuadSPI devices, allowing efficient data read, write, and erase operations.'}}
 
  
     # Import JSON (Optional) -----------------------------------------------------------------------
