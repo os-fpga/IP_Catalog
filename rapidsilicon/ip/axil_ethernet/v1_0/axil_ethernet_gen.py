@@ -81,7 +81,7 @@ def main():
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--core_phy",            type=str,  default="model",        choices=["mii", "model"],  help="Type of PHY (mii or model (Sim)).")
+    core_string_param_group.add_argument("--core_phy",            type=str,  default="model",        choices=["mii", "model"],help="Type of PHY (mii or model (Sim)).")
     core_string_param_group.add_argument("--core_ntxslots",       type=str,  default="2",          choices=["1", "2", "4"],   help="Number of TX Slots.")
     core_string_param_group.add_argument("--core_nrxslots",       type=str,  default="2",          choices=["1", "2", "4"],   help="Number of RX Slots.")
     core_string_param_group.add_argument("--core_bus_endianness", type=str,  default="big",        choices=["big", "little"], help="Bus Endianness (big, little).")
@@ -102,13 +102,32 @@ def main():
 
     args = parser.parse_args()
 
+    #IP Details generation
+    details =  {   "IP details": {
+    'Name' : 'AXI Lite Ethernet',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI Lite',
+    'Description' : 'This IP core provides a standardized interface for read and write operations between the host system and Ethernet devices. It enables efficient data exchange and control, allowing digital systems to connect to Ethernet networks for tasks such as data transmission, reception, and network management.'}}
+
+
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
+
+    #IP Summary generation
+    summary =  { 
+    "Type of PHY selected ": args.fifo_depth,
+    "Number of TX Slots selected": args.data_width,
+    "Number of RX Slots selected": args.address_width,
+    "Bus Endianness ": args.id_width,
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+        
 
     # Create LiteEth Core --------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=_io, toolchain="raptor", device="gemini")
