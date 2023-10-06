@@ -126,14 +126,14 @@ def main():
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[32, 64],  help="Crossbar Data Width.")
     core_fix_param_group.add_argument("--addr_width",    type=int,      default=32,     choices=[32, 64, 128, 256],         help="Crossbar Address Width.")
 
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--bram",     type=bool,     default=True,      help="Memory type")
-
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--m_count",     type=int,      default=4,       choices=range(1,5),               help="Crossbar Master Interfaces.")
     core_range_param_group.add_argument("--s_count",     type=int,      default=4,       choices=range(1,5),               help="Crossbar Slave Interfaces.")
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--bram",     type=bool,     default=True,      help="Memory type")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -147,14 +147,29 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    details =  {   "IP details": {
+    'Name' : 'AXI Crossbar Lite',
+    'Version' : 'V2_0',
+    'Interface' : 'AXI4 Lite ',
+    'Description' : 'The AXI4 Lite Crossbar is AXI4 compliance IP core that connects one or more AXI memory mapped master devices to more memory mapped slave devices. It has multiple clock support for each interface. Supports all burst types.  Fully nonblocking with completely separate read and write paths; FIFO-based transaction ordering protection logic; and per-port address decode, and decode error handling'}
+    }
+    
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v2_0")
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "MASTER COUNT":args.m_count,
+    "SLAVE COUNT": args.s_count,
+    # "PIPELINE OUTPUT": args.pip_out
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
