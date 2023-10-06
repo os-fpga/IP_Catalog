@@ -134,14 +134,29 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+
+    details =  {   "IP details": {
+    'Name' : 'AXI-Lite I2C Slave',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI-Lite, I2C',
+    'Description' : 'An I2C slave device is a device that communicates with an I2C master device over an I2C bus. It recieves the clock and the start/stop conditions from the master and communicates with it for the exchange of data.'}
+    }
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+
+    summary =  { 
+    "Data Width" : args.data_width,
+    "Address Width" : args.addr_width,
+    "Filter Length" : args.filter_len,
+    "Control Parameter" : "Address of Slave Device"
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

@@ -116,13 +116,31 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'EIO',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI4-Lite ',
+    'Description' : 'The Emulate-IO core is an AXI4-Lite compliant IP that offers input and output probes to sample and drive signals on FPGA fabric. The core provides an AXI4-slave interface that can be used to control the emulated IOs in real time.'}
+    }
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "DATA WIDTH":args.data_width,
+    "ADDR WIDTH": args.addr_width,
+    "INPUT PROBE WIDTH": args.input_probe_width,
+    "OUTPUT PROBE WIDTH": args.output_probe_width,
+
+
+    # "PIPELINE OUTPUT": args.pip_out
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

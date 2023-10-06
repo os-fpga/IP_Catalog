@@ -185,6 +185,15 @@ def main():
 
     args = parser.parse_args()
 
+    #IP Details generation
+    details =  {   "IP details": {
+    'Name' : 'AXIS Async FIFO',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI',
+    'Description' : 'The AXI Streaming Async FIFO is a customize-able asynchronous FIFO. It can be used to store and retrieve ordered data at different clock domains, while using optimal resources.'}}
+
+
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
@@ -214,11 +223,20 @@ def main():
                 'user_width' :   'False',
             })        
 
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
+
+    #IP Summary generation
+    summary =  { 
+    "AXI STreaming FIFO Depth programmed": args.depth,
+    "AXI Streaming Data width programmed": args.data_width,
+    "AXI Streaming ID width programmed": args.id_width,
+    "AXI Streaming destination width programmed": args.dest_width,
+    }
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

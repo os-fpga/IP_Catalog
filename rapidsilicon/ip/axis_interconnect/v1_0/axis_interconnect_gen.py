@@ -121,21 +121,20 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",      type=int,     default=8,   choices=[8, 16, 32, 64, 128, 256, 512, 1024],   help="Data Width.")
 
-
+    # Core Range Value Parameters.
+    core_range_param_group = parser.add_argument_group(title="Core Range Parameters")
+    core_range_param_group.add_argument("--s_count",     type=int,   default=4,    choices=range(2,17),       help="Slave Interfaces.")
+    core_range_param_group.add_argument("--m_count",     type=int,   default=4,    choices=range(1,17),       help="Master Interfaces.")
+    core_range_param_group.add_argument("--id_width",    type=int,   default=8,    choices=range(1, 17),      help="ID Width.")
+    core_range_param_group.add_argument("--dest_width",  type=int,   default=8,    choices=range(1, 9),       help="Destination Width.")
+    core_range_param_group.add_argument("--user_width",  type=int,   default=1,    choices=range(1, 1025),    help="User Width.")
+    
     # Core Bool value Parameters.
     core_bool_param_group = parser.add_argument_group(title="Core Bool Parameters")
     core_bool_param_group.add_argument("--last_en",    type=bool,    default=True,    help="Last Enable.")
     core_bool_param_group.add_argument("--id_en",      type=bool,    default=True,    help="ID Enable.")
     core_bool_param_group.add_argument("--dest_en",    type=bool,    default=True,    help="Destination Enable.")
     core_bool_param_group.add_argument("--user_en",    type=bool,    default=True,    help="User Enable.")
-
-    # Core Range Value Parameters.
-    core_range_param_group = parser.add_argument_group(title="Core Range Parameters")
-    core_range_param_group.add_argument("--s_count",     type=int,   default=4,    choices=range(2,17),       help="Slave Interfaces.")
-    core_range_param_group.add_argument("--m_count",     type=int,   default=4,    choices=range(1,17),       help="Master Interfaces.")
-    core_range_param_group.add_argument("--id_width",    type=int,   default=8,    choices=range(1, 17),      help="ID Width.")
-    core_range_param_group.add_argument("--dest_width",  type=int,   default=8,    choices=range(1, 9),      help="Destination Width.")
-    core_range_param_group.add_argument("--user_width",  type=int,   default=1,    choices=range(1, 1025),    help="User Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -149,14 +148,28 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    
+    details =  {   "IP details": {
+    'Name' : 'AXI-STREAM INTERCONNECT',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI-STREAM',
+    'Description' : 'AXI-STREAM INTERCONNECT is a AXI-STREAM compliant IP Core. This IP Core is dedicated to facilitating efficient data streaming between various IP blocks and peripherals. Its primary function is to serve as a central hub that connects multiple AXI-Stream data sources and consumers, ensuring smooth and low-latency data flow.'}
+    }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser , json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
+    summary =  { 
+    "NUMBER OF MASTER INTERFACES": args.m_count,
+    "NUMBER OF SLAVE INTERFACES": args.s_count,
+    "AXIS DATA PORT WIDTH": args.data_width,
+    }
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
         
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

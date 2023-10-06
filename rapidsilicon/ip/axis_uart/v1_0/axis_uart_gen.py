@@ -124,13 +124,26 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'AXI-Stream UART',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI-Streaming',
+    'Description' : 'The AXIS UART is designed to be used with the AXIS bus, which provides a high-speed, low-latency data path between the UART and other components in the system. UARTs are commonly used to transmit and receive data between a microcontroller and processor and other devices.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
+
+    summary =  { 
+    "AXI-Stream Data Width": args.data_width,
+    "Configurator": "A 16 bit prescaler is used as an input to configure the baud rate for the UART."
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
