@@ -147,15 +147,6 @@ def main():
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256],    help="AXI Data Width.")
     core_fix_param_group.add_argument("--addr_width",    type=int,      default=32,     choices=[32, 64],                     help="AXI Address Width.")
 
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--aw_user_en",    type=bool,    default=True,      help="AW-Channel User Enable.")
-    core_bool_param_group.add_argument("--w_user_en",     type=bool,    default=False,     help="W-Channel User Enable.")
-    core_bool_param_group.add_argument("--b_user_en",     type=bool,    default=False,     help="B-Channel User Enable.")
-    core_bool_param_group.add_argument("--ar_user_en",    type=bool,    default=True,      help="AR-Channel User Enable.")
-    core_bool_param_group.add_argument("--r_user_en",     type=bool,    default=False,     help="R-Channel User Enable.")  
-    core_bool_param_group.add_argument("--bram",          type=bool,    default=True,      help="Memory type")       
-
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--m_count",            type=int,       default=4,      choices=range(1,5),          help="Crossbar Master Interfaces.")
@@ -166,6 +157,15 @@ def main():
     core_range_param_group.add_argument("--b_user_width",       type=int,       default=1,      choices=range(1, 1025),      help="B-Channel User Width.")
     core_range_param_group.add_argument("--ar_user_width",      type=int,       default=1,      choices=range(1, 1025),      help="AR-Channel User Width.")
     core_range_param_group.add_argument("--r_user_width",       type=int,       default=1,      choices=range(1, 1025),      help="R-Channel User Width.")
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--aw_user_en",    type=bool,    default=True,      help="AW-Channel User Enable.")
+    core_bool_param_group.add_argument("--w_user_en",     type=bool,    default=False,     help="W-Channel User Enable.")
+    core_bool_param_group.add_argument("--b_user_en",     type=bool,    default=False,     help="B-Channel User Enable.")
+    core_bool_param_group.add_argument("--ar_user_en",    type=bool,    default=True,      help="AR-Channel User Enable.")
+    core_bool_param_group.add_argument("--r_user_en",     type=bool,    default=False,     help="R-Channel User Enable.")  
+    core_bool_param_group.add_argument("--bram",          type=bool,    default=True,      help="Memory type")       
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -180,13 +180,28 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'AXI Crossbar',
+    'Version' : 'V2_0',
+    'Interface' : 'AXI4 ',
+    'Description' : 'The AXI4 Full Crossbar is AXI4 compliance IP core that connects one or more AXI memory mapped master devices to more memory mapped slave devices. It support different clock for each interface. Supports all burst types.Fully nonblocking with completely separate read and write paths; ID-based transaction ordering protection logic; and per-port address decode and decode error handling.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v2_0")
+
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "MASTER COUNT":args.m_count,
+    "SLAVE COUNT": args.s_count,
+    # "PIPELINE OUTPUT": args.pip_out
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
