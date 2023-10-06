@@ -118,11 +118,12 @@ def main():
 
     #IP Summary generation
     summary =  { 
-    "Type of PHY selected ": args.fifo_depth,
-    "Number of TX Slots selected": args.data_width,
-    "Number of RX Slots selected": args.address_width,
-    "Bus Endianness ": args.id_width,
+    "Type of PHY selected "      : args.core_phy,
+    "Number of TX Slots selected": args.core_ntxslots,
+    "Number of RX Slots selected": args.core_nrxslots,
+    "Bus Endianness "            : args.core_bus_endianness,
     }
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
