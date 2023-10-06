@@ -122,17 +122,19 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",        type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
 
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--enable_unaligned",  type=bool,    default=True,    help="Support for unaligned transfers.")
-
-    # Core range value parameters.
+     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--addr_width",        type=int,    default=16,     choices=range(8, 17),    help="DMA Address Width.")
     core_range_param_group.add_argument("--id_width",          type=int,    default=8,      choices=range(1, 33),    help="DMA ID Width.")
     core_range_param_group.add_argument("--axi_max_burst_len", type=int,    default=16,     choices=range(1,257),    help="DMA AXI burst length.")
     core_range_param_group.add_argument("--len_width",         type=int,    default=20,     choices=range(1,21),     help="DMA AXI Width of length field.")
     core_range_param_group.add_argument("--tag_width",         type=int,    default=8,      choices=range(1,9),      help="DMA Width of tag field.")
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--enable_unaligned",  type=bool,    default=True,    help="Support for unaligned transfers.")
+
+   
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -147,13 +149,31 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'CDMA',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI4 ',
+    'Description' : 'Central DMA (CDMA) is a type of Direct Memory Access (DMA) that provides high-bandwidth Direct Memory Access (DMA) between a memory-mapped source address and a memory-mapped destination address using the AXI4 protocol'}
+    }
+
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "DATA WIDTH":args.data_width,
+    "ADDR WIDTH": args.addr_width,
+    "BURST LENGTH": args.axi_max_burst_len,
+    "TAG WIDTH": args.tag_width,
+    # "PIPELINE OUTPUT": args.pip_out
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

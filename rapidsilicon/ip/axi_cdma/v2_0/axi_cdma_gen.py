@@ -105,14 +105,30 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",     help="Generate JSON Template")
 
     args = parser.parse_args()
+    details =  {   "IP details": {
+    'Name' : 'CDMA',
+    'Version' : 'V2_0',
+    'Interface' : 'AXI4-Lite/AXI4 FULL ',
+    'Description' : 'Central DMA (CDMA) is a type of Direct Memory Access (DMA) that provides high-bandwidth Direct Memory Access (DMA) between a memory-mapped source address and a memory-mapped destination address using the AXI4 protocol'}
+    }
 
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "AXI4 DATA WIDTH":args.axi_data_width,
+    "AXI4 DDR WIDTH": args.axi_addr_width,
+    "AXI4-LITE DATA WIDTH":args.axil_data_width,
+    "AXI4-LITE ADDR WIDTH": args.axil_addr_width,
+    # "PIPELINE OUTPUT": args.pip_out
+    }
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v2_0")
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
