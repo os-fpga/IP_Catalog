@@ -206,9 +206,9 @@ def main():
     summary =  { 
     "AXI FIFO Write Depth selected": args.write_fifo_depth,
     "AXI FIFO Read Depth selected": args.read_fifo_depth,
-    "AXI FIFO Data width programmed": args.data_width,
+    "AXI FIFO Data width selected": args.data_width,
 #    "AXI Address width programmed": args.addr_width,
-    "AXI ID width programmed": args.id_width,
+    "AXI ID width selected": args.id_width,
     }
 
 
