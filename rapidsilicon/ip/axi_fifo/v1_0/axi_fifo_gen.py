@@ -155,9 +155,9 @@ def main():
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
-        args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-        if (args_1.aw_user_en == False):
+        if (args.aw_user_en == False):
             dep_dict.update({
                 'aw_user_width' :   'True',
             })
@@ -165,7 +165,7 @@ def main():
             dep_dict.update({
                 'aw_user_width' :   'False',
             })
-        if (args_1.w_user_en == False):
+        if (args.w_user_en == False):
             dep_dict.update({
                 'w_user_width' :   'True',
             })
@@ -173,7 +173,7 @@ def main():
             dep_dict.update({
                 'w_user_width' :   'False',
             })
-        if (args_1.b_user_en == False):
+        if (args.b_user_en == False):
             dep_dict.update({
                 'b_user_width' :   'True',
             })
@@ -181,7 +181,7 @@ def main():
             dep_dict.update({
                 'b_user_width' :   'False',
             })        
-        if (args_1.ar_user_en == False):
+        if (args.ar_user_en == False):
             dep_dict.update({
                 'ar_user_width' :   'True',
             })
@@ -189,7 +189,7 @@ def main():
             dep_dict.update({
                 'ar_user_width' :   'False',
             })
-        if (args_1.r_user_en == False):
+        if (args.r_user_en == False):
             dep_dict.update({
                 'r_user_width' :   'True',
             })
