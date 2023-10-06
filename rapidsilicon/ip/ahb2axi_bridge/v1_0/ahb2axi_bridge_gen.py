@@ -152,7 +152,7 @@ def main():
     #IP Summary generation
     summary =  { 
     "Data width programmed": args.data_width,
-    "Address width programmed": args.address_width,
+    "Address width programmed": args.addr_width,
     "AXI ID width programmed": args.id_width,
     }
 
@@ -160,7 +160,7 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
-        
+
     
     
     ahb_interface(args.addr_width,args.data_width)
