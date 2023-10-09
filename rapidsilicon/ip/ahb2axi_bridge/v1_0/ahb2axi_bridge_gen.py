@@ -134,15 +134,12 @@ def main():
 
     args = parser.parse_args()
 
-
    #IP Details generation
     details =  {   "IP details": {
     'Name' : 'ahb2axi4 bridge',
     'Version' : 'V1_0',
     'Interface' : 'AHB and AXI',
     'Description' : 'This bridge acts as a translator and mediator, facilitating seamless data transfer and control signal synchronization between devices or subsystems designed with AHB-based interfaces and those using AXI4-based interfaces.'}}
-
-
 
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
@@ -155,7 +152,6 @@ def main():
     "Address width programmed": args.addr_width,
     "AXI ID width programmed": args.id_width,
     }
-
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -171,7 +167,7 @@ def main():
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary = summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
