@@ -74,11 +74,11 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
 
     summary =  { 
-    "SPI Flash Module"                : args.divided_clks,
-    "SPI Mode"                        : args.fast_clk_freq,
-    "SPI Flash Core rate"             : args.ref_clk_freq,
-    "Bus Endianness "                 : args.fast_clk_freq,
-    "Type or PHY (Real or Model (Sim))"    : args.ref_clk_freq,
+    "SPI Flash Module"                : args.core_module,
+    "SPI Mode"                        : args.core_mode,
+    "SPI Flash Core rate"             : args.core_rate,
+    "Bus Endianness "                 : args.core_bus_endianness,
+    "Type or PHY (Real or Model (Sim))"    : args.core_phy,
   }
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:

@@ -161,9 +161,6 @@ def main():
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
-    
-    
-    ahb_interface(args.addr_width,args.data_width)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
