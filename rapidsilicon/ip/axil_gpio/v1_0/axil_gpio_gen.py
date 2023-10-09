@@ -107,7 +107,7 @@ def main():
     'Name' : 'AXILite GPIO',
     'Version' : 'V1_0',
     'Interface' : 'AXI-Lite',
-    'Description' : 'GPIO stands for General-Purpose Input/Output. It refers to a type of interface found on microcontrollers and single-board computers that allows them to connect to and interact with a wide variety of external devices.'}
+    'Description' : 'A parametrizable General Purpose Input Output Core with an interface to the AXI-Lite interface.'}
     }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -118,7 +118,7 @@ def main():
     summary =  { 
     "AXILite Data Width": args.data_width,
     "AXILite Address Width": args.addr_width,
-    "Interrupt" : "Single bit interrupt supported"
+    "Interrupt" : "Single bit Interrupt"
     }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
