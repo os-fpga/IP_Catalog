@@ -150,7 +150,7 @@ def main():
     summary =  { 
     "Data Width" : args.data_width,
     "Address Width" : args.addr_width,
-    "Filter Length" : args.filter_len,
+    "Unaligned Writes" : "Supported with zero padding",
     "Control Parameter" : "Address of Slave Device"
     }
 

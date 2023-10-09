@@ -273,14 +273,9 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
     
     summary =  { 
-    "AXI Data Width": args.axi_data_width,
-    "AXI Address Width": args.axi_addr_width,
-    "Read Descriptor Input": "AXI",
-    "Read Descriptor Status Output": "AXI",
-    "Read Data Output": "AXI-Stream",
-    "Write Descriptor Input" : "AXI",
-    "Write Descriptor Status Output": "AXI",
-    "Write Data Input" : "AXI-Stream",
+    "AXI Data Width" : args.axi_data_width,
+    "AXI Address Width" : args.axi_addr_width,
+    "Descriptor Interface" : "AXI-Stream",
     "Master Interface" : "AXI"
     }
 
