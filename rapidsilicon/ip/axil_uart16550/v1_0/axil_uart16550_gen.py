@@ -136,9 +136,13 @@ def main():
     summary =  { 
     "AXILite Data Width": args.data_width,
     "AXILite Address Width": args.addr_width,
-    "AXILite Protection Width": "3",
-    "Registers": "0x00000000 - 0x00000006"
+    "Operation Mode" : "FIFO Mode",
+    "Word Width" : "8 Bits"
     }
+    if (args.data_width == 32):
+        summary["Debug Interface"] = "Yes"
+    else:
+        summary["Debug Interface"] = "No"
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
