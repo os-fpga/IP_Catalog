@@ -78,7 +78,7 @@ def main():
     "SPI Mode"                        : args.core_mode,
     "SPI Flash Core rate"             : args.core_rate,
     "Bus Endianness "                 : args.core_bus_endianness,
-    "Type or PHY (Real or Model (Sim))"    : args.core_phy,
+    "Type or PHY (Real or Model (Sim))"    : args.core_phy
   }
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
