@@ -284,7 +284,7 @@ def main():
     args = parser.parse_args()
 
     details =  {   "IP details": {
-    'Name' : 'VexRiscv_CPU',
+    'Name' : 'VexRiscv CPU',
     'Version' : 'V1_0',
     'Interface' : 'AXI',
     'Description' : 'The VexRiscv CPU is a 32 bit, AXI4 compliant soft processor designed to be used in applications that require fast computations on FPGAs in the form of soft SoCs. It is a modern and complete soft processor that can be used to boot Operating Systems or used in a bare metal fashion.'}
