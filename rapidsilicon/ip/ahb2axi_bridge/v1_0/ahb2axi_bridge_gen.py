@@ -165,14 +165,6 @@ def main():
     
     ahb_interface(args.addr_width,args.data_width)
 
-    # Import JSON (Optional) -----------------------------------------------------------------------
-    if args.json:
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-
-    # Export JSON Template (Optional) --------------------------------------------------------------
-    if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
-
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = AHB2AXI4Wrapper(platform,
