@@ -130,7 +130,7 @@ def main():
     args = parser.parse_args()
     
     details =  {   "IP details": {
-    'Name' : 'AXI DUAL-PORT RAM',
+    'Name' : 'AXI Dual Port RAM',
     'Version' : 'V1_0',
     'Interface' : 'AXI',
     'Description' : 'AXI Dual Port RAM is a AXI4 compliant IP Core. This IP Core provides two independent memory ports, each adhering to the Advanced eXtensible Interface (AXI) standard, making it ideal for applications that require simultaneous read and write access to memory.'}
