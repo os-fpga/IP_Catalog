@@ -150,10 +150,10 @@ def main():
     args = parser.parse_args()
     
     details =  {   "IP details": {
-    'Name' : 'AXI-STREAM INTERCONNECT',
+    'Name' : 'AXI-Stream Interconnect',
     'Version' : 'V1_0',
-    'Interface' : 'AXI-STREAM',
-    'Description' : 'AXI-STREAM INTERCONNECT is a AXI-STREAM compliant IP Core. This IP Core is dedicated to facilitating efficient data streaming between various IP blocks and peripherals. Its primary function is to serve as a central hub that connects multiple AXI-Stream data sources and consumers, ensuring smooth and low-latency data flow.'}
+    'Interface' : 'AXI-Stream',
+    'Description' : 'AXI-Stream Interconnect is a AXI-Stream compliant IP Core. This IP Core is dedicated to facilitating efficient data streaming between various IP blocks and peripherals. Its primary function is to serve as a central hub that connects multiple AXI-Stream data sources and consumers, ensuring smooth and low-latency data flow.'}
     }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -162,9 +162,9 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
     summary =  { 
-    "NUMBER OF MASTER INTERFACES": args.m_count,
-    "NUMBER OF SLAVE INTERFACES": args.s_count,
-    "AXIS DATA PORT WIDTH": args.data_width,
+    "Number of Master Interfaces": args.m_count,
+    "Number of Slave Interfaces": args.s_count,
+    "AXIS Data Width": args.data_width,
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------

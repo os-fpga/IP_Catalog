@@ -133,7 +133,7 @@ def main():
     'Name' : 'AXI DUAL-PORT RAM',
     'Version' : 'V1_0',
     'Interface' : 'AXI',
-    'Description' : 'AXI DUAL-PORT RAM is a AXI4 compliant IP Core. This IP Core provides two independent memory ports, each adhering to the Advanced eXtensible Interface (AXI) standard, making it ideal for applications that require simultaneous read and write access to memory. It simplifies the integration of dual-port memory into FPGA and SoC designs, ensuring fast and concurrent read and write operations for a wide range of applications, from high-speed data processing to real-time control systems.'}
+    'Description' : 'AXI Dual Port RAM is a AXI4 compliant IP Core. This IP Core provides two independent memory ports, each adhering to the Advanced eXtensible Interface (AXI) standard, making it ideal for applications that require simultaneous read and write access to memory.'}
     }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -142,9 +142,11 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
     summary =  { 
-    "DATA PORT": args.data_width,
-    "DEPTH": 2**(args.addr_width),
-    "MEMORY SIZE (KB)": math.ceil(((args.data_width * args.addr_width)/(8*1024))*100)
+    "AXI Data Width": args.data_width,
+    "AXI Address Width": args.addr_width,
+    "AXI ID Width": args.id_width,
+    "Depth": 2**(args.addr_width),
+    "Memory Size (KB)": math.ceil((args.data_width * (2**args.addr_width))/1024)
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------
