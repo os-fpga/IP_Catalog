@@ -18,7 +18,28 @@ from migen import *
 from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
+# Define a custom function to generate choices in multiples of 9
+def multiples_of_9(value):
+    if value % 9 != 0:
+        raise argparse.ArgumentTypeError("Value must be a multiple of 9")
+    return value
 
+# Making the read and write data widths into their own buses
+def divide_n_bit_number(number):
+    # Convert the number to a binary string
+    binary_string = '0' * number
+    buses = []
+
+    for i in range(0, len(binary_string), 36):
+        bus = binary_string[i:i+36]
+        buses.append(bus)
+    if (len(buses[-1]) < 36 and len(buses[-1]) > 18):
+        for i in range(len(binary_string) - len(buses[-1]), len(binary_string), 18):
+            bus = binary_string[i:i+18]
+            buses.append(bus)
+        buses.pop(-3)
+    
+    return buses
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
@@ -50,7 +71,7 @@ def factors_multiples(number):
     sequence = []
     while (number not in sequence):
         sequence = [min(factors)]
-        while sequence[-1] * 2 <= 128:
+        while sequence[-1] * 2 <= 1024:
             next_number = sequence[-1] * 2
             sequence.append(next_number)
         if number in sequence:
@@ -117,15 +138,15 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",         type=int,   default=36,  	choices=range(1,129),   help="FIFO Write/Read Width")
-    core_range_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=range(1,129),   help="FIFO Write Width")
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_range_param_group.add_argument("--data_width",         type=int,   default=36,  	choices=range(1,1025),   help="FIFO Write/Read Width")
+    core_fix_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=[i * 9 for i in range(1, 114)],   help="FIFO Write Width")
     core_range_param_group.add_argument("--full_value",         type=int,   default=2,      choices=range(2,4095),  help="Full Value")
     core_range_param_group.add_argument("--empty_value",        type=int,   default=1,      choices=range(1,4095),  help="Empty Value")
     core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
 
     # Core fix value parameters.
-    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--data_width_read",  type=int,   default=36,  	choices=[1 , 2 , 3 , 4 , 5 , 6 , 7 , 8 , 9 , 10 , 11 , 12 , 13 , 14 , 15 , 16 , 17 , 18 , 19 , 20 , 21 , 22 , 23 , 24 , 25 , 26 , 27 , 28 , 29 , 30 , 31 , 32 , 33 , 34 , 35 , 36 , 37 , 38 , 39 , 40 , 41 , 42 , 43 , 44 , 45 , 46 , 47 , 48 , 49 , 50 , 51 , 52 , 53 , 54 , 55 , 56 , 57 , 58 , 59 , 60 , 61 , 62 , 63 , 64 , 65 , 66 , 67 , 68 , 69 , 70 , 71 , 72 , 73 , 74 , 75 , 76 , 77 , 78 , 79 , 80 , 81 , 82 , 83 , 84 , 85 , 86 , 87 , 88 , 89 , 90 , 91 , 92 , 93 , 94 , 95 , 96 , 97 , 98 , 99 , 100 , 101 , 102 , 103 , 104 , 105 , 106 , 107 , 108 , 109 , 110 , 111 , 112 , 113 , 114 , 115 , 116 , 117 , 118 , 119 , 120 , 121 , 122 , 123 , 124 , 125 , 126 , 127 , 128, 144],   help="FIFO Read Width")
+    core_fix_param_group.add_argument("--data_width_read",  type=int,   default=36,  	choices=[1 , 2 , 3 , 4 , 5 , 6 ],   help="FIFO Read Width")
     core_fix_param_group.add_argument("--DEPTH",            type=int,   default=1024,   choices=[4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768],   help="FIFO Depth")
 
     # Core bool value parameters.
@@ -135,7 +156,7 @@ def main():
     core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	  help="Full Threshold")
     core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
     core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
-    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=True,   help="Asymmetric Data Widths for Read and Write ports.")
+    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -150,9 +171,46 @@ def main():
 
     args = parser.parse_args()
 
+    if (args.BRAM == False and args.synchronous == False):
+        depth = args.DEPTH
+    else:
+        depth = args.depth
+    if (args.asymmetric):
+        data_width_read  = args.data_width_read
+        data_width_write = args.data_width_write
+    else:
+        data_width_read  = args.data_width
+        data_width_write = args.data_width
+        
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        buses_write = divide_n_bit_number(data_width_write)
+        remaining_memory = 0
+        num_9K = 0
+        num_18K = 0
+        total_mem = 0
+        while total_mem < 128:
+            for i, bus in enumerate(buses_write):
+                if (total_mem < 128):
+                    if (len(bus) <= 9):
+                        memory = 1024
+                        remaining_memory = remaining_memory + (len(bus) * memory)
+                        num_9K = num_9K + 1
+                        if (num_9K == 4):
+                            total_mem = total_mem + 1
+                            num_9K = 0
+                    elif (len(bus) <= 18):
+                        memory = 1024
+                        num_18K = num_18K + 1
+                        remaining_memory = remaining_memory + (len(bus) * memory)
+                        if (num_18K == 2):
+                            total_mem = total_mem + 1
+                            num_18K = 0
+                    elif (len(bus) <= 36):
+                        memory = 1024
+                        remaining_memory = remaining_memory + (len(bus) * memory)
+                        total_mem = total_mem + 1
         if (args.BRAM == False):
             dep_dict.update({
                 'asymmetric'    :   'True'
@@ -194,9 +252,11 @@ def main():
                     parser._actions[2].default = args.DEPTH - 1
                 if (args.empty_value >= args.DEPTH):    
                     parser._actions[3].default = 1
+                parser._actions[4].choices = [4 * (2 ** i) for i in range(int(math.log2(remaining_memory/args.data_width) - 1))]
         else:
             option_strings_to_remove = ['--DEPTH']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            parser._actions[4].choices = range(2, int(remaining_memory/data_width_write) + 1)
             if (args.asymmetric):
                 option_strings_to_remove = ['--data_width']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -226,16 +286,6 @@ def main():
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
 
-    if (args.BRAM == False and args.synchronous == False):
-        depth = args.DEPTH
-    else:
-        depth = args.depth
-    if (args.asymmetric):
-        data_width_read  = args.data_width_read
-        data_width_write = args.data_width_write
-    else:
-        data_width_read  = args.data_width
-        data_width_write = args.data_width
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = FIFOGenerator(platform,
