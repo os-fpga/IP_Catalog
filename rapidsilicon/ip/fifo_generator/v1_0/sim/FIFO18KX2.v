@@ -5,14 +5,14 @@
 // --------------------------------------------------------------------------
 
 module FIFO18KX2 #(
-    parameter DATA_WIDTH_WRITE1 = 5'd18,        // Write Data Width of FIFO1 from 1, 2, 4, 9, 18
-    parameter DATA_WIDTH_READ1 = 5'd18,         // Read Data Width of FIFO1 from 1, 2, 4, 9, 18
+    parameter DATA_WRITE_WIDTH1 = 5'd18,        // Write Data Width of FIFO1 from 1, 2, 4, 9, 18
+    parameter DATA_READ_WIDTH1 = 5'd18,         // Read Data Width of FIFO1 from 1, 2, 4, 9, 18
     parameter FIFO_TYPE1 = "SYNCHRONOUS",       // Synchronous or Asynchronous FIFO1     
     parameter PROG_EMPTY_THRESH1 = 12'h004,     // Threshold indicating that the FIFO1 buffer is considered Empty
     parameter PROG_FULL_THRESH1 = 12'h8fa,      // Threshold indicating that the FIFO1 buffer is considered Full
     
-    parameter DATA_WIDTH_WRITE2 = 5'd18,        // Write Data Width of FIFO2 from 1, 2, 4, 9, 18
-    parameter DATA_WIDTH_READ2 = 5'd18,         // Read Data Width of FIFO1 from 1, 2, 4, 9, 18
+    parameter DATA_WRITE_WIDTH2 = 5'd18,        // Write Data Width of FIFO2 from 1, 2, 4, 9, 18
+    parameter DATA_READ_WIDTH2 = 5'd18,         // Read Data Width of FIFO1 from 1, 2, 4, 9, 18
     parameter FIFO_TYPE2 = "SYNCHRONOUS",       // Synchronous or Asynchronous FIFO2    
     parameter PROG_EMPTY_THRESH2 = 11'h004,     // Threshold indicating that the FIFO2 buffer is considered Empty
     parameter PROG_FULL_THRESH2 = 11'h4fa       // Threshold indicating that the FIFO2 buffer is considered Full
@@ -24,8 +24,8 @@ module FIFO18KX2 #(
     input wire RD_CLK1,                         // 1-bit input:  Read Clock
     input wire RD_EN1,                          // 1-bit input:  Read Enable
     input wire WR_EN1,                          // 1-bit input:  Write Enable
-    input wire [DATA_WIDTH_WRITE1-1:0] WR_DATA1,// DATA_WIDTH1-bits Data coming inside FIFO
-    output wire [DATA_WIDTH_READ1-1:0] RD_DATA1,// DATA_WIDTH1-bits Data coming out from FIFO
+    input wire [DATA_WRITE_WIDTH1-1:0] WR_DATA1,// DATA_WIDTH1-bits Data coming inside FIFO
+    output wire [DATA_READ_WIDTH1-1:0] RD_DATA1,// DATA_WIDTH1-bits Data coming out from FIFO
     output wire EMPTY1,                         // 1-bit output: Empty Flag
     output wire FULL1,                          // 1-bit output: Full Flag
     output wire ALMOST_EMPTY1,                  // 1-bit output: This Flag is asserted when FIFO contains EMPTY plus one data words
@@ -41,8 +41,8 @@ module FIFO18KX2 #(
     input wire RD_CLK2,                         // 1-bit input:  Read Clock
     input wire RD_EN2,                          // 1-bit input:  Read Enable
     input wire WR_EN2,                          // 1-bit input:  Write Enable
-    input wire [DATA_WIDTH_WRITE2-1:0] WR_DATA2,// DATA_WIDTH2-bits Data coming inside FIFO
-    output wire [DATA_WIDTH_READ2-1:0] RD_DATA2,// DATA_WIDTH2-bits Data coming out from FIFO
+    input wire [DATA_WRITE_WIDTH2-1:0] WR_DATA2,// DATA_WIDTH2-bits Data coming inside FIFO
+    output wire [DATA_READ_WIDTH2-1:0] RD_DATA2,// DATA_WIDTH2-bits Data coming out from FIFO
     output wire EMPTY2,                         // 1-bit output: Empty Flag
     output wire FULL2,                          // 1-bit output: Full Flag
     output wire ALMOST_EMPTY2,                  // 1-bit output: This Flag is asserted when FIFO contains EMPTY plus one data words
@@ -53,18 +53,18 @@ module FIFO18KX2 #(
     output wire UNDERFLOW2                      // 1-bit output: Underflow Flag
 );
 
-localparam data_width_write1 = (DATA_WIDTH_WRITE1 > 4'd9) ? 5'd18 : DATA_WIDTH_WRITE1;
-localparam data_width_write2 = (DATA_WIDTH_WRITE2 > 4'd9) ? 5'd18 : DATA_WIDTH_WRITE2;
-localparam data_width_read1 = (DATA_WIDTH_READ1 > 4'd9) ? 5'd18 : DATA_WIDTH_READ1;
-localparam data_width_read2 = (DATA_WIDTH_READ2 > 4'd9) ? 5'd18 : DATA_WIDTH_READ2;
+localparam data_width_write1 = (DATA_WRITE_WIDTH1 > 4'd9) ? 5'd18 : DATA_WRITE_WIDTH1;
+localparam data_width_write2 = (DATA_WRITE_WIDTH2 > 4'd9) ? 5'd18 : DATA_WRITE_WIDTH2;
+localparam data_width_read1 = (DATA_READ_WIDTH1 > 4'd9) ? 5'd18 : DATA_READ_WIDTH1;
+localparam data_width_read2 = (DATA_READ_WIDTH2 > 4'd9) ? 5'd18 : DATA_READ_WIDTH2;
 
 initial begin
-    if ((DATA_WIDTH_WRITE1 < 1'd1) || (DATA_WIDTH_WRITE1 > 5'd18)) begin
-       $display("FIFO18KX2 instance %m DATA_WIDTH_WRITE1 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WIDTH_WRITE1);
+    if ((DATA_WRITE_WIDTH1 < 1'd1) || (DATA_WRITE_WIDTH1 > 5'd18)) begin
+       $display("FIFO18KX2 instance %m DATA_WRITE_WIDTH1 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WRITE_WIDTH1);
     #1 $stop;
     end
-    if ((DATA_WIDTH_READ1 < 1'd1) || (DATA_WIDTH_READ1 > 5'd18)) begin
-       $display("FIFO18KX2 instance %m DATA_WIDTH_READ1 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WIDTH_READ1);
+    if ((DATA_READ_WIDTH1 < 1'd1) || (DATA_READ_WIDTH1 > 5'd18)) begin
+       $display("FIFO18KX2 instance %m DATA_READ_WIDTH1 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_READ_WIDTH1);
     #1 $stop;
     end
     case(FIFO_TYPE1)
@@ -76,12 +76,12 @@ initial begin
       end
     endcase
 
-    if ((DATA_WIDTH_WRITE2 < 1'd1) || (DATA_WIDTH_WRITE2 > 5'd18)) begin
-       $display("FIFO18KX2 instance %m DATA_WIDTH_WRITE2 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WIDTH_WRITE2);
+    if ((DATA_WRITE_WIDTH2 < 1'd1) || (DATA_WRITE_WIDTH2 > 5'd18)) begin
+       $display("FIFO18KX2 instance %m DATA_WRITE_WIDTH2 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WRITE_WIDTH2);
     #1 $stop;
     end
-    if ((DATA_WIDTH_READ2 < 1'd1) || (DATA_WIDTH_READ2 > 5'd18)) begin
-       $display("FIFO18KX2 instance %m DATA_WIDTH_READ2 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WIDTH_READ2);
+    if ((DATA_READ_WIDTH2 < 1'd1) || (DATA_READ_WIDTH2 > 5'd18)) begin
+       $display("FIFO18KX2 instance %m DATA_READ_WIDTH2 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_READ_WIDTH2);
     #1 $stop;
     end
     case(FIFO_TYPE2)
@@ -95,8 +95,8 @@ initial begin
 end
 
 FIFO #(
-    .DATA_WIDTH_WRITE(data_width_write1),
-    .DATA_WIDTH_READ(data_width_read1),
+    .DATA_WRITE_WIDTH(data_width_write1),
+    .DATA_READ_WIDTH(data_width_read1),
     .SYNC_FIFO(FIFO_TYPE1),
     .PROG_FULL_THRESH(PROG_FULL_THRESH1),
     .PROG_EMPTY_THRESH(PROG_EMPTY_THRESH1)
@@ -120,8 +120,8 @@ FIFO18K_1 (
 );
 
 FIFO #(
-    .DATA_WIDTH_WRITE(data_width_write2),
-    .DATA_WIDTH_READ(data_width_read2),
+    .DATA_WRITE_WIDTH(data_width_write2),
+    .DATA_READ_WIDTH(data_width_read2),
     .SYNC_FIFO(FIFO_TYPE2),
     .PROG_FULL_THRESH(PROG_FULL_THRESH2),
     .PROG_EMPTY_THRESH(PROG_EMPTY_THRESH2)
