@@ -135,20 +135,20 @@ class FIFO(Module):
         self.almost_empty   = Signal()
 
         if (first_word_fall_through):
-            self.first_entry = Signal(data_width)
+            self.last_data = Signal(data_width)
             if (SYNCHRONOUS[synchronous]):
                 self.sync += [
                     If(self.wren,
                        If(~self.overflow,
                             If(self.full,
-                                self.first_entry.eq(self.din)
+                                self.last_data.eq(self.din)
                           )
                        )
                     )
                 ]
                 self.comb += [
                     If(self.empty,
-                       self.dout.eq(self.first_entry)
+                       self.dout.eq(self.last_data)
                        )
                 ]
             else:
@@ -156,7 +156,7 @@ class FIFO(Module):
                     If(self.wren,
                        If(~self.overflow,
                             If(self.full,
-                                self.first_entry.eq(self.din)
+                                self.last_data.eq(self.din)
                           )
                        )
                     )
@@ -1542,7 +1542,7 @@ class FIFO(Module):
                     else:
                         self.sync.rd += [
                             If(self.empty,
-                                self.dout.eq(self.first_entry)
+                                self.dout.eq(self.last_data)
                             )
                     ]
 
