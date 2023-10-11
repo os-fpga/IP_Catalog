@@ -90,18 +90,20 @@ class FIFO(Module):
         else:
             repeat_count = len(buses_write) // len(buses_read)
             buses_read = buses_read * repeat_count + buses_read[:len(buses_write) % len(buses_read)]
-        print(buses_write)
-        print(buses_read)
         write_div_read = int(data_width_write/data_width_read)/len(buses_write)
         write_div_read = decimal_to_binary(int(write_div_read))
         size_bram = 36864
+        data_36 = sum(1 for item in buses_write if ((len(item) >= 18 and depth < 1024) or (len(item) == 36 and depth >= 1024)))
         total_mem = math.ceil((data_width_write * depth) / size_bram)
         remaining_memory = 0
         depth_mem = 18432
         num_9K = 0
         num_18K = 0
         num_36K = 0
-        clocks_for_output = clock_cycles_to_obtain_desired_output(data_width_read)
+        if (data_width_write != data_width_read):
+            clocks_for_output = clock_cycles_to_obtain_desired_output(data_width_read)
+        else:
+            clocks_for_output = 1
         while remaining_memory < data_width_write * depth:
             for i, bus in enumerate(buses_write):
                 # if (remaining_memory < data_width * depth):
@@ -121,6 +123,7 @@ class FIFO(Module):
                     num_36K = num_36K + 1
                     remaining_memory = remaining_memory + (len(bus) * memory)
         total_mem = num_36K + math.ceil(num_18K/2) + math.ceil(num_9K/4)
+        print(num_36K, math.ceil(num_18K/2), math.ceil(num_9K/4))
         memory = 1024
         instances = math.ceil(depth / memory)
         if(SYNCHRONOUS[synchronous]):
@@ -198,6 +201,7 @@ class FIFO(Module):
             two_block = 0
             count9K = 0
             count9K_read = 0
+            count18K_read = 0
             count_36K = 0
             k9_flag = 0
             k9_flag_read = 0
@@ -220,7 +224,7 @@ class FIFO(Module):
                 j = 0
                 j_read = 0
                 for i, (bus_write, bus_read) in enumerate(zip(buses_write, buses_read)):
-                    if (mem < total_mem):
+                    # if (mem < total_mem):
                         if (len(bus_write) <= 9):
                             data_write = 9
                             memory = 2048
@@ -391,7 +395,7 @@ class FIFO(Module):
                                     count = count + 2
                                     mem = mem + 1
                             else:
-                                if (instance == "FIFO36K" and (data_read == 36 or data_write == 36) and count < total_mem):
+                                if (instance == "FIFO36K" and (data_read == 36 or data_write == 36) and count_36K < num_36K):
                                     self.specials += Instance(instance,
                                         # Parameters.
                                         # -----------
@@ -1300,39 +1304,39 @@ class FIFO(Module):
             if (data_width_read != data_width_write):
                 self.rd_ptr_minus = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1, reset=0)
                 self.comb += self.rd_ptr_minus.eq(self.rd_ptr - 1)
-
-            # Checking how many clock cycles taken for the output to appear
-            clocks_for_output_bin = decimal_to_binary(clocks_for_output)
-            self.prev_inter_dout = Signal((clocks_for_output - 1) * 36)
             if (clocks_for_output > 1):
-                self.prev_dout = Signal(data_width_read)
-                self.inter_dout = Signal(36)
-                self.comb += [
-                    If(self.rden,
-                       If(self.rd_ptr > 0,
-                        If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
-                        self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
-                                     )
-                        ).Else(
-                         self.dout.eq(self.prev_dout)
-                     )
-                       )
-                    )
-                ]
-                if (clocks_for_output > 2):
-                    self.sync += [
-                        self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36:(clocks_for_output - 1) * 36], self.inter_dout)),
-                        self.prev_dout.eq(self.dout)
+                # Checking how many clock cycles taken for the output to appear
+                clocks_for_output_bin = decimal_to_binary(clocks_for_output)
+                self.prev_inter_dout = Signal((clocks_for_output - 1) * 36)
+                if (clocks_for_output > 1):
+                    self.prev_dout = Signal(data_width_read)
+                    self.inter_dout = Signal(36)
+                    self.comb += [
+                        If(self.rden,
+                           If(self.rd_ptr > 0,
+                            If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
+                            self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
+                                         )
+                            ).Else(
+                             self.dout.eq(self.prev_dout)
+                         )
+                           )
+                        )
                     ]
-                else:
-                    self.sync += [
-                        self.prev_inter_dout.eq(self.inter_dout),
-                        self.prev_dout.eq(self.dout)
-                    ]
+                    if (clocks_for_output > 2):
+                        self.sync += [
+                            self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36:(clocks_for_output - 1) * 36], self.inter_dout)),
+                            self.prev_dout.eq(self.dout)
+                        ]
+                    else:
+                        self.sync += [
+                            self.prev_inter_dout.eq(self.inter_dout),
+                            self.prev_dout.eq(self.dout)
+                        ]
 
             if (k36_flag):
                 # This loop is for the read pointers
-                for k in range (0, int(mem + (count18K/2)) * math.ceil(data_width_read/36) + 1, math.ceil(data_width_read/36)):
+                for k in range (0, int(mem + (count18K_read/2)) * math.ceil(data_width_read/36) + 1, math.ceil(data_width_read/36)):
                     # if (total_mem > 1):
                         for i in range (k, k + math.ceil(data_width_read/36)):
                             if (i not in index_array and i < (count)):
@@ -1387,10 +1391,10 @@ class FIFO(Module):
                                         self.comb += [
                                             If(self.rden,
                                                If(~self.underflow,
-                                                    If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))),
-                                                      If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))),
+                                                    If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % 5]))),
+                                                      If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l % 5]))),
                                                             self.rden_int[i].eq(1),
-                                                            self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                            self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                         )
                                                     )
                                                 )
@@ -1571,10 +1575,16 @@ class FIFO(Module):
                                             ]
                                 l = l + 1
                                 if (data_width_read >= 36):
-                                    if (count_loop == repeat_count/clocks_for_output):
-                                        j_loop = j_loop + 1
-                                        l = 0
-                                        count_loop = 0
+                                    if (data_width_write != data_width_read):
+                                        if (count_loop == repeat_count/clocks_for_output):
+                                            j_loop = j_loop + 1
+                                            l = 0
+                                            count_loop = 0
+                                    else:
+                                        if (count_loop == data_36):
+                                            j_loop = j_loop + 1
+                                            l = 0
+                                            count_loop = 0
                                 else:
                                     if (data_width_write != data_width_read):
                                         if (count_loop == repeat_count):
