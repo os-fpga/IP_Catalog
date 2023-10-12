@@ -352,16 +352,17 @@ def main():
         depth = args.depth
 
     summary =  { 
-    "Data Width" : args.data_width,
-    "FIFO Depth" : depth,
-    "Latency (clock cycles)" : "1"
+    "FIFO Depth" : depth
     }
     if (args.asymmetric):
-        if (data_width_read > data_width_write):
-            summary["Latency (clock cycles)"] = clock_cycles_to_obtain_desired_output(data_width_read)
+        summary["Data Width Write"] = args.data_width_write
+        summary["Data Width Read"] = args.data_width_read
+        if (args.data_width_read > args.data_width_write):
+            summary["Latency (clock cycles)"] = clock_cycles_to_obtain_desired_output(args.data_width_read)
         else:
             summary["Latency (clock cycles)"] = "1"
     else:
+        summary["Data Width"] = args.data_width
         summary["Latency (clock cycles)"] = "1"
     if(args.first_word_fall_through):
         summary["FIFO Mode"] = "First Word Fall Through"
