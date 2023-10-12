@@ -8,6 +8,7 @@
 # LiteX wrapper around Alex Forencich verilog-axi's priority_encoder.v
 
 import os
+import datetime
 import math
 import logging
 
@@ -15,7 +16,11 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # PRIORITY_ENCODER  ---------------------------------------------------------------------------------------
 class PRIORITYENCODER(Module):
@@ -24,11 +29,15 @@ class PRIORITYENCODER(Module):
         # Logger
         self.logger = logging.getLogger("PRIORITY_ENCODER")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
         
         self.logger.info(f"WIDTH             : {width}")
         
         self.logger.info(f"LSB_HIGH_PRIORITY : {lsb_high_priority}")
+        
+        self.logger.info(f"===================================================")
         
         self.input_unencoded    = Signal(width)
         self.output_valid       = Signal()
@@ -40,6 +49,10 @@ class PRIORITYENCODER(Module):
         self.specials += Instance("priority_encoder",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             p_WIDTH             = Instance.PreformattedParam(width),
             p_LSB_HIGH_PRIORITY = lsb_high_priority,
 

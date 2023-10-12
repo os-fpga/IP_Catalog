@@ -8,14 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axil_crossbar.v.
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
 
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXI LITE CROSSBAR ------------------------------------------------------------------------------------------
 class AXILITECROSSBAR(Module):
@@ -23,8 +27,8 @@ class AXILITECROSSBAR(Module):
         
         self.logger = logging.getLogger("AXI_LITE_CROSSBAR")
         
-        self.logger.propagate = False
-
+        self.logger.propagate = True
+        self.logger.info(f"=================== PARAMETERS ====================")
         # Clock Domain.
         clock_domain = s_axil[0].clock_domain
         self.logger.info(f"CLOCK_DOMAIN : {clock_domain}")
@@ -44,12 +48,16 @@ class AXILITECROSSBAR(Module):
         # Address width.
         addr_width = len(s_axil[0].aw.addr)
         self.logger.info(f"ADDR_WIDTH   : {addr_width}")
-
+        self.logger.info(f"===================================================")
         # Module instance.
         # ---------------
         self.specials += Instance("axil_crossbar",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             p_S_COUNT           = Instance.PreformattedParam(len(s_axil)),
             p_M_COUNT           = Instance.PreformattedParam(len(m_axil)),
             p_DATA_WIDTH        = Instance.PreformattedParam(data_width),

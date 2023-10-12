@@ -41,7 +41,7 @@ class IP_Builder:
 
 
     # JSON template for GUI parsing
-    def export_json_template(self, parser, dep_dict):
+    def export_json_template(self, parser, dep_dict, summary):
 
         # Get "core_fix_param_group" group.
         core_fix_param_group = None
@@ -171,6 +171,11 @@ class IP_Builder:
                 param_json["parameters"][i].update(disable = dep_dict[param_json["parameters"][i]['parameter']])
 
 
+    #Append summary in JSON
+        summary_temp = {"Summary": summary}
+        param_json.update(summary_temp)
+
+
 
     # Append Build and Json params to final json
         for i in range(len(build_param_list)):
@@ -186,7 +191,13 @@ class IP_Builder:
             t_args.__dict__.update(json.load(f))
             args = parser.parse_args(namespace=t_args)
         return args
-
+    
+    def import_ip_details_json(self, build_dir,details, build_name, version ):
+        self.build_name         = build_name
+        self.build_path         = os.path.join(build_dir, "rapidsilicon", "ip", self.ip_name, version, build_name)
+        new_json_filename       = os.path.join(self.build_path, "details.json")
+        with open(new_json_filename, "w") as f:
+            json.dump(details, f, indent=4, default=None,)
 
 
     def prepare(self, build_dir, build_name, version):

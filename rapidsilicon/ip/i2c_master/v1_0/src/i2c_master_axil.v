@@ -31,6 +31,10 @@ THE SOFTWARE.
  */
 module i2c_master_axil #
 (
+    parameter IP_TYPE 		= "I2C_MSTR",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2e91158,
+    
     parameter DEFAULT_PRESCALE = 1,
     parameter FIXED_PRESCALE = 0,
     parameter CMD_FIFO = 1,
@@ -58,7 +62,7 @@ module i2c_master_axil #
     output wire [1:0]  s_axil_bresp,
     output wire        s_axil_bvalid,
     input  wire        s_axil_bready,
-    input  wire [3:0]  s_axil_araddr,
+    input  wire [4:0]  s_axil_araddr,
     input  wire [2:0]  s_axil_arprot,
     input  wire        s_axil_arvalid,
     output wire        s_axil_arready,
@@ -294,6 +298,14 @@ scl_o should not be connected directly to scl_i, only via AND logic or a tristat
 I/O pin.  This would prevent devices from stretching the clock period.
 
 */
+
+// Adding Registers for the IP TYPE, VERSION and ID in memory map
+
+reg [31:0] IP_TYPE_REG  = IP_TYPE;
+reg [31:0] IP_VERSION_REG = IP_VERSION;
+reg [31:0] IP_ID_REG = IP_ID;
+
+// --------------------------------------------------------------
 
 reg s_axil_awready_reg = 1'b0, s_axil_awready_next;
 reg s_axil_wready_reg = 1'b0, s_axil_wready_next;
@@ -599,7 +611,7 @@ always @* begin
         s_axil_rvalid_next = 1'b1;
         s_axil_rdata_next = 32'd0;
 
-        case ({s_axil_araddr[3:2], 2'b00})
+        case ({s_axil_araddr[4:2], 2'b00})
             4'h0: begin
                 // status
                 s_axil_rdata_next[0]  = busy_int;
@@ -642,6 +654,18 @@ always @* begin
             4'hC: begin
                 // prescale
                 s_axil_rdata_next = prescale_reg;
+            end
+            5'h10: begin
+                // ip type register
+                s_axil_rdata_next = IP_TYPE_REG;
+            end
+            5'h14: begin
+                // ip version register
+                s_axil_rdata_next = IP_VERSION_REG;
+            end
+            5'h18: begin
+                // ip id register
+                s_axil_rdata_next = IP_ID_REG;
             end
         endcase
     end

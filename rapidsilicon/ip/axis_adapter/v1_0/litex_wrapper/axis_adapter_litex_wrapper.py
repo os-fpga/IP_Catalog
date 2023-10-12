@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXIS's axis_adapter.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXIS_ADAPTER ---------------------------------------------------------------------------------------
 class AXISADAPTER(Module):
@@ -22,8 +27,10 @@ class AXISADAPTER(Module):
         
         self.logger = logging.getLogger("AXIS_ADAPTER")
         
-        self.logger.propagate = False
-
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
+        
         # Data Width
         s_data_width = len(s_axis.data)
         self.logger.info(f"S_DATA_WIDTH     : {s_data_width}")
@@ -46,11 +53,16 @@ class AXISADAPTER(Module):
         user_width = len(s_axis.user)
         self.logger.info(f"USER_WIDTH       : {user_width}")
         
+        self.logger.info(f"===================================================")
         # Module instance.
         # ----------------
         self.specials += Instance("axis_adapter",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             # Global.
             p_S_DATA_WIDTH      = Instance.PreformattedParam(s_data_width),
             p_S_KEEP_WIDTH      = Instance.PreformattedParam(int((s_data_width+7)/8)),

@@ -6,7 +6,13 @@
 
 import os
 import sys
+import logging
 import argparse
+import math
+
+from datetime import datetime
+
+from datetime import datetime
 
 from litex_wrapper.on_chip_memory_litex_wrapper import *
 
@@ -111,7 +117,11 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="on_chip_memory", language="verilog")
-
+    
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--memory_type",    type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
@@ -123,8 +133,8 @@ def main():
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock")
-    core_bool_param_group.add_argument("--bram",        type=bool,   default=False,     help="BRAM vs Distributed Memory")
+    core_bool_param_group.add_argument("--bram",        type=bool,   default=False,     help="Block RAM vs Distributed Memory")
+    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,     help="Ports Common Clock")
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
@@ -134,7 +144,7 @@ def main():
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                        help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                               help="Build Directory")
-    build_group.add_argument("--build-name",    default="on_chip_memory_wrapper",           help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build-name",    default="on_chip_memory",                   help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -142,40 +152,55 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-
+    
+    details =  {   "IP details": {
+    'Name' : 'ON CHIP MEMORY GENERATOR',
+    'Version' : 'V1_0',
+    'Interface' : 'NATIVE',
+    'Description' : 'ON CHIP MEMORY GENERATOR is an IP Core with native interface. This IP Core simplifies the integration of memory elements, allowing designers to generate customized on-chip memory instances that match their specific requirements. It include the ability to configure memory size, data width, organization (e.g., single-port, dual-port), and various memory types (e.g., single-ported RAM, simple dual-port RAM and true dual port RAM).'}
+    }
+    
     # Import JSON (Optional) -----------------------------------------------------------------------
-    # fabric_mem = 4194432
-    # if args.json:
-    #     args_1 = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-    #     for key, value in vars(args).items():
-    #         if args_1.data_width <= 128 and args_1.data_width > 64 :
-    #             parser._actions[3].choices = [2,int((fabric_mem/128)-1)]
-    #             parser._actions[3].default = int(fabric_mem/128)
-    #         elif args_1.data_width <= 64 and args_1.data_width > 32:
-    #             parser._actions[3].choices = [2,int(fabric_mem/64)]
-    #             parser._actions[3].default = int(fabric_mem/64)
-    #         elif args_1.data_width <= 32 and args_1.data_width > 16:
-    #             parser._actions[3].choices = [2,int(fabric_mem/32)]
-    #             parser._actions[3].default = int(fabric_mem/32)
-    #         elif args_1.data_width <= 16 and args_1.data_width > 8 :
-    #             parser._actions[3].choices = [2,int(fabric_mem/16)]
-    #             parser._actions[3].default = int(fabric_mem/16)
-    #         elif args_1.data_width <= 8 and args_1.data_width > 4 :
-    #             parser._actions[3].choices = [2,int(fabric_mem/8)]
-    #             parser._actions[3].default = int(fabric_mem/8)
-    #         elif args_1.data_width <= 4 and args_1.data_width > 2 :
-    #             parser._actions[3].choices = [2,int(fabric_mem/4)]
-    #             parser._actions[3].default = int(fabric_mem/4)
-    #         elif args_1.data_width <= 2 and args_1.data_width >= 1 :
-    #             parser._actions[3].choices = [2,int(fabric_mem/2)]
-    #             parser._actions[3].default = int(fabric_mem/2)
-    #         if args_1.data_width == 32:
-    #             parser._actions[3].default = 1024
-    # args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    if args.json:
+        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+        
+        if (args.memory_type in ["Single_Port"]):
+            option_strings_to_remove = ['--common_clk']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
 
+    if (args.memory_type == "Single_Port"):
+        memory = "Single Port RAM"
+    elif (args.memory_type == "Simple_Dual_Port"):
+        memory = "Simple Dual Port RAM"
+    else:
+        memory = "True Dual Port RAM"
+    
+    m = math.ceil(args.data_width/36)
+    n = math.ceil(args.write_depth/1024)
+    
+    if (args.bram == 1):
+        memory_mapping = "Block RAM"
+    else:
+        memory_mapping = "Distributed RAM (LUTS)"
+    
+    summary =  { 
+    "TYPE OF MEMORY": memory,
+    "DATA WIDTH": args.data_width,
+    "ADDRESS WIDTH": math.ceil(math.log2(args.write_depth)),
+    "MAPPING": memory_mapping
+    }
+    
+    if (args.bram == 1):
+        summary["NUMBER of BRAMS"] = m*n
+        
+    if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
+        if (args.common_clk == 1):
+            summary["COMMON CLOCK"] = "Both Ports are synchronized"
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
     
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -187,6 +212,7 @@ def main():
         bram            = args.bram,
         file_path       = args.file_path,
         file_extension  = os.path.splitext(args.file_path)[1]
+        # wrapper         = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
     )
 
     # Build Project --------------------------------------------------------------------------------
@@ -203,14 +229,58 @@ def main():
             module     = module
         )
         
+        # IP_ID Parameter
+        now = datetime.datetime.now()
+        my_year         = now.year - 2022
+        year            = (bin(my_year)[2:]).zfill(7) # 7-bits  # Removing '0b' prefix = [2:]
+        month           = (bin(now.month)[2:]).zfill(4) # 4-bits
+        day             = (bin(now.day)[2:]).zfill(5) # 5-bits
+        mod_hour        = now.hour % 12 # 12 hours Format
+        hour            = (bin(mod_hour)[2:]).zfill(4) # 4-bits
+        minute          = (bin(now.minute)[2:]).zfill(6) # 6-bits
+        second          = (bin(now.second)[2:]).zfill(6) # 6-bits
+        
+        # Concatenation for IP_ID Parameter
+        ip_id = ("{}{}{}{}{}{}").format(year, day, month, hour, minute, second)
+        ip_id = ("32'h{}").format(hex(int(ip_id,2))[2:])
+        
+        # IP_VERSION parameter
+        #               Base  _  Major _ Minor
+        ip_version = "00000000_00000000_0000000000000001"
+        ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
+        
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
+        new_lines = []
+        with open (wrapper, "r") as file:
+            lines = file.readlines()
+            for i, line in enumerate(lines):
+                if ("module {}".format(args.build_name)) in line:
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"OCMGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                else:
+                    new_lines.append(line)
+                
+        with open(os.path.join(wrapper), "w") as file:
+            file.writelines(new_lines)
+        
         # DRAM
         if (args.bram == 0):
-            wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
+            # wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
             with open (wrapper, "r") as file:
                 lines = file.readlines()
                 for i, line in enumerate(lines):
                     if "Port" in line:
                         lines.insert(i, "(* ram_style = \"logic\" *)\n\n")
+                        break
+                    
+                file_extension  = os.path.splitext(args.file_path)[1]
+                hex_path = "initial begin\n\t$readmemh(\"{}\", memory);\nend\n".format(args.file_path)
+                bin_path = "initial begin\n\t$readmemb(\"{}\", memory);\nend\n".format(args.file_path)
+                for i, line in enumerate(lines):
+                    if "always" in line:
+                        if (file_extension == ".hex"):
+                            lines.insert(i, hex_path)
+                        elif (file_extension == ".bin"):
+                            lines.insert(i, bin_path)
                         break
 
             with open(os.path.join(wrapper), "w") as file:

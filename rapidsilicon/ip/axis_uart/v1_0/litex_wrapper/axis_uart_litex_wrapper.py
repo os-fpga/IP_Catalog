@@ -8,14 +8,18 @@
 # LiteX wrapper around Alex Forencich verilog-uart's uart.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
 
-logging.basicConfig(level=logging.INFO)
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXIS-UART  ---------------------------------------------------------------------------------------
 class AXISTREAMUART(Module):
@@ -23,11 +27,15 @@ class AXISTREAMUART(Module):
         
         self.logger = logging.getLogger("AXI_STREAM_UART")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
         
         # Data width.
         data_width = len(s_axis.data)
         self.logger.info(f"DATA_WIDTH : {data_width}")
+        
+        self.logger.info(f"===================================================")
         
         # Uart Signals
         self.rxd              = Signal(1)
@@ -43,6 +51,10 @@ class AXISTREAMUART(Module):
         self.specials += Instance("uart",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             # Global.
             p_DATA_WIDTH        = Instance.PreformattedParam(data_width),
 

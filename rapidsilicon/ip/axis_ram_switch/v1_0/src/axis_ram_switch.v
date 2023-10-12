@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axis_ram_switch #
 (
+    parameter IP_TYPE 		= "RAMSWTCH",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2e91141,
+    
     // FIFO depth in words (each virtual FIFO)
     // KEEP_WIDTH words per cycle if KEEP_ENABLE set
     // Rounded up to nearest power of 2 cycles

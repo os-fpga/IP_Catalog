@@ -31,7 +31,10 @@ THE SOFTWARE.
  */
 module uart #
 (
-    parameter DATA_WIDTH = 8
+    parameter IP_TYPE 		= "AXISUART",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2e91152,
+    parameter DATA_WIDTH    = 8
 )
 (
     input  wire                   clk,

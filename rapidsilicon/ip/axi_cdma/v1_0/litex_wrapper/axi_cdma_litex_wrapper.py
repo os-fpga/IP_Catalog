@@ -8,13 +8,19 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_cdma.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
 
 # AXI CDMA ---------------------------------------------------------------------------------------
 class AXICDMA(Module):
@@ -29,8 +35,10 @@ class AXICDMA(Module):
         # ---------------------        
         self.logger = logging.getLogger("AXI_CDMA")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
 
+        self.logger.info(f"=================== PARAMETERS ====================")
+        
         # Clock Domain.
         self.logger.info(f"Clock Domain     : {m_axi.clock_domain}")
 
@@ -52,6 +60,8 @@ class AXICDMA(Module):
         self.logger.info(f"TAG_WIDTH        : {tag_width}")
         self.logger.info(f"ENABLE_UNALIGNED : {enable_unaligned}")
 
+        self.logger.info(f"===================================================")
+        
         # Non-Stnadard IOs
         self.s_axis_desc_read_addr      = Signal(address_width)
         self.s_axis_desc_write_addr     = Signal(address_width)
@@ -69,6 +79,10 @@ class AXICDMA(Module):
         self.specials += Instance("axi_cdma",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE                   = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                     = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION                = Instance.PreformattedParam("IP_VERSION"),
             # Global AXI
             p_AXI_DATA_WIDTH            = Instance.PreformattedParam(data_width),
             p_AXI_ADDR_WIDTH            = Instance.PreformattedParam(address_width),

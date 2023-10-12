@@ -8,14 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axil_interconnect.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
 
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXI LITE INTERCONNECT ------------------------------------------------------------------------------------------
 class AXILITEINTERCONNECT(Module):
@@ -25,8 +29,10 @@ class AXILITEINTERCONNECT(Module):
         # ---------------------
         self.logger = logging.getLogger("AXI_LITE_INTERCONNECT")
         
-        self.logger.propagate = False
-
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
+        
         # Clock Domain.
         clock_domain = s_axil[0].clock_domain
         self.logger.info(f"CLOCK_DOMAIN : {clock_domain}")
@@ -46,6 +52,8 @@ class AXILITEINTERCONNECT(Module):
         # Address width.
         addr_width = len(s_axil[0].aw.addr)
         self.logger.info(f"ADDR_WIDTH   : {addr_width}")
+        
+        self.logger.info(f"===================================================")
 
         # Module instance.
         # ----------------

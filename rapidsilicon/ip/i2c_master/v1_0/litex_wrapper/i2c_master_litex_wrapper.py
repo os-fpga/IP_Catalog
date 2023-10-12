@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich verilog-i2c's i2c_master_axil.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # I2C_MASTER -------------------------------------------------------------------------------------
 class I2CMASTER(Module):
@@ -22,7 +27,9 @@ class I2CMASTER(Module):
         
         self.logger = logging.getLogger("I2C_MASTER")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
         
         # DEFAULT_PRESCALE
         self.logger.info(f"DEFAULT_PRESCALE     : {default_prescale}")
@@ -48,6 +55,8 @@ class I2CMASTER(Module):
         # READ_FIFO_ADDR_WIDTH
         self.logger.info(f"READ_FIFO_ADDR_WIDTH : {read_addr_width}")
         
+        self.logger.info(f"===================================================")
+        
         # I2C interface
         self.i2c_scl_i              = Signal()
         self.i2c_scl_o              = Signal()
@@ -61,6 +70,10 @@ class I2CMASTER(Module):
         self.specials += Instance("i2c_master_axil",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE               = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                 = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION            = Instance.PreformattedParam("IP_VERSION"),
             p_CMD_FIFO_ADDR_WIDTH   = Instance.PreformattedParam(cmd_addr_width),
             p_WRITE_FIFO_ADDR_WIDTH = Instance.PreformattedParam(write_addr_width),
             p_READ_FIFO_ADDR_WIDTH  = Instance.PreformattedParam(read_addr_width),

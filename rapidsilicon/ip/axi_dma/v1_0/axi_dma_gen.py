@@ -6,7 +6,10 @@
 
 import os
 import sys
+import logging
 import argparse
+
+from datetime import datetime
 
 from litex_wrapper.axi_dma_litex_wrapper import AXIDMA
 
@@ -189,6 +192,10 @@ def main():
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_dma", language="verilog")
 
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--axi_data_width",    type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256],      help="DMA Data Width.")
@@ -226,9 +233,17 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'AXI Direct Memory Access',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI4, AXI-Stream',
+    'Description' : 'The AXI DMA soft IP facilitates seamless, high-speed data transfer between memory and peripherals bypassing any CPU, enhancing overall FPGA system efficiency and performance. This IP core simplifies complex data handling tasks, making it a valuable addition to various FPGA designs.'}
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
 
         if (args.axis_id_enable == False):
             dep_dict.update({
@@ -256,10 +271,17 @@ def main():
             })        
 
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+    
+    summary =  { 
+    "AXI Data Width" : args.axi_data_width,
+    "AXI Address Width" : args.axi_addr_width,
+    "Descriptor Interface" : "AXI-Stream",
+    "Master Interface" : "AXI"
+    }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -294,6 +316,39 @@ def main():
             platform   = platform,
             module     = module,
         )
+        
+        # IP_ID Parameter
+        now = datetime.now()
+        my_year         = now.year - 2022
+        year            = (bin(my_year)[2:]).zfill(7) # 7-bits  # Removing '0b' prefix = [2:]
+        month           = (bin(now.month)[2:]).zfill(4) # 4-bits
+        day             = (bin(now.day)[2:]).zfill(5) # 5-bits
+        mod_hour        = now.hour % 12 # 12 hours Format
+        hour            = (bin(mod_hour)[2:]).zfill(4) # 4-bits
+        minute          = (bin(now.minute)[2:]).zfill(6) # 6-bits
+        second          = (bin(now.second)[2:]).zfill(6) # 6-bits
+        
+        # Concatenation for IP_ID Parameter
+        ip_id = ("{}{}{}{}{}{}").format(year, day, month, hour, minute, second)
+        ip_id = ("32'h{}").format(hex(int(ip_id,2))[2:])
+        
+        # IP_VERSION parameter
+        #               Base  _  Major _ Minor
+        ip_version = "00000000_00000000_0000000000000001"
+        ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
+        
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axi_dma", "v1_0", args.build_name, "src",args.build_name+".v")
+        new_lines = []
+        with open (wrapper, "r") as file:
+            lines = file.readlines()
+            for i, line in enumerate(lines):
+                if ("module {}".format(args.build_name)) in line:
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"AXI_DMA\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                else:
+                    new_lines.append(line)
+                
+        with open(os.path.join(wrapper), "w") as file:
+            file.writelines(new_lines)
 
 if __name__ == "__main__":
     main()

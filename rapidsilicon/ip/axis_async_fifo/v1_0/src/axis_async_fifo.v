@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axis_async_fifo #
 (
+    parameter IP_TYPE 		= "ASYNFIFO",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2691021,
+    
     // FIFO depth in words
     // KEEP_WIDTH words per cycle if KEEP_ENABLE set
     // Rounded up to nearest power of 2 cycles
