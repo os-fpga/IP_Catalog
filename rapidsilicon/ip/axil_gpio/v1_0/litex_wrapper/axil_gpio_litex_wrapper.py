@@ -8,13 +8,18 @@
 # LiteX wrapper around Smartfox Data Solutions Inc. axi4lite_gpio's axi4lite_gpio.sv
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 class AXILITEGPIO(Module):
     def __init__(self, platform, s_axil):
@@ -23,8 +28,8 @@ class AXILITEGPIO(Module):
         # --------------
         self.logger = logging.getLogger("AXI_LITE_GPIO")
         
-        self.logger.propagate = False
-        
+        self.logger.propagate = True
+        self.logger.info(f"=================== PARAMETERS ====================")
         # Clock Domain.
         clock_domain = s_axil.clock_domain
         self.logger.info(f"Clock Domain     : {clock_domain}")
@@ -36,7 +41,7 @@ class AXILITEGPIO(Module):
         # Address width.
         address_width = len(s_axil.aw.addr)
         self.logger.info(f"Address Width    : {address_width}")
-        
+        self.logger.info(f"===================================================")
         # GPIO
         self.gpin  = Signal(data_width)
         self.gpout = Signal(data_width)
@@ -47,6 +52,10 @@ class AXILITEGPIO(Module):
         self.specials += Instance("axi4lite_gpio",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE       = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID         = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION    = Instance.PreformattedParam("IP_VERSION"),
             p_DATA_WIDTH    = Instance.PreformattedParam(data_width),
             p_ADDR_WIDTH    = Instance.PreformattedParam(address_width),
             

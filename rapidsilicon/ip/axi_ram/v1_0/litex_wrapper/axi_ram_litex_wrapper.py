@@ -8,16 +8,20 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_ram.v.
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # Helpers ------------------------------------------------------------------------------------------
-
 class Open(Signal): pass
 
 def colorer(s, color="bright"):
@@ -40,8 +44,8 @@ class AXIRAM(Module):
         # ---------------------
         self.logger = logging.getLogger("AXI_RAM")
 
-        self.logger.propagate = False
-
+        self.logger.propagate = True
+        self.logger.info(f"=================== PARAMETERS ====================")
         # Clock Domain.
         clock_domain = s_axi.clock_domain
         self.logger.info(f"Clock Domain     : {colorer(clock_domain)}")
@@ -64,12 +68,17 @@ class AXIRAM(Module):
         # Pipeline Output
         self.logger.info(f"PIPELINE_OUTPUT  : {colorer(pipeline_output)}")
 
+        self.logger.info(f"===================================================")
         # Module instance.
         # ----------------
         
         self.specials += Instance("axi_ram",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE         = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID           = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION      = Instance.PreformattedParam("IP_VERSION"),
             p_DATA_WIDTH      = Instance.PreformattedParam(data_width),
             p_ADDR_WIDTH      = Instance.PreformattedParam(address_width),
             p_ID_WIDTH        = Instance.PreformattedParam(id_width),

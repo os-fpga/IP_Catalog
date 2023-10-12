@@ -6,7 +6,10 @@
 
 import os
 import sys
+import logging
 import argparse
+
+from datetime import datetime
 
 from litex_wrapper.axi_cdma_litex_wrapper import AXICDMA
 
@@ -110,22 +113,28 @@ def main():
 
     # IP Builder.
     rs_builder = IP_Builder(device="gemini", ip_name="axi_cdma", language="verilog")
-
+    
+    logging.info("===================================================")
+    logging.info("IP    : %s", rs_builder.ip_name.upper())
+    logging.info(("==================================================="))
+    
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",        type=int,      default=32,     choices=[8, 16, 32, 64, 128, 256], help="DMA Data Width.")
 
-    # Core bool value parameters.
-    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--enable_unaligned",  type=bool,    default=True,    help="Support for unaligned transfers.")
-
-    # Core range value parameters.
+     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--addr_width",        type=int,    default=16,     choices=range(8, 17),    help="DMA Address Width.")
     core_range_param_group.add_argument("--id_width",          type=int,    default=8,      choices=range(1, 33),    help="DMA ID Width.")
     core_range_param_group.add_argument("--axi_max_burst_len", type=int,    default=16,     choices=range(1,257),    help="DMA AXI burst length.")
     core_range_param_group.add_argument("--len_width",         type=int,    default=20,     choices=range(1,21),     help="DMA AXI Width of length field.")
     core_range_param_group.add_argument("--tag_width",         type=int,    default=8,      choices=range(1,9),      help="DMA Width of tag field.")
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--enable_unaligned",  type=bool,    default=True,    help="Support for unaligned transfers.")
+
+   
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -140,13 +149,31 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'CDMA',
+    'Version' : 'V1_0',
+    'Interface' : 'AXI4 ',
+    'Description' : 'Central DMA (CDMA) is a type of Direct Memory Access (DMA) that provides high-bandwidth Direct Memory Access (DMA) between a memory-mapped source address and a memory-mapped destination address using the AXI4 protocol'}
+    }
+
+    summary =  { 
+    # "DATA WIDTH": args.data_width,
+    "DATA WIDTH":args.data_width,
+    "ADDR WIDTH": args.addr_width,
+    "BURST LENGTH": args.axi_max_burst_len,
+    "TAG WIDTH": args.tag_width,
+    # "PIPELINE OUTPUT": args.pip_out
+    }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -173,6 +200,39 @@ def main():
             platform   = platform,
             module     = module,
         )
+        
+        # IP_ID Parameter
+        now = datetime.now()
+        my_year         = now.year - 2022
+        year            = (bin(my_year)[2:]).zfill(7) # 7-bits  # Removing '0b' prefix = [2:]
+        month           = (bin(now.month)[2:]).zfill(4) # 4-bits
+        day             = (bin(now.day)[2:]).zfill(5) # 5-bits
+        mod_hour        = now.hour % 12 # 12 hours Format
+        hour            = (bin(mod_hour)[2:]).zfill(4) # 4-bits
+        minute          = (bin(now.minute)[2:]).zfill(6) # 6-bits
+        second          = (bin(now.second)[2:]).zfill(6) # 6-bits
+        
+        # Concatenation for IP_ID Parameter
+        ip_id = ("{}{}{}{}{}{}").format(year, day, month, hour, minute, second)
+        ip_id = ("32'h{}").format(hex(int(ip_id,2))[2:])
+        
+        # IP_VERSION parameter
+        #               Base  _  Major _ Minor
+        ip_version = "00000000_00000000_0000000000000001"
+        ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
+        
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axi_cdma", "v1_0", args.build_name, "src",args.build_name+".v")
+        new_lines = []
+        with open (wrapper, "r") as file:
+            lines = file.readlines()
+            for i, line in enumerate(lines):
+                if ("module {}".format(args.build_name)) in line:
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"CDMA1\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                else:
+                    new_lines.append(line)
+                
+        with open(os.path.join(wrapper), "w") as file:
+            file.writelines(new_lines)
 
 if __name__ == "__main__":
     main()

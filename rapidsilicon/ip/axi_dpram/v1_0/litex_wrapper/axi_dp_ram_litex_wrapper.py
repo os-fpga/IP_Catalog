@@ -8,16 +8,20 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_dp_ram.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
 
-# AXI DP RAM ---------------------------------------------------------------------------------------
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
+# AXI DP-RAM ---------------------------------------------------------------------------------------
 class AXIDPRAM(Module):
     def __init__(self, platform, s_axi_a, s_axi_b, size=0x1000,
         a_pipeline_output = 0,
@@ -25,13 +29,12 @@ class AXIDPRAM(Module):
         b_pipeline_output = 0,
         b_interleave      = 0,
     ):
-
         # Get Parameters.
         # ---------------------
         self.logger = logging.getLogger("AXI_DPRAM")
         
-        self.logger.propagate = False
-        
+        self.logger.propagate = True
+        self.logger.info(f"=================== PARAMETERS ====================")
         # Clock Domain.
         self.logger.info(f"Clock Domain A   : {s_axi_a.clock_domain}")
         self.logger.info(f"Clock Domain B   : {s_axi_b.clock_domain}")
@@ -56,7 +59,8 @@ class AXIDPRAM(Module):
         self.logger.info(f"A Interleave R/W : {a_interleave}")
         self.logger.info(f"B Pipeline Output: {b_pipeline_output}")
         self.logger.info(f"B Interleave R/W : {b_interleave}")
-
+        self.logger.info(f"===================================================")
+        
         # Clock/Reset Signals
         self.a_clk= Signal()
         self.a_rst= Signal()
@@ -68,11 +72,16 @@ class AXIDPRAM(Module):
         self.specials += Instance("axi_dp_ram",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE               = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                 = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION            = Instance.PreformattedParam("IP_VERSION"),
+            
             # Global.
             p_DATA_WIDTH            = Instance.PreformattedParam(data_width),
             p_ADDR_WIDTH            = Instance.PreformattedParam(address_width),
             p_ID_WIDTH              = Instance.PreformattedParam(id_width),
-
+            
             # Pipeline/Interleave.
             p_A_PIPELINE_OUTPUT     = a_pipeline_output,
             p_A_INTERLEAVE          = a_interleave,

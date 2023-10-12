@@ -63,7 +63,5 @@ end
 initial begin
     $dumpfile("fifo.vcd");
     $dumpvars;
-    // #6000000;
-    // $finish;
 end
 endmodule

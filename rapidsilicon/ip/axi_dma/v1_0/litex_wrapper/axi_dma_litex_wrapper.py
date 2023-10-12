@@ -8,13 +8,19 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_dma.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
 
 # AXI DMA ---------------------------------------------------------------------------------------
 class AXIDMA(Module):
@@ -34,8 +40,8 @@ class AXIDMA(Module):
         # ---------------------
         self.logger = logging.getLogger("AXI_DMA")
         
-        self.logger.propagate = False
-        
+        self.logger.propagate = True
+        self.logger.info(f"=================== PARAMETERS ====================")
         self.logger.info(f"Clock Domain         : {m_axi.clock_domain}")
 
         address_width = len(m_axi.aw.addr)
@@ -68,7 +74,7 @@ class AXIDMA(Module):
         self.logger.info(f"TAG_WIDTH            : {tag_width}")
         self.logger.info(f"ENABLE_SG            : {enable_sg}")
         self.logger.info(f"ENABLE_UNALIGNED     : {enable_unaligned}")
-
+        self.logger.info(f"===================================================")
         # Non-Stnadard IOs
         self.s_axis_read_desc_addr          = Signal(address_width)
         self.s_axis_read_desc_len           = Signal(len_width)
@@ -106,12 +112,17 @@ class AXIDMA(Module):
         self.specials += Instance("axi_dma",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE                           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID                             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION                        = Instance.PreformattedParam("IP_VERSION"),
+            
             # Global AXI
             p_AXI_DATA_WIDTH                    = Instance.PreformattedParam(axi_data_width),
             p_AXI_ADDR_WIDTH                    = Instance.PreformattedParam(address_width),
             p_AXI_ID_WIDTH                      = Instance.PreformattedParam(axi_id_width),
             p_AXIS_DATA_WIDTH                   = Instance.PreformattedParam(axi_data_width),    
-
+            
             # IP Params.
             p_AXI_MAX_BURST_LEN                 = Instance.PreformattedParam(axi_max_burst_len),    
             p_AXIS_ID_WIDTH                     = Instance.PreformattedParam(axis_id_width),

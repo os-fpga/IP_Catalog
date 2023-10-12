@@ -8,13 +8,18 @@
 # LiteX wrapper around Alex Forencich Verilog-AXIS's axis_fifo.v
 
 import os
+import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
 
 # AXIS_FIFO ---------------------------------------------------------------------------------------
 class AXISTREAMFIFO(Module):
@@ -31,8 +36,10 @@ class AXISTREAMFIFO(Module):
     ):
         self.logger = logging.getLogger("AXI_STREAM_FIFO")
         
-        self.logger.propagate = False
-
+        self.logger.propagate = True
+        
+        self.logger.info(f"=================== PARAMETERS ====================")
+        
         # Depth
         self.logger.info(f"DEPTH            : {depth}")
 
@@ -62,6 +69,8 @@ class AXISTREAMFIFO(Module):
         self.logger.info(f"DROP_BAD_FRAME   : {drop_bad_frame}")
         self.logger.info(f"DROP_WHEN_FULL   : {drop_when_full}")
         
+        self.logger.info(f"===================================================")
+        
         # Status Signals
         self.status_overflow    = Signal()
         self.status_bad_frame   = Signal()
@@ -74,6 +83,10 @@ class AXISTREAMFIFO(Module):
         self.specials += Instance("axis_fifo",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             # Global.
             p_DEPTH             = Instance.PreformattedParam(depth),
             p_DATA_WIDTH        = Instance.PreformattedParam(data_width),

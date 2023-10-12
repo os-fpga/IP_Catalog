@@ -8,6 +8,7 @@
 # LiteX wrapper around Alex Forencich Verilog-AXI's axi_fifo.v
 
 import os
+import datetime
 import logging
 import math
 
@@ -15,7 +16,12 @@ from migen import *
 
 from litex.soc.interconnect.axi import *
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
+logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
+
+timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+logging.info(f'Log started at {timestamp}')
+
 
 # AXI_FIFO ---------------------------------------------------------------------------------------
 class AXIASYNCFIFO(Module):
@@ -25,8 +31,10 @@ class AXIASYNCFIFO(Module):
         # --------------
         self.logger = logging.getLogger("AXI_FIFO")
         
-        self.logger.propagate = False
+        self.logger.propagate = True
 
+        self.logger.info(f"=================== PARAMETERS ====================")
+        
         data_width = len(s_axi.w.data)
         self.logger.info(f"DATA_WIDTH       : {data_width}")
         
@@ -38,6 +46,7 @@ class AXIASYNCFIFO(Module):
         
         self.logger.info(f"WRITE_FIFO_DELAY : {fifo_depth}")
         
+        self.logger.info(f"===================================================")
 
         # Clock/Reset Signals
         self.m_clk                 = Signal()
@@ -51,6 +60,10 @@ class AXIASYNCFIFO(Module):
         self.specials += Instance("axi_async_fifo",
             # Parameters.
             # -----------
+            # IP Parameters
+            p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
+            p_IP_ID             = Instance.PreformattedParam("IP_ID"),
+            p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
             # Global.
             p_AXI_DATA_WIDTH        = data_width,
             p_AXI_ADDR_WIDTH        = addr_width,

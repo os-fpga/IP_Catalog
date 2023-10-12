@@ -33,6 +33,10 @@ THE SOFTWARE.
  */
 module axi_dp_ram #
 (
+    parameter IP_TYPE 		= "DPRAM",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2591514,
+    
     // Width of data bus in bits
     parameter DATA_WIDTH = 32,
     // Width of address bus in bits
