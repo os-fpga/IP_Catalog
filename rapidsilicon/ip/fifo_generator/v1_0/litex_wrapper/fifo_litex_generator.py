@@ -38,6 +38,23 @@ def divide_n_bit_number(number, depth):
     
     return buses
 
+# Making the read and write data widths into their own buses no depth
+def divide_n_bit_number_no_depth(number):
+    # Convert the number to a binary string
+    binary_string = '0' * number
+    buses = []
+
+    for i in range(0, len(binary_string), 36):
+        bus = binary_string[i:i+36]
+        buses.append(bus)
+    if (len(buses[-1]) < 36 and len(buses[-1]) > 18):
+        for i in range(len(binary_string) - len(buses[-1]), len(binary_string), 18):
+            bus = binary_string[i:i+18]
+            buses.append(bus)
+        buses.pop(-3)
+    
+    return buses
+
 # Checking the bit length for a certain decimal number
 def decimal_to_binary(decimal_number):
     binary_string = bin(decimal_number)[2:]  # Convert to binary and remove the '0b' prefix
@@ -79,7 +96,7 @@ class FIFO(Module):
 
         buses_write = divide_n_bit_number(data_width_write, depth)
         buses_write_og = buses_write
-        buses_read = divide_n_bit_number(data_width_read, depth)
+        buses_read = divide_n_bit_number_no_depth(data_width_read)
         buses_read_og = buses_read
         data_36_write = sum(1 for item in buses_write if ((len(item) >= 18 and depth < 1024) or (len(item) == 36 and depth >= 1024)))
         data_36_read = sum(1 for item in buses_read if ((len(item) >= 18 and depth < 1024) or (len(item) == 36 and depth >= 1024)))
@@ -93,6 +110,8 @@ class FIFO(Module):
         write_div_read = int(data_width_write/data_width_read)/len(buses_write)
         write_div_read = decimal_to_binary(int(write_div_read))
         size_bram = 36864
+        print(buses_write)
+        print(buses_read)
         data_36 = sum(1 for item in buses_write if ((len(item) >= 18 and depth < 1024) or (len(item) == 36 and depth >= 1024)))
         total_mem = math.ceil((data_width_write * depth) / size_bram)
         remaining_memory = 0
@@ -105,25 +124,22 @@ class FIFO(Module):
         else:
             clocks_for_output = 1
         while remaining_memory < data_width_write * depth:
-            for i, bus in enumerate(buses_write):
+            for i, (bus_write, bus_read) in enumerate(zip(buses_write, buses_read)):
                 # if (remaining_memory < data_width * depth):
-                if (len(bus) <= 9):
-                    data = 9
+                if (len(bus_write) <= 9):
                     memory = 1024
-                    remaining_memory = remaining_memory + (len(bus) * memory)
+                    remaining_memory = remaining_memory + (len(bus_write) * memory)
                     num_9K = num_9K + 1
-                elif (len(bus) <= 18):
-                    data = 18
+                elif (len(bus_write) <= 18):
                     memory = 1024
                     num_18K = num_18K + 1
-                    remaining_memory = remaining_memory + (len(bus) * memory)
-                elif (len(bus) <= 36):
-                    data = 36
+                    remaining_memory = remaining_memory + (len(bus_write) * memory)
+                elif (len(bus_write) <= 36):
                     memory = 1024
                     num_36K = num_36K + 1
-                    remaining_memory = remaining_memory + (len(bus) * memory)
+                    remaining_memory = remaining_memory + (len(bus_write) * memory)
         total_mem = num_36K + math.ceil(num_18K/2) + math.ceil(num_9K/4)
-        print(num_36K, math.ceil(num_18K/2), math.ceil(num_9K/4))
+        print(num_36K, math.ceil(num_18K/2), math.ceil(num_9K/4), total_mem)
         memory = 1024
         instances = math.ceil(depth / memory)
         if(SYNCHRONOUS[synchronous]):
@@ -554,14 +570,14 @@ class FIFO(Module):
                                                     ]
                                             if (data_read == 9):
                                                 if (k18_flag_read):
+                                                    print(j_read % data_width_read, ((data_read + j_read) % data_width_read ) + data_read)
                                                     self.comb += [
                                                         If(self.rden,
                                                            If(~self.underflow,
                                                                 If(self.rd_ptr <= int((k_loop + 1 + l + two_block) + (count_36K * (data_width_write/data_width_read)))*memory,
                                                                     If(self.rd_ptr > int((k_loop + l + two_block) + (count_36K * (data_width_write/data_width_read)))*memory,
                                                                         self.rden_int[count + l].eq(1),
-                                                                        self.dout[j:data_read + j].eq(self.dout_int[count + l]
-                                                                        )
+                                                                        # self.dout[j_read % data_width_read: ((data_read + j_read) % data_width_read ) + data_read].eq(self.dout_int[count + l])
                                                                     )
                                                                 )
                                                             )
