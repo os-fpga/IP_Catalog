@@ -140,13 +140,13 @@ def main():
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_range_param_group.add_argument("--data_width",         type=int,   default=36,  	choices=range(1,1025),   help="FIFO Write/Read Width")
-    core_fix_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=[i * 9 for i in range(1, 114)],   help="FIFO Write Width")
+    core_fix_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=[i*9 for i in range(1, 114)],   help="FIFO Write Width")
     core_range_param_group.add_argument("--full_value",         type=int,   default=2,      choices=range(2,4095),  help="Full Value")
     core_range_param_group.add_argument("--empty_value",        type=int,   default=1,      choices=range(1,4095),  help="Empty Value")
     core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
 
     # Core fix value parameters.
-    core_fix_param_group.add_argument("--data_width_read",  type=int,   default=36,  	choices=[1 , 2 , 3 , 4 , 5 , 6 ],   help="FIFO Read Width")
+    core_fix_param_group.add_argument("--data_width_read",  type=int,   default=36,  	choices=[i for i in range(1, 1025)],   help="FIFO Read Width")
     core_fix_param_group.add_argument("--DEPTH",            type=int,   default=1024,   choices=[4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768],   help="FIFO Depth")
 
     # Core bool value parameters.
@@ -156,7 +156,7 @@ def main():
     core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	  help="Full Threshold")
     core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
     core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
-    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
+    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=True,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
