@@ -236,7 +236,7 @@ def main():
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-        buses_write = divide_n_bit_number(data_width_write)
+        buses_write = divide_n_bit_number(data_width_write, depth)
         remaining_memory = 0
         num_9K = 0
         num_18K = 0
@@ -356,13 +356,19 @@ def main():
     "FIFO Depth" : depth,
     "Latency (clock cycles)" : "1"
     }
-
+    if (args.asymmetric):
+        if (data_width_read > data_width_write):
+            summary["Latency (clock cycles)"] = clock_cycles_to_obtain_desired_output(data_width_read)
+        else:
+            summary["Latency (clock cycles)"] = "1"
+    else:
+        summary["Latency (clock cycles)"] = "1"
     if(args.first_word_fall_through):
         summary["FIFO Mode"] = "First Word Fall Through"
     else:
         summary["FIFO Mode"] = "Standard"
     if (args.BRAM):
-        summary["Count of BRAMs"] = total_BRAM(args.data_width, depth)
+        summary["Count of BRAMs"] = total_BRAM(data_width_write, depth)
     if (args.empty_threshold):
         summary["Programmable Empty"] = "Programmble Empty will be asserted at data count %s" % args.empty_value
     if (args.full_threshold):
