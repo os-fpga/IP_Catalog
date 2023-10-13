@@ -19,11 +19,6 @@ from migen import *
 from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
-# Define a custom function to generate choices in multiples of 9
-def multiples_of_9(value):
-    if value % 9 != 0:
-        raise argparse.ArgumentTypeError("Value must be a multiple of 9")
-    return value
 
 # Making the read and write data widths into their own buses
 def divide_n_bit_number(number):
