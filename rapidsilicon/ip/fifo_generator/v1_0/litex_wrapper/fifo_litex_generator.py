@@ -1983,29 +1983,111 @@ class FIFO(Module):
                                     # First Word Fall Through Implmentation
                                     if (first_word_fall_through):
                                         if (j_loop == total_mem - 1):
-                                            self.sync.rd += [
-                                                If(~self.rd_en_flop1,
-                                                   If(~self.empty_int[i],
-                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= ((j_loop + 1)*memory) + int(starting),
-                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting),
-                                                            self.dout[(36*l):36 + (36*l)].eq(self.dout_int[i])
-                                                        )
-                                                      )
-                                                   )
-                                                )
-                                            ]
+                                            if(data_width_write == data_width_read):
+                                                self.sync.rd += [
+                                                    If(~self.rd_en_flop1,
+                                                       If(~self.empty_int[i],
+                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
+                                                            )
+                                                          )
+                                                       )
+                                                    )
+                                                ]
+                                            else:
+                                                if (len(buses_write_og) > 1):
+                                                    self.sync.rd += [
+                                                    If(~self.rd_en_flop1,
+                                                       If(~self.empty_int[i],
+                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))) + int(starting),
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))) + int(starting),
+                                                               If(self.rd_ptr_minus[int(write_div_read) - 1] == 1 - toggle,
+                                                                self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                               )
+                                                            )
+                                                          )
+                                                       )
+                                                    )
+                                                ]
+                                                else:
+                                                    if (clocks_for_output == 1):
+                                                        self.sync.rd += [
+                                                            If(~self.rd_en_flop1,
+                                                               If(~self.empty_int[i],
+                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
+                                                                        self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read)].eq(self.dout_int[i])
+                                                                    )
+                                                                  )
+                                                               )
+                                                            )
+                                                        ]
+                                                    else:
+                                                        self.sync.rd += [
+                                                            If(~self.rd_en_flop1,
+                                                               If(~self.empty_int[i],
+                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
+                                                                        self.inter_dout.eq(self.dout_int[i])
+                                                                    )
+                                                                  )
+                                                               )
+                                                            )
+                                                        ]
                                         else:
-                                            self.sync.rd += [
-                                                If(~self.rd_en_flop1,
-                                                    If(~self.empty_int[i],
-                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting),
-                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting),
-                                                            self.dout[(36*l):36 + (36*l)].eq(self.dout_int[i])
+                                            if (data_width_write == data_width_read):
+                                                self.sync.rd += [
+                                                    If(~self.rd_en_flop1,
+                                                        If(~self.empty_int[i],
+                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
+                                                                )
                                                             )
                                                         )
                                                     )
-                                                )
-                                            ]
+                                                ]
+                                            else:
+                                                if(len(buses_write_og > 1)):
+                                                    self.sync.rd += [
+                                                        If(~self.rd_en_flop1,
+                                                            If(~self.empty_int[i],
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))) + int(starting),
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))) + int(starting),
+                                                                   If(self.rd_ptr_minus[int(write_div_read) - 1] == 1 - toggle,
+                                                                    self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                                   )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    ]
+                                                else:
+                                                    if (clocks_for_output == 1):
+                                                        self.sync.rd += [
+                                                            If(~self.rd_en_flop1,
+                                                                If(~self.empty_int[i],
+                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
+                                                                        self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read)].eq(self.dout_int[i])
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        ]
+                                                    else:
+                                                        self.sync.rd += [
+                                                            If(~self.rd_en_flop1,
+                                                                If(~self.empty_int[i],
+                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
+                                                                        self.inter_dout.eq(self.dout_int[i])
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        ]
                                 l = l + 1
                                 if (data_width_read >= 36):
                                     if (data_width_write != data_width_read):
@@ -2072,12 +2154,17 @@ class FIFO(Module):
                                         ]
                                 else:
                                     if (j_loop == total_mem - 1):
-                                        self.sync.wrt += [
-                                            If(self.wren,
-                                               If(~self.full,
-                                                If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting),
-                                                   If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting),
-                                                        self.wren_int[i].eq(1)
+                                        if (data_width_write >= data_width_read):
+                                            self.sync.wrt += [
+                                                If(self.wren,
+                                                   If(~self.full,
+                                                    If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting),
+                                                       If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting),
+                                                            self.wren_int[i].eq(1)
+                                                            )
+                                                            .Else(
+                                                            self.wren_int[i].eq(0)
+                                                            )
                                                         )
                                                         .Else(
                                                         self.wren_int[i].eq(0)
@@ -2090,18 +2177,43 @@ class FIFO(Module):
                                                 .Else(
                                                 self.wren_int[i].eq(0)
                                                 )
-                                            )
-                                            .Else(
-                                            self.wren_int[i].eq(0)
-                                            )
-                                        ]
+                                            ]
+                                        else:
+                                            self.sync.wrt += [
+                                                If(self.wren,
+                                                   If(~self.full,
+                                                    If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory*int((data_width_read/data_width_write)/clocks_for_output)) + int(starting),
+                                                       If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory*int((data_width_read/data_width_write)/clocks_for_output)) + int(starting),
+                                                            self.wren_int[i].eq(1)
+                                                            )
+                                                            .Else(
+                                                            self.wren_int[i].eq(0)
+                                                            )
+                                                        )
+                                                        .Else(
+                                                        self.wren_int[i].eq(0)
+                                                        )
+                                                    )
+                                                    .Else(
+                                                    self.wren_int[i].eq(0)
+                                                    )
+                                                )
+                                                .Else(
+                                                self.wren_int[i].eq(0)
+                                                )
+                                            ]
                                     else:
-                                        self.sync.wrt += [
-                                            If(self.wren,
-                                               If(~self.full,
-                                                If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting),
-                                                   If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting),
-                                                        self.wren_int[i].eq(1)
+                                        if (data_width_write >= data_width_read):
+                                            self.sync.wrt += [
+                                                If(self.wren,
+                                                   If(~self.full,
+                                                    If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory) + int(starting),
+                                                       If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory) + int(starting),
+                                                            self.wren_int[i].eq(1)
+                                                            )
+                                                            .Else(
+                                                                self.wren_int[i].eq(0)
+                                                            )
                                                         )
                                                         .Else(
                                                             self.wren_int[i].eq(0)
@@ -2114,11 +2226,31 @@ class FIFO(Module):
                                                 .Else(
                                                     self.wren_int[i].eq(0)
                                                 )
-                                            )
-                                            .Else(
-                                                self.wren_int[i].eq(0)
-                                            )
-                                        ]
+                                            ]
+                                        else:
+                                            self.sync.wrt += [
+                                                If(self.wren,
+                                                   If(~self.full,
+                                                    If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] < ((j_loop + 1)*memory*int((data_width_read/data_width_write)/clocks_for_output)) + int(starting),
+                                                       If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] >= ((j_loop)*memory*int((data_width_read/data_width_write)/clocks_for_output)) + int(starting),
+                                                            self.wren_int[i].eq(1)
+                                                            )
+                                                            .Else(
+                                                                self.wren_int[i].eq(0)
+                                                            )
+                                                        )
+                                                        .Else(
+                                                            self.wren_int[i].eq(0)
+                                                        )
+                                                    )
+                                                    .Else(
+                                                        self.wren_int[i].eq(0)
+                                                    )
+                                                )
+                                                .Else(
+                                                    self.wren_int[i].eq(0)
+                                                )
+                                            ]
                                 l = l + 1
                                 if (data_width_write >= 36):
                                     if (count_loop == data_36_write):
