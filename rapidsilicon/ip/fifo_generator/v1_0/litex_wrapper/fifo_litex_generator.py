@@ -2373,7 +2373,7 @@ class FIFO(Module):
                         )
                     ]
 
-         # wrt_ptr and rd_ptr to check for number of entries in FIFO
+            # wrt_ptr and rd_ptr to check for number of entries in FIFO
             if(SYNCHRONOUS[synchronous]):
                 if (data_width_write >= data_width_read):
                     self.sync += [
@@ -2534,7 +2534,7 @@ class FIFO(Module):
                     ]
 
 
-             # Binary to Gray Code----------------------------------------------------------
+                # Binary to Gray Code----------------------------------------------------------
                 if (data_width_write >= data_width_read):
                     for i in range(0, math.ceil(math.log2((data_width_write/data_width_read)*depth))):
                         self.comb += self.gray_encoded_rdptr[i].eq(self.rd_ptr[i + 1] ^ self.rd_ptr[i])
@@ -2552,7 +2552,7 @@ class FIFO(Module):
                 # -----------------------------------------------------------------------------
 
 
-             # Gray to Binary --------------------------------------------------------------
+                # Gray to Binary --------------------------------------------------------------
                 if (data_width_write >= data_width_read):
                     for i in range(0, math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1):
                         expr = self.rd_ptr_wrt_clk2[i]
@@ -2575,7 +2575,7 @@ class FIFO(Module):
                 self.comb += self.sync_rdclk_wrtptr_binary[math.ceil(math.log2(depth)) + 1].eq(self.wrt_ptr_rd_clk2[math.ceil(math.log2(depth)) + 1])
                 # -----------------------------------------------------------------------------
 
-         if(SYNCHRONOUS[synchronous]):
+            if(SYNCHRONOUS[synchronous]):
                 # Checking if the FIFO is full
                 if (data_width_write >= data_width_read):
                     self.comb += [
@@ -2590,14 +2590,14 @@ class FIFO(Module):
                         )
                     ]
 
-             # Checking if the FIFO is empty
+                # Checking if the FIFO is empty
                 self.comb += [
                     If(self.counter == 0,
                        self.empty.eq(1)
                        )
                 ]
 
-             # Checking for Programmable Full
+                # Checking for Programmable Full
                 if (full_threshold):
                     self.comb += [
                         If(self.counter >= full_value - 1,
@@ -2605,7 +2605,7 @@ class FIFO(Module):
                         )
                     ]
 
-             # Checking for Programmable Empty
+                # Checking for Programmable Empty
                 if (empty_threshold):
                     self.comb += [
                         If(self.counter <= empty_value - 1,
@@ -2639,7 +2639,7 @@ class FIFO(Module):
                         )
                     ]
 
-             # Checking if the FIFO is empty
+                # Checking if the FIFO is empty
                 if (data_width_write > data_width_read):
                     self.comb += [
                         If(self.rd_ptr == self.sync_rdclk_wrtptr_binary_multiple,
@@ -2667,7 +2667,7 @@ class FIFO(Module):
                        self.empty_count.eq(self.empty_count + 1))
                 ]
 
-             # Checking for Programmable Full
+                # Checking for Programmable Full
                 if (full_threshold):
                     self.comb += [
                         If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending/(data_width_write/data_width_read)) - (full_value + int(starting))) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1] < (int(ending/(data_width_write/data_width_read)) - (full_value + int(starting))),
@@ -2689,7 +2689,7 @@ class FIFO(Module):
                         )
                     ]
 
-             # Checking for Programmable Empty
+                # Checking for Programmable Empty
                 if (empty_threshold):
                     self.comb += [
                         If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] +  empty_value >= int(ending),
@@ -2711,7 +2711,7 @@ class FIFO(Module):
                            self.prog_empty.eq(1)
                            )
                     ]
-        
+            
         # Using Distributed RAM
         else:
             if (SYNCHRONOUS[synchronous]):
