@@ -202,7 +202,7 @@ def main():
     core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	  help="Full Threshold")
     core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
     core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
-    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=True,   help="Asymmetric Data Widths for Read and Write ports.")
+    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -429,7 +429,7 @@ def main():
             lines = file.readlines()
             for i, line in enumerate(lines):
                 if ("module {}".format(args.build_name)) in line:
-                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"FIFOGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"FIFOGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}, \n\tparameter DEPTH \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id, depth))
                 else:
                     new_lines.append(line)
                 
