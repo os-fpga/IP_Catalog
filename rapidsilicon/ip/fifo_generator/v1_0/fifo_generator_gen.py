@@ -21,7 +21,7 @@ from litex.build.generic_platform import *
 from litex.build.osfpga import OSFPGAPlatform
 
 # Making the read and write data widths into their own buses
-def divide_n_bit_number(number):
+def divide_n_bit_numbers(number):
     # Convert the number to a binary string
     binary_string = '0' * number
     buses = []
@@ -221,42 +221,46 @@ def main():
         depth = args.DEPTH
     else:
         depth = args.depth
-    if (args.asymmetric):
-        data_width_read  = args.data_width_read
-        data_width_write = args.data_width_write
-    else:
-        data_width_read  = args.data_width
-        data_width_write = args.data_width
         
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-        buses_write = divide_n_bit_number(data_width_write, depth)
+        if (args.asymmetric):
+            data_width_read  = args.data_width_read
+            data_width_write = args.data_width_write
+        else:
+            data_width_read  = args.data_width
+            data_width_write = args.data_width
+        buses_write = divide_n_bit_numbers(data_width_write)
         remaining_memory = 0
+        prev_rem = 0
         num_9K = 0
         num_18K = 0
         total_mem = 0
-        while total_mem < 128:
+        while total_BRAM(data_width_write, remaining_memory/data_width_write) < 128:
             for i, bus in enumerate(buses_write):
-                if (total_mem < 128):
-                    if (len(bus) <= 9):
-                        memory = 1024
-                        remaining_memory = remaining_memory + (len(bus) * memory)
-                        num_9K = num_9K + 1
-                        if (num_9K == 4):
-                            total_mem = total_mem + 1
-                            num_9K = 0
-                    elif (len(bus) <= 18):
-                        memory = 1024
-                        num_18K = num_18K + 1
-                        remaining_memory = remaining_memory + (len(bus) * memory)
-                        if (num_18K == 2):
-                            total_mem = total_mem + 1
-                            num_18K = 0
-                    elif (len(bus) <= 36):
-                        memory = 1024
-                        remaining_memory = remaining_memory + (len(bus) * memory)
+                if (len(bus) <= 9):
+                    memory = 1024
+                    remaining_memory = remaining_memory + (len(bus) * memory)
+                    num_9K = num_9K + 1
+                    if (num_9K == 4):
                         total_mem = total_mem + 1
+                        num_9K = 0
+                elif (len(bus) <= 18):
+                    memory = 1024
+                    num_18K = num_18K + 1
+                    remaining_memory = remaining_memory + (len(bus) * memory)
+                    if (num_18K == 2):
+                        total_mem = total_mem + 1
+                        num_18K = 0
+                elif (len(bus) <= 36):
+                    memory = 1024
+                    remaining_memory = remaining_memory + (len(bus) * memory)
+                    total_mem = total_mem + 1
+                if (total_BRAM(data_width_write, remaining_memory/data_width_write) < 128):
+                    prev_rem = remaining_memory
+                else:
+                    prev_rem = prev_rem
         if (args.BRAM == False):
             dep_dict.update({
                 'asymmetric'    :   'True'
@@ -313,9 +317,12 @@ def main():
                     parser._actions[3].default = 1
                 parser._actions[4].choices = [4 * (2 ** i) for i in range(int(math.log2(remaining_memory/args.data_width) - 1))]
         else:
+            if (args.asymmetric):
+                data_width_write = args.data_width_write
+            else:
+                data_width_write = args.data_width
             option_strings_to_remove = ['--DEPTH']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            parser._actions[4].choices = range(2, int(remaining_memory/data_width_write) + 1)
             if (args.asymmetric):
                 option_strings_to_remove = ['--data_width']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -327,6 +334,7 @@ def main():
                     parser._actions[3].default = 1
                 parser._actions[5].choices = factors_multiples(args.data_width_write)
                 parser._actions[5].default = args.data_width_write
+                parser._actions[4].choices = range(2, int(prev_rem/args.data_width_write) + 1)
             else:
                 option_strings_to_remove = ['--data_width_read']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -338,6 +346,7 @@ def main():
                     parser._actions[2].default = args.depth - 1
                 if (args.empty_value >= args.depth):    
                     parser._actions[3].default = 1
+                parser._actions[4].choices = range(2, int(prev_rem/args.data_width) + 1)
         
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
@@ -364,6 +373,10 @@ def main():
     else:
         summary["FIFO Mode"] = "Standard"
     if (args.BRAM):
+        if (args.asymmetric):
+            data_width_write = args.data_width_write
+        else:
+            data_width_write = args.data_width
         summary["Count of BRAMs"] = total_BRAM(data_width_write, depth)
     if (args.empty_threshold):
         summary["Programmable Empty"] = "Programmble Empty will be asserted at data count %s" % args.empty_value
