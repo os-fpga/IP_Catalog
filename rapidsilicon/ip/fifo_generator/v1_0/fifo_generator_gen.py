@@ -429,13 +429,23 @@ def main():
             lines = file.readlines()
             for i, line in enumerate(lines):
                 if ("module {}".format(args.build_name)) in line:
-                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"FIFOGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}, \n\tparameter DEPTH \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id, depth))
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"FIFOGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(\n".format(args.build_name, ip_version, ip_id))
                 else:
                     new_lines.append(line)
                 
         with open(os.path.join(wrapper), "w") as file:
             file.writelines(new_lines)
 
+        with open(wrapper, "r") as file:
+            file_content = file.read()
+        pos = file_content.find(");")
+        if pos != -1:
+            updated_content = file_content[:pos + 2] + "\n\nlocalparam DEPTH = {};".format(depth) + file_content[pos + 2:]
+
+            # Write the updated content back to the file
+            with open(os.path.join(wrapper), "w") as file:
+                file.write(updated_content)
+        
         build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
         file = os.path.join(args.build_dir, "rapidsilicon/ip/fifo_generator/v1_0", build_name, "sim/testbench.v")
         file = Path(file)
