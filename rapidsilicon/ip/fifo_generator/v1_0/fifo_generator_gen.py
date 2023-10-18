@@ -189,11 +189,11 @@ def main():
     core_fix_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=[9 * 2**i for i in range(7)],   help="FIFO Write Width")
     core_range_param_group.add_argument("--full_value",         type=int,   default=2,      choices=range(2,4095),  help="Full Value")
     core_range_param_group.add_argument("--empty_value",        type=int,   default=1,      choices=range(1,4095),  help="Empty Value")
-    core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
+    core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,523265), help="FIFO Depth")
 
     # Core fix value parameters.
     core_fix_param_group.add_argument("--data_width_read",  type=int,   default=36,  	choices=[i for i in range(1, 1025)],   help="FIFO Read Width")
-    core_fix_param_group.add_argument("--DEPTH",            type=int,   default=1024,   choices=[4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768],   help="FIFO Depth")
+    core_fix_param_group.add_argument("--DEPTH",            type=int,   default=1024,   choices=[2**i for i in range(2, 20) if 2**i <= 523264],   help="FIFO Depth")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -393,7 +393,7 @@ def main():
     else:
         data_width_read  = args.data_width
         data_width_write = args.data_width
-        
+
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = FIFOGenerator(platform,
