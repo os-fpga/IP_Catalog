@@ -110,8 +110,8 @@ class FIFO(Module):
         write_div_read = int(data_width_write/data_width_read)/len(buses_write)
         write_div_read = decimal_to_binary(int(write_div_read))
         size_bram = 36864
-        print(buses_write)
-        print(buses_read)
+        print(buses_write_og)
+        print(buses_read_og)
         data_36 = sum(1 for item in buses_write if ((len(item) >= 18 and depth < 1024) or (len(item) == 36 and depth >= 1024)))
         total_mem = math.ceil((data_width_write * depth) / size_bram)
         remaining_memory = 0
@@ -120,11 +120,12 @@ class FIFO(Module):
         num_18K = 0
         num_36K = 0
         if (data_width_write != data_width_read):
-            clocks_for_output = clock_cycles_to_obtain_desired_output(data_width_read)
+            clocks_for_output = int(clock_cycles_to_obtain_desired_output(data_width_read)/len(buses_write_og))
+            clocks_for_output_bin = decimal_to_binary(clocks_for_output)
         else:
             clocks_for_output = 1
         while remaining_memory < data_width_write * depth:
-            for i, (bus_write, bus_read) in enumerate(zip(buses_write, buses_read)):
+            for i, bus_write in enumerate(buses_write_og):
                 # if (remaining_memory < data_width * depth):
                 if (len(bus_write) <= 9):
                     memory = 1024
@@ -148,7 +149,7 @@ class FIFO(Module):
                 self.rd_ptr = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1, reset=0)
             else:
                 self.counter = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
-                self.rd_ptr = Signal(math.ceil(math.log2(depth/clocks_for_output)) + 1, reset=0)
+                self.rd_ptr = Signal(math.ceil(math.log2(depth/clocks_for_output_bin)) + 1, reset=0)
             self.wrt_ptr = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
             
         else:
@@ -158,7 +159,7 @@ class FIFO(Module):
                 ending = ((2**(math.ceil(math.log2((data_width_write/data_width_read)*depth)))/2) + ((data_width_write/data_width_read)*depth)/2 - 1) 
             else:
                 ending = ((2**(math.ceil(math.log2(depth)))/2) + (depth)/2 - 1) 
-                self.rd_ptr = Signal(math.ceil(math.log2(depth/clocks_for_output)) + 2, reset=int(starting))
+                self.rd_ptr = Signal(math.ceil(math.log2(depth/clocks_for_output_bin)) + 2, reset=int(starting))
             self.wrt_ptr = Signal(math.ceil(math.log2(depth)) + 2, reset=int(starting))
 
         if (not SYNCHRONOUS[synchronous]):
@@ -171,11 +172,11 @@ class FIFO(Module):
                 self.sync_wrtclk_rdptr_binary = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
                 self.rd_ptr_reg = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
             else:
-                self.rd_ptr_wrt_clk1 = Signal(math.ceil(math.log2(depth/clocks_for_output)) + 2, reset=0)
-                self.rd_ptr_wrt_clk2 = Signal(math.ceil(math.log2(depth/clocks_for_output)) + 2, reset=0)
-                self.gray_encoded_rdptr = Signal(math.ceil(math.log2(depth/clocks_for_output)) + 2, reset=0)
-                self.sync_wrtclk_rdptr_binary = Signal(math.ceil(math.log2(depth/clocks_for_output)) + 2, reset=0)
-                self.rd_ptr_reg = Signal(math.ceil(math.log2(depth/clocks_for_output)) + 2, reset=0)
+                self.rd_ptr_wrt_clk1 = Signal(math.ceil(math.log2(depth/clocks_for_output_bin)) + 2, reset=0)
+                self.rd_ptr_wrt_clk2 = Signal(math.ceil(math.log2(depth/clocks_for_output_bin)) + 2, reset=0)
+                self.gray_encoded_rdptr = Signal(math.ceil(math.log2(depth/clocks_for_output_bin)) + 2, reset=0)
+                self.sync_wrtclk_rdptr_binary = Signal(math.ceil(math.log2(depth/clocks_for_output_bin)) + 2, reset=0)
+                self.rd_ptr_reg = Signal(math.ceil(math.log2(depth/clocks_for_output_bin)) + 2, reset=0)
             self.gray_encoded_wrtptr = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
             self.sync_rdclk_wrtptr_binary = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
             self.rd_en_flop = Signal()
@@ -1371,7 +1372,9 @@ class FIFO(Module):
                                             two_block = two_block + 1
                                 old_count18K = count18K
                                 old_count9K = count9K
-                        if (len(buses_write_og) > 1):
+                        if (len(buses_read_og) < len(buses_write_og)):
+                            j = data_write + j
+                        elif (clocks_for_output > 1):
                             j = data_write + j
                         j_read = data_read + j_read
             memory = 1024
@@ -1381,7 +1384,7 @@ class FIFO(Module):
             count_loop = 0
 
             #  rd_ptr for checking the 0's and 1's for the switching mechanism
-            if (len(buses_write_og) > 1):
+            if (len(buses_read_og) < len(buses_write_og)):
                 if (data_width_write >= data_width_read):
                     self.rd_ptr_minus = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1, reset=0)
                     self.rd_ptr_add = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1, reset=0)
@@ -1411,21 +1414,28 @@ class FIFO(Module):
 
             if (clocks_for_output > 1):
                 # Checking how many clock cycles taken for the output to appear
-                clocks_for_output_bin = decimal_to_binary(clocks_for_output)
-                self.prev_inter_dout = Signal((clocks_for_output - 1) * 36)
-                self.inter_dout = Signal(36)
+                if (len(buses_write_og) == 1):
+                    self.prev_inter_dout = Signal((clocks_for_output - 1) * 36)
+                    self.inter_dout = Signal(36*(clocks_for_output - 1))
+                else:
+                    self.prev_inter_dout = Signal((clocks_for_output) * 36)
+                    self.inter_dout = Signal(36*(clocks_for_output))
                 if (SYNCHRONOUS[synchronous]):
                     self.prev_dout = Signal(data_width_read)
                     self.comb += [
                         If(self.rden,
-                           If(self.rd_ptr > 0,
-                            If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
-                            self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
-                                         )
-                            ).Else(
+                           If(~self.underflow,
+                            If(self.rd_ptr > 0,
+                             If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
+                             self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
+                                          )
+                             ).Else(
                              self.dout.eq(self.prev_dout)
                          )
                            )
+                        ).Else(
+                            self.dout.eq(0)
+                        )
                         )
                     ]
                     if (clocks_for_output > 2):
@@ -1469,7 +1479,7 @@ class FIFO(Module):
                                 # Reading to FIFOs
                                 if(SYNCHRONOUS[synchronous]):
                                     if (data_width_read != data_width_write):
-                                        if (len(buses_write_og) > 1):
+                                        if (len(buses_read_og) < len(buses_write_og)):
                                             self.comb += [
                                                 If(self.rden,
                                                    If(~self.underflow,
@@ -1506,7 +1516,7 @@ class FIFO(Module):
                                                             If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output),
                                                               If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output),
                                                                     self.rden_int[i].eq(1),
-                                                                    self.inter_dout.eq(self.dout_int[i])
+                                                                    self.inter_dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                 )
                                                             )
                                                         )
@@ -1541,7 +1551,7 @@ class FIFO(Module):
                                                     )
                                                 ]
                                             else:
-                                                if (len(buses_write_og) > 1):
+                                                if (len(buses_read_og) < len(buses_write_og)):
                                                     self.comb += [
                                                         If(~self.rden,
                                                            If(~self.empty_int[i],
@@ -1660,7 +1670,7 @@ class FIFO(Module):
                                                 )
                                                 ]
                                             else:
-                                                if (len(buses_write_og) > 1):
+                                                if (len(buses_read_og) < len(buses_write_og)):
                                                     self.sync.rd += [
                                                         If(self.rden,
                                                            If(~self.empty,
@@ -1735,7 +1745,7 @@ class FIFO(Module):
                                                     )
                                                 ]
                                             else:
-                                                if (len(buses_write_og) > 1):
+                                                if (len(buses_read_og) < len(buses_write_og)):
                                                     self.sync.rd += [
                                                         If(self.rden,
                                                            If(~self.empty,
@@ -1786,7 +1796,7 @@ class FIFO(Module):
                                                         )
                                                     ]
                                         if (data_width_write != data_width_read):
-                                            if (len(buses_write_og) > 1):
+                                            if (len(buses_read_og) < len(buses_write_og)):
                                                 self.sync.rd += [
                                                     If(self.rd_en_flop1,
                                                        If(~self.underflow,
@@ -1867,7 +1877,7 @@ class FIFO(Module):
                                                     )
                                                 ]
                                             else:
-                                                if (len(buses_write_og) > 1):
+                                                if (len(buses_read_og) < len(buses_write_og)):
                                                     self.sync.rd += [
                                                     If(self.rden,
                                                        If(~self.empty,
@@ -1952,7 +1962,7 @@ class FIFO(Module):
                                                 )
                                                 ]
                                             else:
-                                                if (len(buses_write_og) > 1):
+                                                if (len(buses_read_og) < len(buses_write_og)):
                                                     self.sync.rd += [
                                                         If(self.rden,
                                                            If(~self.empty,
@@ -2017,7 +2027,7 @@ class FIFO(Module):
                                                 )
                                             ]
                                         else:
-                                            if (len(buses_write_og) > 1):
+                                            if (len(buses_read_og) < len(buses_write_og)):
                                                 self.sync.rd += [
                                                 If(self.rd_en_flop1,
                                                    If(~self.underflow,
@@ -2073,7 +2083,7 @@ class FIFO(Module):
                                                     )
                                                 ]
                                             else:
-                                                if (len(buses_write_og) > 1):
+                                                if (len(buses_read_og) < len(buses_write_og)):
                                                     self.sync.rd += [
                                                     If(~self.rd_en_flop1,
                                                        If(~self.empty_int[i],
@@ -2168,7 +2178,7 @@ class FIFO(Module):
                                 l = l + 1
                                 if (data_width_read >= 36):
                                     if (data_width_write != data_width_read):
-                                        if (count_loop == repeat_count/clocks_for_output):
+                                        if (count_loop == repeat_count/(clocks_for_output*len(buses_write_og))):
                                             j_loop = j_loop + 1
                                             l = 0
                                             count_loop = 0
