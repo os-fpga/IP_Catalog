@@ -186,7 +186,7 @@ def main():
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_range_param_group.add_argument("--data_width",         type=int,   default=36,  	choices=range(1,1025),   help="FIFO Write/Read Width")
-    core_fix_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=[i*9 for i in range(1, 114)],   help="FIFO Write Width")
+    core_fix_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=[9 * 2**i for i in range(7)],   help="FIFO Write Width")
     core_range_param_group.add_argument("--full_value",         type=int,   default=2,      choices=range(2,4095),  help="Full Value")
     core_range_param_group.add_argument("--empty_value",        type=int,   default=1,      choices=range(1,4095),  help="Empty Value")
     core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,32769), help="FIFO Depth")
