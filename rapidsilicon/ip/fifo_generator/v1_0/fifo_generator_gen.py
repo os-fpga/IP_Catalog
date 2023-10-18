@@ -387,6 +387,13 @@ def main():
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
+    if (args.asymmetric):
+        data_width_read  = args.data_width_read
+        data_width_write = args.data_width_write
+    else:
+        data_width_read  = args.data_width
+        data_width_write = args.data_width
+        
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = FIFOGenerator(platform,
