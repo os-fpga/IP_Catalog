@@ -149,7 +149,7 @@ class FIFO(Module):
                 self.rd_ptr = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1, reset=0)
             else:
                 self.counter = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
-                self.rd_ptr = Signal(math.ceil(math.log2(depth/clocks_for_output_bin)) + 1, reset=0)
+                self.rd_ptr = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
             self.wrt_ptr = Signal(math.ceil(math.log2(depth)) + 1, reset=0)
             
         else:
@@ -1374,8 +1374,12 @@ class FIFO(Module):
                                 old_count9K = count9K
                         if (len(buses_read_og) < len(buses_write_og)):
                             j = data_write + j
-                        elif (clocks_for_output > 1):
+                        elif(data_width_read == data_width_write):
                             j = data_write + j
+                        elif (data_write + j < data_width_write):
+                            j = data_write + j
+                        else:
+                            j = 0
                         j_read = data_read + j_read
             memory = 1024
             j_loop = 0
@@ -1415,11 +1419,11 @@ class FIFO(Module):
             if (clocks_for_output > 1):
                 # Checking how many clock cycles taken for the output to appear
                 if (len(buses_write_og) == 1):
-                    self.prev_inter_dout = Signal((clocks_for_output - 1) * 36)
-                    self.inter_dout = Signal(36*(clocks_for_output - 1))
+                    self.prev_inter_dout = Signal(data_width_read - (36*(len(buses_write_og))))
+                    self.inter_dout = Signal(36*(len(buses_write_og)))
                 else:
-                    self.prev_inter_dout = Signal((clocks_for_output) * 36)
-                    self.inter_dout = Signal(36*(clocks_for_output))
+                    self.prev_inter_dout = Signal(data_width_read - (36*(len(buses_write_og))))
+                    self.inter_dout = Signal(36*(len(buses_write_og)))
                 if (SYNCHRONOUS[synchronous]):
                     self.prev_dout = Signal(data_width_read)
                     self.comb += [
@@ -1440,7 +1444,7 @@ class FIFO(Module):
                     ]
                     if (clocks_for_output > 2):
                         self.sync += [
-                            self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36:(clocks_for_output - 1) * 36], self.inter_dout)),
+                            self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout)),
                             self.prev_dout.eq(self.dout)
                         ]
                     else:
@@ -1584,7 +1588,7 @@ class FIFO(Module):
                                                                If(~self.empty_int[i],
                                                                   If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output),
                                                                     If(self.rd_ptr >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output),
-                                                                        self.inter_dout.eq(self.dout_int[i])
+                                                                        self.inter_dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                     )
                                                                   )
                                                                )
@@ -1637,7 +1641,7 @@ class FIFO(Module):
                                                                If(~self.empty_int[i],
                                                                   If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output),
                                                                     If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output),
-                                                                         self.inter_dout.eq(self.dout_int[i])
+                                                                         self.inter_dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                     )
                                                                )
                                                                )
@@ -1830,7 +1834,7 @@ class FIFO(Module):
                                                            If(~self.underflow,
                                                                 If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
-                                                                        self.inter_dout.eq(self.dout_int[i])
+                                                                        self.inter_dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                 )
                                                               )
                                                            )
@@ -2061,7 +2065,7 @@ class FIFO(Module):
                                                            If(~self.underflow,
                                                                 If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
-                                                                        self.inter_dout.eq(self.dout_int[i])
+                                                                        self.inter_dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                      )
                                                                 )
                                                               )
@@ -2116,7 +2120,7 @@ class FIFO(Module):
                                                                If(~self.empty_int[i],
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
                                                                     If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
-                                                                        self.inter_dout.eq(self.dout_int[i])
+                                                                        self.inter_dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                     )
                                                                   )
                                                                )
@@ -2169,7 +2173,7 @@ class FIFO(Module):
                                                                 If(~self.empty_int[i],
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
                                                                     If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l]))/clocks_for_output) + int(starting),
-                                                                        self.inter_dout.eq(self.dout_int[i])
+                                                                        self.inter_dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                         )
                                                                     )
                                                                 )
@@ -2178,7 +2182,7 @@ class FIFO(Module):
                                 l = l + 1
                                 if (data_width_read >= 36):
                                     if (data_width_write != data_width_read):
-                                        if (count_loop == repeat_count/(clocks_for_output*len(buses_write_og))):
+                                        if (count_loop == repeat_count/(clocks_for_output/len(buses_write_og))):
                                             j_loop = j_loop + 1
                                             l = 0
                                             count_loop = 0
