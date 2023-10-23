@@ -77,9 +77,18 @@ def factors_multiples(number):
     return sequence
 
 
+# Calculating depth for asymmetric mode
+def calculate_multiples(number, limit):
+    multiples = []
+    for i in range(number, limit + 1, number):
+        multiples.append(i)
+    return multiples
+
+
 # Checking the number of clocks for the output to appear -------------------------------------------
-def clock_cycles_to_obtain_desired_output(desired_output_size):
-    max_output_per_block = 36
+def clock_cycles_to_obtain_desired_output(desired_output_size, max_output_per_block):
+    if(max_output_per_block < 36):
+        max_output_per_block = 36
     if desired_output_size <= max_output_per_block:
         # If the desired size can be obtained from a single block, return 1 clock cycle
         return 1
@@ -188,8 +197,9 @@ def main():
     core_range_param_group.add_argument("--data_width",         type=int,   default=36,  	choices=range(1,1025),   help="FIFO Write/Read Width")
     core_fix_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=[9 * 2**i for i in range(7)],   help="FIFO Write Width")
     core_range_param_group.add_argument("--full_value",         type=int,   default=2,      choices=range(2,4095),  help="Full Value")
-    core_range_param_group.add_argument("--empty_value",        type=int,   default=1,      choices=range(1,4095),  help="Empty Value")
+    core_range_param_group.add_argument("--empty_value",        type=int,   default=2,      choices=range(1,4095),  help="Empty Value")
     core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,523265), help="FIFO Depth")
+    core_fix_param_group.add_argument("--write_depth",      type=int,   default=1024,   choices=[2**i for i in range(2, 20) if 2**i <= 523264],   help="FIFO Write Depth")
 
     # Core fix value parameters.
     core_fix_param_group.add_argument("--data_width_read",  type=int,   default=36,  	choices=[i for i in range(1, 1025)],   help="FIFO Read Width")
@@ -287,6 +297,8 @@ def main():
                 'empty_value'   :   'True'
             })
         if (args.BRAM == False and args.synchronous == False):
+            option_strings_to_remove = ['--write_depth']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             option_strings_to_remove = ['--depth']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.asymmetric):
@@ -318,8 +330,14 @@ def main():
                 parser._actions[4].choices = [4 * (2 ** i) for i in range(int(math.log2(remaining_memory/args.data_width) - 1))]
         else:
             if (args.asymmetric):
+                option_strings_to_remove = ['--data_width']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                option_strings_to_remove = ['--depth']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
                 data_width_write = args.data_width_write
             else:
+                option_strings_to_remove = ['--write_depth']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
                 data_width_write = args.data_width
             option_strings_to_remove = ['--DEPTH']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -334,7 +352,7 @@ def main():
                     parser._actions[3].default = 1
                 parser._actions[5].choices = factors_multiples(args.data_width_write)
                 parser._actions[5].default = args.data_width_write
-                parser._actions[4].choices = range(2, int(prev_rem/args.data_width_write) + 1)
+                parser._actions[4].choices = [16 * 2**i for i in range(0, 120) if 16 * 2**i <= int(prev_rem/args.data_width_write)]
             else:
                 option_strings_to_remove = ['--data_width_read']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -353,7 +371,11 @@ def main():
     if (args.BRAM == False and args.synchronous == False):
         depth = args.DEPTH
     else:
-        depth = args.depth
+        if(not args.asymmetric):
+            depth = args.depth
+        else:
+            if(args.data_width_read > args.data_width_write):
+                depth = args.write_depth
 
     summary =  { 
     "FIFO Depth" : depth
@@ -362,12 +384,16 @@ def main():
         summary["Data Width Write"] = args.data_width_write
         summary["Data Width Read"] = args.data_width_read
         if (args.data_width_read > args.data_width_write):
-            summary["Latency (clock cycles)"] = clock_cycles_to_obtain_desired_output(args.data_width_read)
+            summary["Read Latency (clock cycles)"] = clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write)
+            depth = args.write_depth
+            summary["Read Depth"] = int(depth/clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write))
         else:
-            summary["Latency (clock cycles)"] = "1"
+            depth = args.write_depth
+            summary["Read Latency (clock cycles)"] = "1"
+            summary["Read Depth"] = int(depth*(args.data_width_write/args.data_width_read))
     else:
         summary["Data Width"] = args.data_width
-        summary["Latency (clock cycles)"] = "1"
+        summary["Read Latency (clock cycles)"] = "1"
     if(args.first_word_fall_through):
         summary["FIFO Mode"] = "First Word Fall Through"
     else:
