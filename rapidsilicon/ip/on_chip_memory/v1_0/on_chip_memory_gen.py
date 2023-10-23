@@ -228,8 +228,8 @@ def main():
     
     summary =  { 
     "Type of Memory": memory,
-    "Data Width": args.data_width,
-    "Address Width": math.ceil(math.log2(args.write_depth)),
+    "Data Width": args.write_width_A,
+    "Address Width": math.ceil(math.log2(args.write_depth_A)),
     "Mapping": memory_mapping,
     "Memory Init File Path": args.file_path
     }
