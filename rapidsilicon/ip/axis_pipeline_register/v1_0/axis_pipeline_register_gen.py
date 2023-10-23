@@ -140,10 +140,10 @@ def main():
     args = parser.parse_args()
     
     details =  {   "IP details": {
-    'Name' : 'AXI-STREAM PIPELINE REGISTER',
+    'Name' : 'AXI-Stream Pipeline Register',
     'Version' : 'V1_0',
     'Interface' : 'AXI-STREAM',
-    'Description' : 'AXI-STREAM PIPELINE REGISTER is a AXI-STREAM compliant IP Core. This IP Core is designed to optimize the flow and processing of data streams using the AXI-Stream protocol. This IP core provides a valuable mechanism for inserting pipeline registers into a data stream, which can help enhance data throughput, reduce latency, and improve system performance. It has ability to add pipeline stages to the data stream, effectively breaking down data processing tasks into smaller, more manageable segments.'}
+    'Description' : 'AXI-Stream Pipeline Register is a AXI-Stream compliant IP Core. This IP Core is designed to optimize the flow and processing of data streams using the AXI-Stream protocol. This IP core provides a valuable mechanism for inserting pipeline registers into a data stream, which can help enhance data throughput, reduce latency, and improve system performance. It has ability to add pipeline stages to the data stream, effectively breaking down data processing tasks into smaller, more manageable segments.'}
     }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -177,9 +177,9 @@ def main():
             })        
 
     summary =  { 
-    "DATA PORT WIDTH": args.data_width,
-    "REGISTER TYPE IN PIPELINE": args.reg_type,
-    "NUMBER OF REGISTERS IN PIPELINE": args.length
+    "AXI-Stream Data Width": args.data_width,
+    "Register Type in Pipelining": args.reg_type,
+    "Number of Registers in Pipelining": args.length
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------

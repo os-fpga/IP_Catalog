@@ -118,10 +118,10 @@ def main():
     args = parser.parse_args()
     
     details =  {   "IP details": {
-    'Name' : 'AXI-LITE INTERCONNECT',
+    'Name' : 'AXI-Lite Interconnect',
     'Version' : 'V1_0',
     'Interface' : 'AXI-LITE',
-    'Description' : 'AXI-LITE INTERCONNECT is a AXI-LITE compliant IP Core. It is designed to facilitate efficient communication and data transfer between different AXI Lite (AXIL) bus master and slave peripherals. This IP core acts as a central hub for connecting multiple AXIL bus masters to AXIL bus slaves within the system.'}
+    'Description' : 'AXI-Lite Interconnect is a AXI-Lite compliant IP Core. It is designed to facilitate efficient communication and data transfer between different AXI Lite (AXIL) bus master and slave peripherals. This IP core acts as a central hub for connecting multiple AXIL bus masters to AXIL bus slaves within the system.'}
     }
     
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -130,10 +130,10 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
     summary =  { 
-    "NUMBER OF MASTER INTERFACES": args.m_count,
-    "NUMBER OF SLAVE INTERFACES": args.s_count,
-    "AXIL DATA PORT WIDTH": args.data_width,
-    "AXIL ADDR PORT WIDTH": args.addr_width
+    "Number of Master Interfaces": args.m_count,
+    "Number of Slave Interfaces": args.s_count,
+    "AXI-Lite Data Width": args.data_width,
+    "AXI-Lite Address Width": args.addr_width
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------

@@ -119,9 +119,11 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         
     summary =  { 
-    # "DATA WIDTH": args.data_width,
-    "DEPTH": 2**(args.addr_width),
-    "MEMORY SIZE (KB)": math.ceil(((args.data_width * args.addr_width)/(8*1024))*100)
+    "AXI Data Width": args.data_width,
+    "AXI Address Width": args.addr_width,
+    "AXI ID Width": args.id_width,
+    "Depth": 2**(args.addr_width),
+    "Memory Size (KB)": math.ceil((args.data_width * (2**args.addr_width))/1024)
     # "PIPELINE OUTPUT": args.pip_out
     }
     
