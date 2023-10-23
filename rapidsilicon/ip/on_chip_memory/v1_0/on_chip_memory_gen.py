@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 import argparse
+import math
 
 from datetime import datetime
 
@@ -156,13 +157,96 @@ def main():
 
     args = parser.parse_args()
     
+    details =  {   "IP details": {
+    'Name' : 'On Chip Memory Generator',
+    'Version' : 'V1_0',
+    'Interface' : 'Native',
+    'Description' : 'On Chip Memory Generator is an IP Core with native interface. This IP Core simplifies the integration of memory elements, allowing designers to generate customized on-chip memory instances that match their specific requirements. It include the ability to configure memory size, data width, organization (e.g., single-port, dual-port), and various memory types (e.g., single-ported RAM, simple dual-port RAM and true dual port RAM).'}
+    }
+    
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+        
+        if (args.memory_type in ["Single_Port"]):
+            option_strings_to_remove = ['--common_clk']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
 
+    if (args.memory_type == "Single_Port"):
+        memory = "Single Port RAM"
+    elif (args.memory_type == "Simple_Dual_Port"):
+        memory = "Simple Dual Port RAM"
+    else:
+        memory = "True Dual Port RAM"
+    
+    if (args.write_depth_A == 1024):
+        m = math.ceil(args.write_width_A/36)
+        n = 1  
+    elif (args.write_depth_A == 2048):
+        m = math.ceil(args.write_width_A/18)
+        n = 1
+    elif (args.write_depth_A == 4096):
+        m = math.ceil(args.write_width_A/9)
+        n = 1
+    elif (args.write_depth_A == 8192):
+        m = math.ceil(args.write_width_A/4)
+        n = 1
+    elif (args.write_depth_A == 16384):
+        m = math.ceil(args.write_width_A/2)
+        n = 1
+    elif (args.write_depth_A == 32768):
+        m = math.ceil(args.write_width_A/1)
+        n = 1
+            
+    else:
+        if (args.write_depth_A > 1024):
+            m = args.write_depth_A / 1024
+            temp = int(m/1)
+            if (temp*1 != m):
+                m = int(m)+1
+            else:
+                m = int(m)
+        else:
+            m = args.write_depth_A / 1024
+            m = math.ceil(m)
+        if (args.write_width_A > 36):
+            n = args.write_width_A / 36
+            temp = int(n/1)
+            if (temp*1 != n):
+                n = int(n)+1
+            else:
+                n = int(n)
+        else:
+            n = args.write_width_A / 36
+            n = math.ceil(n)
+    
+    if (args.bram == 1):
+        memory_mapping = "Block RAM"
+    else:
+        memory_mapping = "Distributed RAM (LUTs)"
+    
+    summary =  { 
+    "Type of Memory": memory,
+    "Data Width": args.data_width,
+    "Address Width": math.ceil(math.log2(args.write_depth)),
+    "Mapping": memory_mapping,
+    "Memory Init File Path": args.file_path
+    }
+    
+    if (args.bram == 1):
+        summary["Number of BRAMs"] = m*n
+        
+    if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
+        if (args.common_clk == 1):
+            summary["Common Clock"] = "Both Ports are synchronized"
+            
+    if (args.file_path == ""):
+        summary["Memory Init File Path"] = "None"
+    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
     
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -222,7 +306,7 @@ def main():
             lines = file.readlines()
             for i, line in enumerate(lines):
                 if ("module {}".format(args.build_name)) in line:
-                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"OCMGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"OCMGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(\n".format(args.build_name, ip_version, ip_id))
                 else:
                     new_lines.append(line)
                 
