@@ -8,9 +8,6 @@ import os
 import sys
 import logging
 import argparse
-import math
-
-from datetime import datetime
 
 from datetime import datetime
 
@@ -25,21 +22,21 @@ from litex.build.osfpga import OSFPGAPlatform
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
-def get_clkin_ios(data_width, write_depth):
+def get_clkin_ios(write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A):    
     return [
         ("clk",     0, Pins(1)),
         ("clk_A",   0, Pins(1)),
         ("clk_B",   0, Pins(1)),
         ("rst",     0, Pins(1)),
         
-        ("addr_A",  0, Pins(math.ceil(math.log2(write_depth)))),
-        ("addr_B",  0, Pins(math.ceil(math.log2(write_depth)))),
+        ("addr_A",  0, Pins(math.ceil(math.log2(write_depth_A)))),
+        ("addr_B",  0, Pins(math.ceil(math.log2(write_depth_B)))),
         
-        ("din_A",   0, Pins(data_width)),
-        ("din_B",   0, Pins(data_width)),
+        ("din_A",   0, Pins(write_width_A)),
+        ("din_B",   0, Pins(write_width_B)),
         
-        ("dout_A",  0, Pins(data_width)),
-        ("dout_B",  0, Pins(data_width)),
+        ("dout_A",  0, Pins(read_width_A)),
+        ("dout_B",  0, Pins(read_width_B)),
         
         ("wen_A",   0, Pins(1)),
         ("ren_A",   0, Pins(1)),
@@ -50,13 +47,14 @@ def get_clkin_ios(data_width, write_depth):
 
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
-    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
+    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, bram, file_path, file_extension):
         # Clocking ---------------------------------------------------------------------------------
-        platform.add_extension(get_clkin_ios(data_width, write_depth))
+        platform.add_extension(get_clkin_ios(write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A))
         self.clock_domains.cd_sys  = ClockDomain()
         self.clock_domains.cd_clk1  = ClockDomain()
         self.clock_domains.cd_clk2  = ClockDomain()
-        self.submodules.sp = ram = OCM(platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension)
+        self.submodules.sp = ram = OCM(platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, bram, file_path, file_extension)
+        
         
         # Single Port RAM
         if (memory_type == "Single_Port"):
@@ -128,23 +126,28 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",    type=int,   default=32,         choices=range(1,129),         help="RAM Write/Read Width")
-    core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth")
+    core_range_param_group.add_argument("--write_width_A",    type=int,   default=32,         choices=range(1,129),         help="RAM Write Width for Port A")
+    core_range_param_group.add_argument("--write_width_B",    type=int,   default=32,         choices=range(1,129),         help="RAM Write Width for Port B")
+    core_range_param_group.add_argument("--read_width_A",     type=int,   default=32,         choices=range(1,129),         help="RAM Read Width for Port A")
+    core_range_param_group.add_argument("--read_width_B",     type=int,   default=32,         choices=range(1,129),         help="RAM Read Width for Port B")
+
+    core_range_param_group.add_argument("--write_depth_A",    type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth for Port A")
+    # core_range_param_group.add_argument("--write_depth_B",    type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth for Port B")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--bram",        type=bool,   default=False,     help="Block RAM vs Distributed Memory")
-    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,     help="Ports Common Clock")
+    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock")
+    core_bool_param_group.add_argument("--bram",        type=bool,   default=False,    help="BRAM vs Distributed Memory")
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--file_path",    type=str,   default="",   help="File Path for memory initialization file (.bin/.hex)")
+    core_file_path_group.add_argument("--file_path",    type=str,    default="",       help="File Path for memory initialization file (.bin/.hex)")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
-    build_group.add_argument("--build",         action="store_true",                        help="Build Core")
-    build_group.add_argument("--build-dir",     default="./",                               help="Build Directory")
-    build_group.add_argument("--build-name",    default="on_chip_memory",                   help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build",         action="store_true",              help="Build Core")
+    build_group.add_argument("--build-dir",     default="./",                     help="Build Directory")
+    build_group.add_argument("--build-name",    default="on_chip_memory",         help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -153,68 +156,32 @@ def main():
 
     args = parser.parse_args()
     
-    details =  {   "IP details": {
-    'Name' : 'ON CHIP MEMORY GENERATOR',
-    'Version' : 'V1_0',
-    'Interface' : 'NATIVE',
-    'Description' : 'ON CHIP MEMORY GENERATOR is an IP Core with native interface. This IP Core simplifies the integration of memory elements, allowing designers to generate customized on-chip memory instances that match their specific requirements. It include the ability to configure memory size, data width, organization (e.g., single-port, dual-port), and various memory types (e.g., single-ported RAM, simple dual-port RAM and true dual port RAM).'}
-    }
-    
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
-        
-        if (args.memory_type in ["Single_Port"]):
-            option_strings_to_remove = ['--common_clk']
-            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
 
-    if (args.memory_type == "Single_Port"):
-        memory = "Single Port RAM"
-    elif (args.memory_type == "Simple_Dual_Port"):
-        memory = "Simple Dual Port RAM"
-    else:
-        memory = "True Dual Port RAM"
-    
-    m = math.ceil(args.data_width/36)
-    n = math.ceil(args.write_depth/1024)
-    
-    if (args.bram == 1):
-        memory_mapping = "Block RAM"
-    else:
-        memory_mapping = "Distributed RAM (LUTS)"
-    
-    summary =  { 
-    "TYPE OF MEMORY": memory,
-    "DATA WIDTH": args.data_width,
-    "ADDRESS WIDTH": math.ceil(math.log2(args.write_depth)),
-    "MAPPING": memory_mapping
-    }
-    
-    if (args.bram == 1):
-        summary["NUMBER of BRAMS"] = m*n
-        
-    if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
-        if (args.common_clk == 1):
-            summary["COMMON CLOCK"] = "Both Ports are synchronized"
-    
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict)
     
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     module   = OCMWrapper(platform,
         memory_type     = args.memory_type,
-        data_width      = args.data_width,
-        write_depth     = args.write_depth,
+        write_width_A   = args.write_width_A,
+        write_width_B   = args.write_width_B,
+        read_width_A    = args.read_width_A,
+        read_width_B    = args.read_width_B,
+        write_depth_A   = args.write_depth_A,
+        read_depth_A    = int((args.write_depth_A * args.write_width_A) / args.read_width_A),
+        write_depth_B   = int((args.write_depth_A * args.write_width_A) / args.read_width_B),
         common_clk      = args.common_clk,
         bram            = args.bram,
         file_path       = args.file_path,
         file_extension  = os.path.splitext(args.file_path)[1]
         # wrapper         = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
     )
-
+    
     # Build Project --------------------------------------------------------------------------------
     if args.build:
         rs_builder.prepare(
@@ -264,7 +231,7 @@ def main():
         
         # DRAM
         if (args.bram == 0):
-            # wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
+            wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
             with open (wrapper, "r") as file:
                 lines = file.readlines()
                 for i, line in enumerate(lines):
