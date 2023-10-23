@@ -154,10 +154,10 @@ def main():
     args = parser.parse_args()
     
     details =  {   "IP details": {
-    'Name' : 'ON CHIP MEMORY GENERATOR',
+    'Name' : 'On Chip Memory Generator',
     'Version' : 'V1_0',
-    'Interface' : 'NATIVE',
-    'Description' : 'ON CHIP MEMORY GENERATOR is an IP Core with native interface. This IP Core simplifies the integration of memory elements, allowing designers to generate customized on-chip memory instances that match their specific requirements. It include the ability to configure memory size, data width, organization (e.g., single-port, dual-port), and various memory types (e.g., single-ported RAM, simple dual-port RAM and true dual port RAM).'}
+    'Interface' : 'Native',
+    'Description' : 'On Chip Memory Generator is an IP Core with native interface. This IP Core simplifies the integration of memory elements, allowing designers to generate customized on-chip memory instances that match their specific requirements. It include the ability to configure memory size, data width, organization (e.g., single-port, dual-port), and various memory types (e.g., single-ported RAM, simple dual-port RAM and true dual port RAM).'}
     }
     
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -182,21 +182,25 @@ def main():
     if (args.bram == 1):
         memory_mapping = "Block RAM"
     else:
-        memory_mapping = "Distributed RAM (LUTS)"
+        memory_mapping = "Distributed RAM (LUTs)"
     
     summary =  { 
-    "TYPE OF MEMORY": memory,
-    "DATA WIDTH": args.data_width,
-    "ADDRESS WIDTH": math.ceil(math.log2(args.write_depth)),
-    "MAPPING": memory_mapping
+    "Type of Memory": memory,
+    "Data Width": args.data_width,
+    "Address Width": math.ceil(math.log2(args.write_depth)),
+    "Mapping": memory_mapping,
+    "Memory Init File Path": args.file_path
     }
     
     if (args.bram == 1):
-        summary["NUMBER of BRAMS"] = m*n
+        summary["Number of BRAMs"] = m*n
         
     if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
         if (args.common_clk == 1):
-            summary["COMMON CLOCK"] = "Both Ports are synchronized"
+            summary["Common Clock"] = "Both Ports are synchronized"
+            
+    if (args.file_path == ""):
+        summary["Memory Init File Path"] = "None"
     
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
