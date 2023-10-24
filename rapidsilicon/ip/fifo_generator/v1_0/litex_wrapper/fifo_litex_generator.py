@@ -2427,18 +2427,11 @@ class FIFO(Module):
                                self.dout.eq(0)
                                )
                         ]
-                    if (data_width_write == data_width_read):
-                        self.sync.rd += [
-                            If(self.empty,
-                               self.dout.eq(0)
-                               )
-                        ]
-                    else:
-                        self.sync.rd += [
-                            If(self.underflow,
-                               self.dout.eq(0)
-                               )
-                        ]
+                    self.sync.rd += [
+                        If(self.empty,
+                           self.dout.eq(0)
+                           )
+                    ]
                 else:
                     if (data_width_read != data_width_write):
                         self.sync.wrt += [
@@ -2488,13 +2481,13 @@ class FIFO(Module):
                                     self.rd_ptr.eq(self.rd_ptr + 1)
                                 )
                            ).Else(
+                               If(~self.underflow,
+                                  self.counter.eq(0)
+                                  ),
                                 self.underflow.eq(1)    # Checking for Underflow
                             )
                         ).Else(
                                 self.underflow.eq(0)
-                            ),
-                        If(self.empty,
-                            self.counter.eq(0)
                             )
                     ]
                 if (data_width_write >= data_width_read):
@@ -2527,13 +2520,13 @@ class FIFO(Module):
                                 self.wrt_ptr.eq(self.wrt_ptr + 1)
                                 )
                             ).Else(
+                                If(~self.overflow,
+                                  self.counter.eq(self.counter + clocks_for_output)
+                                  ),
                                 self.overflow.eq(1) # Checking for Overflow
                             )
                         ).Else(
                                 self.overflow.eq(0)
-                            ),
-                        If(self.full,
-                            self.counter.eq(self.counter + clocks_for_output)
                             )
                     ]
             else:
