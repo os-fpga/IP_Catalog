@@ -23,7 +23,7 @@ logging.info(f'Log started at {timestamp}')
 
 # On Chip Memory ------------------------------------------------------------------------------------------
 class OCM(Module):
-    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, bram, file_path, file_extension):
+    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
         
         self.write_depth_A  = write_depth_A
         self.write_width_A  = write_width_A
@@ -46,10 +46,40 @@ class OCM(Module):
         
         self.logger.info(f"BRAM             : {bram}")
         
+        # read depth for Port A
+        read_depth_A    = int((write_depth_A * write_width_A) / read_width_B)
+        
+        # read_depth_A depends upon Port A
+        if (memory_type == "Single_Port"):
+            if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
+                write_depth_A = write_depth_A
+            else:
+                write_depth_A = read_depth_A
+
+        # read_depth_B depends upon Port A
+        elif (memory_type == "Simple_Dual_Port"):
+            read_depth_B    = int((write_depth_A * write_width_A) / read_width_B)
+            write_depth_B   = read_depth_B # assigning greater value to addr_A port
+
+        # read_depth_B depends upon Port B only
+        elif (memory_type == "True_Dual_Port"):
+            read_depth_B    = int((write_depth_B * write_width_B) / read_width_B)
+            if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
+                write_depth_A = write_depth_A
+            else:
+                write_depth_A = read_depth_A
+
+            if (write_depth_B > read_depth_B): # assigning greater value to addr_B port
+                write_depth_B = write_depth_B
+            else:
+                write_depth_B = read_depth_B
+        
         # Addressing
         self.addr_A    = Signal(math.ceil(math.log2(write_depth_A)))
         self.addr_B    = Signal(math.ceil(math.log2(write_depth_B)))
+        
         msb_A = math.ceil(math.log2(write_depth_A))
+        msb_B = math.ceil(math.log2(write_depth_B))
         
         # Port A din/dout
         self.din_A     = Signal(write_width_A)
@@ -115,11 +145,20 @@ class OCM(Module):
         self.wen_A1       = Signal(m)
         self.wen_B1       = Signal(m)
         
-        # read port signals
-        self.bram_out_A = [Signal(36*n) for i in range(m)]
-        self.bram_out_B = [Signal(36*n) for i in range(m)]
+        # Internal read Enables
+        self.ren_A1       = Signal(m)
+        self.ren_B1       = Signal(m)
         
+        # read port signals
+        self.bram_out_A = [Signal(32*n) for i in range(m)]
+        self.bram_out_B = [Signal(32*n) for i in range(m)]
+        
+        self.rparity_A  = [Signal(4*n) for i in range(m)]
         self.rparity_B  = [Signal(4*n) for i in range(m)]
+        
+        if (write_depth_A > 1024):
+            self.addr_A_reg = Signal(msb_A - 10)
+            self.addr_B_reg = Signal(msb_B - 10)
         
         # write enbale mux array
         wen_mux = {}
@@ -190,24 +229,23 @@ class OCM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "SP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("32768{1'b0}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("2048{1'b0}"),
+                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
+                        p_INIT_PARITY       = Instance.PreformattedParam("{2048{1'b0}}"),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_A      = param_write_width_A,
                         # Ports.
                         # -----------
-                        i_CLK_A     = ClockSignal("sys"),
+                        i_CLK_A     = clock1,
                         i_WEN_A     = self.wen_A1,
                         i_REN_A     = 1,
-                        i_BE_A      = 3,
+                        i_BE_A      = 15,
                         i_ADDR_A    = address,
                         i_WDATA_A   = 1,
                         i_WPARITY_A = 1,
-                        o_RDATA_A   = self.bram_out_A[j][((i*36)):((i*36)+36)],
-                        o_RPARITY_A = 1
+                        o_RDATA_A   = self.bram_out_A[j][((i*32)):((i*32)+32)],
+                        o_RPARITY_A = self.rparity_A[j][((i*4)):((i*4)+4)]
                         )
                         
-                
             # --------------------------------------------------------------------------------------------
             # --------------------------------------------------------------------------------------------
             
@@ -215,12 +253,56 @@ class OCM(Module):
             # --------------------------------------------------------------------------------------------
             # Simple Dual Port RAM
             elif (memory_type == "Simple_Dual_Port"):
+                y = write_width_A - 36*(n-1)
                 if (write_depth_A in [1024, 2048, 4096, 8192, 16384, 32768]):
                     self.comb += If((self.wen_A == 1), self.wen_A1.eq(1)) # write enable logic
-                for i in range(n):  # horizontal memory
+                    for i in range(m):
+                        if (write_depth_A == 1024):
+                            self.comb += self.dout_B[(i*36):(i*36)+36].eq(Cat(self.bram_out_B[i][0:16], self.rparity_B[i][0:2], self.bram_out_B[i][16:32], self.rparity_B[i][2:4]))
+                        if ( write_depth_A == 2048):
+                            self.comb += self.dout_B[(i*18):(i*18)+18].eq(Cat(self.bram_out_B[i][0:16], self.rparity_B[i][0:2]))
+                        elif (write_depth_A == 4096):
+                            if write_width_A > 8:
+                                if (m == (i+1)):
+                                    if (y == i*9):
+                                        self.comb += self.dout_B[(i*9):((i*9)+9)].eq(Cat(self.bram_out_B[i][0:8]))
+                                    else:
+                                        self.comb += self.dout_B[(i*9):((i*9)+9)].eq(Cat(self.bram_out_B[i][0:8], self.rparity_B[i][0]))
+                                else:
+                                    self.comb += self.dout_B[(i*9):((i*9)+9)].eq(Cat(self.bram_out_B[i][0:8], self.rparity_B[i][0]))
+                            else:
+                                self.comb += self.dout_B[(i*9):((i*9)+9)].eq(Cat(self.bram_out_B[i][0:write_width_A]))
+                        elif (write_depth_A == 8192):
+                            self.comb += self.dout_B[(i*4):((i*4)+4)].eq(Cat(self.bram_out_B[i][0:4]))
+                        elif (write_depth_A == 16384):
+                            self.comb += self.dout_B[(i*2):((i*2)+2)].eq(Cat(self.bram_out_B[i][0:2]))
+                        elif (write_depth_A == 32768):
+                            self.comb += self.dout_B[(i*1):((i*1)+1)].eq(Cat(self.bram_out_B[i][0:1]))
+                else:
+                    case1 = {}
+                    if write_depth_A < 1024:
+                        self.comb += If((self.wen_A == 1), (self.wen_A1.eq(1)))
+                    for i in range(m):
+                        case1[i] = If((self.wen_A == 1), (self.wen_A1.eq(1 << i)))
+                    if (write_depth_A > 1024):
+                        self.comb += Case(self.addr_A[10:msb_A], case1)
+                    else:
+                        self.comb += self.dout_B.eq(Cat(self.bram_out_B[0][0:16], self.rparity_B[0][0:2], self.bram_out_B[0][16:32], self.rparity_B[0][2:4]))
+                    case2 = {}
+                    for i in range(m):
+                        case2[i] = self.dout_B.eq(Cat(self.bram_out_B[i][0:16], self.rparity_B[i][0:2], self.bram_out_B[i][16:32], self.rparity_B[i][2:4]))
+                    if (write_depth_A > 1024):
+                        self.comb += Case(self.addr_B_reg[0:msb_A-10], case2)
+                    for i in range(m):
+                        if write_depth_A > 1024:
+                            if common_clk == 1:
+                                self.sync += If((self.addr_B[10:msb_A] == i), self.addr_B_reg[0:msb_A-10].eq(i))
+                            else:
+                                self.sync.clk2 += If((self.addr_B[10:msb_A] == i), self.addr_B_reg[0:msb_A-10].eq(i))
                     
+                for i in range(n):  # horizontal memory
                     z = write_width_A - 36*(n-1)
-                    if (n == (i+1)): # for last bram din calculations
+                    if (n == (i+1)): # for last bram input data calculations
                         if (z > 34):
                             write_data_A   = Cat(self.din_A[(i*36):((i*36)+16)], self.din_A[(i*36)+18:((i*36)+34)])
                             w_parity_A     = Cat(self.din_A[((i*36)+16):((i*36)+18)], self.din_A[((i*36)+34):((i*36)+36)])
@@ -242,23 +324,31 @@ class OCM(Module):
                     if (write_depth_A == 1024):
                         param_write_width_A = 36
                         address_A = Cat(Replicate(0,5), self.addr_A[0:10])
+                        address_B = Cat(Replicate(0,5), self.addr_B[0:10])
                     elif (write_depth_A == 2048):
                         param_write_width_A = 18
                         address_A = Cat(Replicate(0,4), self.addr_A[0:11])
+                        address_B = Cat(Replicate(0,4), self.addr_B[0:11])
                     elif (write_depth_A == 4096):
                         param_write_width_A = 9
                         address_A = Cat(Replicate(0,3), self.addr_A[0:12])
+                        address_B = Cat(Replicate(0,3), self.addr_B[0:12])
                     elif (write_depth_A == 8192):
                         param_write_width_A = 4
                         address_A = Cat(Replicate(0,2), self.addr_A[0:13])
+                        address_B = Cat(Replicate(0,2), self.addr_B[0:13])
                     elif (write_depth_A == 16384):
                         param_write_width_A = 2
                         address_A = Cat(Replicate(0,1), self.addr_A[0:14])
+                        address_B = Cat(Replicate(0,1), self.addr_B[0:14])
                     elif (write_depth_A == 32768):
                         param_write_width_A = 1
                         address_A = Cat(Replicate(0,0), self.addr_A[0:15])
-                    else:
+                        address_B = Cat(Replicate(0,0), self.addr_B[0:15])
+                        
+                    else: # memory size 36x1024 for other configurations
                         address_A = Cat(Replicate(0,5), self.addr_A[0:10])
+                        address_B = Cat(Replicate(0,5), self.addr_B[0:10])
                         if (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2):
                             param_write_width_A = 1
                         elif (len(self.din_A[(i*36):((i*36)+18)])+len(self.din_A[(((i*36)+18)):((i*36)+36)])) in range(2,3):
@@ -288,12 +378,14 @@ class OCM(Module):
                     
                     for j in range(m): # vertical memory
                         
+                        wen_mux[i] = If((self.wen_A == 1), (self.wen_A1.eq(1 << i))) # creating multiple write enables
+                        
                         # write enable logic
                         if write_depth_A in [1024, 2048, 4096, 8192, 16384, 32768]:
                             wen = self.wen_A1
                         else:
                             wen = self.wen_A1[j]
-                            
+                        
                         if (write_depth_A == 1024):
                             z = write_width_A - 36*(m-1)
                             if (m == (j+1)): # for last bram din calculations
@@ -316,16 +408,16 @@ class OCM(Module):
                         
                         elif (write_depth_A == 2048):
                             z = write_width_A - 18*(m-1)
-                            if (m == (j+1)): # for last bram din calculations
+                            if (m == (j+1)): # for last bram input data calculations
                                 if (z > 16):
                                     write_data_A = self.din_A[(j*18):((j*18)+16)]
-                                    w_parity_A    = self.din_A[(j*18)+16:(j*18)+18]
+                                    w_parity_A   = Cat(self.din_A[(j*18)+16:(j*18)+18], Replicate(0,2))
                                 else:
                                     write_data_A = self.din_A[(j*18):((j*18)+16)]
                                     w_parity_A   = Replicate(0,4)
                             else:
                                 write_data_A = self.din_A[(j*18):((j*18)+16)]
-                                w_parity_A   = self.din_A[(j*18)+16:(j*18)+18]
+                                w_parity_A   = Cat(self.din_A[(j*18)+16:(j*18)+18], Replicate(0,2))
                                 
                         elif (write_depth_A == 4096):
                             z = write_width_A - 9*(m-1)
@@ -358,8 +450,8 @@ class OCM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "SDP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("32768{1'b0}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("2048{1'b0}"),
+                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
+                        p_INIT_PARITY       = Instance.PreformattedParam("{2048{1'b0}}"),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_B      = param_read_width_B,
                         # Ports.
@@ -367,10 +459,10 @@ class OCM(Module):
                         i_CLK_A     = clock1,
                         i_CLK_B     = clock2,
                         i_WEN_A     = wen,
-                        i_REN_B     = 1,
-                        i_BE_A      = 3,
+                        i_REN_B     = self.ren_B,
+                        i_BE_A      = 15,
                         i_ADDR_A    = address_A,
-                        i_ADDR_B    = 1,
+                        i_ADDR_B    = address_B,
                         i_WDATA_A   = write_data_A,
                         i_WPARITY_A = w_parity_A,
                         o_RDATA_B   = self.bram_out_B[j][((i*32)):((i*32)+32)],
@@ -394,8 +486,8 @@ class OCM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "TDP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("32768{1'b0}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("2048{1'b0}"),
+                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
+                        p_INIT_PARITY       = Instance.PreformattedParam("{2048{1'b0}}"),
                         p_WRITE_WIDTH_A     = write_width_A,
                         p_READ_WIDTH_A      = read_width_A,
                         p_WRITE_WIDTH_B     = write_width_B,

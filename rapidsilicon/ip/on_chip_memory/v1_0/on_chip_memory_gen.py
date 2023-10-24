@@ -23,7 +23,35 @@ from litex.build.osfpga import OSFPGAPlatform
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
-def get_clkin_ios(write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A):    
+def get_clkin_ios(memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B):    
+    
+    read_depth_A    = int((write_depth_A * write_width_A) / read_width_A)
+    
+    # read_depth_A depends upon Port A
+    if (memory_type == "Single_Port"):
+        if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
+            write_depth_A = write_depth_A
+        else:
+            write_depth_A = read_depth_A
+    
+    # read_depth_B depends upon Port A
+    elif (memory_type == "Simple_Dual_Port"):
+        read_depth_B    = int((write_depth_A * write_width_A) / read_width_B)
+        write_depth_B   = read_depth_B # assigning greater value to addr_A port
+    
+    # read_depth_B depends upon Port B only
+    elif (memory_type == "True_Dual_Port"):
+        read_depth_B    = int((write_depth_B * write_width_B) / read_width_B)
+        if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
+            write_depth_A = write_depth_A
+        else:
+            write_depth_A = read_depth_A
+        
+        if (write_depth_B > read_depth_B): # assigning greater value to addr_B port
+            write_depth_B = write_depth_B
+        else:
+            write_depth_B = read_depth_B
+        
     return [
         ("clk",     0, Pins(1)),
         ("clk_A",   0, Pins(1)),
@@ -48,14 +76,13 @@ def get_clkin_ios(write_width_A, write_width_B, read_width_A, read_width_B, writ
 
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
-    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, bram, file_path, file_extension):
+    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
         # Clocking ---------------------------------------------------------------------------------
-        platform.add_extension(get_clkin_ios(write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A))
-        self.clock_domains.cd_sys  = ClockDomain()
+        platform.add_extension(get_clkin_ios(memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B))
+        self.clock_domains.cd_sys   = ClockDomain()
         self.clock_domains.cd_clk1  = ClockDomain()
         self.clock_domains.cd_clk2  = ClockDomain()
-        self.submodules.sp = ram = OCM(platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, bram, file_path, file_extension)
-        
+        self.submodules.sp = ram = OCM(platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension)
         
         # Single Port RAM
         if (memory_type == "Single_Port"):
@@ -133,7 +160,7 @@ def main():
     core_range_param_group.add_argument("--read_width_B",     type=int,   default=32,         choices=range(1,129),         help="RAM Read Width for Port B")
 
     core_range_param_group.add_argument("--write_depth_A",    type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth for Port A")
-    # core_range_param_group.add_argument("--write_depth_B",    type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth for Port B")
+    core_range_param_group.add_argument("--write_depth_B",    type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth for Port B")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -257,8 +284,9 @@ def main():
         read_width_A    = args.read_width_A,
         read_width_B    = args.read_width_B,
         write_depth_A   = args.write_depth_A,
-        read_depth_A    = int((args.write_depth_A * args.write_width_A) / args.read_width_A),
-        write_depth_B   = int((args.write_depth_A * args.write_width_A) / args.read_width_B),
+        write_depth_B   = args.write_depth_B,
+        read_depth_A    = args.write_depth_A,
+        read_depth_B    = args.write_depth_B,
         common_clk      = args.common_clk,
         bram            = args.bram,
         file_path       = args.file_path,
