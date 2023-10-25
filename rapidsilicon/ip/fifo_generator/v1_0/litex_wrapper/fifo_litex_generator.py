@@ -1674,7 +1674,7 @@ class FIFO(Module):
                                                     )
                                                 ]
                                             else:
-                                                if (len(buses_write_og)):
+                                                if (len(buses_read_og) < len(buses_write_og)):
                                                     self.comb += [
                                                         If(~self.rden,
                                                            If(~self.empty_int[i],
