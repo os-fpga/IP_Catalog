@@ -222,15 +222,16 @@ class FIFO(Module):
                         )
                     ]
                 else:
-                    self.sync += [
-                        If(self.wren,
-                           If(~self.overflow,
-                                If(self.full,
-                                    self.last_data.eq(Cat(self.prev_inter_dout, self.inter_dout))
-                              )
-                           )
-                        )
-                    ]
+                    if (data_width_read > data_width_write):
+                        self.sync += [
+                            If(self.wren,
+                               If(~self.overflow,
+                                    If(self.full,
+                                        self.last_data.eq(Cat(self.prev_inter_dout, self.inter_dout))
+                                  )
+                               )
+                            )
+                        ]
                 self.comb += [
                     If(self.empty,
                        self.dout.eq(self.last_data)
@@ -1544,25 +1545,47 @@ class FIFO(Module):
                                 if(SYNCHRONOUS[synchronous]):
                                     if (data_width_read != data_width_write):
                                         if (len(buses_read_og) < len(buses_write_og)):
-                                            self.comb += [
-                                                If(self.rden,
-                                                   If(~self.underflow,
-                                                        If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
-                                                          If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
-                                                             If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
-                                                                If(self.rd_ptr_minus[int(write_div_read) - 1] == toggle,
-                                                                   self.rden_int[i].eq(1),
-                                                                   self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
-                                                                )
-                                                             )
-                                                          )
+                                            if (data_width_read <= 36):
+                                                self.comb += [
+                                                    If(self.rden,
+                                                       If(~self.underflow,
+                                                            If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                              If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                 If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
+                                                                    If(self.rd_ptr_minus[int(write_div_read) - 1] == toggle,
+                                                                       self.rden_int[i].eq(1),
+                                                                       self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                                    )
+                                                                 )
+                                                              )
+                                                            )
                                                         )
                                                     )
-                                                )
-                                            ]
-                                            toggle = 1 - toggle
-                                            if ((i - 1) % 2 == 0):
-                                                toggle_2x = toggle_2x + 1
+                                                ]
+                                                toggle = 1 - toggle
+                                                if ((i - 1) % 2 == 0):
+                                                    toggle_2x = toggle_2x + 1
+                                            else:
+                                                self.comb += [
+                                                    If(self.rden,
+                                                       If(~self.underflow,
+                                                            If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                              If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                 If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + 2] == toggle_2x,
+                                                                    If(self.rd_ptr_minus[int(write_div_read) - 1] == toggle,
+                                                                       self.rden_int[i].eq(1),
+                                                                       self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
+                                                                    )
+                                                                 )
+                                                              )
+                                                            )
+                                                        )
+                                                    )
+                                                ]
+                                                if ((36 + (36*l)) == data_width_read):
+                                                    toggle = 1 - toggle
+                                                if (count_loop % ((data_width_read/36) * 2) == 0):
+                                                    toggle_2x = toggle_2x + 1
                                         else:
                                             if (clocks_for_output == 1):
                                                 self.comb += [
@@ -1620,21 +1643,38 @@ class FIFO(Module):
                                                 ]
                                             else:
                                                 if (len(buses_read_og) < len(buses_write_og)):
-                                                    self.comb += [
-                                                        If(~self.rden,
-                                                           If(~self.empty_int[i],
-                                                              If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
-                                                                If(self.rd_ptr >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
-                                                                   If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x - 1,
-                                                                    If(self.rd_ptr_minus[int(write_div_read) - 1] == 1 - toggle,
-                                                                     self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
-                                                                   )
-                                                                )
-                                                              )
-                                                           )
-                                                           )
-                                                        )
-                                                    ]
+                                                    if (data_width_read <= 36):
+                                                        self.comb += [
+                                                            If(~self.rden,
+                                                               If(~self.empty_int[i],
+                                                                  If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                    If(self.rd_ptr >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                       If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == (toggle_2x - 1 if (i - 1) % 2 == 0 else toggle_2x),
+                                                                        If(self.rd_ptr_minus[int(write_div_read) - 1] == 1 - toggle,
+                                                                         self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                                       )
+                                                                    )
+                                                                  )
+                                                               )
+                                                               )
+                                                            )
+                                                        ]
+                                                    else:
+                                                        self.comb += [
+                                                            If(~self.rden,
+                                                               If(~self.empty_int[i],
+                                                                  If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                    If(self.rd_ptr >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                       If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + 2] == (toggle_2x - 1 if count_loop % ((data_width_read/36) * 2) == 0 else toggle_2x),
+                                                                        If(self.rd_ptr_minus[int(write_div_read) - 1] == (1 - toggle if data_width_read == (36 + (36*l)) else toggle),
+                                                                         self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
+                                                                       )
+                                                                    )
+                                                                  )
+                                                               )
+                                                               )
+                                                            )
+                                                        ]
                                                 else:
                                                     if (clocks_for_output == 1):
                                                         self.comb += [
@@ -1675,21 +1715,38 @@ class FIFO(Module):
                                                 ]
                                             else:
                                                 if (len(buses_read_og) < len(buses_write_og)):
-                                                    self.comb += [
-                                                        If(~self.rden,
-                                                           If(~self.empty_int[i],
-                                                              If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
-                                                                If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
-                                                                   If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x - 1,
-                                                                        If(self.rd_ptr_minus[int(write_div_read) - 1] == 1 - toggle,
-                                                                          self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
-                                                                   )
-                                                                )
-                                                           )
-                                                              )
-                                                           )
-                                                        )
-                                                    ]
+                                                    if (data_width_read <= 36):
+                                                        self.comb += [
+                                                            If(~self.rden,
+                                                               If(~self.empty_int[i],
+                                                                  If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                    If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                       If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == (toggle_2x - 1 if (i - 1) % 2 == 0 else toggle_2x),
+                                                                            If(self.rd_ptr_minus[int(write_div_read) - 1] == 1 - toggle,
+                                                                              self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                                       )
+                                                                    )
+                                                               )
+                                                                  )
+                                                               )
+                                                            )
+                                                        ]
+                                                    else:
+                                                        self.comb += [
+                                                            If(~self.rden,
+                                                               If(~self.empty_int[i],
+                                                                  If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                    If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))),
+                                                                       If(self.rd_ptr_minus[int(write_div_read) : int(write_div_read) + 2] == (toggle_2x - 1 if count_loop % ((data_width_read/36) * 2) == 0 else toggle_2x),
+                                                                            If(self.rd_ptr_minus[int(write_div_read) - 1] == (1 - toggle if data_width_read == (36 + (36*l)) else toggle),
+                                                                              self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
+                                                                       )
+                                                                    )
+                                                               )
+                                                                  )
+                                                               )
+                                                            )
+                                                        ]
                                                 else:
                                                     if (clocks_for_output == 1):
                                                         self.comb += [
@@ -1743,36 +1800,69 @@ class FIFO(Module):
                                                 ]
                                             else:
                                                 if (len(buses_read_og) < len(buses_write_og)):
-                                                    self.sync.rd += [
-                                                        If(self.rden,
-                                                           If(~self.empty,
-                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
-                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                                     If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
-                                                                        If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
-                                                                           self.rden_int[i].eq(1)
-                                                                )
-                                                                .Else(
-                                                                self.rden_int[i].eq(0))
-                                                              )
-                                                              .Else(
+                                                    if (data_width_read <= 36):
+                                                        self.sync.rd += [
+                                                            If(self.rden,
+                                                               If(~self.empty,
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                         If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
+                                                                            If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                               self.rden_int[i].eq(1)
+                                                                    )
+                                                                    .Else(
+                                                                    self.rden_int[i].eq(0))
+                                                                  )
+                                                                  .Else(
+                                                                    self.rden_int[i].eq(0)
+                                                                    )
+                                                               )
+                                                               .Else(
                                                                 self.rden_int[i].eq(0)
                                                                 )
-                                                           )
-                                                           .Else(
+                                                            )
+                                                            .Else(
                                                             self.rden_int[i].eq(0)
                                                             )
-                                                        )
-                                                        .Else(
-                                                        self.rden_int[i].eq(0)
-                                                        )
-                                                        ).Else(
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ]
+                                                    else:
+                                                        self.sync.rd += [
+                                                            If(self.rden,
+                                                               If(~self.empty,
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                         If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + 2] == toggle_2x,
+                                                                            If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                               self.rden_int[i].eq(1)
+                                                                    )
+                                                                    .Else(
+                                                                    self.rden_int[i].eq(0))
+                                                                  )
+                                                                  .Else(
+                                                                    self.rden_int[i].eq(0)
+                                                                    )
+                                                               )
+                                                               .Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                            )
+                                                            .Else(
                                                             self.rden_int[i].eq(0)
-                                                        )
-                                                        ).Else(
-                                                            self.rden_int[i].eq(0)
-                                                        )
-                                                        ]
+                                                            )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ]
+                                                
                                                 else:
                                                     self.sync.rd += [
                                                     If(self.rden,
@@ -1822,36 +1912,68 @@ class FIFO(Module):
                                                 ]
                                             else:
                                                 if (len(buses_read_og) < len(buses_write_og)):
-                                                    self.sync.rd += [
-                                                        If(self.rden,
-                                                           If(~self.empty,
-                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
-                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
-                                                                     If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
-                                                                     If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
-                                                                        self.rden_int[i].eq(1)
-                                                                )
-                                                                .Else(
-                                                                self.rden_int[i].eq(0))
-                                                              )
-                                                              .Else(
+                                                    if(data_width_read <= 36):
+                                                        self.sync.rd += [
+                                                            If(self.rden,
+                                                               If(~self.empty,
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                         If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
+                                                                         If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                            self.rden_int[i].eq(1)
+                                                                    )
+                                                                    .Else(
+                                                                    self.rden_int[i].eq(0))
+                                                                  )
+                                                                  .Else(
+                                                                    self.rden_int[i].eq(0)
+                                                                    )
+                                                               )
+                                                               .Else(
                                                                 self.rden_int[i].eq(0)
                                                                 )
-                                                           )
-                                                           .Else(
-                                                            self.rden_int[i].eq(0)
                                                             )
-                                                        )
-                                                        .Else(
-                                                            self.rden_int[i].eq(0)
+                                                            .Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
                                                             )
-                                                        ).Else(
-                                                            self.rden_int[i].eq(0)
-                                                        )
-                                                        ).Else(
-                                                            self.rden_int[i].eq(0)
-                                                        )
-                                                        ]
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ]
+                                                    else:
+                                                        self.sync.rd += [
+                                                            If(self.rden,
+                                                               If(~self.empty,
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                         If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + 2] == toggle_2x,
+                                                                         If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                            self.rden_int[i].eq(1)
+                                                                    )
+                                                                    .Else(
+                                                                    self.rden_int[i].eq(0))
+                                                                  )
+                                                                  .Else(
+                                                                    self.rden_int[i].eq(0)
+                                                                    )
+                                                               )
+                                                               .Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                            )
+                                                            .Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ]
                                                 else:
                                                     self.sync.rd += [
                                                     If(self.rden,
@@ -1877,24 +1999,45 @@ class FIFO(Module):
                                                     ]
                                         if (data_width_write != data_width_read):
                                             if (len(buses_read_og) < len(buses_write_og)):
-                                                self.sync.rd += [
-                                                    If(self.rd_en_flop1,
-                                                       If(~self.underflow,
-                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                                 If(self.rd_ptr[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
-                                                                    If(self.rd_ptr[int(write_div_read) - 1] == toggle,
-                                                                       self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
-                                                                 )
-                                                            )
+                                                if(data_width_read <= 36):
+                                                    self.sync.rd += [
+                                                        If(self.rd_en_flop1,
+                                                           If(~self.underflow,
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                     If(self.rd_ptr[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
+                                                                        If(self.rd_ptr[int(write_div_read) - 1] == toggle,
+                                                                           self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                                     )
+                                                                )
+                                                                  )
                                                               )
-                                                          )
-                                                       )
-                                                    )
-                                                ]
-                                                toggle = 1 - toggle
-                                                if ((i - 1) % 2 == 0):
-                                                    toggle_2x = toggle_2x + 1
+                                                           )
+                                                        )
+                                                    ]
+                                                    toggle = 1 - toggle
+                                                    if ((i - 1) % 2 == 0):
+                                                        toggle_2x = toggle_2x + 1
+                                                else:
+                                                    self.sync.rd += [
+                                                        If(self.rd_en_flop1,
+                                                           If(~self.underflow,
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                     If(self.rd_ptr[int(write_div_read) : int(write_div_read) + 2] == toggle_2x,
+                                                                        If(self.rd_ptr[int(write_div_read) - 1] == toggle,
+                                                                           self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
+                                                                     )
+                                                                )
+                                                                  )
+                                                              )
+                                                           )
+                                                        )
+                                                    ]
+                                                    if ((36 + (36*l)) == data_width_read):
+                                                        toggle = 1 - toggle
+                                                    if (count_loop % ((data_width_read/36) * 2) == 0):
+                                                        toggle_2x = toggle_2x + 1
                                             else:
                                                 if (clocks_for_output == 1):
                                                     self.sync.rd += [
@@ -1962,46 +2105,88 @@ class FIFO(Module):
                                                 ]
                                             else:
                                                 if (len(buses_read_og) < len(buses_write_og)):
-                                                    self.sync.rd += [
-                                                    If(self.rden,
-                                                       If(~self.empty,
-                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
-                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                                 If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
-                                                                 If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
-                                                                    self.rden_int[i].eq(1)
-                                                            )
-                                                            .Else(
-                                                            self.rden_int[i].eq(0))
-                                                          )
-                                                          .Elif(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == int(ending),
-                                                                If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
-                                                                    If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
-                                                                       self.rden_int[i].eq(1)
-                                                                       ).Else(
-                                                            self.rden_int[i].eq(0)
-                                                            )
-                                                                ).Else(
-                                                                    self.rden_int[i].eq(0)
+                                                    if(data_width_read <= 36):
+                                                        self.sync.rd += [
+                                                        If(self.rden,
+                                                           If(~self.empty,
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                     If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
+                                                                     If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                        self.rden_int[i].eq(1)
                                                                 )
-                                                          ).Else(
+                                                                .Else(
+                                                                self.rden_int[i].eq(0))
+                                                              )
+                                                              .Elif(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == int(ending),
+                                                                    If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
+                                                                        If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                           self.rden_int[i].eq(1)
+                                                                           ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                                    ).Else(
+                                                                        self.rden_int[i].eq(0)
+                                                                    )
+                                                              ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                           )
+                                                           .Else(
                                                             self.rden_int[i].eq(0)
                                                             )
-                                                       )
-                                                       .Else(
+                                                        )
+                                                        .Else(
                                                         self.rden_int[i].eq(0)
                                                         )
-                                                    )
-                                                    .Else(
-                                                    self.rden_int[i].eq(0)
-                                                    )
-                                                    ).Else(
+                                                        ).Else(
+                                                            self.rden_int[i].eq(0)
+                                                        )
+                                                        ).Else(
+                                                            self.rden_int[i].eq(0)
+                                                        )
+                                                        ]
+                                                    else:
+                                                        self.sync.rd += [
+                                                        If(self.rden,
+                                                           If(~self.empty,
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                     If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + 2] == toggle_2x,
+                                                                     If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                        self.rden_int[i].eq(1)
+                                                                )
+                                                                .Else(
+                                                                self.rden_int[i].eq(0))
+                                                              )
+                                                              .Elif(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] == int(ending),
+                                                                    If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + 2] == toggle_2x,
+                                                                        If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                           self.rden_int[i].eq(1)
+                                                                           ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                                    ).Else(
+                                                                        self.rden_int[i].eq(0)
+                                                                    )
+                                                              ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                           )
+                                                           .Else(
+                                                            self.rden_int[i].eq(0)
+                                                            )
+                                                        )
+                                                        .Else(
                                                         self.rden_int[i].eq(0)
-                                                    )
-                                                    ).Else(
-                                                        self.rden_int[i].eq(0)
-                                                    )
-                                                    ]
+                                                        )
+                                                        ).Else(
+                                                            self.rden_int[i].eq(0)
+                                                        )
+                                                        ).Else(
+                                                            self.rden_int[i].eq(0)
+                                                        )
+                                                        ]
                                                 else:
                                                     self.sync.rd += [
                                                         If(self.rden,
@@ -2055,37 +2240,70 @@ class FIFO(Module):
                                                 ]
                                             else:
                                                 if (len(buses_read_og) < len(buses_write_og)):
-                                                    self.sync.rd += [
-                                                        If(self.rden,
-                                                           If(~self.empty,
-                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
-                                                                  If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
-                                                                     If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
-                                                                        If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
-                                                                           self.rden_int[i].eq(1)
-                                                                )
-                                                                .Else(
+                                                    if(data_width_read <= 36):
+                                                        self.sync.rd += [
+                                                            If(self.rden,
+                                                               If(~self.empty,
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                         If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
+                                                                            If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                               self.rden_int[i].eq(1)
+                                                                    )
+                                                                    .Else(
+                                                                    self.rden_int[i].eq(0)
+                                                                    )
+                                                                  )
+                                                                  .Else(
+                                                                    self.rden_int[i].eq(0)
+                                                                    )
+                                                               )
+                                                               .Else(
                                                                 self.rden_int[i].eq(0)
                                                                 )
-                                                              )
-                                                              .Else(
-                                                                self.rden_int[i].eq(0)
-                                                                )
-                                                           )
-                                                           .Else(
+                                                            )
+                                                            .Else(
                                                             self.rden_int[i].eq(0)
                                                             )
-                                                        )
-                                                        .Else(
-                                                        self.rden_int[i].eq(0)
-                                                        )
-                                                        ).Else(
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ]
+                                                    else:
+                                                        self.sync.rd += [
+                                                            If(self.rden,
+                                                               If(~self.empty,
+                                                                    If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                      If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                         If(self.rd_ptr_add[int(write_div_read) : int(write_div_read) + 2] == toggle_2x,
+                                                                            If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
+                                                                               self.rden_int[i].eq(1)
+                                                                    )
+                                                                    .Else(
+                                                                    self.rden_int[i].eq(0)
+                                                                    )
+                                                                  )
+                                                                  .Else(
+                                                                    self.rden_int[i].eq(0)
+                                                                    )
+                                                               )
+                                                               .Else(
+                                                                self.rden_int[i].eq(0)
+                                                                )
+                                                            )
+                                                            .Else(
                                                             self.rden_int[i].eq(0)
-                                                        )
-                                                        ).Else(
-                                                            self.rden_int[i].eq(0)
-                                                        )
-                                                        ]
+                                                            )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                            )
+                                                            ]
                                                 else:
                                                     self.sync.rd += [
                                                     If(self.rden,
@@ -2124,24 +2342,45 @@ class FIFO(Module):
                                             ]
                                         else:
                                             if (len(buses_read_og) < len(buses_write_og)):
-                                                self.sync.rd += [
-                                                If(self.rd_en_flop1,
-                                                   If(~self.underflow,
-                                                        If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                             If(self.rd_ptr[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
-                                                                If(self.rd_ptr[int(write_div_read) - 1] == toggle,
-                                                                   self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
-                                                             )
-                                                             )
-                                                        )
-                                                      )
-                                                   )
-                                                )
-                                                ]
-                                                toggle = 1 - toggle
-                                                if ((i - 1) % 2 == 0):
-                                                    toggle_2x = toggle_2x + 1
+                                                if(data_width_read <= 36):
+                                                    self.sync.rd += [
+                                                    If(self.rd_en_flop1,
+                                                       If(~self.underflow,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                 If(self.rd_ptr[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
+                                                                    If(self.rd_ptr[int(write_div_read) - 1] == toggle,
+                                                                       self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                                 )
+                                                                 )
+                                                            )
+                                                          )
+                                                       )
+                                                    )
+                                                    ]
+                                                    toggle = 1 - toggle
+                                                    if ((i - 1) % 2 == 0):
+                                                        toggle_2x = toggle_2x + 1
+                                                else:
+                                                    self.sync.rd += [
+                                                    If(self.rd_en_flop1,
+                                                       If(~self.underflow,
+                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                 If(self.rd_ptr[int(write_div_read) : int(write_div_read) + 2] == toggle_2x,
+                                                                    If(self.rd_ptr[int(write_div_read) - 1] == toggle,
+                                                                       self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                                 )
+                                                                 )
+                                                            )
+                                                          )
+                                                       )
+                                                    )
+                                                    ]
+                                                    if ((36 + (36*l)) == data_width_read):
+                                                        toggle = 1 - toggle
+                                                    if (count_loop % ((data_width_read/36) * 2) == 0):
+                                                        toggle_2x = toggle_2x + 1
                                             else:
                                                 if (clocks_for_output == 1):
                                                     self.sync.rd += [
@@ -2184,21 +2423,38 @@ class FIFO(Module):
                                                 ]
                                             else:
                                                 if (len(buses_read_og) < len(buses_write_og)):
-                                                    self.sync.rd += [
-                                                    If(~self.rd_en_flop1,
-                                                       If(~self.empty_int[i],
-                                                          If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                                If(self.rd_ptr[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x - 1,
-                                                                   If(self.rd_ptr[int(write_div_read) - 1] == 1 - toggle,
-                                                                    self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                    if(data_width_read <= 36):
+                                                        self.sync.rd += [
+                                                        If(~self.rd_en_flop1,
+                                                           If(~self.empty_int[i],
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                    If(self.rd_ptr[int(write_div_read) : int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == (toggle_2x - 1 if (i - 1) % 2 == 0 else toggle_2x),
+                                                                       If(self.rd_ptr[int(write_div_read) - 1] == 1 - toggle,
+                                                                        self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read+ 36)].eq(self.dout_int[i])
+                                                                       )
                                                                    )
-                                                               )
-                                                            )
-                                                          )
-                                                       )
-                                                    )
-                                                ]
+                                                                )
+                                                              )
+                                                           )
+                                                        )
+                                                        ]
+                                                    else:
+                                                        self.sync.rd += [
+                                                        If(~self.rd_en_flop1,
+                                                           If(~self.empty_int[i],
+                                                              If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                    If(self.rd_ptr[int(write_div_read) : int(write_div_read) + 2] == (toggle_2x - 1 if count_loop % ((data_width_read/36) * 2) == 0 else toggle_2x),
+                                                                       If(self.rd_ptr[int(write_div_read) - 1] == (1 - toggle if data_width_read == (36 + (36*l)) else toggle),
+                                                                        self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
+                                                                       )
+                                                                   )
+                                                                )
+                                                              )
+                                                           )
+                                                        )
+                                                        ]
                                                 else:
                                                     if (clocks_for_output == 1):
                                                         self.sync.rd += [
@@ -2288,10 +2544,13 @@ class FIFO(Module):
                                                 l = 0
                                                 count_loop = 0
                                         else:
-                                            if (count_loop == repeat_count):
+                                            if (count_loop == repeat_count and len(buses_read_og) > len(buses_write_og)):
                                                 j_loop = j_loop + 1
                                                 l = 0
                                                 count_loop = 0
+                                            elif((36*l) == data_width_read):
+                                                l = 0
+                                                # count_loop = 0
                                     else:
                                         if (count_loop == data_36):
                                             j_loop = j_loop + 1
