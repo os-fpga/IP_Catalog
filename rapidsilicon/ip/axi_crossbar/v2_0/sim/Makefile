@@ -36,8 +36,9 @@ export PARAM_M_COUNT ?= 4
 export PARAM_AXI4FULL ?= 1
 
 DUT      = axi_crossbar
-TOPLEVEL = $(DUT)_wrapper
-MODULE   = test_axi_crossbar
+MODULE_NAME ?= $(DUT)
+TOPLEVEL = $(MODULE_NAME)
+MODULE   = test_$(DUT)
 
 VERILOG_SOURCES += ../src/*.v
 
