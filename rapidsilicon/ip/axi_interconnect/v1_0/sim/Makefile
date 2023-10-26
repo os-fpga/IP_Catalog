@@ -35,8 +35,9 @@ export PARAM_S_COUNT ?= 4
 export PARAM_M_COUNT ?= 4
 
 DUT      = axi_interconnect
-WRAPPER	 = $(DUT)_wrapper
-TOPLEVEL = $(WRAPPER)
+
+MODULE_NAME ?= $(DUT)
+TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v
 
