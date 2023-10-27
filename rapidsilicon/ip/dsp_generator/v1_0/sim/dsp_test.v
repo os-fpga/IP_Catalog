@@ -22,8 +22,8 @@
 
 module tb_dsp;
 reg [71:0]a, a1;
-reg [6:0]b, b1;
-wire [78:0]z1, z2;
+reg [0:0]b, b1;
+wire [72:0]z1, z2;
 reg clk, reset, clk1;
 
 dsp_wrapper dut1(.a(a),.b(b),.z(z1));
@@ -53,12 +53,12 @@ begin
 for (i=0; i<500; i=i+1)
 begin
 if(i == 0) begin
-    a <= {20{1'b1}};
-    b <= {20{1'b1}};
+    a <= {72{1'b1}};
+    b <= {1{1'b1}};
 end
 else if (i == 1) begin
-    a <= {20{1'b0}};
-    b <= {20{1'b0}};
+    a <= {72{1'b0}};
+    b <= {1{1'b0}};
 end
 else begin
     a <= $random;
@@ -75,6 +75,10 @@ if(mismatch == 0)
     else
         $display("%0d comparison(s) mismatched\nERROR: SIM: Simulation Failed", mismatch);
 
+
+#1000;
+$finish;
+
 end
 
 
@@ -90,15 +94,13 @@ endtask
 initial begin
     $dumpfile("dsp.vcd");
     $dumpvars;
-    #20000;
-    $finish;
 end
 endmodule
 
 
 module dsp(a, b, z);
 input   [71:0]a;
-input  [6:0]b;
-output [78:0]z;
+input  [0:0]b;
+output [72:0]z;
 assign z = a*b;
 endmodule
