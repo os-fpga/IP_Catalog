@@ -200,6 +200,13 @@ def main():
             option_strings_to_remove = ['--common_clk']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
 
+        if (args.memory_type in ["Simple_Dual_Port"]):
+            option_strings_to_remove = ['--write_width_B']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            # option_strings_to_remove = ['--write_width_BCV']
+            # parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+        
+            
     if (args.memory_type == "Single_Port"):
         memory = "Single Port RAM"
     elif (args.memory_type == "Simple_Dual_Port"):
@@ -255,7 +262,10 @@ def main():
     
     summary =  { 
     "Type of Memory": memory,
-    "Data Width": args.write_width_A,
+    "Write Data Width A": args.write_width_A,
+    "Read Data Width A": args.read_width_A,
+    "Write Data Width B": args.write_width_B,
+    "Read Data Width A": args.read_width_A,
     "Address Width": math.ceil(math.log2(args.write_depth_A)),
     "Mapping": memory_mapping,
     "Memory Init File Path": args.file_path
