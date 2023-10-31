@@ -34,25 +34,25 @@ wire [17:0] DATA_OUT_A2;
 wire [17:0] DATA_OUT_B1;
 wire [17:0] DATA_OUT_B2;
 
-localparam write_mode_A =    WRITE_WIDTH_A == 36 ? 3'b110 : 
+localparam write_mode_A =   WRITE_WIDTH_A == 36 ? 3'b110 : 
                             WRITE_WIDTH_A == 18 ? 3'b010 : 
                             WRITE_WIDTH_A == 9  ? 3'b100 :
                             WRITE_WIDTH_A == 4  ? 3'b001 :
                             WRITE_WIDTH_A == 2  ? 3'b011 : 3'b101 ;
 
-localparam read_mode_A  =    READ_WIDTH_A  == 36 ? 3'b110 : 
+localparam read_mode_A  =   READ_WIDTH_A  == 36 ? 3'b110 : 
                             READ_WIDTH_A  == 18 ? 3'b010 : 
                             READ_WIDTH_A  == 9  ? 3'b100 :
                             READ_WIDTH_A  == 4  ? 3'b001 :
                             READ_WIDTH_A  == 2  ? 3'b011 : 3'b101 ;
 
-localparam write_mode_B =    WRITE_WIDTH_B == 36 ? 3'b110 : 
+localparam write_mode_B =   WRITE_WIDTH_B == 36 ? 3'b110 : 
                             WRITE_WIDTH_B == 18 ? 3'b010 : 
                             WRITE_WIDTH_B == 9  ? 3'b100 :
                             WRITE_WIDTH_B == 4  ? 3'b001 :
                             WRITE_WIDTH_B == 2  ? 3'b011 : 3'b101 ;
 
-localparam read_mode_B  =    READ_WIDTH_B  == 36 ? 3'b110 : 
+localparam read_mode_B  =   READ_WIDTH_B  == 36 ? 3'b110 : 
                             READ_WIDTH_B  == 18 ? 3'b010 : 
                             READ_WIDTH_B  == 9  ? 3'b100 :
                             READ_WIDTH_B  == 4  ? 3'b001 :
