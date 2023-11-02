@@ -1503,12 +1503,12 @@ class FIFO(Module):
                            )
                     ]
             if (not SYNCHRONOUS[synchronous]):
-                if (data_width_write >= data_width_read):
+                if (data_width_write > data_width_read):
                     self.wrt_pointer_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
                     self.comb += self.wrt_pointer_multiple.eq(self.wrt_ptr*int(data_width_write/data_width_read))
                     self.sync_rdclk_wrtptr_binary_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
                     self.comb += self.sync_rdclk_wrtptr_binary_multiple.eq(self.sync_rdclk_wrtptr_binary*int(data_width_write/data_width_read))
-                else:
+                elif (data_width_write < data_width_read):
                     self.rd_pointer_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.comb += self.rd_pointer_multiple[0:math.ceil(math.log2(depth)) + 1].eq(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1]*int((data_width_read/data_width_write)/clocks_for_output))
                     self.comb += self.rd_pointer_multiple[math.ceil(math.log2(depth)) + 1].eq(self.rd_ptr[math.ceil(math.log2(depth)) + 1])
@@ -3028,6 +3028,9 @@ class FIFO(Module):
                 self.comb += self.sync_rdclk_wrtptr_binary[math.ceil(math.log2(depth)) + 1].eq(self.wrt_ptr_rd_clk2[math.ceil(math.log2(depth)) + 1])
                 # -----------------------------------------------------------------------------
 
+            # Adding a counter to enable pessimistic full and empty signals to syncrhonous FIFO
+            self.pessimistic_empty = Signal(2)
+
             if(SYNCHRONOUS[synchronous]):
                 # Checking if the FIFO is full
                 if (data_width_write >= data_width_read):
@@ -3043,17 +3046,36 @@ class FIFO(Module):
                         )
                     ]
 
+                # Checking if the FIFO is empty pessismistically
+                self.sync += [
+                    If(self.counter > 0,
+                       If(self.pessimistic_empty < 2,
+                        self.pessimistic_empty.eq(self.pessimistic_empty + 1)
+                       )
+                    ).Else(
+                           self.pessimistic_empty.eq(0)
+                       )
+                ]
+
                 # Checking if the FIFO is empty
                 if (data_width_write >= data_width_read):
                     self.comb += [
                         If(self.counter == 0,
                            self.empty.eq(1)
+                           ).Elif(self.pessimistic_empty == 2,
+                           self.empty.eq(0)
+                           ).Else(
+                               self.empty.eq(1)
                            )
                     ]
                 else:
                     self.comb += [
                         If(self.counter <= clocks_for_output,
                            self.empty.eq(1)
+                           ).Elif(self.pessimistic_empty == 2,
+                           self.empty.eq(0)
+                           ).Else(
+                               self.empty.eq(1)
                            )
                     ]
 
@@ -3098,24 +3120,47 @@ class FIFO(Module):
                                )
                         )
                     ]
+                
+                # Checking if the FIFO is empty pessismistically
+                self.sync.rd += [
+                    If(self.rd_ptr != self.sync_rdclk_wrtptr_binary,
+                       If(self.pessimistic_empty < 2,
+                        self.pessimistic_empty.eq(self.pessimistic_empty + 1)
+                       )
+                    ).Else(
+                           self.pessimistic_empty.eq(0)
+                       )
+                ]
 
                 # Checking if the FIFO is empty
                 if (data_width_write > data_width_read):
                     self.comb += [
                         If(self.rd_ptr == self.sync_rdclk_wrtptr_binary_multiple,
                            self.empty.eq(1)
+                           ).Elif(self.pessimistic_empty == 2,
+                           self.empty.eq(0)
+                           ).Else(
+                               self.empty.eq(1)
                            )
                     ]
                 elif (data_width_write == data_width_read):
                     self.comb += [
                         If(self.rd_ptr == self.sync_rdclk_wrtptr_binary,
                            self.empty.eq(1)
+                           ).Elif(self.pessimistic_empty == 2,
+                           self.empty.eq(0)
+                           ).Else(
+                               self.empty.eq(1)
                            )
                     ]
                 else:
                     self.comb += [
                         If(self.rd_pointer_multiple == self.sync_rdclk_wrtptr_binary,
                            self.empty.eq(1)
+                           ).Elif(self.pessimistic_empty == 2,
+                           self.empty.eq(0)
+                           ).Else(
+                               self.empty.eq(1)
                            )
                     ]
                 if (data_width_read > data_width_write):
