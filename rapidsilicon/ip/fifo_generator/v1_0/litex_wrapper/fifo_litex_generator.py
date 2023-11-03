@@ -208,6 +208,11 @@ class FIFO(Module):
         self.almost_full    = Signal()
         self.almost_empty   = Signal()
 
+        if (data_width_read > data_width_write):
+            self.prev_inter_dout = Signal(data_width_read - (36*(len(buses_write_og))))
+            self.inter_dout = Signal(36*(len(buses_write_og)))
+            self.prev_dout = Signal(data_width_read)
+
         if (first_word_fall_through):
             self.last_data = Signal(data_width_read)
             if (SYNCHRONOUS[synchronous]):
@@ -1518,9 +1523,6 @@ class FIFO(Module):
 
             if (clocks_for_output > 1):
                 # Checking how many clock cycles taken for the output to appear
-                self.prev_inter_dout = Signal(data_width_read - (36*(len(buses_write_og))))
-                self.inter_dout = Signal(36*(len(buses_write_og)))
-                self.prev_dout = Signal(data_width_read)
                 if (SYNCHRONOUS[synchronous]):
                     self.comb += [
                         If(self.rden,
@@ -1538,6 +1540,19 @@ class FIFO(Module):
                         )
                         )
                     ]
+                    if (first_word_fall_through):
+                        self.comb += [
+                            If(~self.rden,
+                                If(self.rd_ptr >= 0,
+                                 If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
+                                 self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
+                                              )
+                                 ).Else(
+                                 self.dout.eq(self.prev_dout)
+                             )
+                               )
+                            )
+                        ]
                     if (clocks_for_output > 2):
                         self.sync += [
                             self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout)),
@@ -1559,6 +1574,17 @@ class FIFO(Module):
                            )
                         )
                     ]
+                    if (first_word_fall_through):
+                        self.sync.rd += [
+                            If(~self.rden,
+                               If(self.rd_ptr >= 0,
+                                If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
+                                self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
+                                             )
+                                )
+                               )
+                            )
+                        ]
                     if (clocks_for_output > 2):
                         self.sync.rd += [
                             self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36:(clocks_for_output - 1) * 36], self.inter_dout)),
@@ -2562,7 +2588,7 @@ class FIFO(Module):
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
                                                                     If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
                                                                         If(self.rd_ptr[((int(write_div_read) - 1) if (int(decimal_to_binary(int((data_width_write/data_width_read)/2)) - 1)) == 0 else int(write_div_read)): int(write_div_read) + int(decimal_to_binary(int((data_width_write/data_width_read)/2)) - 1)] == ((1 - toggle) if (int(decimal_to_binary(int((data_width_write/data_width_read)/2)) - 1) == 0 and (36 + (36*l)) == data_width_read) else (toggle_2x - 1) if (count_loop % ((data_width_read/36) * 2) == 0) else toggle_2x),
-                                                                           If(self.rd_ptr[int(write_div_read) - 1] == 1 - toggle,
+                                                                           If(self.rd_ptr[int(write_div_read) - 1] == (1 - toggle if data_width_read == (36 + (36*l)) else toggle),
                                                                             self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                        )
                                                                     )
