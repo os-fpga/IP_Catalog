@@ -12,8 +12,6 @@ import math
 from migen.genlib.fifo import SyncFIFO, AsyncFIFOBuffered
 from migen import *
 
-from litex.soc.interconnect.axi import *
-
 
 # logging.basicConfig(level=logging.INFO)
 logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
@@ -110,8 +108,8 @@ class FIFO(Module):
         write_div_read = int(data_width_write/data_width_read)/len(buses_write)
         write_div_read = decimal_to_binary(int(write_div_read))
         size_bram = 36864
-        print(buses_write_og)
-        print(buses_read_og)
+        # print(buses_write_og)
+        # print(buses_read_og)
         data_36 = sum(1 for item in buses_write if ((len(item) >= 18 and depth < 1024) or (len(item) == 36 and depth >= 1024)))
         total_mem = math.ceil((data_width_write * depth) / size_bram)
         remaining_memory = 0
@@ -142,7 +140,7 @@ class FIFO(Module):
                     num_36K = num_36K + 1
                     remaining_memory = remaining_memory + (len(bus_write) * memory)
         total_mem = num_36K + math.ceil(num_18K/2) + math.ceil(num_9K/4)
-        print(num_36K, math.ceil(num_18K/2), math.ceil(num_9K/4), total_mem)
+        # print(num_36K, math.ceil(num_18K/2), math.ceil(num_9K/4), total_mem)
         memory = 1024
         instances = math.ceil(depth / memory)
         if(SYNCHRONOUS[synchronous]):
@@ -1524,26 +1522,24 @@ class FIFO(Module):
             if (clocks_for_output > 1):
                 # Checking how many clock cycles taken for the output to appear
                 if (SYNCHRONOUS[synchronous]):
-                    self.comb += [
-                        If(self.rden,
-                           If(~self.underflow,
-                            If(self.rd_ptr > 0,
-                             If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
-                             self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
-                                          )
-                             ).Else(
-                             self.dout.eq(self.prev_dout)
-                         )
-                           )
-                        ).Else(
-                            self.dout.eq(0)
-                        )
-                        )
-                    ]
-                    if (first_word_fall_through):
+                    if (not first_word_fall_through):
                         self.comb += [
-                            If(~self.rden,
-                                If(self.rd_ptr >= 0,
+                            If(self.rden,
+                               If(~self.underflow,
+                                If(self.rd_ptr > 0,
+                                 If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
+                                 self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
+                                              )
+                                 )
+                               )
+                            )
+                            )
+                        ]
+                    else:
+                        self.comb += [
+                            If(self.rden,
+                               If(~self.underflow,
+                                If(self.rd_ptr > 0,
                                  If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
                                  self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
                                               )
@@ -1551,18 +1547,36 @@ class FIFO(Module):
                                  self.dout.eq(self.prev_dout)
                              )
                                )
+                            ).Else(
+                                self.dout.eq(self.prev_dout)
+                            )
+                            ).Else(
+                                If(self.rd_ptr >= 0,
+                                   If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
+                                 self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
+                                              )
+                                ).Else(
+                                 self.dout.eq(self.prev_dout)
+                             )
+                               )
                             )
                         ]
                     if (clocks_for_output > 2):
                         self.sync += [
-                            self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout)),
-                            self.prev_dout.eq(self.dout)
+                            self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout))                            
                         ]
+                        if (first_word_fall_through):
+                            self.sync += [
+                                self.prev_dout.eq(self.dout)
+                            ]
                     else:
                         self.sync += [
-                            self.prev_inter_dout.eq(self.inter_dout),
-                            self.prev_dout.eq(self.dout)
+                            self.prev_inter_dout.eq(self.inter_dout)
                         ]
+                        if (first_word_fall_through):
+                            self.sync += [
+                                self.prev_dout.eq(self.dout)
+                            ]
                 else:
                     self.sync.rd += [
                         If(self.rden,
