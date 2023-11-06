@@ -208,11 +208,11 @@ def main():
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--synchronous",             type=bool,   default=True,    help="Synchronous / Asynchronous Clock")
-    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,   help="Fist Word Fall Through")
+    core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=True,   help="Fist Word Fall Through")
     core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	  help="Full Threshold")
     core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
     core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
-    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
+    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=True,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -377,10 +377,9 @@ def main():
             if(args.data_width_read > args.data_width_write):
                 depth = args.write_depth
 
-    summary =  { 
-    "FIFO Depth" : depth
-    }
+    summary =  {}
     if (args.asymmetric):
+        summary["Write Depth"] = depth
         summary["Data Width Write"] = args.data_width_write
         summary["Data Width Read"] = args.data_width_read
         if (args.data_width_read > args.data_width_write):
@@ -392,6 +391,7 @@ def main():
             summary["Read Latency (clock cycles)"] = "1"
             summary["Read Depth"] = int(depth*(args.data_width_write/args.data_width_read))
     else:
+        summary["FIFO Depth"] = depth
         summary["Data Width"] = args.data_width
         summary["Read Latency (clock cycles)"] = "1"
     if(args.first_word_fall_through):
