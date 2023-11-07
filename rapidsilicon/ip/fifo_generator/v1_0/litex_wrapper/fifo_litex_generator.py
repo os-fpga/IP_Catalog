@@ -118,10 +118,14 @@ class FIFO(Module):
         num_18K = 0
         num_36K = 0
         old_count18K_read = 0
+        one_time = 1
+        self.prev_empty = Signal()
         old_count9K_read = 0
         if (data_width_write < data_width_read):
             clocks_for_output = int(clock_cycles_to_obtain_desired_output(data_width_read)/len(buses_write_og))
             clocks_for_output_bin = decimal_to_binary(clocks_for_output)
+            self.rden_int_count = Signal(int(clocks_for_output))
+            self.din_count = Signal(int(clocks_for_output))
         else:
             clocks_for_output = 1
         while remaining_memory < data_width_write * depth:
@@ -209,91 +213,7 @@ class FIFO(Module):
         if (data_width_read > data_width_write):
             self.prev_inter_dout = Signal(data_width_read - (36*(len(buses_write_og))))
             self.inter_dout = Signal(36*(len(buses_write_og)))
-            self.prev_dout = Signal(data_width_read)
-
-        if (first_word_fall_through):
-            self.last_data = Signal(data_width_read)
-            if (SYNCHRONOUS[synchronous]):
-                if (data_width_read == data_width_write):
-                    self.sync += [
-                        If(self.wren,
-                           If(~self.overflow,
-                                If(self.full,
-                                    self.last_data.eq(self.din)
-                              )
-                           )
-                        )
-                    ]
-                    self.comb += [
-                        If(self.empty,
-                           self.dout.eq(self.last_data)
-                           )
-                    ]
-                elif (data_width_read > data_width_write):
-                    ii_loop = 0
-                    for ii in range (int(data_width_read/data_width_write) - 1, -1, -1):
-                        self.sync += [
-                            If(self.wren,
-                               If(~self.overflow,
-                                    If((self.counter + ii_loop) == depth,
-                                        self.last_data[(data_width_write*ii) :((data_width_write + (data_width_write*ii)))].eq(self.din)
-                                  )
-                               )
-                            )
-                        ]
-                        ii_loop = ii_loop + 1
-                else:
-                    self.sync += [
-                        If(self.wren,
-                            If(~self.overflow,
-                              If(self.full,
-                                self.last_data.eq(self.din[data_width_read : data_width_write])
-                          )
-                       )
-                    )
-                    ]
-                    self.comb += [
-                        If(self.empty,
-                           self.dout.eq(self.last_data)
-                           )
-                    ]
-            else:
-                if (data_width_write == data_width_read):
-                    self.sync.wrt += [
-                        If(self.wren,
-                           If(~self.overflow,
-                                If(self.full,
-                                    self.last_data.eq(self.din)
-                              )
-                           )
-                        )
-                    ]
-                elif (data_width_read > data_width_write):
-                    self.sync.wrt += [
-                        If(self.wren,
-                           If(~self.overflow,
-                                If(self.full,
-                                    self.last_data.eq(Cat(self.prev_inter_dout, self.inter_dout))
-                              )
-                           )
-                        )
-                    ]
-                else:
-                    self.sync.wrt += [
-                        If(self.wren,
-                            If(~self.overflow,
-                              If(self.full,
-                                self.last_data.eq(self.din[data_width_read : data_width_write])
-                          )
-                       )
-                    )
-                    ]
-                self.sync.rd += [
-                    If(self.empty,
-                       self.dout.eq(self.last_data)
-                       )
-                ]
-                    
+            self.prev_dout = Signal(data_width_read)                    
 
         # Using Block RAM
         if (BRAM):
@@ -1516,9 +1436,11 @@ class FIFO(Module):
             if (not SYNCHRONOUS[synchronous]):
                 if (data_width_write > data_width_read):
                     self.wrt_pointer_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
-                    self.comb += self.wrt_pointer_multiple.eq(self.wrt_ptr*int(data_width_write/data_width_read))
+                    self.comb += self.wrt_pointer_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.wrt_ptr[0: math.ceil(math.log2((data_width_write/data_width_read)*depth)) - 1]*(int(data_width_write/(data_width_read if data_width_read >= 36 else 36))))
+                    self.comb += self.wrt_pointer_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.wrt_ptr[math.ceil(math.log2((data_width_write/data_width_read)*depth)) - 1])
                     self.sync_rdclk_wrtptr_binary_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
-                    self.comb += self.sync_rdclk_wrtptr_binary_multiple.eq(self.sync_rdclk_wrtptr_binary*int(data_width_write/data_width_read))
+                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.sync_rdclk_wrtptr_binary[0: math.ceil(math.log2((data_width_write/data_width_read)*depth)) - 1]*int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))
+                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.sync_rdclk_wrtptr_binary[math.ceil(math.log2((data_width_write/data_width_read)*depth)) - 1])
                 elif (data_width_write < data_width_read):
                     self.rd_pointer_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.comb += self.rd_pointer_multiple[0:math.ceil(math.log2(depth)) + 1].eq(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1]*int((data_width_read/data_width_write)/clocks_for_output))
@@ -1526,6 +1448,97 @@ class FIFO(Module):
                     self.sync_wrtclk_rdptr_binary_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.comb += self.sync_wrtclk_rdptr_binary_multiple[0:math.ceil(math.log2(depth)) + 1].eq(self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1]*int((data_width_read/data_width_write)/clocks_for_output))
                     self.comb += self.sync_wrtclk_rdptr_binary_multiple[math.ceil(math.log2(depth)) + 1].eq(self.sync_wrtclk_rdptr_binary[math.ceil(math.log2(depth)) + 1])
+
+            if (first_word_fall_through):
+                self.last_data = Signal(data_width_read)
+                if (SYNCHRONOUS[synchronous]):
+                    if (data_width_read == data_width_write):
+                        self.sync += [
+                            If(self.wren,
+                               If(~self.overflow,
+                                    If(self.full,
+                                        self.last_data.eq(self.din)
+                                  )
+                               )
+                            )
+                        ]
+                        self.comb += [
+                            If(self.empty,
+                               self.dout.eq(self.last_data)
+                               )
+                        ]
+                    elif (data_width_read > data_width_write):
+                        ii_loop = 0
+                        for ii in range (int(data_width_read/data_width_write) - 1, -1, -1):
+                            self.sync += [
+                                If(self.wren,
+                                   If(~self.overflow,
+                                        If((self.counter + ii_loop) == depth,
+                                            self.last_data[(data_width_write*ii) :((data_width_write + (data_width_write*ii)))].eq(self.din)
+                                      )
+                                   )
+                                )
+                            ]
+                            ii_loop = ii_loop + 1
+                    else:
+                        self.sync += [
+                            If(self.wren,
+                                If(~self.overflow,
+                                  If(self.full,
+                                    self.last_data.eq(self.din[data_width_read : data_width_write])
+                              )
+                           )
+                        )
+                        ]
+                        self.comb += [
+                            If(self.empty,
+                               self.dout.eq(self.last_data)
+                               )
+                        ]
+                else:
+                    if (data_width_write == data_width_read):
+                        self.sync.wrt += [
+                            If(self.wren,
+                               If(~self.overflow,
+                                    If(self.full,
+                                        self.last_data.eq(self.din)
+                                  )
+                               )
+                            )
+                        ]
+                        self.sync.rd += [
+                            If(self.empty,
+                               self.dout.eq(self.last_data)
+                               )
+                        ]
+                    elif (data_width_read > data_width_write):
+                        ii_loop = 0
+                        for ii in range (int(data_width_read/data_width_write) - 1, -1, -1):
+                            self.sync.wrt += [
+                                If(self.wren,
+                                   If(~self.overflow,
+                                           If(self.wrt_ptr[0:math.ceil(math.log2(depth))] + ii_loop == self.sync_wrtclk_rdptr_binary_multiple[0:math.ceil(math.log2(depth))],
+                                                self.last_data[(data_width_write*ii) :((data_width_write + (data_width_write*ii)))].eq(self.din)
+                                           )
+                                   )
+                                )
+                            ]
+                            ii_loop = ii_loop + 1
+                    else:
+                        self.sync.wrt += [
+                            If(self.wren,
+                                If(~self.overflow,
+                                  If(self.full,
+                                    self.last_data.eq(self.din[data_width_read : data_width_write])
+                              )
+                           )
+                        )
+                        ]
+                        self.sync.rd += [
+                            If(self.empty,
+                               self.dout.eq(self.last_data)
+                               )
+                        ]
 
             if (clocks_for_output > 1):
                 # Checking how many clock cycles taken for the output to appear
@@ -1562,7 +1575,7 @@ class FIFO(Module):
                             )
                             ).Else(
                                 If(self.rd_ptr >= 0,
-                                   If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
+                                   If(~self.prev_empty,
                                  self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
                                               )
                                 ).Else(
@@ -1578,36 +1591,46 @@ class FIFO(Module):
                         ]
                         
                     if (clocks_for_output > 2):
-                        self.sync += [
-                            self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout))                            
-                        ]
-                        if (first_word_fall_through):
+                        if (not first_word_fall_through):
+                            self.sync += [
+                                self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout))                            
+                            ]
+                        else:
+                            self.sync += [
+                                If(~self.rden,
+                                    If(self.empty != self.prev_empty,
+                                        self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout)) 
+                                    )
+                                ).Else(
+                                    self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout)) 
+                                )                          
+                            ]
                             self.sync += [
                                 self.prev_dout.eq(self.dout)
                             ]
                     else:
-                        self.sync += [
-                            self.prev_inter_dout.eq(self.inter_dout)
-                        ]
-                        if (first_word_fall_through):
+                        if (not first_word_fall_through):
+                            self.sync += [
+                                self.prev_inter_dout.eq(self.inter_dout)
+                            ]
+                        else:
+                            self.sync += [
+                                If(~self.rden,
+                                    If(self.empty != self.prev_empty,
+                                        self.prev_inter_dout.eq(self.inter_dout)
+                                    )
+                                ).Else(
+                                    self.prev_inter_dout.eq(self.inter_dout)
+                                )
+                            ]
                             self.sync += [
                                 self.prev_dout.eq(self.dout)
                             ]
                 else:
-                    self.sync.rd += [
-                        If(self.rden,
-                           If(self.rd_ptr > 0,
-                            If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
-                            self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
-                                         )
-                            )
-                           )
-                        )
-                    ]
-                    if (first_word_fall_through):
+                    if (not first_word_fall_through):
                         self.sync.rd += [
-                            If(~self.rden,
-                               If(self.rd_ptr >= 0,
+                            If(self.rden,
+                               If(self.rd_ptr > 0,
                                 If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
                                 self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
                                              )
@@ -1615,15 +1638,64 @@ class FIFO(Module):
                                )
                             )
                         ]
-                    if (clocks_for_output > 2):
-                        self.sync.rd += [
-                            self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36:(clocks_for_output - 1) * 36], self.inter_dout)),
-                            self.prev_dout.eq(self.dout)
-                        ]
                     else:
                         self.sync.rd += [
-                            self.prev_inter_dout.eq(self.inter_dout)
+                            If(self.rden,
+                               If(self.rd_ptr > 0,
+                                If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
+                                self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
+                                             )
+                                ).Else(
+                                 self.dout.eq(self.prev_dout)
+                             )
+                               ).Else(
+                                 self.dout.eq(self.prev_dout)
+                             )
+                            ).Else(
+                                If(self.rd_ptr >= 0,
+                                If(self.din_count > clocks_for_output,
+                                self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
+                                             )
+                                ).Else(
+                                 self.dout.eq(self.prev_dout)
+                             )
+                               ).Else(
+                                 self.dout.eq(self.prev_dout)
+                             )
+                            )
                         ]
+                    if (clocks_for_output > 2):
+                        if(not first_word_fall_through):
+                            self.sync.rd += [
+                                self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout))
+                            ]
+                        else:
+                            self.sync.rd += [
+                                If(~self.rden,
+                                    If(self.din_count <= clocks_for_output,
+                                       self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout))
+                                    )
+                                ).Else(
+                                    self.prev_inter_dout.eq(Cat(self.prev_inter_dout[36*(len(buses_write_og)):data_width_read - (36*(len(buses_write_og)))], self.inter_dout))
+                                ),
+                                self.prev_dout.eq(self.dout)
+                            ]
+                    else:
+                        if(not first_word_fall_through):
+                            self.sync.rd += [
+                                self.prev_inter_dout.eq(self.inter_dout)
+                            ]
+                        else:
+                            self.sync.rd += [
+                                If(~self.rden,
+                                    If(self.din_count <= clocks_for_output,
+                                        self.prev_inter_dout.eq(self.inter_dout)
+                                    )
+                                ).Else(
+                                    self.prev_inter_dout.eq(self.inter_dout)
+                                ),
+                                self.prev_dout.eq(self.dout)
+                            ]
 
             if (k36_flag):
                 # This loop is for the read pointers
@@ -1793,6 +1865,41 @@ class FIFO(Module):
                                                                   )
                                                                )
                                                             )
+                                                        ]
+                                                        if (one_time):
+                                                            if (clocks_for_output > 2):
+                                                                self.sync += [
+                                                                    If(self.rd_ptr <= (clocks_for_output - 1 ) - 1,
+                                                                       self.rd_ptr.eq(self.rd_ptr + 1)
+                                                                       ),
+                                                                    If(self.empty,
+                                                                        self.prev_empty.eq(1),
+                                                                    ),
+                                                                    If(self.rden_int_count == int(clocks_for_output - 1) - 1,
+                                                                        self.prev_empty.eq(0)
+                                                                        ),
+                                                                    If(~self.empty,
+                                                                       If(self.prev_empty,
+                                                                        self.rden_int_count.eq(self.rden_int_count + 1)
+                                                                        )
+                                                                       )
+                                                                ]
+                                                            else:
+                                                                self.sync += [
+                                                                    If(self.rd_ptr <= (clocks_for_output - 1 ) - 1,
+                                                                       self.rd_ptr.eq(self.rd_ptr + 1)
+                                                                       ),
+                                                                    self.prev_empty.eq(self.empty)
+                                                                ]
+                                                            one_time = 0
+                                                        self.comb += [
+                                                            If(~self.rden,
+                                                               If(~self.empty,
+                                                                    If(self.empty != self.prev_empty,
+                                                                    self.rden_int[i].eq(1)
+                                                                    )
+                                                                )
+                                                               )
                                                         ]
                                         else:
                                             if (data_width_read == data_width_write):
@@ -2580,6 +2687,52 @@ class FIFO(Module):
                                                                )
                                                             )
                                                         ]
+                                                        if (one_time):
+                                                            if (clocks_for_output > 2):
+                                                                self.sync.rd += [
+                                                                    If(self.empty,
+                                                                        self.prev_empty.eq(1),
+                                                                    ),
+                                                                    If(self.rden_int_count == int(clocks_for_output - 1) - 1,
+                                                                        self.prev_empty.eq(0)
+                                                                        ),
+                                                                    If(~self.empty,
+                                                                       If(self.prev_empty,
+                                                                        self.rden_int_count.eq(self.rden_int_count + 1)
+                                                                        )
+                                                                       ).Else(
+                                                                           self.rden_int_count.eq(0)
+                                                                       )
+                                                                ]
+                                                            else:
+                                                                self.sync.rd += [
+                                                                    If(self.rd_ptr <= (clocks_for_output - 1 ) - 1,
+                                                                       self.rd_ptr.eq(self.rd_ptr + 1)
+                                                                       ),
+                                                                    self.prev_empty.eq(self.empty)
+                                                                ]
+                                                            self.sync.rd += [If(~self.empty,
+                                                                   If(self.din_count <= clocks_for_output,
+                                                                        self.din_count.eq(self.din_count + 1)
+                                                                        )
+                                                                ).Else(
+                                                                    self.din_count.eq(0)
+                                                                )
+                                                            ]
+                                                            one_time = 0
+                                                        self.sync.rd += [
+                                                            If(~self.rden,
+                                                               If(~self.empty,
+                                                               If(self.empty != self.prev_empty,
+                                                               self.rden_int[i].eq(1)
+                                                               ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                               )
+                                                               ).Else(
+                                                                self.rden_int[i].eq(0)
+                                                               )
+                                                            )
+                                                        ]
                                         else:
                                             if (data_width_write == data_width_read):
                                                 self.sync.rd += [
@@ -2650,6 +2803,52 @@ class FIFO(Module):
                                                                         )
                                                                     )
                                                                 )
+                                                            )
+                                                        ]
+                                                        if (one_time):
+                                                            if (clocks_for_output > 2):
+                                                                self.sync.rd += [
+                                                                    If(self.empty,
+                                                                        self.prev_empty.eq(1),
+                                                                    ),
+                                                                    If(self.rden_int_count == int(clocks_for_output - 1) - 1,
+                                                                        self.prev_empty.eq(0)
+                                                                        ),
+                                                                    If(~self.empty,
+                                                                       If(self.prev_empty,
+                                                                        self.rden_int_count.eq(self.rden_int_count + 1)
+                                                                        )
+                                                                       ).Else(
+                                                                           self.rden_int_count.eq(0)
+                                                                       )
+                                                                ]
+                                                            else:
+                                                                self.sync.rd += [
+                                                                    If(self.rd_ptr <= (clocks_for_output - 1 ) - 1,
+                                                                       self.rd_ptr.eq(self.rd_ptr + 1)
+                                                                       ),
+                                                                    self.prev_empty.eq(self.empty)
+                                                                ]
+                                                            self.sync.rd += [If(~self.empty,
+                                                                   If(self.din_count <= clocks_for_output,
+                                                                        self.din_count.eq(self.din_count + 1)
+                                                                        )
+                                                                ).Else(
+                                                                    self.din_count.eq(0)
+                                                                )
+                                                            ]
+                                                            one_time = 0
+                                                        self.sync.rd += [
+                                                            If(~self.rden,
+                                                            If(~self.empty,
+                                                               If(self.empty != self.prev_empty,
+                                                               self.rden_int[i].eq(1)
+                                                               ).Else(
+                                                                   self.rden_int[i].eq(0)
+                                                               )
+                                                               ).Else(
+                                                                   self.rden_int[i].eq(0)
+                                                               )
                                                             )
                                                         ]
                                 l = l + 1
@@ -3075,14 +3274,36 @@ class FIFO(Module):
 
             # Adding a counter to enable pessimistic full and empty signals to syncrhonous FIFO
             self.pessimistic_empty = Signal(2)
+            if (data_width_write > data_width_read):
+                self.pessimistic_full = Signal(int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))
 
             if(SYNCHRONOUS[synchronous]):
                 # Checking if the FIFO is full
                 if (data_width_write >= data_width_read):
+                    # Checking if the FIFO is full pessismistically
+                    self.sync += [
+                        If(self.counter <= int(data_width_write/data_width_read)*(depth) + 1,
+                           If(self.counter > int(data_width_write/data_width_read)*(depth) - int(data_width_write/(data_width_read if data_width_read >= 36 else 36)),
+                           If(self.rden,
+                            self.pessimistic_full.eq(self.pessimistic_full + 1)
+                           ).Else(
+                               self.pessimistic_full.eq(0)
+                           )
+                           ).Else(
+                               self.pessimistic_full.eq(0)
+                           )
+                        ).Else(
+                               self.pessimistic_full.eq(0)
+                           )
+                    ]
                     self.comb += [
                         If(self.counter >= int(data_width_write/data_width_read)*(depth),
                            self.full.eq(1)
+                        ).Elif(self.pessimistic_full <= int(data_width_write/(data_width_read if data_width_read >= 36 else 36) - 1),
+                        If(self.pessimistic_full > 0,
+                           self.full.eq(1)
                         )
+                           )
                     ]
                 else:
                     self.comb += [
@@ -3142,10 +3363,29 @@ class FIFO(Module):
             else:
                 # Checking if the FIFO is full
                 if (data_width_write > data_width_read):
+                    # Checking if the FIFO is full pessismistically
+                    self.sync.wrt += [
+                        If((self.wrt_pointer_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1] != self.sync_wrtclk_rdptr_binary[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1]),
+                            If(self.rden,
+                               If(self.pessimistic_full < int(data_width_write/(data_width_read if data_width_read >= 36 else 36)),
+                             self.pessimistic_full.eq(self.pessimistic_full + 1)
+                            )
+                            ).Else(
+                                self.pessimistic_full.eq(0)
+                           )
+                        ).Else(
+                               self.pessimistic_full.eq(0)
+                           )
+                    ]
+
                     self.comb += [
                         If((self.wrt_pointer_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1] != self.sync_wrtclk_rdptr_binary[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1]),
                             If(self.wrt_pointer_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1],
                                self.full.eq(1)
+                               ).Elif(self.pessimistic_full <= int(data_width_write/(data_width_read if data_width_read >= 36 else 36) - 1),
+                            If(self.pessimistic_full > 0,
+                               self.full.eq(1)
+                            )
                                )
                         )
                     ]
@@ -3163,7 +3403,7 @@ class FIFO(Module):
                             If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary_multiple[0:math.ceil(math.log2(depth)) + 1],
                                self.full.eq(1)
                                )
-                        )
+                            )
                     ]
                 
                 # Checking if the FIFO is empty pessismistically
