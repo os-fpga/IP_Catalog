@@ -3274,7 +3274,7 @@ class FIFO(Module):
 
             # Adding a counter to enable pessimistic full and empty signals to syncrhonous FIFO
             self.pessimistic_empty = Signal(2)
-            if (data_width_write > data_width_read):
+            if (data_width_write >= data_width_read):
                 self.pessimistic_full = Signal(int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))
 
             if(SYNCHRONOUS[synchronous]):
