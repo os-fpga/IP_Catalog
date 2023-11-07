@@ -26,7 +26,7 @@ from litex.build.osfpga import OSFPGAPlatform
 def get_clkin_ios(memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B):    
     
     read_depth_A    = int((write_depth_A * write_width_A) / read_width_A)
-    
+        
     # read_depth_A depends upon Port A
     if (memory_type == "Single_Port"):
         if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
@@ -51,7 +51,7 @@ def get_clkin_ios(memory_type, write_width_A, write_width_B, read_width_A, read_
             write_depth_B = write_depth_B
         else:
             write_depth_B = read_depth_B
-        
+    
     return [
         ("clk",     0, Pins(1)),
         ("clk_A",   0, Pins(1)),
@@ -154,10 +154,10 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--write_width_A",    type=int,   default=32,         choices=range(1,129),         help="RAM Write Width for Port A")
-    core_range_param_group.add_argument("--write_width_B",    type=int,   default=32,         choices=range(1,129),         help="RAM Write Width for Port B")
-    core_range_param_group.add_argument("--read_width_A",     type=int,   default=32,         choices=range(1,129),         help="RAM Read Width for Port A")
-    core_range_param_group.add_argument("--read_width_B",     type=int,   default=32,         choices=range(1,129),         help="RAM Read Width for Port B")
+    core_range_param_group.add_argument("--write_width_A",    type=int,   default=32,         choices=range(1,1025),         help="RAM Write Width for Port A")
+    core_range_param_group.add_argument("--write_width_B",    type=int,   default=32,         choices=range(1,1025),         help="RAM Write Width for Port B")
+    core_range_param_group.add_argument("--read_width_A",     type=int,   default=32,         choices=range(1,1025),         help="RAM Read Width for Port A")
+    core_range_param_group.add_argument("--read_width_B",     type=int,   default=32,         choices=range(1,1025),         help="RAM Read Width for Port B")
 
     core_range_param_group.add_argument("--write_depth_A",    type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth for Port A")
     core_range_param_group.add_argument("--write_depth_B",    type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth for Port B")
