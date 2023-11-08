@@ -211,7 +211,8 @@ class FIFO(Module):
         self.almost_empty   = Signal()
 
         if (data_width_read > data_width_write):
-            self.prev_inter_dout = Signal(data_width_read - (36*(len(buses_write_og))))
+            if (data_width_read > 36):
+                self.prev_inter_dout = Signal(data_width_read - (36*(len(buses_write_og))))
             self.inter_dout = Signal(36*(len(buses_write_og)))
             self.prev_dout = Signal(data_width_read)                    
 
@@ -1858,7 +1859,7 @@ class FIFO(Module):
                                                                If(~self.empty_int[i],
                                                                   If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output),
                                                                     If(self.rd_ptr >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output),
-                                                                        self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read)].eq(self.dout_int[i])
+                                                                        self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                     )
                                                                   )
                                                                )
@@ -1965,7 +1966,7 @@ class FIFO(Module):
                                                                If(~self.empty_int[i],
                                                                   If(self.rd_ptr <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output),
                                                                     If(self.rd_ptr > int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output),
-                                                                         self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read)].eq(self.dout_int[i])
+                                                                         self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                     )
                                                                )
                                                                )
@@ -2261,7 +2262,7 @@ class FIFO(Module):
                                                            If(~self.underflow,
                                                                 If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
-                                                                        self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read)].eq(self.dout_int[i])
+                                                                        self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                 )
                                                               )
                                                            )
@@ -2609,7 +2610,7 @@ class FIFO(Module):
                                                            If(~self.underflow,
                                                                 If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
-                                                                        self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read)].eq(self.dout_int[i])
+                                                                        self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                      )
                                                                 )
                                                               )
@@ -2683,7 +2684,7 @@ class FIFO(Module):
                                                                If(~self.empty_int[i],
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
                                                                     If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
-                                                                        self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read)].eq(self.dout_int[i])
+                                                                        self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                     )
                                                                   )
                                                                )
@@ -2801,7 +2802,7 @@ class FIFO(Module):
                                                                 If(~self.empty_int[i],
                                                                   If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
                                                                     If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
-                                                                        self.dout[(36*l) % data_width_read:((36 + (36*l)) % data_width_read)].eq(self.dout_int[i])
+                                                                        self.dout[(36*l) :((36 + (36*l)))].eq(self.dout_int[i])
                                                                         )
                                                                     )
                                                                 )

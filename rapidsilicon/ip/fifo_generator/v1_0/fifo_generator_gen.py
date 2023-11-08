@@ -196,8 +196,8 @@ def main():
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_range_param_group.add_argument("--data_width",         type=int,   default=36,  	choices=range(1,1025),   help="FIFO Write/Read Width")
     core_fix_param_group.add_argument("--data_width_write",   type=int,   default=36,  	choices=[9 * 2**i for i in range(7)],   help="FIFO Write Width")
-    core_range_param_group.add_argument("--full_value",         type=int,   default=2,      choices=range(2,4095),  help="Full Value")
-    core_range_param_group.add_argument("--empty_value",        type=int,   default=2,      choices=range(1,4095),  help="Empty Value")
+    core_range_param_group.add_argument("--full_value",         type=int,   default=1000,      choices=range(2,4095),  help="Full Value")
+    core_range_param_group.add_argument("--empty_value",        type=int,   default=20,      choices=range(1,4095),  help="Empty Value")
     core_range_param_group.add_argument("--depth",              type=int,   default=1024,	choices=range(3,523265), help="FIFO Depth")
     core_fix_param_group.add_argument("--write_depth",      type=int,   default=1024,   choices=[2**i for i in range(2, 20) if 2**i <= 523264],   help="FIFO Write Depth")
 
@@ -212,7 +212,7 @@ def main():
     core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	  help="Full Threshold")
     core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
     core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
-    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
+    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=True,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -403,7 +403,7 @@ def main():
             data_width_write = args.data_width_write
         else:
             data_width_write = args.data_width
-        summary["Count of BRAMs"] = total_BRAM(data_width_write, depth)
+        summary["Count of BRAMs"] = math.ceil(total_BRAM(data_width_write, depth) * 2) / 2
     if (args.empty_threshold):
         summary["Programmable Empty"] = "Programmble Empty will be asserted at data count %s" % args.empty_value
     if (args.full_threshold):
