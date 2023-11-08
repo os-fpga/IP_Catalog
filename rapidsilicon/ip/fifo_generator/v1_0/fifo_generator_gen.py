@@ -212,7 +212,7 @@ def main():
     core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	  help="Full Threshold")
     core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
     core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
-    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=True,   help="Asymmetric Data Widths for Read and Write ports.")
+    core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -385,7 +385,7 @@ def main():
         if (args.data_width_read > args.data_width_write):
             summary["Read Latency (clock cycles)"] = clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write)
             depth = args.write_depth
-            summary["Read Depth"] = int(depth/clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write))
+            summary["Read Depth"] = int(depth/clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write) if (clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write)) > 1 else depth/(args.data_width_read/args.data_width_write))
         else:
             depth = args.write_depth
             summary["Read Latency (clock cycles)"] = "1"
