@@ -11,16 +11,24 @@ These are the parameters for FIFO core along with their keyword and values: -
 
 | Sr.No. |      Parameter             |       Keyword              |    Value      |
 |--------|----------------------------|----------------------------|---------------|
-|   1.   |   DATA_WIDTH               |     data_width             |    1 - 128   |
-|   2.   |   DEPTH               |     depth             |    2 - 32768   |
+|   1.   |   DATA_WIDTH*               |     data_width             |    1 - 1024   |
+|   2.   |   DEPTH               |     depth             |    2 - 523264   |
 |   3.   |   FULL_THRESHOLD           |     full_threshold     |    0 / 1     |
 |   4.   |   EMPTY_THRESHOLD        |     empty_threshold        |    0 / 1     |
 |   6.   |   SYNCHRONOUS             |     synchronous           |    0 / 1     |
 |   7.  |   BRAM                    |   bram                |   0 / 1   |
 |   8.  |   FIRST_WORD_FALL_THROUGH |   first_word_fall_through   |   0 / 1   |
-|   9.   |   FULL_VALUE           |     full_value     |    1 - 4094     |
-|   10.   |   EMPTY_VALUE        |     empty_value        |    0 - 4094     |
+|   9.   |   FULL_VALUE**           |     full_value     |    1 - DEPTH - 1     |
+|   10.   |   EMPTY_VALUE**        |     empty_value        |    0 - DEPTH  - 1     |
+|   11.   |   ASYMMETRIC            |   asymmetric          |   0 / 1       |
+|   12.   |   DATA_WIDTH_WRITE***               |     data_width_write  |    9, 18, 36, 72, 144, 288, 576   |
+|   13.   |   DATA_WIDTH_READ***               |     data_width_read    |    9, 18, 36, 72, 144, 288, 576   |
 
+```
+*   Only Available when Asymmetric = 0
+**  Only Available when the respective FULL_THRESHOLD/EMPTY_THRESHOLD = 1
+*** Only Available when Asymmetric = 1
+```
 
 
 To generate RTL with above parameters, run the following command:
