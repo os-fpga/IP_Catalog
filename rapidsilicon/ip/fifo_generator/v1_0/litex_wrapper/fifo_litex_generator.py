@@ -1437,14 +1437,16 @@ class FIFO(Module):
                 if (data_width_write > data_width_read):
                     self.wrt_pointer_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
                     self.comb += self.wrt_pointer_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.wrt_ptr[0: math.ceil(math.log2((data_width_write/data_width_read)*depth)) - 1]*(int(data_width_write/(data_width_read if data_width_read >= 36 else 36))))
-                    self.comb += self.wrt_pointer_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.wrt_ptr[math.ceil(math.log2((data_width_write/data_width_read)*depth)) - 1])
+                    self.comb += self.wrt_pointer_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.wrt_ptr[math.ceil(math.log2((data_width_write/data_width_read)*depth))])
+                    self.wrt_ptr_reg_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
                     self.sync_rdclk_wrtptr_binary_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
                     self.comb += self.sync_rdclk_wrtptr_binary_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.sync_rdclk_wrtptr_binary[0: math.ceil(math.log2((data_width_write/data_width_read)*depth)) - 1]*int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))
-                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.sync_rdclk_wrtptr_binary[math.ceil(math.log2((data_width_write/data_width_read)*depth)) - 1])
+                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.sync_rdclk_wrtptr_binary[math.ceil(math.log2((data_width_write/data_width_read)*depth))])
                 elif (data_width_write < data_width_read):
                     self.rd_pointer_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.comb += self.rd_pointer_multiple[0:math.ceil(math.log2(depth)) + 1].eq(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1]*int((data_width_read/data_width_write)/clocks_for_output))
                     self.comb += self.rd_pointer_multiple[math.ceil(math.log2(depth)) + 1].eq(self.rd_ptr[math.ceil(math.log2(depth)) + 1])
+                    self.rd_ptr_reg_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.sync_wrtclk_rdptr_binary_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.comb += self.sync_wrtclk_rdptr_binary_multiple[0:math.ceil(math.log2(depth)) + 1].eq(self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1]*int((data_width_read/data_width_write)/clocks_for_output))
                     self.comb += self.sync_wrtclk_rdptr_binary_multiple[math.ceil(math.log2(depth)) + 1].eq(self.sync_wrtclk_rdptr_binary[math.ceil(math.log2(depth)) + 1])
@@ -1638,15 +1640,9 @@ class FIFO(Module):
                                 If(self.rd_ptr[0:int(clocks_for_output_bin) - 1] == 0,
                                 self.dout.eq(Cat(self.prev_inter_dout, self.inter_dout)
                                              )
-                                ).Else(
-                                 self.dout.eq(self.prev_dout)
-                             )
-                               ).Else(
-                                 self.dout.eq(self.prev_dout)
-                             )
-                            ).Else(
-                                 self.dout.eq(0)
-                             )
+                                )
+                               )
+                            )
                         ]
                     else:
                         self.sync.rd += [
@@ -3327,7 +3323,7 @@ class FIFO(Module):
                     # Checking for Programmable Full
                     if (full_threshold):
                         self.comb += [
-                            If(self.counter >= full_value - 1,
+                            If(self.counter >= int(data_width_write/data_width_read)*full_value - 1,
                                self.prog_full.eq(1)
                             )
                         ]
@@ -3368,6 +3364,13 @@ class FIFO(Module):
                                self.empty.eq(1)
                            )
                     ]
+                    # Checking for Programmable Empty
+                    if (empty_threshold):
+                        self.comb += [
+                            If(self.counter <= empty_value - 1,
+                               self.prog_empty.eq(1)
+                               )
+                        ]
                 else:
                     self.comb += [
                         If(self.counter <= clocks_for_output,
@@ -3379,15 +3382,13 @@ class FIFO(Module):
                            )
                     ]
 
-                
-
-                # Checking for Programmable Empty
-                if (empty_threshold):
-                    self.comb += [
-                        If(self.counter <= empty_value - 1,
-                           self.prog_empty.eq(1)
-                           )
-                    ]
+                    # Checking for Programmable Empty
+                    if (empty_threshold):
+                        self.comb += [
+                            If(self.counter <= clocks_for_output * empty_value - 1,
+                               self.prog_empty.eq(1)
+                               )
+                        ]
             else:
                 # Checking if the FIFO is full
                 if (data_width_write > data_width_read):
@@ -3417,6 +3418,29 @@ class FIFO(Module):
                                )
                         )
                     ]
+                    # Checking for Programmable Full
+                    if (full_threshold):
+                        self.comb += [
+                            If(self.wrt_pointer_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1] +  (int(ending) - int((data_width_write/data_width_read)*full_value + int(starting))) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1] < (int(ending) - int((data_width_write/data_width_read)*full_value + int(starting))),
+                                self.prog_full.eq(1)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.full,
+                               self.prog_full.eq(1))
+                        ]
+                        self.comb += [
+                            If(self.wrt_pointer_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1] +  (int(ending) - int((data_width_write/data_width_read)*full_value + int(starting))) >= int(ending),
+                               self.wrt_ptr_reg_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(int(starting)),
+                               self.wrt_ptr_reg_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1].eq(self.wrt_pointer_multiple[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1]),
+                               If(self.wrt_ptr_reg_multiple[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1],
+                               self.prog_full.eq(1)
+                               )
+                            ).Else(
+                            self.wrt_ptr_reg_multiple.eq(self.wrt_pointer_multiple)
+                            )
+                        ]
+                    
                 elif (data_width_write == data_width_read):
                     self.comb += [
                         If((self.wrt_ptr[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1] != self.sync_wrtclk_rdptr_binary[math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 1]),
@@ -3425,6 +3449,28 @@ class FIFO(Module):
                                )
                         )
                     ]
+
+                    # Checking for Programmable Full
+                    if (full_threshold):
+                        self.comb += [
+                            If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_value + int(starting))) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1] < (int(ending) - (full_value + int(starting))),
+                                self.prog_full.eq(1)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.full,
+                               self.prog_full.eq(1))
+                        ]
+                        self.comb += [
+                            If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_value + int(starting))) >= int(ending),
+                               self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
+                               If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1],
+                               self.prog_full.eq(1)
+                               )
+                            ).Else(
+                            self.wrt_ptr_reg.eq(self.wrt_ptr)
+                            )
+                        ]
                 else:
                     self.comb += [
                         If((self.wrt_ptr[math.ceil(math.log2(depth)) + 1] != self.sync_wrtclk_rdptr_binary_multiple[math.ceil(math.log2(depth)) + 1]),
@@ -3433,6 +3479,28 @@ class FIFO(Module):
                                )
                             )
                     ]
+
+                    # Checking for Programmable Full
+                    if (full_threshold):
+                        self.comb += [
+                            If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_value + int(starting))) - self.sync_wrtclk_rdptr_binary_multiple[0:math.ceil(math.log2(depth)) + 1] < (int(ending) - (full_value + int(starting))),
+                                self.prog_full.eq(1)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.full,
+                               self.prog_full.eq(1))
+                        ]
+                        self.comb += [
+                            If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending) - (full_value + int(starting))) >= int(ending),
+                               self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
+                               If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary_multiple[0:math.ceil(math.log2(depth)) + 1],
+                               self.prog_full.eq(1)
+                               )
+                            ).Else(
+                            self.wrt_ptr_reg.eq(self.wrt_ptr)
+                            )
+                        ]
                 
                 # Checking if the FIFO is empty pessismistically
                 self.sync.rd += [
@@ -3456,6 +3524,28 @@ class FIFO(Module):
                                self.empty.eq(1)
                            )
                     ]
+                    # Checking for Programmable Empty
+                    if (empty_threshold):
+                        self.comb += [
+                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] +  empty_value >= int(ending),
+                               self.rd_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
+                               If(self.rd_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_rdclk_wrtptr_binary_multiple[0:math.ceil(math.log2(depth)) + 1],
+                               self.prog_empty.eq(1)
+                               )
+                            ).Else(
+                            self.rd_ptr_reg.eq(self.rd_ptr)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] +  empty_value - self.sync_rdclk_wrtptr_binary_multiple[0:math.ceil(math.log2(depth)) + 1] < int(data_width_write/data_width_read)*empty_value,
+                                self.prog_empty.eq(1)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.empty,
+                               self.prog_empty.eq(1)
+                               )
+                        ]
                 elif (data_width_write == data_width_read):
                     self.comb += [
                         If(self.rd_ptr == self.sync_rdclk_wrtptr_binary,
@@ -3466,6 +3556,28 @@ class FIFO(Module):
                                self.empty.eq(1)
                            )
                     ]
+                    # Checking for Programmable Empty
+                    if (empty_threshold):
+                        self.comb += [
+                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] +  empty_value >= int(ending),
+                               self.rd_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
+                               If(self.rd_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_rdclk_wrtptr_binary[0:math.ceil(math.log2(depth)) + 1],
+                               self.prog_empty.eq(1)
+                               )
+                            ).Else(
+                            self.rd_ptr_reg.eq(self.rd_ptr)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.rd_ptr[0:math.ceil(math.log2(depth)) + 1] +  empty_value - self.sync_rdclk_wrtptr_binary[0:math.ceil(math.log2(depth)) + 1] < empty_value,
+                                self.prog_empty.eq(1)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.empty,
+                               self.prog_empty.eq(1)
+                               )
+                        ]
                 else:
                     self.comb += [
                         If(self.rd_pointer_multiple == self.sync_rdclk_wrtptr_binary,
@@ -3476,6 +3588,28 @@ class FIFO(Module):
                                self.empty.eq(1)
                            )
                     ]
+                    # Checking for Programmable Empty
+                    if (empty_threshold):
+                        self.comb += [
+                            If(self.rd_pointer_multiple[0:math.ceil(math.log2(depth)) + 1] +  int(data_width_read/data_width_write)*empty_value >= int(ending),
+                               self.rd_ptr_reg_multiple[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
+                               If(self.rd_ptr_reg_multiple[0:math.ceil(math.log2(depth)) + 1] == self.sync_rdclk_wrtptr_binary[0:math.ceil(math.log2(depth)) + 1],
+                               self.prog_empty.eq(1)
+                               )
+                            ).Else(
+                            self.rd_ptr_reg_multiple.eq(self.rd_pointer_multiple)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.rd_pointer_multiple[0:math.ceil(math.log2(depth)) + 1] +  int(data_width_read/data_width_write)*empty_value - self.sync_rdclk_wrtptr_binary[0:math.ceil(math.log2(depth)) + 1] < int(data_width_read/data_width_write)*empty_value,
+                                self.prog_empty.eq(1)
+                            )
+                        ]
+                        self.comb += [
+                            If(self.empty,
+                               self.prog_empty.eq(1)
+                               )
+                        ]
                 if (data_width_read > data_width_write):
                     self.sync.wrt += [
                         If(self.wren,
@@ -3500,51 +3634,6 @@ class FIFO(Module):
                     If(self.empty_count <= 1,
                        self.empty.eq(1))
                 ]
-
-                # Checking for Programmable Full
-                if (full_threshold):
-                    self.comb += [
-                        If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending/(data_width_write/data_width_read)) - (full_value + int(starting))) - self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1] < (int(ending/(data_width_write/data_width_read)) - (full_value + int(starting))),
-                            self.prog_full.eq(1)
-                        )
-                    ]
-                    self.comb += [
-                        If(self.full,
-                           self.prog_full.eq(1))
-                    ]
-                    self.comb += [
-                        If(self.wrt_ptr[0:math.ceil(math.log2(depth)) + 1] +  (int(ending/(data_width_write/data_width_read)) - (full_value + int(starting))) >= int(ending/(data_width_write/data_width_read)),
-                           self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
-                           If(self.wrt_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_wrtclk_rdptr_binary[0:math.ceil(math.log2(depth)) + 1],
-                           self.prog_full.eq(1)
-                           )
-                        ).Else(
-                        self.wrt_ptr_reg.eq(self.wrt_ptr)
-                        )
-                    ]
-
-                # Checking for Programmable Empty
-                if (empty_threshold):
-                    self.comb += [
-                        If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] +  empty_value >= int(ending),
-                           self.rd_ptr_reg[0:math.ceil(math.log2(depth)) + 1].eq(int(starting)),
-                           If(self.rd_ptr_reg[0:math.ceil(math.log2(depth)) + 1] == self.sync_rdclk_wrtptr_binary[0:math.ceil(math.log2(depth)) + 1],
-                           self.prog_empty.eq(1)
-                           )
-                        ).Else(
-                        self.rd_ptr_reg.eq(self.rd_ptr)
-                        )
-                    ]
-                    self.comb += [
-                        If(self.rd_ptr[0:math.ceil(math.log2(depth_read)) + 1] +  empty_value - self.sync_rdclk_wrtptr_binary[0:math.ceil(math.log2(depth)) + 1] < empty_value,
-                            self.prog_empty.eq(1)
-                        )
-                    ]
-                    self.comb += [
-                        If(self.empty,
-                           self.prog_empty.eq(1)
-                           )
-                    ]
             
         # Using Distributed RAM
         else:
