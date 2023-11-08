@@ -2881,6 +2881,7 @@ class FIFO(Module):
                                                 count_loop = 0
                                             elif((36*l) == data_width_read):
                                                 l = 0
+                                                j_loop = j_loop + 1
                                                 # count_loop = 0
                                     else:
                                         if (count_loop == data_36):
@@ -3097,12 +3098,13 @@ class FIFO(Module):
                             )
                     ]
                 else:
+                    new_read_depth = (data_width_write/data_width_read)*depth
                     self.sync += [
                         If(self.rden,
                            If(~self.empty,
                               self.counter.eq((self.counter - int((data_width_read/data_width_write)/clocks_for_output))),
                               self.underflow.eq(0),
-                                If(self.rd_ptr == depth,
+                                If(self.rd_ptr == int(new_read_depth),
                                     self.rd_ptr.eq(1)
                                 ).Else(
                                     self.rd_ptr.eq(self.rd_ptr + 1)
