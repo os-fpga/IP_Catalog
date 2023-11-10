@@ -2879,10 +2879,11 @@ class FIFO(Module):
                                                 j_loop = j_loop + 1
                                                 l = 0
                                                 count_loop = 0
-                                            elif((36*l) == data_width_read):
+                                            elif(36*l == data_width_read):
                                                 l = 0
-                                                j_loop = j_loop + 1
-                                                # count_loop = 0
+                                                if (count_loop % len(buses_write_og) == 0):
+                                                    j_loop = j_loop + 1
+                                                    toggle_2x = 0
                                     else:
                                         if (count_loop == data_36):
                                             j_loop = j_loop + 1
@@ -2894,10 +2895,12 @@ class FIFO(Module):
                                             j_loop = j_loop + 1
                                             l = 0
                                             count_loop = 0
+                                            toggle_2x = 0
                                     else:
                                         j_loop = j_loop + 1
                                         l = 0
                                         count_loop = 0
+                                
 
                 memory = 1024
                 j_loop = 0
