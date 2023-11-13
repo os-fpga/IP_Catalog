@@ -50,6 +50,7 @@ initial begin
         end
         repeat (1) @ (posedge rd_clk);
     end
+    repeat (1) @ (posedge rd_clk);
     rd_en = 1'b0;
 
     if(mismatch == 0)
