@@ -1441,14 +1441,14 @@ class FIFO(Module):
             if (not SYNCHRONOUS[synchronous]):
                 if (data_width_write > data_width_read):
                     self.wrt_pointer_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
-                    self.comb += self.wrt_pointer_multiple[0: decimal_to_binary(int(data_width_write/data_width_read)) + 1].eq(self.wrt_ptr[0: decimal_to_binary(int(data_width_write/data_width_read))])
-                    self.comb += self.wrt_pointer_multiple[decimal_to_binary(int(data_width_write/data_width_read)): -1].eq(self.wrt_ptr[decimal_to_binary(int(data_width_write/data_width_read)-1): -1]*(int(data_width_write/(data_width_read if data_width_read >= 36 else 36))))
+                    self.comb += self.wrt_pointer_multiple[0: -1].eq(self.wrt_ptr[0: -1]*(int(data_width_write/(data_width_read if data_width_read >= 36 else 36))))
                     self.comb += self.wrt_pointer_multiple[-1].eq(self.wrt_ptr[-1])
                     self.wrt_ptr_reg_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
                     self.sync_rdclk_wrtptr_binary_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
-                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[0:decimal_to_binary(int(data_width_write/data_width_read)) + 1].eq(self.sync_rdclk_wrtptr_binary[0:decimal_to_binary(int(data_width_write/data_width_read))])
-                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[decimal_to_binary(int(data_width_write/data_width_read)): -1].eq(self.sync_rdclk_wrtptr_binary[decimal_to_binary(int(data_width_write/data_width_read)-1):  -1]*int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))
+                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[0:-1].eq(self.sync_rdclk_wrtptr_binary[0:-1]*(int(data_width_write/(data_width_read if data_width_read >= 36 else 36))))
                     self.comb += self.sync_rdclk_wrtptr_binary_multiple[-1].eq(self.sync_rdclk_wrtptr_binary[-1])
+                    self.sync_wrtclk_rdptr_binary_div = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
+                    self.comb += self.sync_wrtclk_rdptr_binary_div.eq((self.sync_wrtclk_rdptr_binary + int(data_width_write/data_width_read) - 1) >> (int(data_width_write/data_width_read) - 1) << (int(data_width_write/data_width_read) - 1))
                 elif (data_width_write < data_width_read):
                     self.rd_pointer_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.comb += self.rd_pointer_multiple[0: -1].eq(self.rd_ptr[0: -1]*int((data_width_read/data_width_write)/clocks_for_output))
@@ -1995,27 +1995,27 @@ class FIFO(Module):
                                         if (j_loop == 0):
                                             if (data_width_write == data_width_read):
                                                 self.sync.rd += [
-                                                If(self.rden,
-                                                   If(~self.empty,
-                                                        If(self.rd_ptr[0: -1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
-                                                          If(self.rd_ptr[0: -1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
-                                                                self.rden_int[i].eq(1)
-                                                        )
-                                                        .Else(
-                                                        self.rden_int[i].eq(0))
-                                                      )
-                                                      .Else(
+                                                    If(self.rden,
+                                                       If(~self.empty,
+                                                            If(self.rd_ptr[0: -1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                              If(self.rd_ptr[0: -1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
+                                                                    self.rden_int[i].eq(1)
+                                                            )
+                                                            .Else(
+                                                            self.rden_int[i].eq(0))
+                                                          )
+                                                          .Else(
+                                                            self.rden_int[i].eq(0)
+                                                            )
+                                                       )
+                                                       .Else(
                                                         self.rden_int[i].eq(0)
                                                         )
-                                                   )
-                                                   .Else(
+                                                    )
+                                                    .Else(
                                                     self.rden_int[i].eq(0)
                                                     )
-                                                )
-                                                .Else(
-                                                self.rden_int[i].eq(0)
-                                                )
-                                                ]
+                                                    ]
                                             else:
                                                 if (len(buses_read_og) < len(buses_write_og)):
                                                     if (data_width_read <= 36):
@@ -2304,14 +2304,14 @@ class FIFO(Module):
                                                 self.sync.rd += [
                                                     If(self.rden,
                                                        If(~self.empty,
-                                                            If(self.rd_ptr[0: -1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                            If(self.rd_ptr[0: -1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
                                                               If(self.rd_ptr[0: -1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
                                                                     self.rden_int[i].eq(1)
                                                             )
                                                             .Else(
                                                             self.rden_int[i].eq(0))
                                                           )
-                                                          .Elif(self.rd_ptr[0: -1] == int(ending),
+                                                          .Elif(self.rd_ptr[0: -1] == int(ending + 1),
                                                                    self.rden_int[i].eq(1)
                                                                    )
                                                           .Else(
@@ -2332,7 +2332,7 @@ class FIFO(Module):
                                                         self.sync.rd += [
                                                         If(self.rden,
                                                            If(~self.empty,
-                                                                If(self.rd_ptr[0: -1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                If(self.rd_ptr[0: -1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
                                                                   If(self.rd_ptr[0: -1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
                                                                      If(self.rd_ptr_add[int(write_div_read) - 1 if (decimal_to_binary(int(len(buses_write_og)/2)) - 1) == 0 else int(write_div_read): int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
                                                                      If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
@@ -2341,7 +2341,7 @@ class FIFO(Module):
                                                                 .Else(
                                                                 self.rden_int[i].eq(0))
                                                               )
-                                                              .Elif(self.rd_ptr[0: -1] == int(ending),
+                                                              .Elif(self.rd_ptr[0: -1] == int(ending + 1),
                                                                     If(self.rd_ptr_add[int(write_div_read) - 1 if (decimal_to_binary(int(len(buses_write_og)/2)) - 1) == 0 else int(write_div_read): int(write_div_read) + decimal_to_binary(int(len(buses_write_og)/2)) - 1] == toggle_2x,
                                                                         If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
                                                                            self.rden_int[i].eq(1)
@@ -2373,7 +2373,7 @@ class FIFO(Module):
                                                         self.sync.rd += [
                                                         If(self.rden,
                                                            If(~self.empty,
-                                                                If(self.rd_ptr[0: -1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting) - 1,
+                                                                If(self.rd_ptr[0: -1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
                                                                   If(self.rd_ptr[0: -1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))) + int(starting),
                                                                      If(self.rd_ptr_add[((int(write_div_read) - 1) if (int(decimal_to_binary(int((data_width_write/data_width_read)/2)) - 1)) == 0 else int(write_div_read)): int(write_div_read) + int(decimal_to_binary(int((data_width_write/data_width_read)/2)) - 1)] == toggle_2x,
                                                                      If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
@@ -2382,7 +2382,7 @@ class FIFO(Module):
                                                                 .Else(
                                                                 self.rden_int[i].eq(0))
                                                               )
-                                                              .Elif(self.rd_ptr[0: -1] == int(ending),
+                                                              .Elif(self.rd_ptr[0: -1] == int(ending + 1),
                                                                     If(self.rd_ptr_add[((int(write_div_read) - 1) if (int(decimal_to_binary(int((data_width_write/data_width_read)/2)) - 1)) == 0 else int(write_div_read)): int(write_div_read) + int(decimal_to_binary(int((data_width_write/data_width_read)/2)) - 1)] == toggle_2x,
                                                                         If(self.rd_ptr_add[int(write_div_read) - 1] == toggle,
                                                                            self.rden_int[i].eq(1)
@@ -2414,14 +2414,14 @@ class FIFO(Module):
                                                     self.sync.rd += [
                                                         If(self.rden,
                                                            If(~self.empty,
-                                                                If(self.rd_ptr[0: -1] < int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting) - 1,
+                                                                If(self.rd_ptr[0: -1] <= int((j_loop + 1)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
                                                                   If(self.rd_ptr[0: -1] >= int((j_loop)*memory*repeat_count*(36/len(buses_read[l % len(buses_read_og)]))/clocks_for_output) + int(starting),
                                                                         self.rden_int[i].eq(1)
                                                                 )
                                                                 .Else(
                                                                 self.rden_int[i].eq(0))
                                                               )
-                                                              .Elif(self.rd_ptr[0: -1] == int(ending),
+                                                              .Elif(self.rd_ptr[0: -1] == int(ending + 1),
                                                                        self.rden_int[i].eq(1)
                                                                        )
                                                               .Else(
@@ -3406,7 +3406,7 @@ class FIFO(Module):
                 if (data_width_write > data_width_read):
                     # Checking if the FIFO is full pessismistically
                     self.sync.wrt += [
-                        If((self.wrt_pointer_multiple[-1] != self.sync_wrtclk_rdptr_binary[-1]),
+                        If((self.wrt_pointer_multiple[-1] != self.sync_wrtclk_rdptr_binary_div[-1]),
                             If(self.rden,
                                If(self.pessimistic_full < int(data_width_write/(data_width_read if data_width_read >= 36 else 36)),
                              self.pessimistic_full.eq(self.pessimistic_full + 1)
@@ -3420,8 +3420,8 @@ class FIFO(Module):
                     ]
 
                     self.comb += [
-                        If((self.wrt_pointer_multiple[-1] != self.sync_wrtclk_rdptr_binary[-1]),
-                            If(self.wrt_pointer_multiple[0: -1] == self.sync_wrtclk_rdptr_binary[0: -1],
+                        If((self.wrt_pointer_multiple[-1] != self.sync_wrtclk_rdptr_binary_div[-1]),
+                            If(self.wrt_pointer_multiple[0: -1] == self.sync_wrtclk_rdptr_binary_div[0: -1],
                                self.full.eq(1)
                                ).Elif(self.pessimistic_full <= int(data_width_write/(data_width_read if data_width_read >= 36 else 36) - 1),
                             If(self.pessimistic_full > 0,
