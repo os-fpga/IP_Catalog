@@ -126,10 +126,10 @@ def main():
     args = parser.parse_args()
     
     details =  {   "IP details": {
-    'Name' : 'AXI-STREAM INTERCONNECT',
+    'Name' : 'AXI-Stream Adapter',
     'Version' : 'V1_0',
-    'Interface' : 'AXI-STREAM',
-    'Description' : 'AXI-STREAM INTERCONNECT is a AXI-STREAM compliant IP Core. This IP Core is dedicated to facilitating efficient data streaming between various IP blocks and peripherals. Its primary function is to serve as a central hub that connects multiple AXI-Stream data sources and consumers, ensuring smooth and low-latency data flow.'}
+    'Interface' : 'AXI-Stream',
+    'Description' : 'AXI-Stream Adapter is a AXI-STREAM compliant IP Core. This IP Core is dedicated to facilitating efficient data streaming between various IP blocks and peripherals. Its primary function is to serve as a central hub that connects multiple AXI-Stream data sources and consumers, ensuring smooth and low-latency data flow.'}
     }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -163,8 +163,8 @@ def main():
             })        
 
     summary =  { 
-    "MASTER INTERFACE DATA PORT WIDTH": args.m_data_width,
-    "SLAVE INTERFACE DATA PORT WIDTH": args.s_data_width
+    "AXI-Stream Master Data Width": args.m_data_width,
+    "AXI-Stream Slave Data Width": args.s_data_width
     }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
