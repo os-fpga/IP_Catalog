@@ -1448,7 +1448,7 @@ class FIFO(Module):
                     self.comb += self.sync_rdclk_wrtptr_binary_multiple[0:-1].eq(self.sync_rdclk_wrtptr_binary[0:-1]*(int(data_width_write/(data_width_read if data_width_read >= 36 else 36))))
                     self.comb += self.sync_rdclk_wrtptr_binary_multiple[-1].eq(self.sync_rdclk_wrtptr_binary[-1])
                     self.sync_wrtclk_rdptr_binary_div = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
-                    self.comb += self.sync_wrtclk_rdptr_binary_div.eq((self.sync_wrtclk_rdptr_binary + int(data_width_write/data_width_read) - 1) >> (int(data_width_write/data_width_read) - 1) << (int(data_width_write/data_width_read) - 1))
+                    self.comb += self.sync_wrtclk_rdptr_binary_div.eq((self.sync_wrtclk_rdptr_binary + int(data_width_write/(data_width_read if data_width_read >= 36 else 36)) - 1) >> (int(data_width_write/(data_width_read if data_width_read >= 36 else 36)) - 1) << (int(data_width_write/(data_width_read if data_width_read >= 36 else 36)) - 1))
                 elif (data_width_write < data_width_read):
                     self.rd_pointer_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.comb += self.rd_pointer_multiple[0: -1].eq(self.rd_ptr[0: -1]*int((data_width_read/data_width_write)/clocks_for_output))
