@@ -98,10 +98,10 @@ def main():
     args = parser.parse_args()
     
     details =  {   "IP details": {
-    'Name' : 'PRIORITY ENCODER',
+    'Name' : 'Priority Encoder',
     'Version' : 'V1_0',
-    'Interface' : 'NATIVE',
-    'Description' : 'PRIORITY ENCODER is a native interface IP Core. This IP Core is designed to efficiently encode and prioritize multiple input signals. This IP Core takes a set of input signals and assigns a priority to each based on their order of occurrence or other specified criteria. It then generates an encoded output, indicating the highest-priority input that is active. Priority Encoders help streamline decision-making processes in digital circuits by efficiently identifying and responding to the most critical events or requests.'}
+    'Interface' : 'Native',
+    'Description' : 'Priority Encoder is a native interface IP Core. This IP Core is designed to efficiently encode and prioritize multiple input signals. This IP Core takes a set of input signals and assigns a priority to each based on their order of occurrence or other specified criteria. It then generates an encoded output, indicating the highest-priority input that is active. Priority Encoders help streamline decision-making processes in digital circuits by efficiently identifying and responding to the most critical events or requests.'}
     }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -110,8 +110,8 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
     summary =  { 
-    "WIDTH OF ENCODING": args.width,
-    "LSB PRIORITY SELECTION": args.lsb_high_priority
+    "Width of Encoding": args.width,
+    "LSB Priority Selection": args.lsb_high_priority
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------
