@@ -115,7 +115,7 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
-    core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1, choices=range(1,1025),         help="Number of Probes.")
+    core_range_param_group.add_argument("--no_of_probes",           type=int,  default=32, choices=range(1,1025),         help="Number of Probes.")
 
  # Core bool value macros.
     core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
