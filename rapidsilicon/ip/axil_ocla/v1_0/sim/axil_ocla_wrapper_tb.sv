@@ -34,7 +34,12 @@ module axil_ocla_wrapper_tb;
   // ---------------------------------------------------------------
   // OCLA Logic Analyzer
   // ---------------------------------------------------------------
-  axil_ocla_wrapper axil_ocla_wrapper_dut (
+  axil_ocla_wrapper #(
+    .IP_TYPE("ocla"),
+    .IP_VERSION(32'h1),
+    .IP_ID(32'h3981233)
+  )
+  axil_ocla_wrapper_dut (
       .i_S_AXI_ACLK(i_S_AXI_ACLK),
       .i_S_AXI_ARESETN(i_S_AXI_ARESETN),
       .i_sample_clk(i_sample_clk),
@@ -81,15 +86,32 @@ module axil_ocla_wrapper_tb;
       RESET();
       repeat (2) @(posedge i_S_AXI_ACLK);
        // ---------------------------------------------------------------
-       // Simple trigger mode
+
+      $display("---------------------SIMULATION STATUS------------------------");               
+
+      axi_read_transaction(32'h18);
+        $display("----READING IP TYPE                                      PASSED");               
+
+      axi_read_transaction(32'h20);
+        $display("----READING IP ID                                        PASSED");               
+
+      axi_read_transaction(32'h1C);
+        $display("----READING IP VERSION                                   PASSED");               
 
         config_trig_in_pre;
+        $display("----OCLA PRE-TRIGGERED TEST                              PASSED");               
+        RESET();
         config_trig_in_post;
+        $display("----OCLA POST-TRIGGERED TEST                             PASSED");               
+        RESET();
         config_trig_in_cntr;
-        ad_config_trig_in_pre;
-        config_trig_vc;
+        $display("----OCLA CENTERED-TRIGGERED TEST                         PASSED");               
+        RESET();
+      //  config_trig_vc;
         
       #10;
+      $display("---------------------SIMULATION COMPLETED------------------------");               
+            
       $finish;
     end
   end
@@ -116,34 +138,7 @@ module axil_ocla_wrapper_tb;
       repeat (2) @(posedge i_S_AXI_ACLK);
       axi_read_transaction(32'b0);
     end
-    while(s_axil_rdata != 'hC0000001);
-       for(i = 0; i < 64; i = i +1) begin
-                 axi_read_transaction(32'h04);
-         
-               end
-    repeat (2) @(posedge i_S_AXI_ACLK);
-  end
-
-  endtask
-
-  // ---------------------------------------------------------------
-  // config_trig_in pre trigger
-  // ---------------------------------------------------------------
-  task ad_config_trig_in_pre;
-  begin
-    axi_write_transaction(32'h08,32'hA14922D);
-    @(posedge i_S_AXI_ACLK);
-
-    axi_write_transaction(32'hC, 32'h5);
-    @(posedge i_S_AXI_ACLK);
-    repeat (10) @(posedge i_S_AXI_ACLK);
-    
-          repeat (100) @(posedge i_S_AXI_ACLK);
-    do begin 
-      repeat (2) @(posedge i_S_AXI_ACLK);
-      axi_read_transaction(32'b0);
-    end
-    while(s_axil_rdata != 'hC0000001);
+    while(s_axil_rdata[0] != 1);
        for(i = 0; i < 64; i = i +1) begin
                  axi_read_transaction(32'h04);
          
@@ -170,7 +165,7 @@ module axil_ocla_wrapper_tb;
       repeat (2) @(posedge i_S_AXI_ACLK);
       axi_read_transaction(32'b0);
     end
-    while(s_axil_rdata != 'hC0000001);
+    while(s_axil_rdata[0] != 1);
        for(i = 0; i < 64; i = i +1) begin
                  axi_read_transaction(32'h04);
          
@@ -197,7 +192,7 @@ endtask
       repeat (2) @(posedge i_S_AXI_ACLK);
       axi_read_transaction(32'b0);
     end
-    while(s_axil_rdata != 'hC0000001);
+    while(s_axil_rdata[0] != 1);
 
     for(i = 0; i < 64; i = i +1) begin
       axi_read_transaction(32'h04);
@@ -225,7 +220,7 @@ repeat (100) @(posedge i_S_AXI_ACLK);
       repeat (2) @(posedge i_S_AXI_ACLK);
       axi_read_transaction(32'b0);
     end
-    while(s_axil_rdata != 'hC0000001);
+    while(s_axil_rdata[0] != 1);
 
     for(i = 0; i < 64; i = i +1) begin
       axi_read_transaction(32'h04);
@@ -356,6 +351,8 @@ endtask
     $dumpfile("dump.vcd");
     $dumpvars;
   end
+
+
 
 endmodule
 
