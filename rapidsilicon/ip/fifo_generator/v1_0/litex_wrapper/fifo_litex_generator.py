@@ -1149,8 +1149,8 @@ class FIFO(Module):
                                                         self.sync.rd += [
                                                             If(self.rden,
                                                                If(~self.empty,
-                                                                    If(self.rd_ptr[0: -1] < int((k_loop_read + 1 + l + two_block_read + (count_36K * (data_width_write/data_width_read)))*memory) + int(starting) - 1,
-                                                                      If(self.rd_ptr[0: -1] >= int((k_loop_read + l + two_block_read + (count_36K * (data_width_write/data_width_read)))*memory) + int(starting),
+                                                                    If(self.rd_ptr[0: -1] < int((k_loop_read + 1 + l + two_block_read )*memory) + int(starting) - 1,
+                                                                      If(self.rd_ptr[0: -1] >= int((k_loop_read + l + two_block_read )*memory) + int(starting),
                                                                         self.rden_int[count + l].eq(1)
                                                                         ).Else(self.rden_int[count + l].eq(0))
                                                                     ).Elif(self.rd_ptr[0: -1] == int(ending),
@@ -1163,8 +1163,8 @@ class FIFO(Module):
                                                         self.sync.rd += [
                                                             If(self.rden,
                                                                If(~self.empty,
-                                                                    If(self.rd_ptr[0: -1] < int((k_loop_read + 1 + l + two_block_read + (count_36K * (data_width_write/data_width_read)))*memory) + int(starting) - 1,
-                                                                      If(self.rd_ptr[0: -1] >= int((k_loop_read + l + two_block_read + (count_36K * (data_width_write/data_width_read)))*memory) + int(starting) - 1,
+                                                                    If(self.rd_ptr[0: -1] < int((k_loop_read + 1 + l + two_block_read )*memory) + int(starting) - 1,
+                                                                      If(self.rd_ptr[0: -1] >= int((k_loop_read + l + two_block_read )*memory) + int(starting) - 1,
                                                                         self.rden_int[count + l].eq(1)
                                                                         ).Else(self.rden_int[count + l].eq(0))
                                                                     ).Else(self.rden_int[count + l].eq(0))
@@ -1176,7 +1176,7 @@ class FIFO(Module):
                                                            If(~self.underflow,
                                                                 If(self.rd_ptr[0: -1] < int((k_loop_read + 1 + l + two_block_read)*memory) + int(starting),
                                                                   If(self.rd_ptr[0: -1] >= int((k_loop_read + l + two_block_read)*memory) + int(starting),
-                                                                        self.dout[j_read % data_width_read: ((data_read + j_read) % data_width_read ) + data_read].eq(self.dout_int[count + l])
+                                                                        self.dout[j:data_read + j].eq(self.dout_int[count + l])
                                                                 )
                                                               )
                                                            )
@@ -1214,7 +1214,7 @@ class FIFO(Module):
                                                            If(~self.underflow,
                                                                 If(self.rd_ptr[0: -1] < ((k_loop_read + 1 + l + two_block_read + count9K_read)*memory)*int(data_width_write/data_width_read) + int(starting),
                                                                   If(self.rd_ptr[0: -1] >= ((k_loop_read + l + two_block_read + count9K_read)*memory)*int(data_width_write/data_width_read) + int(starting),
-                                                                        self.dout[j_read % data_width_read: ((data_read + j_read) % data_width_read ) + data_read].eq(self.dout_int[count + l])
+                                                                        self.dout[j:data_read + j].eq(self.dout_int[count + l])
                                                                 )
                                                               )
                                                            )
@@ -1304,9 +1304,9 @@ class FIFO(Module):
                                                         self.sync.rd += [
                                                             If(~self.rden,
                                                                 If(~self.empty_int[count + l],
-                                                                    If(self.rd_ptr[0: -1] <= int((k_loop_read + 1 + l + two_block_read + (count_36K * (data_width_write/data_width_read)))*memory) + int(starting),
-                                                                        If(self.rd_ptr[0: -1] >= int((k_loop_read + l + two_block_read + (count_36K * (data_width_write/data_width_read)))*memory) + int(starting),
-                                                                            self.dout[j_read % data_width_read: ((data_read + j_read) % data_width_read ) + data_read].eq(self.dout_int[count + l]
+                                                                    If(self.rd_ptr[0: -1] <= int((k_loop_read + 1 + l + two_block_read )*memory) + int(starting),
+                                                                        If(self.rd_ptr[0: -1] >= int((k_loop_read + l + two_block_read )*memory) + int(starting),
+                                                                            self.dout[j:data_read + j].eq(self.dout_int[count + l]
                                                                             )
                                                                         )
                                                                     )
@@ -1319,7 +1319,7 @@ class FIFO(Module):
                                                                 If(~self.empty_int[count + l],
                                                                     If(self.rd_ptr[0: -1] <= int((k_loop_read + 1 + l + two_block_read + count9K_read)*memory*int(data_width_write/data_width_read)) + int(starting),
                                                                         If(self.rd_ptr[0: -1] >= int((k_loop_read + l + two_block_read + count9K_read)*memory*int(data_width_write/data_width_read)) + int(starting),
-                                                                            self.dout[j_read % data_width_read: ((data_read + j_read) % data_width_read ) + data_read].eq(self.dout_int[count + l]
+                                                                            self.dout[j:data_read + j].eq(self.dout_int[count + l]
                                                                             )
                                                                         )
                                                                     )
@@ -1441,14 +1441,14 @@ class FIFO(Module):
             if (not SYNCHRONOUS[synchronous]):
                 if (data_width_write > data_width_read):
                     self.wrt_pointer_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
-                    self.comb += self.wrt_pointer_multiple[0: -1].eq(self.wrt_ptr[0: -1]*(int(data_width_write/(data_width_read if data_width_read >= 36 else 36))))
+                    self.comb += self.wrt_pointer_multiple[0: -1].eq(self.wrt_ptr[0: -1]*(int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read))))
                     self.comb += self.wrt_pointer_multiple[-1].eq(self.wrt_ptr[-1])
                     self.wrt_ptr_reg_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
                     self.sync_rdclk_wrtptr_binary_multiple = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
-                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[0:-1].eq(self.sync_rdclk_wrtptr_binary[0:-1]*(int(data_width_write/(data_width_read if data_width_read >= 36 else 36))))
+                    self.comb += self.sync_rdclk_wrtptr_binary_multiple[0:-1].eq(self.sync_rdclk_wrtptr_binary[0:-1]*(int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read))))
                     self.comb += self.sync_rdclk_wrtptr_binary_multiple[-1].eq(self.sync_rdclk_wrtptr_binary[-1])
                     self.sync_wrtclk_rdptr_binary_div = Signal(math.ceil(math.log2((data_width_write/data_width_read)*depth)) + 2, reset=0)
-                    self.comb += self.sync_wrtclk_rdptr_binary_div.eq((self.sync_wrtclk_rdptr_binary + decimal_to_binary(int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))) >> (decimal_to_binary(int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))) << (decimal_to_binary(int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))))
+                    self.comb += self.sync_wrtclk_rdptr_binary_div.eq((self.sync_wrtclk_rdptr_binary + decimal_to_binary(int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read)))) >> (decimal_to_binary(int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read)))) << (decimal_to_binary(int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read)))))
                 elif (data_width_write < data_width_read):
                     self.rd_pointer_multiple = Signal(math.ceil(math.log2(depth)) + 2, reset=0)
                     self.comb += self.rd_pointer_multiple[0: -1].eq(self.rd_ptr[0: -1]*int((data_width_read/data_width_write)/clocks_for_output))
@@ -3301,7 +3301,7 @@ class FIFO(Module):
             # Adding a counter to enable pessimistic full and empty signals to syncrhonous FIFO
             self.pessimistic_empty = Signal(2)
             if (data_width_write >= data_width_read):
-                self.pessimistic_full = Signal(int(data_width_write/(data_width_read if data_width_read >= 36 else 36)))
+                self.pessimistic_full = Signal(int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read)))
 
             if(SYNCHRONOUS[synchronous]):
                 # Checking if the FIFO is full
@@ -3309,7 +3309,7 @@ class FIFO(Module):
                     # Checking if the FIFO is full pessismistically
                     self.sync += [
                         If(self.counter <= int(data_width_write/data_width_read)*(depth) + 1,
-                           If(self.counter > int(data_width_write/data_width_read)*(depth) - int(data_width_write/(data_width_read if data_width_read >= 36 else 36)),
+                           If(self.counter > int(data_width_write/data_width_read)*(depth) - int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read)),
                            If(self.rden,
                             self.pessimistic_full.eq(self.pessimistic_full + 1)
                            ).Else(
@@ -3325,7 +3325,7 @@ class FIFO(Module):
                     self.comb += [
                         If(self.counter >= int(data_width_write/data_width_read)*(depth),
                            self.full.eq(1)
-                        ).Elif(self.pessimistic_full <= int(data_width_write/(data_width_read if data_width_read >= 36 else 36) - 1),
+                        ).Elif(self.pessimistic_full <= int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read) - 1),
                         If(self.pessimistic_full > 0,
                            self.full.eq(1)
                         )
@@ -3408,7 +3408,7 @@ class FIFO(Module):
                     self.sync.wrt += [
                         If((self.wrt_pointer_multiple[-1] != self.sync_wrtclk_rdptr_binary_div[-1]),
                             If(self.rden,
-                               If(self.pessimistic_full < int(data_width_write/(data_width_read if data_width_read >= 36 else 36)),
+                               If(self.pessimistic_full < int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read)),
                              self.pessimistic_full.eq(self.pessimistic_full + 1)
                             )
                             ).Else(
@@ -3423,7 +3423,7 @@ class FIFO(Module):
                         If((self.wrt_pointer_multiple[-1] != self.sync_wrtclk_rdptr_binary_div[-1]),
                             If(self.wrt_pointer_multiple[0: -1] == self.sync_wrtclk_rdptr_binary_div[0: -1],
                                self.full.eq(1)
-                               ).Elif(self.pessimistic_full <= int(data_width_write/(data_width_read if data_width_read >= 36 else 36) - 1),
+                               ).Elif(self.pessimistic_full <= int(data_width_write/(data_width_write if data_width_write == data_width_read else data_width_read) - 1),
                             If(self.pessimistic_full > 0,
                                self.full.eq(1)
                             )
