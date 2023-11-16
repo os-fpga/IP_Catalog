@@ -348,7 +348,7 @@ endtask
   //  Dump vcd
   // ---------------------------------------------------------------
   initial begin
-    $dumpfile("dump.vcd");
+    $dumpfile("ocla.vcd");
     $dumpvars;
   end
 
