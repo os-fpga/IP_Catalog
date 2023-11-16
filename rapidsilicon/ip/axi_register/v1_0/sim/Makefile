@@ -32,7 +32,8 @@ COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axi_register
-TOPLEVEL = $(DUT)_wrapper
+MODULE_NAME ?= $(DUT)
+TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v
 REG_TYPE ?= 2

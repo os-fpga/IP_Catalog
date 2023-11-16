@@ -1,7 +1,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 #
 # SPDX-License-Identifier: MIT
-DUT = reset_release
+MODULE_NAME ?= reset_release
 
 OUT_DIR ?= 3
 
