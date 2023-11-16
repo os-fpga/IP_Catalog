@@ -296,6 +296,8 @@ def main():
             dep_dict.update({
                 'empty_value'   :   'True'
             })
+        if (args.BRAM == False):
+            args.asymmetric = False
         if (args.BRAM == False and args.synchronous == False):
             option_strings_to_remove = ['--write_depth']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]

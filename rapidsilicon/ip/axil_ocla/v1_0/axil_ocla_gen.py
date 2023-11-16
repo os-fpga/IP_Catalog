@@ -7,7 +7,7 @@
 import os
 import sys
 import logging
-import json
+from pathlib import Path
 import argparse
 
 from datetime import datetime
@@ -115,7 +115,7 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
-    core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1, choices=range(1,1025),         help="Number of Probes.")
+    core_range_param_group.add_argument("--no_of_probes",           type=int,  default=32, choices=range(1,1025),         help="Number of Probes.")
 
  # Core bool value macros.
     core_bool_param_group = parser.add_argument_group(title="OCLA IP Core bool parameters")
@@ -230,6 +230,13 @@ def main():
                 
         with open(os.path.join(wrapper), "w") as file:
             file.writelines(new_lines)
+        
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/axil_ocla/v1_0", build_name, "sim/axil_ocla_wrapper_tb.sv")
+        file = Path(file)
+        text = file.read_text()
+        text = text.replace("axil_ocla_wrapper", "%s" % build_name)
+        file.write_text(text)
         
 if __name__ == "__main__":
     main()

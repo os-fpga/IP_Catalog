@@ -31,8 +31,9 @@ COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axi2axilite_bridge
-TOPLEVEL = axi2axilite_wrapper
-MODULE   = test_$(TOPLEVEL)
+MODULE_NAME ?= $(DUT)
+TOPLEVEL = $(MODULE_NAME)
+MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v
 
 

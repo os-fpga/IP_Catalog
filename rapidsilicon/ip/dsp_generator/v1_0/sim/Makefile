@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-DUT = dsp_generator
+MODULE_NAME ?= dsp_generator
 
 OUT_DIR ?= 3
 
