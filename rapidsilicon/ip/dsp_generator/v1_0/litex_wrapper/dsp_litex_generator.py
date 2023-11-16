@@ -24,7 +24,7 @@ class RS_DSP_MULT(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = True
         
@@ -61,89 +61,97 @@ class RS_DSP_MULT(Module):
         if (reg_in == 1 and reg_out == 0):
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN   =  "FALSE",
+                p_INPUT_REG_EN    =  "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
             
         elif (reg_in == 0 and reg_out == 1):
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
             
         elif (reg_in == 1 and reg_out == 1):
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                # Mode Bits to configure DSP
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
             
         else:
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0, 
+                # Mode Bits to configure DSP
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -152,7 +160,7 @@ class RS_DSP_MULT_ABCD(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -198,165 +206,181 @@ class RS_DSP_MULT_ABCD(Module):
         if (reg_in == 1 and reg_out == 0):
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk               = ClockSignal(),
-                i_lreset            = ResetSignal(),
+                i_CLK               = ClockSignal(),
+                i_RESET            = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
 
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk               = ClockSignal(),
-                i_lreset            = ResetSignal(),
+                i_CLK               = ClockSignal(),
+                i_RESET            = ResetSignal(),
 
                 # IOs
-                i_a             = self.c,
-                i_b             = self.d,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.c,
+                i_B             = self.d,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
             
         elif (reg_in == 0 and reg_out == 1):
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 
                 # Reset
-                i_clk               = ClockSignal(),
-                i_lreset            = ResetSignal(),
+                i_CLK               = ClockSignal(),
+                i_RESET            = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
 
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 
                 # Reset
-                i_clk               = ClockSignal(),
-                i_lreset            = ResetSignal(),
+                i_CLK               = ClockSignal(),
+                i_RESET            = ResetSignal(),
 
                 # IOs
-                i_a             = self.c,
-                i_b             = self.d,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.c,
+                i_B             = self.d,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
             
         elif (reg_in == 1 and reg_out == 1):
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
 
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.c,
-                i_b             = self.d,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.c,
+                i_B             = self.d,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
             
         else:
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
 
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
 
                 # IOs
-                i_a             = self.c,
-                i_b             = self.d,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned,
+                i_A             = self.c,
+                i_B             = self.d,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned,
             )
             
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -365,7 +389,7 @@ class RS_DSP_MULT_ABCDEFGH(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -447,322 +471,354 @@ class RS_DSP_MULT_ABCDEFGH(Module):
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
 
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.c,
-                i_b             = self.d,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
-            )
-            
-            self.specials += Instance("RS_DSP_MULT_REGIN",
-
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-
-                # IOs
-                i_a             = self.e,
-                i_b             = self.f,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.c,
+                i_B             = self.d,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
             
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.g,
-                i_b             = self.h,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.e,
+                i_B             = self.f,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
+            )
+            
+            self.specials += Instance("DSP38",
+
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
+                
+                # Reset
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
+
+                # IOs
+                i_A             = self.g,
+                i_B             = self.h,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
             
         elif (reg_in == 0 and reg_out == 1):
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
 
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.c,
-                i_b             = self.d,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
-            )
-            
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
-
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
-                
-                # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
-
-                # IOs
-                i_a             = self.e,
-                i_b             = self.f,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.c,
+                i_B             = self.d,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
             
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.g,
-                i_b             = self.h,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.e,
+                i_B             = self.f,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
+            )
+            
+            self.specials += Instance("DSP38",
+
+                # Parameters.
+                # -----------
+                # Mode Bits to configure DSP 
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
+                
+                # Reset
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
+
+                # IOs
+                i_A             = self.g,
+                i_B             = self.h,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
             
         elif (reg_in == 1 and reg_out == 1):
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
 
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.c,
-                i_b             = self.d,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.c,
+                i_B             = self.d,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.e,
-                i_b             = self.f,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.e,
+                i_B             = self.f,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
 
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
 
                 # IOs
-                i_a             = self.g,
-                i_b             = self.h,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.g,
+                i_B             = self.h,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
             
         else:
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
 
                 # IOs
-                i_a             = self.a,
-                i_b             = self.b,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.a,
+                i_B             = self.b,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
 
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
 
                 # IOs
-                i_a             = self.c,
-                i_b             = self.d,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.c,
+                i_B             = self.d,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
             
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
 
                 # IOs
-                i_a             = self.e,
-                i_b             = self.f,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.e,
+                i_B             = self.f,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
 
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
 
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
 
                 # IOs
-                i_a             = self.g,
-                i_b             = self.h,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = unsigned,
-                i_unsigned_b    = unsigned
+                i_A             = self.g,
+                i_B             = self.h,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = unsigned,
+                i_UNSIGNED_B    = unsigned
             )
 
 
@@ -772,7 +828,7 @@ class RS_DSP_MULT20(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -852,71 +908,79 @@ class RS_DSP_MULT20(Module):
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             
         elif (reg_in == 1 and reg_out == 1):
@@ -924,71 +988,79 @@ class RS_DSP_MULT20(Module):
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             
         # Registered Input
@@ -996,130 +1068,146 @@ class RS_DSP_MULT20(Module):
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
         
         else:
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -1128,7 +1216,7 @@ class RS_DSP_MULT36(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -1234,557 +1322,629 @@ class RS_DSP_MULT36(Module):
         # Module instance.
         # ----------------
         if (reg_in == 0 and reg_out == 1):
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b0,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a2,
+                i_B             = self.b0,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a0,
+                i_B             = self.b2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b1,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b1,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b2,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a1,
+                i_B             = self.b2,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
         elif (reg_in == 1 and reg_out == 1):
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b0,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a2,
+                i_B             = self.b0,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a0,
+                i_B             = self.b2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b1,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b1,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b2,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a1,
+                i_B             = self.b2,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
         elif (reg_in == 1 and reg_out == 0):
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b0,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a2,
+                i_B             = self.b0,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a0,
+                i_B             = self.b2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b1,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b1,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b2,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a1,
+                i_B             = self.b2,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
         else:
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b0,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a2,
+                i_B             = self.b0,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a0,
+                i_B             = self.b2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b1,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b1,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b2,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a1,
+                i_B             = self.b2,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -1793,7 +1953,7 @@ class RS_DSP_MULT54(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -1936,988 +2096,1116 @@ class RS_DSP_MULT54(Module):
         # Module instance.
         # ----------------
         if (reg_in == 0 and reg_out == 1):
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b0,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a2,
+                i_B             = self.b0,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a0,
+                i_B             = self.b2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b0,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a4,
+                i_B             = self.b0,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b1,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b1,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b2,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a1,
+                i_B             = self.b2,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b4,
-                o_z             = self.z10,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a0,
+                i_B             = self.b4,
+                o_Z             = self.z10,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b1,
-                o_z             = self.z11,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a4,
+                i_B             = self.b1,
+                o_Z             = self.z11,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z12,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z12,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b4,
-                o_z             = self.z13,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a1,
+                i_B             = self.b4,
+                o_Z             = self.z13,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b2,
-                o_z             = self.z14,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a4,
+                i_B             = self.b2,
+                o_Z             = self.z14,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b4,
-                o_z             = self.z15,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a2,
+                i_B             = self.b4,
+                o_Z             = self.z15,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b4,
-                o_z             = self.z16,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a4,
+                i_B             = self.b4,
+                o_Z             = self.z16,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b3_sign
             )
             
         elif (reg_in == 1 and reg_out == 1):
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b0,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a2,
+                i_B             = self.b0,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a0,
+                i_B             = self.b2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b0,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a4,
+                i_B             = self.b0,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b1,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b1,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b2,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a1,
+                i_B             = self.b2,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b4,
-                o_z             = self.z10,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a0,
+                i_B             = self.b4,
+                o_Z             = self.z10,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b1,
-                o_z             = self.z11,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a4,
+                i_B             = self.b1,
+                o_Z             = self.z11,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b1_sign
             )
             
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z12,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z12,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b4,
-                o_z             = self.z13,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a1,
+                i_B             = self.b4,
+                o_Z             = self.z13,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b2,
-                o_z             = self.z14,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a4,
+                i_B             = self.b2,
+                o_Z             = self.z14,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b4,
-                o_z             = self.z15,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a2,
+                i_B             = self.b4,
+                o_Z             = self.z15,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b4,
-                o_z             = self.z16,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a4,
+                i_B             = self.b4,
+                o_Z             = self.z16,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b3_sign
             )
             
         elif (reg_in == 1 and reg_out == 0):
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b0,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a2,
+                i_B             = self.b0,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a0,
+                i_B             = self.b2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b0,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a4,
+                i_B             = self.b0,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b1,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b1,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b2,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a1,
+                i_B             = self.b2,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b4,
-                o_z             = self.z10,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a0,
+                i_B             = self.b4,
+                o_Z             = self.z10,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b1,
-                o_z             = self.z11,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a4,
+                i_B             = self.b1,
+                o_Z             = self.z11,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z12,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z12,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b4,
-                o_z             = self.z13,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a1,
+                i_B             = self.b4,
+                o_Z             = self.z13,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b2,
-                o_z             = self.z14,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a4,
+                i_B             = self.b2,
+                o_Z             = self.z14,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b4,
-                o_z             = self.z15,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a2,
+                i_B             = self.b4,
+                o_Z             = self.z15,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b4,
-                o_z             = self.z16,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a4,
+                i_B             = self.b4,
+                o_Z             = self.z16,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b3_sign
             )
         else:
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                     # Parameters.
                     # -----------
                     # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
+                    p_DSP_MODE     =  "MULTIPLY",
+                    p_OUTPUT_REG_EN = "FALSE",
+                    p_INPUT_REG_EN = "FALSE",
                     # IOs
-                    i_a             = self.a0,
-                    i_b             = self.b0,
-                    o_z             = self.z1,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = a0_sign,
-                    i_unsigned_b    = b0_sign
+                    i_A             = self.a0,
+                    i_B             = self.b0,
+                    o_Z             = self.z1,  
+                    i_FEEDBACK      = 0,
+                    i_UNSIGNED_A    = a0_sign,
+                    i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a0,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b0,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b0,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b0,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a2,
+                i_B             = self.b0,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a0,
+                i_B             = self.b2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b0,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a4,
+                i_B             = self.b0,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b1,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b1,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b2,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a1,
+                i_B             = self.b2,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b4,
-                o_z             = self.z10,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a0,
+                i_B             = self.b4,
+                o_Z             = self.z10,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b1,
-                o_z             = self.z11,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a4,
+                i_B             = self.b1,
+                o_Z             = self.z11,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z12,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z12,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b4,
-                o_z             = self.z13,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a1,
+                i_B             = self.b4,
+                o_Z             = self.z13,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b2,
-                o_z             = self.z14,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a4,
+                i_B             = self.b2,
+                o_Z             = self.z14,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b4,
-                o_z             = self.z15,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a2,
+                i_B             = self.b4,
+                o_Z             = self.z15,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b4,
-                o_z             = self.z16,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a4,
+                i_B             = self.b4,
+                o_Z             = self.z16,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b3_sign
             )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -2926,7 +3214,7 @@ class RS_DSP_MULT20_pipeline(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -3017,60 +3305,66 @@ class RS_DSP_MULT20_pipeline(Module):
         ]
          # Module instance.
         # ----------------
-        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY",
+            p_OUTPUT_REG_EN = "TRUE",
+            p_INPUT_REG_EN  = "TRUE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a0,
-            i_b             = self.b0,
-            o_z             = self.z1,  
-            i_feedback      = 0,
-            i_unsigned_a    = a0_sign,
-            i_unsigned_b    = b0_sign
+            i_A             = self.a0,
+            i_B             = self.b0,
+            o_Z             = self.z1,  
+            i_FEEDBACK      = 0,
+            i_UNSIGNED_A    = a0_sign,
+            i_UNSIGNED_B    = b0_sign
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a3,
-            i_b             = self.b3,
-            o_z             = self.z3,  
-            i_feedback      = self.fb,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.unsigneda,
-            i_unsigned_b    = self.unsignedb,
-            i_subtract      = 0
+            i_A             = self.a3,
+            i_B             = self.b3,
+            o_Z             = self.z3,  
+            i_FEEDBACK      = self.fb,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.unsigneda,
+            i_UNSIGNED_B    = self.unsignedb,
+            i_SUBTRACT      = 0
         )
         # Module instance.
         # ----------------
-        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY",
+            p_OUTPUT_REG_EN = "TRUE",
+            p_INPUT_REG_EN  = "TRUE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a1,
-            i_b             = self.b1,
-            o_z             = self.z2,  
-            i_feedback      = 0,
-            i_unsigned_a    = a1_sign,
-            i_unsigned_b    = b1_sign
+            i_A             = self.a1,
+            i_B             = self.b1,
+            o_Z             = self.z2,  
+            i_FEEDBACK      = 0,
+            i_UNSIGNED_A    = a1_sign,
+            i_UNSIGNED_B    = b1_sign
         )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -3079,7 +3373,7 @@ class RS_DSP_MULT36_pipeline(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -3263,100 +3557,110 @@ class RS_DSP_MULT36_pipeline(Module):
 
         # Module instance.
         # ----------------
-        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY",
+            p_OUTPUT_REG_EN = "TRUE",
+            p_INPUT_REG_EN  = "TRUE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a1,
-            i_b             = self.b1,
-            o_z             = self.z1,  
-            i_feedback      = 0,
-            i_unsigned_a    = a0_sign,
-            i_unsigned_b    = b0_sign
+            i_A             = self.a1,
+            i_B             = self.b1,
+            o_Z             = self.z1,  
+            i_FEEDBACK      = 0,
+            i_UNSIGNED_A    = a0_sign,
+            i_UNSIGNED_B    = b0_sign
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a_2,
-            i_b             = self.b_2,
-            o_z             = self.z2,  
-            i_feedback      = self.fb_del,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.a_2_sign,
-            i_unsigned_b    = self.b_2_sign,
-            i_subtract      = 0
+            i_A             = self.a_2,
+            i_B             = self.b_2,
+            o_Z             = self.z2,  
+            i_FEEDBACK      = self.fb_del,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.a_2_sign,
+            i_UNSIGNED_B    = self.b_2_sign,
+            i_SUBTRACT      = 0
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a_3,
-            i_b             = self.b_3,
-            o_z             = self.z3,  
-            i_feedback      = self.fb,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.unsigneda_3,
-            i_unsigned_b    = self.unsignedb_3,
-            i_subtract      = 0
+            i_A             = self.a_3,
+            i_B             = self.b_3,
+            o_Z             = self.z3,  
+            i_FEEDBACK      = self.fb,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.unsigneda_3,
+            i_UNSIGNED_B    = self.unsignedb_3,
+            i_SUBTRACT      = 0
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a_4,
-            i_b             = self.b_4,
-            o_z             = self.z4,  
-            i_feedback      = self.fb_del,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.unsigneda_4,
-            i_unsigned_b    = self.unsignedb_4,
-            i_subtract      = 0
+            i_A             = self.a_4,
+            i_B             = self.b_4,
+            o_Z             = self.z4,  
+            i_FEEDBACK      = self.fb_del,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.unsigneda_4,
+            i_UNSIGNED_B    = self.unsignedb_4,
+            i_SUBTRACT      = 0
         )
-        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY",
+            p_OUTPUT_REG_EN = "TRUE",
+            p_INPUT_REG_EN  = "TRUE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a3,
-            i_b             = self.b3,
-            o_z             = self.z5,  
-            i_feedback      = 0,
-            i_unsigned_a    = a2_sign,
-            i_unsigned_b    = b2_sign
+            i_A             = self.a3,
+            i_B             = self.b3,
+            o_Z             = self.z5,  
+            i_FEEDBACK      = 0,
+            i_UNSIGNED_A    = a2_sign,
+            i_UNSIGNED_B    = b2_sign
         )
         
 
@@ -3366,7 +3670,7 @@ class RS_DSP_MULT54_pipeline(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -3621,142 +3925,156 @@ class RS_DSP_MULT54_pipeline(Module):
         ]
         # Module instance.
         # ----------------
-        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY",
+            p_OUTPUT_REG_EN = "TRUE",
+            p_INPUT_REG_EN  = "TRUE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a0,
-            i_b             = self.b0,
-            o_z             = self.z1,  
-            i_feedback      = 0,
-            i_unsigned_a    = a0_sign,
-            i_unsigned_b    = b0_sign
+            i_A             = self.a0,
+            i_B             = self.b0,
+            o_Z             = self.z1,  
+            i_FEEDBACK      = 0,
+            i_UNSIGNED_A    = a0_sign,
+            i_UNSIGNED_B    = b0_sign
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a_2,
-            i_b             = self.b_2,
-            o_z             = self.z2,  
-            i_feedback      = self.fb2,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.a_2_sign,
-            i_unsigned_b    = self.b_2_sign,
-            i_subtract      = 0
+            i_A             = self.a_2,
+            i_B             = self.b_2,
+            o_Z             = self.z2,  
+            i_FEEDBACK      = self.fb2,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.a_2_sign,
+            i_UNSIGNED_B    = self.b_2_sign,
+            i_SUBTRACT      = 0
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a_3,
-            i_b             = self.b_3,
-            o_z             = self.z3,  
-            i_feedback      = self.fb1,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.a_3_sign,
-            i_unsigned_b    = self.b_3_sign,
-            i_subtract      = 0
+            i_A             = self.a_3,
+            i_B             = self.b_3,
+            o_Z             = self.z3,  
+            i_FEEDBACK      = self.fb1,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.a_3_sign,
+            i_UNSIGNED_B    = self.b_3_sign,
+            i_SUBTRACT      = 0
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a_4,
-            i_b             = self.b_4,
-            o_z             = self.z4,  
-            i_feedback      = self.fb,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.unsigned_a4,
-            i_unsigned_b    = self.unsigned_b4,
-            i_subtract      = 0
+            i_A             = self.a_4,
+            i_B             = self.b_4,
+            o_Z             = self.z4,  
+            i_FEEDBACK      = self.fb,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.unsigned_a4,
+            i_UNSIGNED_B    = self.unsigned_b4,
+            i_SUBTRACT      = 0
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a_5,
-            i_b             = self.b_5,
-            o_z             = self.z5,  
-            i_feedback      = self.fb1,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.unsigned_a5,
-            i_unsigned_b    = self.unsigned_b5,
-            i_subtract      = 0
+            i_A             = self.a_5,
+            i_B             = self.b_5,
+            o_Z             = self.z5,  
+            i_FEEDBACK      = self.fb1,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.unsigned_a5,
+            i_UNSIGNED_B    = self.unsigned_b5,
+            i_SUBTRACT      = 0
         )
-        self.specials += Instance("RS_DSP_MULTACC",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY_ACCUMULATE",
+            p_OUTPUT_REG_EN = "FALSE",
+            p_INPUT_REG_EN  = "FALSE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a_6,
-            i_b             = self.b_6,
-            o_z             = self.z6,  
-            i_feedback      = self.fb2,
-            i_load_acc      = 1,
-            i_round         = 0,
-            i_saturate_enable = 0,
-            i_shift_right   = 0,
-            i_unsigned_a    = self.unsigned_a6,
-            i_unsigned_b    = self.unsigned_b6,
-            i_subtract      = 0
+            i_A             = self.a_6,
+            i_B             = self.b_6,
+            o_Z             = self.z6,  
+            i_FEEDBACK      = self.fb2,
+            i_LOAD_ACC      = 1,
+            i_ROUND         = 0,
+            i_SATURATE      = 0,
+            i_SHIFT_RIGHT   = 0,
+            i_UNSIGNED_A    = self.unsigned_a6,
+            i_UNSIGNED_B    = self.unsigned_b6,
+            i_SUBTRACT      = 0
         )
-        self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+        self.specials += Instance("DSP38",
             # Parameters.
             # -----------
             # Mode Bits to configure DSP 
-            p_MODE_BITS     =  0,
+            p_DSP_MODE      =  "MULTIPLY",
+            p_OUTPUT_REG_EN = "TRUE",
+            p_INPUT_REG_EN  = "TRUE",
             # Reset
-            i_clk           = ClockSignal(),
-            i_lreset        = ResetSignal(),
+            i_CLK           = ClockSignal(),
+            i_RESET        = ResetSignal(),
             # IOs
-            i_a             = self.a3,
-            i_b             = self.b3,
-            o_z             = self.z7,  
-            i_feedback      = 0,
-            i_unsigned_a    = a3_sign,
-            i_unsigned_b    = b3_sign
+            i_A             = self.a3,
+            i_B             = self.b3,
+            o_Z             = self.z7,  
+            i_FEEDBACK      = 0,
+            i_UNSIGNED_A    = a3_sign,
+            i_UNSIGNED_B    = b3_sign
         )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -3765,7 +4083,7 @@ class RS_DSP_MULT20_enhance(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -3858,208 +4176,232 @@ class RS_DSP_MULT20_enhance(Module):
         if (reg_in == 0 and reg_out == 1):            
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx, Replicate(self.dx[17], 2)),
-                i_b             = self.dy,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx, Replicate(self.dx[17], 2)),
+                i_B             = self.dy,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
         elif (reg_in == 1 and reg_out == 1):
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx, Replicate(self.dx[17], 2)),
-                i_b             = self.dy,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx, Replicate(self.dx[17], 2)),
+                i_B             = self.dy,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
         # Registered Input
         elif (reg_in == 1 and reg_out == 0):
             
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx, Replicate(self.dx[17], 2)),
-                i_b             = self.dy,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx, Replicate(self.dx[17], 2)),
+                i_B             = self.dy,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
         else:
              # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx, Replicate(self.dx[17], 2)),
-                i_b             = self.dy,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx, Replicate(self.dx[17], 2)),
+                i_B             = self.dy,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
             # Module instance.
             # ----------------
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
 
 # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -4068,7 +4410,7 @@ class RS_DSP_MULT36_enhance(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -4182,374 +4524,422 @@ class RS_DSP_MULT36_enhance(Module):
         # Module instance.
         # ----------------
         if (reg_in == 0 and reg_out == 1):
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
-                i_b             = self.dy1,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
+                i_B             = self.dy1,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
-                i_b             = self.dy2,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
+                i_B             = self.dy2,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
-                i_b             = self.dy3,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
+                i_B             = self.dy3,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
         elif (reg_in == 1 and reg_out == 1):
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
-                i_b             = self.dy1,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
+                i_B             = self.dy1,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
-                i_b             = self.dy2,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
+                i_B             = self.dy2,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
-                i_b             = self.dy3,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
+                i_B             = self.dy3,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
         elif (reg_in == 1 and reg_out == 0):
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
-                i_b             = self.dy1,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
+                i_B             = self.dy1,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
-                i_b             = self.dy2,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
+                i_B             = self.dy2,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
-                i_b             = self.dy3,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
+                i_B             = self.dy3,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
         else:
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a0,
-                i_b             = self.b0,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a0,
+                i_B             = self.b0,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z3,
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z3,
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits tcdo configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
-                i_b             = self.dy1,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
+                i_B             = self.dy1,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
-                i_b             = self.dy2,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
+                i_B             = self.dy2,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
-                i_b             = self.dy3,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
+                i_B             = self.dy3,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
 
 # # RS_DSP_MULT ---------------------------------------------------------------------------------------
@@ -4558,7 +4948,7 @@ class RS_DSP_MULT54_enhance(Module):
 
         # Get Parameters.
         # ---------------------        
-        self.logger = logging.getLogger("\tRS_DSP_MULT")
+        self.logger = logging.getLogger("\tDSP38")
         
         self.logger.propagate = False
 
@@ -4721,616 +5111,697 @@ class RS_DSP_MULT54_enhance(Module):
         # Module instance.
         # ----------------
         if (reg_in == 0 and reg_out == 1):
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a3,
+                i_B             = self.b3,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b4,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a4,
+                i_B             = self.b4,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx1,
-                i_b             = self.dy1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = self.dx1,
+                i_B             = self.dy1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx2,
-                i_b             = self.dy2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = self.dx2,
+                i_B             = self.dy2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx3,
-                i_b             = self.dy3,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = self.dx3,
+                i_B             = self.dy3,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx4,
-                i_b             = self.dy4,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0 
+                i_A             = self.dx4,
+                i_B             = self.dy4,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0 
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx5,
-                i_b             = self.dy5,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx5,
+                i_B             = self.dy5,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "FALSE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx6,
-                i_b             = self.dy6,
-                o_z             = self.z10,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx6,
+                i_B             = self.dy6,
+                o_Z             = self.z10,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
         elif (reg_in == 1 and reg_out == 1):
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a3,
+                i_B             = self.b3,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b4,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a4,
+                i_B             = self.b4,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx1,
-                i_b             = self.dy1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx1,
+                i_B             = self.dy1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx2,
-                i_b             = self.dy2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx2,
+                i_B             = self.dy2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx3,
-                i_b             = self.dy3,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx3,
+                i_B             = self.dy3,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx4,
-                i_b             = self.dy4,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx4,
+                i_B             = self.dy4,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx5,
-                i_b             = self.dy5,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx5,
+                i_B             = self.dy5,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN_REGOUT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "TRUE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx6,
-                i_b             = self.dy6,
-                o_z             = self.z10,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx6,
+                i_B             = self.dy6,
+                o_Z             = self.z10,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
         elif (reg_in == 1 and reg_out == 0):
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a1,
-                i_b             = self.b1,
-                o_z             = self.z1,  
-                i_feedback      = 0,
-                i_unsigned_a    = a0_sign,
-                i_unsigned_b    = b0_sign
+                i_A             = self.a1,
+                i_B             = self.b1,
+                o_Z             = self.z1,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a0_sign,
+                i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a3,
+                i_B             = self.b3,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b4,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a4,
+                i_B             = self.b4,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx1,
-                i_b             = self.dy1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx1,
+                i_B             = self.dy1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx2,
-                i_b             = self.dy2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx2,
+                i_B             = self.dy2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx3,
-                i_b             = self.dy3,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx3,
+                i_B             = self.dy3,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx4,
-                i_b             = self.dy4,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx4,
+                i_B             = self.dy4,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx5,
-                i_b             = self.dy5,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx5,
+                i_B             = self.dy5,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT_REGIN",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "TRUE",
                 # Reset
-                i_clk           = ClockSignal(),
-                i_lreset        = ResetSignal(),
+                i_CLK           = ClockSignal(),
+                i_RESET        = ResetSignal(),
                 # IOs
-                i_a             = self.dx6,
-                i_b             = self.dy6,
-                o_z             = self.z10,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = self.dx6,
+                i_B             = self.dy6,
+                o_Z             = self.z10,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
         else:
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                     # Parameters.
                     # -----------
                     # Mode Bits to configure DSP 
-                    p_MODE_BITS     =  0,
+                    p_DSP_MODE     =  "MULTIPLY",
+                    p_OUTPUT_REG_EN = "FALSE",
+                    p_INPUT_REG_EN = "FALSE",
                     # IOs
-                    i_a             = self.a1,
-                    i_b             = self.b1,
-                    o_z             = self.z1,  
-                    i_feedback      = 0,
-                    i_unsigned_a    = a0_sign,
-                    i_unsigned_b    = b0_sign
+                    i_A             = self.a1,
+                    i_B             = self.b1,
+                    o_Z             = self.z1,  
+                    i_FEEDBACK      = 0,
+                    i_UNSIGNED_A    = a0_sign,
+                    i_UNSIGNED_B    = b0_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a2,
-                i_b             = self.b2,
-                o_z             = self.z2,  
-                i_feedback      = 0,
-                i_unsigned_a    = a1_sign,
-                i_unsigned_b    = b1_sign
+                i_A             = self.a2,
+                i_B             = self.b2,
+                o_Z             = self.z2,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a1_sign,
+                i_UNSIGNED_B    = b1_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a3,
-                i_b             = self.b3,
-                o_z             = self.z3,  
-                i_feedback      = 0,
-                i_unsigned_a    = a2_sign,
-                i_unsigned_b    = b2_sign
+                i_A             = self.a3,
+                i_B             = self.b3,
+                o_Z             = self.z3,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a2_sign,
+                i_UNSIGNED_B    = b2_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = self.a4,
-                i_b             = self.b4,
-                o_z             = self.z4,  
-                i_feedback      = 0,
-                i_unsigned_a    = a3_sign,
-                i_unsigned_b    = b3_sign
+                i_A             = self.a4,
+                i_B             = self.b4,
+                o_Z             = self.z4,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = a3_sign,
+                i_UNSIGNED_B    = b3_sign
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
-                i_b             = self.dy1,
-                o_z             = self.z5,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx1, Replicate(self.dx1[17], 2)),
+                i_B             = self.dy1,
+                o_Z             = self.z5,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
-                i_b             = self.dy2,
-                o_z             = self.z6,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx2, Replicate(self.dx2[17], 2)),
+                i_B             = self.dy2,
+                o_Z             = self.z6,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
-                i_b             = self.dy3,
-                o_z             = self.z7,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx3, Replicate(self.dx3[17], 2)),
+                i_B             = self.dy3,
+                o_Z             = self.z7,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx4, Replicate(self.dx4[17], 2)),
-                i_b             = self.dy4,
-                o_z             = self.z8,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx4, Replicate(self.dx4[17], 2)),
+                i_B             = self.dy4,
+                o_Z             = self.z8,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx5, Replicate(self.dx5[17], 2)),
-                i_b             = self.dy5,
-                o_z             = self.z9,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx5, Replicate(self.dx5[17], 2)),
+                i_B             = self.dy5,
+                o_Z             = self.z9,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
-            self.specials += Instance("RS_DSP_MULT",
+            self.specials += Instance("DSP38",
                 # Parameters.
                 # -----------
                 # Mode Bits to configure DSP 
-                p_MODE_BITS     =  0,
+                p_DSP_MODE     =  "MULTIPLY",
+                p_OUTPUT_REG_EN = "FALSE",
+                p_INPUT_REG_EN = "FALSE",
                 # IOs
-                i_a             = Cat(self.dx6, Replicate(self.dx6[17], 2)),
-                i_b             = self.dy6,
-                o_z             = self.z10,  
-                i_feedback      = 0,
-                i_unsigned_a    = 0,
-                i_unsigned_b    = 0
+                i_A             = Cat(self.dx6, Replicate(self.dx6[17], 2)),
+                i_B             = self.dy6,
+                o_Z             = self.z10,  
+                i_FEEDBACK      = 0,
+                i_UNSIGNED_A    = 0,
+                i_UNSIGNED_B    = 0
             )
+            
