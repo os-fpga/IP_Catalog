@@ -1,7 +1,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 #
 # SPDX-License-Identifier: MIT
-DUT = i2c_slave
+MODULE_NAME ?= i2c_slave
 
 OUT_DIR ?=3
 

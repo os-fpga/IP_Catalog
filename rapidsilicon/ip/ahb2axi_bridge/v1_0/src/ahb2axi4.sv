@@ -161,12 +161,10 @@ parameter Data_Width        = 32
 	logic wclk;
 	logic wr_reset;
 	logic wr;
-	logic[Data_Width] wr_data;
 	logic wr_full;
 	logic rclk;
 	logic rd_reset;
 	logic rd;
-	logic [Data_Width]rd_data;
 	logic rd_empty;
    
    
