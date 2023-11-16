@@ -71,7 +71,7 @@ def clock_cycles_to_obtain_desired_output(desired_output_size):
 
 # FIFO Generator ---------------------------------------------------------------------------------------
 class FIFO(Module):
-    def __init__(self, data_width_write, data_width_read, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
+    def __init__(self, data_width_write, data_width_read, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, builtin_fifo):
         SYNCHRONOUS = {
             "SYNCHRONOUS"  :   True,
             "ASYNCHRONOUS" :   False
@@ -217,7 +217,7 @@ class FIFO(Module):
             self.prev_dout = Signal(data_width_read)                    
 
         # Using Block RAM
-        if (BRAM):
+        if (builtin_fifo):
             self.rden_int           = Array(Signal() for _ in range(total_mem * 2))
             self.wren_int           = Array(Signal() for _ in range(total_mem * 2))
             self.empty_int          = Array(Signal() for _ in range(total_mem * 2))
