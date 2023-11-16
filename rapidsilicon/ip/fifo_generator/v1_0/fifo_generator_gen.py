@@ -434,7 +434,7 @@ def main():
         full_value                      = args.full_value,
         empty_value                     = args.empty_value,
         first_word_fall_through         = args.first_word_fall_through,
-        builtin_fifo                            = args.builtin_fifo
+        builtin_fifo                    = args.builtin_fifo
     )
 
     # Build Project --------------------------------------------------------------------------------
