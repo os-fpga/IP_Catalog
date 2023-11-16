@@ -8,7 +8,7 @@ OUT_DIR ?= 3
 
 all:
 	@sed -i "s|dsp.vcd|$(OUT_DIR)/dsp.vcd|g" ./dsp_test.v
-	iverilog -g2012 -o dsp ../src/*.v ./dsp_test.v ./dsp_sim.v
+	iverilog -g2012 -o dsp ../src/*.v ./dsp_test.v ./DSP38.v
 	vvp dsp
 	@mv dsp $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/dsp.vcd|dsp.vcd|g" ./dsp_test.v
