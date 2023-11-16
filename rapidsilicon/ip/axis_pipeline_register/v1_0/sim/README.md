@@ -9,5 +9,5 @@ python3 ../axis_pipeline_register_gen.py --build --id_en=1 --dest_en=1
 
 Run the following command for simulation:
 ```
-make OUT_DIR=$(PWD)
+make OUT_DIR=$(PWD) MODULE_NAME=(name of generated IP module)
 ``` 
