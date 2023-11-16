@@ -8,7 +8,7 @@ import os
 import sys
 import logging
 import argparse
-
+from pathlib import Path
 from datetime import datetime
 
 from litex_wrapper.reset_release_litex_wrapper import RESETRELEASE
@@ -193,6 +193,13 @@ def main():
                 
         with open(os.path.join(wrapper), "w") as file:
             file.writelines(new_lines)
+        
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/reset_release/v1_0", build_name, "sim/testbench.v")
+        file = Path(file)
+        text = file.read_text()
+        text = text.replace("reset_release", "%s" % build_name)
+        file.write_text(text)
 
 if __name__ == "__main__":
     main()
