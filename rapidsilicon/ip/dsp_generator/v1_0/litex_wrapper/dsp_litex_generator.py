@@ -870,6 +870,9 @@ class RS_DSP_MULT20(Module):
             else:
                 self.a0 = Cat(self.a3[0:a_width],  Replicate(self.a3[a_width - 1],k-a_width+2))
                 a0_sign = 0
+        else:
+            self.a0 = Signal()
+            self.a1 = Signal()
               
         if (b_width > k and b_width <= k*2):
             self.b0 = self.b3[0:k]
@@ -885,6 +888,9 @@ class RS_DSP_MULT20(Module):
             else:
                 self.b0 = Cat(self.b3[0:b_width],  Replicate(self.b3[b_width - 1],k-b_width+2))
                 b0_sign = 0
+        else:
+            self.b0 = Signal()
+            self.b1 = Signal()
 
         self.z1 = Signal(bits_sign=(38,True))
         self.z2 = Signal(bits_sign=(38,True))
@@ -1270,7 +1276,11 @@ class RS_DSP_MULT36(Module):
             else:
                 self.a0 = Cat(self.a3[0:a_width],  Replicate(self.a3[a_width - 1],k-a_width+2))
                 a0_sign = 0
-        
+        else:
+            self.a0 = Signal()
+            self.a1 = Signal()
+            self.a2 = Signal()
+
         if(b_width > k*2 and b_width <= k*3):
             self.b0 = self.b3[0:k]
             self.b1 = self.b3[k:k*2]
@@ -1295,6 +1305,10 @@ class RS_DSP_MULT36(Module):
             else:
                 self.b0 = Cat(self.b3[0:b_width],  Replicate(self.b3[b_width - 1],k-b_width))
                 b0_sign = 0
+        else:
+            self.b0 = Signal()
+            self.b1 = Signal()
+            self.b2 = Signal()
         
 
         self.z1 = Signal(bits_sign=(38,True))
@@ -2021,6 +2035,11 @@ class RS_DSP_MULT54(Module):
             else:
                 self.a0 = Cat(self.a3[0:a_width],  Replicate(self.a3[a_width - 1],k-a_width+2))
                 a0_sign = 0
+        else:
+            self.a0 = Signal()
+            self.a1 = Signal()
+            self.a2 = Signal()
+            self.a4 = Signal()
 
         if(b_width > k*3 and b_width <= k*4):
             self.b0 = self.b3[0:k]
@@ -2058,6 +2077,11 @@ class RS_DSP_MULT54(Module):
             else:
                 self.b0 = Cat(self.b3[0:b_width],  Replicate(self.b3[b_width - 1],k-b_width))
                 b0_sign = 0
+        else:
+            self.b0 = Signal()
+            self.b1 = Signal()
+            self.b2 = Signal()
+            self.b4 = Signal()
 
         self.z1  = Signal(bits_sign=(38,True))
         self.z2  = Signal(bits_sign=(38,True))
@@ -3259,6 +3283,9 @@ class RS_DSP_MULT20_pipeline(Module):
             else:
                 self.a0 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+3))
                 a0_sign = 0
+        else:
+            self.a0 = Signal()
+            self.a1 = Signal()
               
         if (b_width > k and b_width <= k*2):
           if(unsigned):
@@ -3275,6 +3302,9 @@ class RS_DSP_MULT20_pipeline(Module):
             else:
                 self.b0 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+1))
                 b0_sign = 0
+        else:
+            self.b0 = Signal()
+            self.b1 = Signal()
         
         self.a3 = Signal(bits_sign=(19,True))
         self.b3 = Signal(bits_sign=(19,True))
@@ -3439,6 +3469,10 @@ class RS_DSP_MULT36_pipeline(Module):
             else:
                 self.a1 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+3))
                 a0_sign = 0
+        else:
+            self.a1 = Signal()
+            self.a2 = Signal()
+            self.a3 = Signal()
         
         if(b_width > k*2 and b_width <= k*3):
             if (unsigned):
@@ -3467,6 +3501,10 @@ class RS_DSP_MULT36_pipeline(Module):
             else:
                 self.b1 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+1))
                 b0_sign = 0
+        else:
+            self.b1 = Signal()
+            self.b2 = Signal()
+            self.b3 = Signal()
 
         if (unsigned == 0):
             self.z1 = Signal(bits_sign=(38,True))
@@ -3748,6 +3786,11 @@ class RS_DSP_MULT54_pipeline(Module):
             else:
                 self.a0 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+3))
                 a0_sign = 0
+        else:
+            self.a0 = Signal()
+            self.a1 = Signal()
+            self.a2 = Signal()
+            self.a3 = Signal()
 
         if(b_width > k*3 and b_width <= k*4):
             if (unsigned):
@@ -3791,6 +3834,11 @@ class RS_DSP_MULT54_pipeline(Module):
             else:
                 self.b0 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+1))
                 b0_sign = 0
+        else:
+            self.b0 = Signal()
+            self.b1 = Signal()
+            self.b2 = Signal()
+            self.b3 = Signal()
 
         if (unsigned == 1):
             self.z1 = Signal(38)
@@ -4124,6 +4172,9 @@ class RS_DSP_MULT20_enhance(Module):
             else:
                 self.a0 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+4))
                 a0_sign = 0
+        else:
+            self.a0 = Signal()
+            self.a1 = Signal()
               
         if (b_width > k and b_width <= k*2):
           if(unsigned):
@@ -4140,6 +4191,9 @@ class RS_DSP_MULT20_enhance(Module):
             else:
                 self.b0 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+2))
                 b0_sign = 0
+        else:
+            self.b0 = Signal()
+            self.b1 = Signal()
         
         self.dx = Signal(bits_sign=(18,True))
         self.dy = Signal(bits_sign=(18,True))
@@ -4464,6 +4518,10 @@ class RS_DSP_MULT36_enhance(Module):
             else:
                 self.a0 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+4))
                 a0_sign = 0
+        else:
+            self.a0 = Signal()
+            self.a1 = Signal()
+            self.a2 = Signal()
         
         if(b_width > k*2 and b_width <= k*3):
             if (unsigned):
@@ -4492,6 +4550,10 @@ class RS_DSP_MULT36_enhance(Module):
             else:
                 self.b0 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+2))
                 b0_sign = 0
+        else:
+            self.b0 = Signal()
+            self.b1 = Signal()
+            self.b2 = Signal()
 
         self.z1 = Signal(bits_sign=(38,True))
         self.z2 = Signal(bits_sign=(38,True))
@@ -5020,6 +5082,11 @@ class RS_DSP_MULT54_enhance(Module):
             else:
                 self.a1 = Cat(self.a[0:a_width],  Replicate(self.a[a_width - 1],k-a_width+4))
                 a0_sign = 0
+        else:
+            self.a1 = Signal()
+            self.a2 = Signal()
+            self.a3 = Signal()
+            self.a4 = Signal()
 
         if(b_width > k*3 and b_width <= k*4):
             if (unsigned):
@@ -5063,6 +5130,11 @@ class RS_DSP_MULT54_enhance(Module):
             else:
                 self.b1 = Cat(self.b[0:b_width],  Replicate(self.b[b_width - 1],k-b_width+2))
                 b0_sign = 0
+        else:
+            self.b1 = Signal()
+            self.b2 = Signal()
+            self.b3 = Signal()
+            self.b4 = Signal()
 
         self.z1 = Signal(bits_sign=(38,True))
         self.z2 = Signal(bits_sign=(38,True))
