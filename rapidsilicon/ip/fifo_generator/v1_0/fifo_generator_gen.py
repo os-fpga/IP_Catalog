@@ -96,7 +96,7 @@ def clock_cycles_to_obtain_desired_output(desired_output_size, max_output_per_bl
         # Calculate the number of clock cycles required to obtain the desired size
         return (desired_output_size + max_output_per_block - 1) // max_output_per_block
     
-# Counting the total number of BRAMs used ---------------------------------------------------------
+# Counting the total number of FIFOs used ---------------------------------------------------------
 def total_BRAM(data_width, depth):
     remaining_memory = 0
     num_18K = 0
@@ -405,7 +405,7 @@ def main():
             data_width_write = args.data_width_write
         else:
             data_width_write = args.data_width
-        summary["Count of BRAMs"] = math.ceil(total_BRAM(data_width_write, depth) * 2) / 2
+        summary["Count of FIFOs"] = math.ceil(total_BRAM(data_width_write, depth) * 2) / 2
     if (args.empty_threshold):
         summary["Programmable Empty"] = "Programmble Empty will be asserted at data count %s" % args.empty_value
     if (args.full_threshold):
