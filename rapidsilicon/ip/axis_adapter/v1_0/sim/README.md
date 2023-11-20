@@ -9,5 +9,5 @@ python3 ../axis_adapter_gen.py --build
 
 Run the following command for simulation:
 ```
-make OUT_DIR=$(PWD)
+make OUT_DIR=$(PWD) MODULE_NAME=<name_of_generated_IP_module>
 ``` 
