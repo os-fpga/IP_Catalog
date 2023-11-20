@@ -271,10 +271,6 @@ def main():
                     prev_rem = remaining_memory
                 else:
                     prev_rem = prev_rem
-        if (args.builtin_fifo == False):
-            dep_dict.update({
-                'asymmetric'    :   'True'
-            })
             
     details =  {   "IP details": {
     'Name' : 'FIFO Generator',
@@ -295,6 +291,14 @@ def main():
         if (args.empty_threshold == False):
             dep_dict.update({
                 'empty_value'   :   'True'
+            })
+        if (args.builtin_fifo == False):
+            dep_dict.update({
+                'asymmetric'    :   'True'
+            })
+        if (args.asymmetric == True):
+            dep_dict.update({
+                'builtin_fifo'    :   'True'
             })
         if (args.builtin_fifo == False):
             args.asymmetric = False
