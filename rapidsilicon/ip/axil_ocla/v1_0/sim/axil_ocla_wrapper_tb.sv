@@ -1,5 +1,5 @@
 /* verilator lint_off EOFNEWLINE */
-
+`timescale 1ns/1ps
 module axil_ocla_wrapper_tb;
 
   // Parameters
