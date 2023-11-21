@@ -80,28 +80,6 @@ endmodule
 
 
 
-
-module phase_shifter(
-  input clk_fast,
-  input fout_postdiv,
-  output phase0,
-  output phase90,
-  output phase180,
-  output phase270);
-
-assign phase0 = fout_postdiv;
-
-assign phase90 = clk_fast ? ~fout_postdiv : fout_postdiv;
-assign phase180 = ~phase0;
-assign phase270 = ~phase90;
-
-
-
-
-endmodule
-
-
-
 module PLL #(
   parameter DIVIDE_CLK_IN_BY_2 = "FALSE", // Enable input divider (TRUE/FALSE)
   parameter PLL_MULT = 16, // Clock multiplier value (16-1000)
@@ -123,10 +101,6 @@ module PLL #(
   output CLK_OUT3, // CLK_OUT3 output
   output GEARBOX_FAST_CLK, // Gearbox fast clock output
   output LOCK, // PLL lock signal
-  output FOUTPH0,
-  output FOUTPH90,
-  output FOUTPH180,
-  output FOUTPH270
 );
 
 time measured_fref_per;                   // time period of input clk FREF
@@ -135,7 +109,7 @@ logic mes_done;               		// check signal when time period is calcuated it
 realtime half_cycle_prediv;                           // time period of the initial clock  
 logic post_vco_out;  // clock which s at the output of the vco
 realtime half_cycle_vco;                   // time period to be set of the post vco clock 
-logic fc0, fc1,fc2,fc3, fout_postdiv, phase0;
+logic fc0, fc1,fc2,fc3, fout_postdiv;
 realtime half_cycle_fout0,half_cycle_fout1,half_cycle_fout2,half_cycle_fout3;   
 int counter=0;
 logic DELAY_LOCK =1'b0;//
@@ -231,13 +205,7 @@ pd3
   .fout(fout_postdiv)
   //.fout_time(half_cycle_fout1)
   );
-phase_shifter phase(
-  .clk_fast(GEARBOX_FAST_CLK),
-  .fout_postdiv(fout_postdiv),
-  .phase0(phase0),
-  .phase90(FOUTPH90),
-  .phase180(FOUTPH180),
-  .phase270(FOUTPH270));
+
 
 // as per specification the lock is guaranted after the 2000 pfd (phase frequency detector) cycles. In the simulation model there is no pfd so a lock is set 
 // as we will get the output from the pre divider
