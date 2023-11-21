@@ -100,7 +100,7 @@ module PLL #(
   output CLK_OUT2, // CLK_OUT2 output
   output CLK_OUT3, // CLK_OUT3 output
   output GEARBOX_FAST_CLK, // Gearbox fast clock output
-  output LOCK, // PLL lock signal
+  output LOCK // PLL lock signal
 );
 
 time measured_fref_per;                   // time period of input clk FREF
