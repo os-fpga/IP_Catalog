@@ -210,19 +210,19 @@ def main():
     
     # Core bool value parameters
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--id_en",                   type=bool,  default=False,  help="RAM_SWITCH ID Enable.")
+    core_bool_param_group.add_argument("--id_en",                   type=bool,  default=True,  help="RAM_SWITCH ID Enable.")
     core_bool_param_group.add_argument("--user_en",                 type=bool,  default=True,   help="RAM_SWITCH User Enable.")
     core_bool_param_group.add_argument("--lsb_high_priority",       type=bool,  default=True,   help="RAM_SWITCH LSB Priority Selection")
     core_bool_param_group.add_argument("--type_round_robin",        type=bool,  default=True,   help="RAM_SWITCH Round Robin Arbitration")
-    core_bool_param_group.add_argument("--tid",                     type=bool,  default=False,  help="RAM_SWITCH Update TID")
+    core_bool_param_group.add_argument("--tid",                     type=bool,  default=True,  help="RAM_SWITCH Update TID")
     core_bool_param_group.add_argument("--drop_bad_frame",          type=bool,  default=False,  help="RAM SWITCH Drop frames marked bad")
     core_bool_param_group.add_argument("--drop_when_full",          type=bool,  default=False,  help="RAM_SWITCH Drop incoming frames when full")
 
     # Core range value parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,1025),  help="RAM_SWITCH User Width")
-    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,17),    help="RAM_SWITCH S_ID Width")
-    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,9),    help="RAM_SWITCH M_Destination Width")
+    core_range_param_group.add_argument("--s_id_width",     type=int,   default=16,  choices=range(1,17),    help="RAM_SWITCH S_ID Width")
+    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=8,  choices=range(1,9),    help="RAM_SWITCH M_Destination Width")
     core_range_param_group.add_argument("--speedup",        type=int,   default=0,  choices=range(0,101),   help="RAM_SWITCH Speedup factor")
     core_range_param_group.add_argument("--ram_pipeline",   type=int,   default=2,  choices=range(0,33),    help="RAM_SWITCH RAM Pipeline Stages")
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="RAM_SWITCH Slave Interfaces")
