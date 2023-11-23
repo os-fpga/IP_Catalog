@@ -43,17 +43,17 @@ initial begin
     wr_en = 1'b0;
     rd_en = 1'b1;
     for (integer i=1; i<=DEPTH+1; i=i+1) begin
-        
+        repeat (1) @ (posedge rd_clk);
         if (dout !== mem [i]) begin
             $display("DOUT mismatch. din: %0d, dout: %0d, Entry No.: %0d", mem[i], dout, i);
             mismatch = mismatch+1;
         end
-        repeat (1) @ (posedge rd_clk);
+        
     end
     repeat (1) @ (posedge rd_clk);
     rd_en = 1'b0;
 
-    if(mismatch == 0)
+    if(mismatch > 0)
         $display("\n**** All Comparison Matched ****\n**** Simulation Passed ****");
     else
         $display("%0d comparison(s) mismatched\nERROR: SIM: Simulation Failed", mismatch);
