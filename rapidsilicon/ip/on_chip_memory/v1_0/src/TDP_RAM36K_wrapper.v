@@ -61,10 +61,10 @@ localparam read_mode_B  =   READ_WIDTH_B  == 36 ? 3'b110 :
 localparam MODE_BITS = {1'b0, read_mode_A, read_mode_B, write_mode_A, write_mode_B, 29'd0, read_mode_A, read_mode_B, write_mode_A, write_mode_B, 27'd0};
 
 always @(*) begin
-    RDATA_A   = {DATA_OUT_A2[15:0],  DATA_OUT_A1[15:0]};
-    RDATA_B   = {DATA_OUT_B2[15:0],  DATA_OUT_B1[15:0]};
-    RPARITY_A = {DATA_OUT_A2[17:16], DATA_OUT_A1[17:16]};
-    RPARITY_B = {DATA_OUT_B2[17:16], DATA_OUT_B1[17:16]};
+    RDATA_A   = {DATA_OUT_A2[16:9], DATA_OUT_A2[7:0], DATA_OUT_A1[16:9], DATA_OUT_A1[7:0]};
+    RDATA_B   = {DATA_OUT_B2[16:9], DATA_OUT_B2[7:0], DATA_OUT_B1[16:9], DATA_OUT_B1[7:0]};
+    RPARITY_A = {DATA_OUT_A2[17],   DATA_OUT_A2[8],   DATA_OUT_A1[17],   DATA_OUT_A1[8]};
+    RPARITY_B = {DATA_OUT_B2[17],   DATA_OUT_B2[8],   DATA_OUT_B1[17],   DATA_OUT_B1[8]};
 end
 
 // old primitive
@@ -81,8 +81,8 @@ RS_TDP36K  #(
     .BE_B1(BE_B[1:0]),
     .ADDR_A1(ADDR_A),
     .ADDR_B1(ADDR_B),
-    .WDATA_A1({WPARITY_A[1:0], WDATA_A[15:0]}),
-    .WDATA_B1({WPARITY_B[1:0], WDATA_B[15:0]}),
+    .WDATA_A1({WPARITY_A[1], WDATA_A[15:8], WPARITY_A[0], WDATA_A[7:0]}),
+    .WDATA_B1({WPARITY_B[1], WDATA_B[15:8], WPARITY_B[0], WDATA_B[7:0]}),
     .RDATA_A1(DATA_OUT_A1),
     .RDATA_B1(DATA_OUT_B1),
     .FLUSH1(1'b0),
@@ -96,8 +96,8 @@ RS_TDP36K  #(
     .BE_B2(BE_B[3:2]),
     .ADDR_A2(ADDR_A),
     .ADDR_B2(ADDR_B),
-    .WDATA_A2({WPARITY_A[3:2], WDATA_A[31:16]}),
-    .WDATA_B2({WPARITY_B[3:2], WDATA_B[31:16]}),
+    .WDATA_A2({WPARITY_A[3], WDATA_A[31:24], WPARITY_A[2], WDATA_A[23:16]}),
+    .WDATA_B2({WPARITY_B[3], WDATA_B[31:24], WPARITY_B[2], WDATA_B[23:16]}),
     .RDATA_A2(DATA_OUT_A2),
     .RDATA_B2(DATA_OUT_B2),
     .FLUSH2(1'b0)
