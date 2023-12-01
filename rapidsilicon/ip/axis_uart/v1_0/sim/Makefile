@@ -1,7 +1,7 @@
 # This file is Copyright (c) 2022 RapidSilicon.
 #
 # SPDX-License-Identifier: MIT
-DUT = axis_uart
+MODULE_NAME ?= axis_uart
 
 OUT_DIR ?=3
 

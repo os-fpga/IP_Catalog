@@ -196,6 +196,7 @@ class IP_Builder:
         self.build_name         = build_name
         self.build_path         = os.path.join(build_dir, "rapidsilicon", "ip", self.ip_name, version, build_name)
         new_json_filename       = os.path.join(self.build_path, "details.json")
+        os.makedirs(self.build_path,         exist_ok=True)
         with open(new_json_filename, "w") as f:
             json.dump(details, f, indent=4, default=None,)
 

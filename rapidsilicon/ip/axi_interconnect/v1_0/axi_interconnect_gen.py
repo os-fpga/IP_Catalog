@@ -146,10 +146,10 @@ def main():
     args = parser.parse_args()
     
     details =  {   "IP details": {
-    'Name' : 'AXI INTERCONNECT',
+    'Name' : 'AXI Interconnect',
     'Version' : 'V1_0',
     'Interface' : 'AXI',
-    'Description' : 'AXI INTERCONNECT is a AXI4 compliant IP Core. This IP Core serves as a crucial bridge in FPGA and SoC designs, facilitating efficient and scalable communication between various components and peripherals. It acts as a central hub, connecting multiple AXI masters to AXI slaves within the system.'}
+    'Description' : 'AXI Interconnect is a AXI4 compliant IP Core. This IP Core serves as a crucial bridge in FPGA and SoC designs, facilitating efficient and scalable communication between various components and peripherals. It acts as a central hub, connecting multiple AXI masters to AXI slaves within the system.'}
     }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -158,21 +158,11 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
     summary =  { 
-    "NUMBER OF MASTER INTERFACES": args.m_count,
-    "NUMBER OF SLAVE INTERFACES": args.s_count,
-    "AXI DATA PORT WIDTH": args.data_width,
-    "AXI ADDR PORT WIDTH": args.addr_width
-    # "ID WIDTH": args.id_width,
-    # "AW USER WIDTH": args.aw_user_width,
-    # "W USER WIDTH": args.w_user_width,
-    # "B USER WIDTH": args.b_user_width,
-    # "AR USER WIDTH": args.ar_user_width,
-    # "R USER WIDTH": args.r_user_width,
-    # "AW USER ENABLE": args.aw_user_en,
-    # "W USER ENABLE": args.w_user_en,
-    # "B USER ENABLE": args.b_user_en,
-    # "AR USER ENABLE": args.ar_user_en,
-    # "R USER ENABLE": args.r_user_en
+    "Number of Master Interfaces": args.m_count,
+    "Number of Slave Interfaces": args.s_count,
+    "AXI Data Width": args.data_width,
+    "AXI Address Width": args.addr_width,
+    "AXI ID Width": args.id_width
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------

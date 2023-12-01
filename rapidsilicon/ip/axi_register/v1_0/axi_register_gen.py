@@ -145,10 +145,10 @@ def main():
     args = parser.parse_args()
 
     details =  {   "IP details": {
-    'Name' : 'AXI REGISTER',
+    'Name' : 'AXI Register',
     'Version' : 'V1_0',
     'Interface' : 'AXI',
-    'Description' : 'AXI REGISTER is a AXI4 compliant IP Core. This IP Core enables designers to easily integrate customizable registers into their projects, allowing for efficient data storage, control, and configuration. Its adaptability and simplicity make it a valuable addition to FPGA and SoC designs, contributing to their flexibility and ease of customization.'}
+    'Description' : 'AXI Register is a AXI4 compliant IP Core. This IP Core enables designers to easily integrate customizable registers into their projects, allowing for efficient data storage, control, and configuration. Its adaptability and simplicity make it a valuable addition to FPGA and SoC designs, contributing to their flexibility and ease of customization.'}
     }
 
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -157,20 +157,10 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
     summary =  { 
-    # "DATA WIDTH": args.data_width,
-    # "DEPTH": 2**(args.addr_width),
-    "REGISTER SIZE (BYTES)": int(args.data_width/(8))
-    # "ID WIDTH": args.id_width,
-    # "AW USER WIDTH": args.aw_user_width,
-    # "W USER WIDTH": args.w_user_width,
-    # "B USER WIDTH": args.b_user_width,
-    # "AR USER WIDTH": args.ar_user_width,
-    # "R USER WIDTH": args.r_user_width,
-    # "AW REG TYPE": args.aw_reg_type,
-    # "W REG TYPE": args.w_reg_type,
-    # "R REG TYPE": args.r_reg_type,
-    # "AR REG TYPE": args.ar_reg_type,
-    # "R REG TYPE": args.r_reg_type
+    "AXI Data Width": args.data_width,
+    "AXI Address Width": args.addr_width,
+    "AXI ID Width": args.id_width,
+    "Register Size (BYTES)": int(args.data_width/(8))
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------
