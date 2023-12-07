@@ -35,6 +35,7 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── boot_clock
 			├── dsp_generator
 			├── fifo_generator
+			├── fir_generator
 			├── i2c_master
 			├── i2c_slave
 			├── jtag_to_axi
