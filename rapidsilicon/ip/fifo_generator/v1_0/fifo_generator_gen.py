@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# This file is Copyright (c) 2022 RapidSilicon.
+# This file is Copyright (c) 2023 RapidSilicon.
 #
 # SPDX-License-Identifier: MIT
 
@@ -96,7 +96,7 @@ def clock_cycles_to_obtain_desired_output(desired_output_size, max_output_per_bl
         # Calculate the number of clock cycles required to obtain the desired size
         return (desired_output_size + max_output_per_block - 1) // max_output_per_block
     
-# Counting the total number of BRAMs used ---------------------------------------------------------
+# Counting the total number of FIFOs used ---------------------------------------------------------
 def total_BRAM(data_width, depth):
     remaining_memory = 0
     num_18K = 0
@@ -137,7 +137,7 @@ def divide_n_bit_number(number, depth):
 
 # FIFO Generator ----------------------------------------------------------------------------------
 class FIFOGenerator(Module):
-    def __init__(self, platform, data_width_write, data_width_read, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM):
+    def __init__(self, platform, data_width_write, data_width_read, synchronous, full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, builtin_fifo):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(data_width_write, data_width_read))
         self.clock_domains.cd_sys  = ClockDomain()
@@ -149,7 +149,7 @@ class FIFOGenerator(Module):
             False   :   "ASYNCHRONOUS"
         }
 	
-        self.submodules.fifo = fifo = FIFO(data_width_write, data_width_read, SYNCHRONOUS[synchronous], full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, BRAM)
+        self.submodules.fifo = fifo = FIFO(data_width_write, data_width_read, SYNCHRONOUS[synchronous], full_threshold, empty_threshold, depth, first_word_fall_through, empty_value, full_value, builtin_fifo)
     
         self.comb += fifo.din.eq(platform.request("din"))
         self.comb += platform.request("dout").eq(fifo.dout)
@@ -211,7 +211,7 @@ def main():
     core_bool_param_group.add_argument("--first_word_fall_through", type=bool,   default=False,   help="Fist Word Fall Through")
     core_bool_param_group.add_argument("--full_threshold",          type=bool,   default=False,	  help="Full Threshold")
     core_bool_param_group.add_argument("--empty_threshold",         type=bool,   default=False,   help="Empty Threshold")
-    core_bool_param_group.add_argument("--BRAM",                    type=bool,   default=True,    help="Block or Distributed RAM")
+    core_bool_param_group.add_argument("--builtin_fifo",            type=bool,   default=True,    help="Built-in FIFO or Distributed RAM")
     core_bool_param_group.add_argument("--asymmetric",              type=bool,   default=False,   help="Asymmetric Data Widths for Read and Write ports.")
 
     # Build Parameters.
@@ -227,7 +227,7 @@ def main():
 
     args = parser.parse_args()
 
-    if (args.BRAM == False and args.synchronous == False):
+    if (args.builtin_fifo == False and args.synchronous == False):
         depth = args.DEPTH
     else:
         depth = args.depth
@@ -271,10 +271,6 @@ def main():
                     prev_rem = remaining_memory
                 else:
                     prev_rem = prev_rem
-        if (args.BRAM == False):
-            dep_dict.update({
-                'asymmetric'    :   'True'
-            })
             
     details =  {   "IP details": {
     'Name' : 'FIFO Generator',
@@ -296,9 +292,17 @@ def main():
             dep_dict.update({
                 'empty_value'   :   'True'
             })
-        if (args.BRAM == False):
+        if (args.builtin_fifo == False):
+            dep_dict.update({
+                'asymmetric'    :   'True'
+            })
+        if (args.asymmetric == True):
+            dep_dict.update({
+                'builtin_fifo'    :   'True'
+            })
+        if (args.builtin_fifo == False):
             args.asymmetric = False
-        if (args.BRAM == False and args.synchronous == False):
+        if (args.builtin_fifo == False and args.synchronous == False):
             option_strings_to_remove = ['--write_depth']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             option_strings_to_remove = ['--depth']
@@ -370,7 +374,7 @@ def main():
         
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-    if (args.BRAM == False and args.synchronous == False):
+    if (args.builtin_fifo == False and args.synchronous == False):
         depth = args.DEPTH
     else:
         if(not args.asymmetric):
@@ -400,12 +404,12 @@ def main():
         summary["FIFO Mode"] = "First Word Fall Through"
     else:
         summary["FIFO Mode"] = "Standard"
-    if (args.BRAM):
+    if (args.builtin_fifo):
         if (args.asymmetric):
             data_width_write = args.data_width_write
         else:
             data_width_write = args.data_width
-        summary["Count of BRAMs"] = math.ceil(total_BRAM(data_width_write, depth) * 2) / 2
+        summary["Count of FIFOs"] = math.ceil(total_BRAM(data_width_write, depth) * 2) / 2
     if (args.empty_threshold):
         summary["Programmable Empty"] = "Programmble Empty will be asserted at data count %s" % args.empty_value
     if (args.full_threshold):
@@ -434,7 +438,7 @@ def main():
         full_value                      = args.full_value,
         empty_value                     = args.empty_value,
         first_word_fall_through         = args.first_word_fall_through,
-        BRAM                            = args.BRAM
+        builtin_fifo                    = args.builtin_fifo
     )
 
     # Build Project --------------------------------------------------------------------------------
@@ -507,7 +511,7 @@ def main():
         text = text.replace("localparam READ_WIDTH = 36", "localparam READ_WIDTH = %s" % data_width_read)
         file.write_text(text)
         if (not args.synchronous):
-            if (args.BRAM):
+            if (args.builtin_fifo):
                 text = text.replace("== mem [i]", "== mem[i - 2]")
                 file.write_text(text)
                 text = text.replace("mem[i], dout, i", "mem[i - 2], dout, i - 2")
@@ -521,7 +525,7 @@ def main():
             file.write_text(text)
             text = text.replace(".rd_clock(rd_clk), ", "")
             file.write_text(text)
-        if (not args.BRAM and args.synchronous and not args.first_word_fall_through):
+        if (not args.builtin_fifo and args.synchronous and not args.first_word_fall_through):
             text = text.replace("== mem [i]", "== mem[i - 1]")
             file.write_text(text)
             text = text.replace("mem[i], dout, i", "mem[i - 1], dout, i - 1")
