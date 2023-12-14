@@ -10,6 +10,19 @@ import datetime
 import logging
 import math
 from migen import *
+import re
+
+# Extracting Numbers from the string obtained from the generator
+def extract_numbers(input_string):
+    # Use a regular expression to find all numbers (positive or negative)
+    # that are separated by commas or whitespaces
+    pattern = r'[-+]?\d*\.?\d+'
+    numbers = re.findall(pattern, input_string)
+
+    # Convert the found strings to numbers (float or int)
+    numbers = [float(num) if '.' in num else int(num) for num in numbers]
+
+    return numbers
 
 
 # logging.basicConfig(level=logging.INFO)
@@ -20,29 +33,28 @@ logging.info(f'Log started at {timestamp}')
 
 # FIR Generator ---------------------------------------------------------------------------------------
 class FIR(Module):
-    def __init__(self):
+    def __init__(self, input_width, coefficients):
         self.logger = logging.getLogger("FIR")
         self.logger.propagate = True
         self.logger.info(f"=================== PARAMETERS ====================")
         
         # Data Width
-        self.logger.info(f"DATA_WIDTH_IN       : {18}")
+        self.logger.info(f"DATA_WIDTH_IN       : {input_width}")
         self.logger.info(f"DATA_WIDTH_OUT       : {38}")
 
         self.logger.info(f"===================================================")
 
-        coefficients = 4
-        self.data_in = Signal(18)
+        self.data_in = Signal(input_width)
         self.data_out = Signal(38)
 
-        self.z = Array(Signal() for _ in range (coefficients))
-        self.delay_b = Array(Signal() for _ in range (coefficients))
+        self.z = Array(Signal() for _ in range (len(extract_numbers(coefficients))))
+        self.delay_b = Array(Signal() for _ in range (len(extract_numbers(coefficients))))
 
-        for i in range (coefficients):
-            self.delay_b[i] = Signal(18, name=f"delay_b_{i}")
+        for i in range (len(extract_numbers(coefficients))):
+            self.delay_b[i] = Signal(input_width, name=f"delay_b_{i}")
             self.z[i] = Signal(38, name=f"z_{i}")
 
-        for i in range(coefficients):
+        for i in range(len(extract_numbers(coefficients))):
             if (i == 0):
                 self.specials += Instance("DSP38",
 
@@ -52,7 +64,7 @@ class FIR(Module):
                     p_DSP_MODE     =  "MULTIPLY_ADD_SUB",
                     p_OUTPUT_REG_EN = "TRUE",
                     p_INPUT_REG_EN = "TRUE",
-                    p_COEFF_0       = 2,
+                    p_COEFF_0       = C(extract_numbers(coefficients)[i], 20),
 
                     # Reset
                     i_CLK           = ClockSignal(),
@@ -73,7 +85,7 @@ class FIR(Module):
                     i_SHIFT_RIGHT   = C(0, 6),
                     i_SUBTRACT      = 0
                 )
-            elif (i == coefficients - 1):
+            elif (i == len(extract_numbers(coefficients)) - 1):
                 self.specials += Instance("DSP38",
 
                     # Parameters.
@@ -82,14 +94,14 @@ class FIR(Module):
                     p_DSP_MODE     =  "MULTIPLY_ADD_SUB",
                     p_OUTPUT_REG_EN = "FALSE",
                     p_INPUT_REG_EN = "TRUE",
-                    p_COEFF_0       = 2,
+                    p_COEFF_0       = C(extract_numbers(coefficients)[i], 20),
 
                     # Reset
                     i_CLK           = ClockSignal(),
                     i_RESET        = ResetSignal(),
 
                     # IOs
-                    i_A             = self.z[i - 1],
+                    i_A             = self.z[i - 1][0:20],
                     i_B             = self.delay_b[i - 1],
                     o_Z             = self.data_out,  
                     i_FEEDBACK      = C(4, 3),
@@ -111,14 +123,14 @@ class FIR(Module):
                     p_DSP_MODE     =  "MULTIPLY_ADD_SUB",
                     p_OUTPUT_REG_EN = "TRUE",
                     p_INPUT_REG_EN = "TRUE",
-                    p_COEFF_0       = 4,
+                    p_COEFF_0       = C(extract_numbers(coefficients)[i], 20),
 
                     # Reset
                     i_CLK           = ClockSignal(),
                     i_RESET        = ResetSignal(),
 
                     # IOs
-                    i_A             = self.z[i - 1],
+                    i_A             = self.z[i - 1][0:20],
                     i_B             = self.delay_b[i - 1],
                     o_Z             = self.z[i],  
                     i_FEEDBACK      = C(4, 3),

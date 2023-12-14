@@ -32,12 +32,12 @@ def get_clkin_ios(data_in, data_out):
 
 # FIR Generator ----------------------------------------------------------------------------------
 class FIRGenerator(Module):
-    def __init__(self, platform):
+    def __init__(self, platform, input_width, coefficients):
         # Clocking ---------------------------------------------------------------------------------
-        platform.add_extension(get_clkin_ios(18, 38))
+        platform.add_extension(get_clkin_ios(input_width, 38))
         self.clock_domains.cd_sys  = ClockDomain()
 	
-        self.submodules.fir = fir = FIR()
+        self.submodules.fir = fir = FIR(input_width, coefficients)
     
         self.comb += fir.data_in.eq(platform.request("data_in"))
         self.comb += platform.request("data_out").eq(fir.data_out)
@@ -67,8 +67,8 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_range_param_group.add_argument("--coefficients",    type=str,   default="2,4,4,2", help="Coefficients for FIR Filter")
+    core_range_param_group.add_argument("--input_width",      type=int,   default=18,  	choices=range(1,1025),   help="FIR Width")
+    core_range_param_group.add_argument("--coefficients",    type=str,   default="2,4,4,2", help="Space-separated coefficients for FIR Filter")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -82,8 +82,6 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",    help="Generate JSON Template")
 
     args = parser.parse_args()
-
-
         
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
@@ -111,7 +109,9 @@ def main():
 
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = FIRGenerator(platform
+    module   = FIRGenerator(platform,
+            input_width = args.input_width,
+            coefficients = args.coefficients
     )
 
     # Build Project --------------------------------------------------------------------------------
