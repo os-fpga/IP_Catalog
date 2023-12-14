@@ -185,18 +185,18 @@ def main():
 
     # Core bool value parameters
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--id_en",                   type=bool,  default=False,  help="SWITCH ID Enable.")
+    core_bool_param_group.add_argument("--id_en",                   type=bool,  default=True,  help="SWITCH ID Enable.")
     core_bool_param_group.add_argument("--user_en",                 type=bool,  default=True,   help="SWITCH User Enable.")
     core_bool_param_group.add_argument("--lsb_high_priority",       type=bool,  default=True,   help="SWITCH LSB Priority Selection")
     core_bool_param_group.add_argument("--type_round_robin",        type=bool,  default=True,   help="SWITCH Round Robin Arbitration")
-    core_bool_param_group.add_argument("--tid",                     type=bool,  default=False,  help="SWITCH Update TID")
+    core_bool_param_group.add_argument("--tid",                     type=bool,  default=True,  help="SWITCH Update TID")
 
     # Core range value parameters
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
 
     core_range_param_group.add_argument("--user_width",     type=int,   default=1,  choices=range(1,1025),  help="SWITCH User Width")
-    core_range_param_group.add_argument("--s_id_width",     type=int,   default=8,  choices=range(1,17),    help="SWITCH S_ID Width")
-    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=1,  choices=range(1,9),    help="SWITCH M_Destination Width")
+    core_range_param_group.add_argument("--s_id_width",     type=int,   default=16,  choices=range(1,17),    help="SWITCH S_ID Width")
+    core_range_param_group.add_argument("--m_dest_width",   type=int,   default=8,  choices=range(1,9),    help="SWITCH M_Destination Width")
 
     core_range_param_group.add_argument("--s_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Slave Interfaces")
     core_range_param_group.add_argument("--m_count",        type=int,   default=4,  choices=range(1,17),    help="SWITCH Master Interfaces")

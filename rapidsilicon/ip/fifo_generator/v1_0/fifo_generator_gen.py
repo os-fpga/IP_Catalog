@@ -516,7 +516,7 @@ def main():
                 file.write_text(text)
                 text = text.replace("mem[i], dout, i", "mem[i - 2], dout, i - 2")
                 file.write_text(text)
-                text = text.replace("== 0", "<= 1")
+                text = text.replace("== 0", "<= 2")
                 file.write_text(text)
             text = text.replace("forever #5 rd_clk = ~rd_clk;", "forever #2.5 rd_clk = ~rd_clk;")
             file.write_text(text)
