@@ -32,12 +32,12 @@ def get_clkin_ios(data_in, data_out):
 
 # FIR Generator ----------------------------------------------------------------------------------
 class FIRGenerator(Module):
-    def __init__(self, platform, input_width, coefficients):
+    def __init__(self, platform, input_width, coefficients, coefficients_file):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(input_width, 38))
         self.clock_domains.cd_sys  = ClockDomain()
 	
-        self.submodules.fir = fir = FIR(input_width, coefficients)
+        self.submodules.fir = fir = FIR(input_width, coefficients, coefficients_file)
     
         self.comb += fir.data_in.eq(platform.request("data_in"))
         self.comb += platform.request("data_out").eq(fir.data_out)
@@ -67,8 +67,16 @@ def main():
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--input_width",      type=int,   default=18,  	choices=range(1,1025),   help="FIR Width")
+    core_range_param_group.add_argument("--input_width",      type=int,   default=18,  	choices=range(1,19),   help="FIR Width")
     core_range_param_group.add_argument("--coefficients",    type=str,   default="2,4,4,2", help="Space-separated coefficients for FIR Filter")
+
+    # Core bool value parameters.
+    core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
+    core_bool_param_group.add_argument("--coefficients_file",        type=bool,   default=True,     help="Enter Coefficients manually or select a text file containing them")
+
+    # Core file path parameters.
+    core_file_path_group = parser.add_argument_group(title="Core file path parameters")
+    core_file_path_group.add_argument("--file_path",    type=str,   default="",   help="Text file for Coefficients of the FIR Filter")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -98,9 +106,13 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
-
+        if (args.coefficients_file == False):
+            dep_dict.update({
+                'file_path'    :   'True',
+                'coefficients' : 'False'
+            })
     summary =  {
-        "Number of Coefficients" : len(args.coefficients)
+        "Number of Stages" : len(args.coefficients)
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------
@@ -109,9 +121,14 @@ def main():
 
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    if (not args.coefficients_file):
+        coefficients = args.coefficients
+    else:
+        coefficients = args.file_path
     module   = FIRGenerator(platform,
-            input_width = args.input_width,
-            coefficients = args.coefficients
+            input_width       = args.input_width,
+            coefficients      = coefficients,
+            coefficients_file = args.coefficients_file
     )
 
     # Build Project --------------------------------------------------------------------------------
