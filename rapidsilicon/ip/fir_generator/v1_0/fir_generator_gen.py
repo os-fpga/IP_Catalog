@@ -112,7 +112,7 @@ def main():
                 'coefficients' : 'False'
             })
     summary =  {
-        "Number of Stages" : len(args.coefficients)
+        "Number of Stages" : len(extract_numbers(args.coefficients))
     }
     
     # Export JSON Template (Optional) --------------------------------------------------------------
