@@ -73,11 +73,10 @@ def main():
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
     core_file_path_group.add_argument("--coefficients",    type=str,   default="2,4,4,2", help="Space-separated coefficients for FIR Filter")
 
-    default_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "src","coefficients.txt")
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--coefficients_file",        type=bool,   default=True,     help="Enter Coefficients manually or select a text file containing them")
-    core_file_path_group.add_argument("--file_path",    type=str,   default=default_file,   help="Absolute path for Text file for Coefficients of the FIR Filter")
+    core_file_path_group.add_argument("--file_path",    type=str,   default="",   help="Absolute path for Text file for Coefficients of the FIR Filter")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -113,6 +112,7 @@ def main():
         coefficients = args.coefficients
     else:
         coefficients = args.file_path
+        print(coefficients)
     summary =  { 
     "Number of Stages" : len(extract_numbers(coefficients, args.coefficients_file))
     }
