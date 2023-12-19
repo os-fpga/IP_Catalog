@@ -32,7 +32,6 @@ def extract_numbers(input_string, coefficients_file):
                 numbers = [float(num) if '.' in num else int(num) for num in re.findall(r'[-+]?\d*\.?\d+', content)]
                 return numbers
         except FileNotFoundError:
-            print(f"File '{input_string}' not found.")
             return []
 
 # logging.basicConfig(level=logging.INFO)
