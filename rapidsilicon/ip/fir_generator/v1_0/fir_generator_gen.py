@@ -76,7 +76,7 @@ def main():
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--coefficients_file",        type=bool,   default=True,     help="Enter Coefficients manually or select a text file containing them")
-    core_file_path_group.add_argument("--file_path",    type=str,   default="./",   help="Text file for Coefficients of the FIR Filter")
+    core_file_path_group.add_argument("--file_path",    type=str,   default="./src/coefficients.txt",   help="Text file for Coefficients of the FIR Filter")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
