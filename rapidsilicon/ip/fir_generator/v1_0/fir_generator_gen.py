@@ -104,8 +104,11 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         if (args.coefficients_file == False):
             dep_dict.update({
-                'file_path'    :   'True',
-                'coefficients' : 'False'
+                'file_path'    :   'True'
+            })
+        else:
+            dep_dict.update({
+                'coefficients' : 'True'
             })
 
     if (not args.coefficients_file):
