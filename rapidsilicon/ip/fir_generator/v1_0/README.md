@@ -9,8 +9,12 @@ This directory contains the generator script which places the RTL to `rapidsilic
 ## Parameters
 These are the parameters for FIR core along with their keyword and values: -
 
-| Sr.No. |      Parameter             |       Keyword              |    Value      |
-|--------|----------------------------|----------------------------|---------------|
+| Sr.No. | Parameter | Keyword | Value |
+|--------|-----------|---------|-------|
+| 1. | Input Width | input_width | 1 - 18 |
+| 2. | Coefficients | coefficients | `<numbers separated by commas or whitespaces>` |
+| 3. | Coefficients File | coefficients_file | 1 / 0 |
+| 4. | File Path | file_path | `<path to .txt file with numbers separated by commas or whitespaces>` |
 
 
 To generate RTL with above parameters, run the following command:
@@ -21,3 +25,4 @@ To generate RTL with above parameters, run the following command:
 ## TCL File
 
 This python script also generates a raptor.tcl file which will be placed in `rapidsilicon/ip/fir_generator/v1_0/<build-name>/synth/` directory.
+<>
