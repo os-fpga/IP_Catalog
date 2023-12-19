@@ -68,15 +68,15 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--input_width",      type=int,   default=18,  	choices=range(1,19),   help="FIR Width")
-    core_range_param_group.add_argument("--coefficients",    type=str,   default="2,4,4,2", help="Space-separated coefficients for FIR Filter")
+
+    # Core file path parameters.
+    core_file_path_group = parser.add_argument_group(title="Core file path parameters")
+    core_file_path_group.add_argument("--coefficients",    type=str,   default="2,4,4,2", help="Space-separated coefficients for FIR Filter")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--coefficients_file",        type=bool,   default=True,     help="Enter Coefficients manually or select a text file containing them")
-
-    # Core file path parameters.
-    core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--file_path",    type=str,   default="",   help="Text file for Coefficients of the FIR Filter")
+    core_file_path_group.add_argument("--file_path",    type=str,   default="./",   help="Text file for Coefficients of the FIR Filter")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -90,11 +90,7 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",    help="Generate JSON Template")
 
     args = parser.parse_args()
-        
-    # Import JSON (Optional) -----------------------------------------------------------------------
-    if args.json:
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-            
+
     details =  {   "IP details": {
     'Name' : 'FIR Generator',
     'Version' : 'V1_0',
@@ -111,20 +107,21 @@ def main():
                 'file_path'    :   'True',
                 'coefficients' : 'False'
             })
-    summary =  {
-        "Number of Stages" : len(extract_numbers(args.coefficients))
+
+    if (not args.coefficients_file):
+        coefficients = args.coefficients
+    else:
+        coefficients = args.file_path
+    summary =  { 
+    "Number of Stages" : len(extract_numbers(coefficients, args.coefficients_file))
     }
-    
+
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    if (not args.coefficients_file):
-        coefficients = args.coefficients
-    else:
-        coefficients = args.file_path
     module   = FIRGenerator(platform,
             input_width       = args.input_width,
             coefficients      = coefficients,
