@@ -55,7 +55,7 @@ jobs:
         
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
         
-        excluded_ips=("on_chip_memory" "axil_quadspi" "ahb2axi_bridge" "axi2axilite_bridge" "axis_width_converter" "i2c_master" "axil_ethernet" "fifo_generator" "dsp_generator")
+        excluded_ips=("on_chip_memory" "axil_quadspi" "ahb2axi_bridge" "axi2axilite_bridge" "axis_width_converter" "i2c_master" "axil_ethernet")
         #fix ethernet ip        
         for n in $gen_list
         do  
@@ -64,7 +64,10 @@ jobs:
             echo $ip_name
 
             #file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v")
-            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name "${ip_name}_wrapper.v" -o -name "${ip_name}_wrapper.sv"  -o -name "${ip_name}_generator.v")            # Check if the IP name is in the excluded_ips array
+
+            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -iname "${ip_name}_wrapper.v" -o -iname "${ip_name}_wrapper.sv" -o -iname "${ip_name}.v")
+            # Check if the IP name is in the excluded_ips array
+
             if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
               if [[ -n "$file_path" ]]; then
                   echo "Success! IP RTL generated at: $file_path"
