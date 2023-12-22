@@ -20,6 +20,13 @@ from litex.build.generic_platform import *
 
 from litex.build.osfpga import OSFPGAPlatform
 
+# Checking if the file provided is in valid format
+
+def is_valid_extension(file_path):
+    _, file_extension = os.path.splitext(file_path)
+    valid_extensions = ['.txt', '.hex']
+    return file_extension.lower() in valid_extensions
+
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
 def get_clkin_ios(data_in, data_out):
@@ -71,7 +78,7 @@ def main():
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--coefficients",    type=str,   default="2,4,4,2", help="Space-separated coefficients for FIR Filter")
+    core_file_path_group.add_argument("--coefficients",    type=str,   default="", help="Space-separated coefficients for FIR Filter")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -103,10 +110,14 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         if (args.coefficients_file == False):
+            option_strings_to_remove = ['--file_path']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             dep_dict.update({
                 'file_path'    :   'True'
             })
         else:
+            option_strings_to_remove = ['--coefficients']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             dep_dict.update({
                 'coefficients' : 'True'
             })
@@ -115,10 +126,20 @@ def main():
         coefficients = args.coefficients
     else:
         coefficients = args.file_path
-        print(coefficients)
-    summary =  { 
-    "Number of Stages" : len(extract_numbers(coefficients, args.coefficients_file))
-    }
+    
+    summary = {}
+    if (args.coefficients_file):
+        if (args.file_path == ""):
+            summary ["Coefficients"] = "0"
+            summary ["File"] = "No file provided"
+        elif (is_valid_extension(coefficients)):
+            summary ["Coefficients"] = ', '.join(map(str, extract_numbers(coefficients, args.coefficients_file)))
+            summary ["Number of Stages"] = len(extract_numbers(coefficients, args.coefficients_file))
+        else:
+            summary ["Coefficients"] = "0"
+            summary["File Not Valid"] = "Only .txt and .hex file formats are supported."
+    else:
+        summary ["Number of Stages"] = len(extract_numbers(coefficients, args.coefficients_file))
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
