@@ -77,8 +77,8 @@ module eio_top #
 localparam  NO_OF_IN_PROBE_REGS = (INPUT_PROBE_WIDTH)/C_S_AXI_DATA_WIDTH + ((INPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH) != 0);
 localparam NO_OF_OUT_PROBE_REGS = (OUTPUT_PROBE_WIDTH)/C_S_AXI_DATA_WIDTH + ((OUTPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH) != 0);    
 localparam             ADDR_LSB = (C_S_AXI_DATA_WIDTH/32) + 1; 
-localparam ADDR_MSB = $clog2(NO_OF_IN_PROBE_REGS) ;
-localparam   spare_input_probes = (INPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH)  == 0 ? C_S_AXI_DATA_WIDTH : INPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH;
+localparam  ADDR_MSB = $clog2(NO_OF_IN_PROBE_REGS) + 2 ; //Added 2 for catering IP type, name version registers
+localparam  spare_input_probes = (INPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH)  == 0 ? C_S_AXI_DATA_WIDTH : INPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH;
 localparam  spare_output_probes = OUTPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH;
 
 // calculation for no. of registers
@@ -93,9 +93,9 @@ wire                             AXI_RDEN;
 reg   [C_S_AXI_DATA_WIDTH-1 : 0] AXI_DAT_IN = {C_S_AXI_DATA_WIDTH{1'b0}};
 reg   [C_S_AXI_DATA_WIDTH-1 : 0] CONTROL_REG;
 
-reg [32-1 : 0] ip_type    = IP_TYPE;      // 0x4 
-reg [32-1 : 0] ip_version = IP_VERSION;   // 0x8
-reg [32-1 : 0] ip_id      = IP_ID;        // 0xC
+reg [C_S_AXI_DATA_WIDTH-1 : 0] ip_type    = IP_TYPE;      // 0x4 
+reg [C_S_AXI_DATA_WIDTH-1 : 0] ip_version = IP_VERSION;   // 0x8
+reg [C_S_AXI_DATA_WIDTH-1 : 0] ip_id      = IP_ID;        // 0xC
 
 integer strb_index = 0;
 integer probe_index;
@@ -160,7 +160,8 @@ for (odfs_index = 0 ; odfs_index < NO_OF_OUT_PROBE_REGS ; odfs_index = odfs_inde
 begin
 if (odfs_index == (NO_OF_OUT_PROBE_REGS-1) && (spare_output_probes != 0))
 begin
- ff_sync #
+
+ ff_sync_eio #
  (
   .DATA_SIZE (spare_output_probes),
   .SYNC      (!AXI_OUT_CLOCKS_SYNCED)
@@ -175,7 +176,7 @@ begin
 end
 else
 begin
- ff_sync #
+ ff_sync_eio #
  (
   .DATA_SIZE (C_S_AXI_DATA_WIDTH),
   .SYNC      (!AXI_OUT_CLOCKS_SYNCED)
@@ -198,7 +199,7 @@ for (idfs_index = 0 ; idfs_index < NO_OF_IN_PROBE_REGS ; idfs_index = idfs_index
 begin
 if (idfs_index == (NO_OF_IN_PROBE_REGS-1) && (spare_input_probes != 0))
 begin
- ff_sync #
+ ff_sync_eio #
  (
   .DATA_SIZE (spare_input_probes),
   .SYNC      (!AXI_IN_CLOCKS_SYNCED)
@@ -213,7 +214,7 @@ begin
 end
 else
 begin
- ff_sync #
+ ff_sync_eio #
  (
   .DATA_SIZE (C_S_AXI_DATA_WIDTH),
   .SYNC      (!AXI_IN_CLOCKS_SYNCED)
@@ -234,56 +235,59 @@ endgenerate
 *   Reading registers through AXI                                                 *
 *                                                                                 *
 **********************************************************************************/
+
 always @ (*)
 begin
-if(S_AXI_ARADDR[(ADDR_LSB+ADDR_MSB) : ADDR_LSB] == 0)
-AXI_DAT_IN <= CONTROL_REG;   
+    case (S_AXI_ARADDR[(ADDR_LSB+ADDR_MSB) : ADDR_LSB])
+        2'h0    :   AXI_DAT_IN <= CONTROL_REG;   
+        2'h1    :   AXI_DAT_IN <= ip_type; 
+        2'h2    :   AXI_DAT_IN <= ip_version; 
+        2'h3    :   AXI_DAT_IN <= ip_id; 
+        default :  begin
+         AXI_DAT_IN <= input_probe_reg_o[((S_AXI_ARADDR - 32'h00000010) >> ADDR_LSB)];     
+        end
+    endcase
+end
 
-else if(S_AXI_ARADDR[(ADDR_LSB+ADDR_MSB) : ADDR_LSB] == 1)
-        AXI_DAT_IN <= ip_type; 
-else if(S_AXI_ARADDR[(ADDR_LSB+ADDR_MSB) : ADDR_LSB] == 2)
-        AXI_DAT_IN <= ip_version; 
-else if(S_AXI_ARADDR[(ADDR_LSB+ADDR_MSB) : ADDR_LSB] == 3)
-        AXI_DAT_IN <= ip_id;       
-else 
-AXI_DAT_IN <= input_probe_reg_o[((S_AXI_ARADDR - 32'h00000010) >> ADDR_LSB)];
-
-
-end             
 /**********************************************************************************
 *                                                                                 *
 *   Writing registers through AXI                                                 *
 *                                                                                 *
 **********************************************************************************/
-always @ (posedge S_AXI_ACLK or negedge S_AXI_ARESETN)
-begin
-if(!S_AXI_ARESETN)
-begin
-for (probe_index = 0 ; probe_index <= NO_OF_OUT_PROBE_REGS-1 ; probe_index = probe_index+1)
- output_probe_reg[probe_index] <= {C_S_AXI_DATA_WIDTH{1'b0}};
+        
 
-CONTROL_REG <= 64'd0;
-end
-else if(AXI_WREN)
+always @( posedge S_AXI_ACLK or negedge S_AXI_ARESETN )
 begin
-if(S_AXI_AWADDR[C_S_AXI_ADDR_WIDTH-1 : ADDR_LSB] == 0)
-begin
- for (strb_index = 0 ; strb_index <= (C_S_AXI_DATA_WIDTH/8)-1 ; strb_index = strb_index+1)
- begin
-     if (S_AXI_WSTRB[strb_index] == 1) 
-         CONTROL_REG[(strb_index*8) +: 8] <= S_AXI_WDATA[(strb_index*8) +: 8];
- end
-end
-else
-begin
- for (strb_index = 0 ; strb_index <= (C_S_AXI_DATA_WIDTH/8)-1 ; strb_index = strb_index+1)
- begin
-     if (S_AXI_WSTRB[strb_index] == 1) 
-         output_probe_reg[((S_AXI_AWADDR[C_S_AXI_ADDR_WIDTH-1 : ADDR_LSB])-1)][(strb_index*8) +: 8] <= S_AXI_WDATA[(strb_index*8) +: 8];
- end
-end
-end
-end                 
+  if (!S_AXI_ARESETN)
+    begin
+      CONTROL_REG <= 0;
+    end 
+  else begin
+    if (AXI_WREN)
+      begin
+        case ( S_AXI_AWADDR[ADDR_LSB + ADDR_MSB:ADDR_LSB] )
+          2'h0:
+                for (strb_index = 0 ; strb_index <= (C_S_AXI_DATA_WIDTH/8)-1 ; strb_index = strb_index+1)
+                begin
+                    if (S_AXI_WSTRB[strb_index] == 1) 
+                        CONTROL_REG[(strb_index*8) +: 8] <= S_AXI_WDATA[(strb_index*8) +: 8];
+                end
+          default : begin
+             for (strb_index = 0 ; strb_index <= (C_S_AXI_DATA_WIDTH/8)-1 ; strb_index = strb_index+1)
+                begin
+                     if (S_AXI_WSTRB[strb_index] == 1) 
+                         output_probe_reg[((S_AXI_AWADDR[C_S_AXI_ADDR_WIDTH-1 : ADDR_LSB])-1)][(strb_index*8) +: 8] <= S_AXI_WDATA[(strb_index*8) +: 8];
+                end end
+        endcase
+      end
+  end
+end    
+ 
+
+
+
+
+
 
 /**********************************************************************************
 *                                                                                 *
