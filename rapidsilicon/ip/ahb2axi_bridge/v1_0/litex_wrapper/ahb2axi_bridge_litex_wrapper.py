@@ -65,7 +65,7 @@ class AHB2AXI4(Module):
         
         # Module instance.
         # ----------------
-        self.specials += Instance("ahb2axi4",
+        self.specials += Instance("ahb_to_axi4",
             # Parameters.
             # -----------
             # IP Parameters

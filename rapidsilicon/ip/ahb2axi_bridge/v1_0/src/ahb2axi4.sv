@@ -291,6 +291,8 @@ parameter Data_Width        = 32
                  buf_read_error_in = buf_state_en & |axi_rresp[1:0];                                // buffer error flag if return has Error ( ECC )
                  ahb_hreadyout     = rst_l ? 1'b1 : (ahb_htrans != 2'b0) ? 1'b1 :1'b0;
          end
+	 default:
+		ahb_hreadyout     = 1'b0;	      
      endcase
    end // always_comb begin
 logic data_width32_64;
