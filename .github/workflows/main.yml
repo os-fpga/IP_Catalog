@@ -64,8 +64,7 @@ jobs:
             echo $ip_name
 
             #file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v")
-            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name "${ip_name}_wrapper.v" -o -name "${ip_name}_wrapper.sv")
-            # Check if the IP name is in the excluded_ips array
+            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name "${ip_name}_wrapper.v" -o -name "${ip_name}_wrapper.sv"  -o -name "${ip_name}_generator.v")            # Check if the IP name is in the excluded_ips array
             if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
               if [[ -n "$file_path" ]]; then
                   echo "Success! IP RTL generated at: $file_path"
