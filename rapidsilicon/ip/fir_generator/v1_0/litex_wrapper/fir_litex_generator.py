@@ -44,7 +44,8 @@ logging.info(f'Log started at {timestamp}')
 class FIR(Module):
     def __init__(self, input_width, coefficients, coefficients_file):
 
-        coefficients = extract_numbers(coefficients, coefficients_file)
+        if (coefficients != ""):
+            coefficients = extract_numbers(coefficients, coefficients_file)
 
         self.logger = logging.getLogger("FIR")
         self.logger.propagate = True
