@@ -82,7 +82,7 @@ jobs:
 
                   #cd /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin/rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/../sim/
                   #make
-                  dir_path=$(dirname "$file_path")
+                  dir_path=`dirname $file_path`
                   echo $dir_path
                   make -C "$dir_path/../sim/"
 
