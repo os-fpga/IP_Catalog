@@ -56,7 +56,7 @@ jobs:
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
         
         excluded_ips=("on_chip_memory" "axil_quadspi" "ahb2axi_bridge" "axi2axilite_bridge" "axis_width_converter" "i2c_master" "axil_ethernet")
-        simulation_list=( "axi fifo" "dsp_generator" "axi_ram" "axi2axilite_bridge" "fifo_generator" "axis_ram_switch" "axis_switch" "axis_broadcast" "axis_uart" "axis_adapter" "i2c_master" "i2c_slave" "axil_ethernet")
+        simulation_list=( "axi fifo" "dsp_generator" "axi_ram" "axi2axilite_bridge" "fifo_generator" "axis_ram_switch" "axis_switch" "axis_broadcast" "axis_uart" "axis_adapter" "i2c_master" "i2c_slave")
         #fix ethernet ip        
         for n in $gen_list
         do  
