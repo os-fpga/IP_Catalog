@@ -70,12 +70,11 @@ jobs:
 
             if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
               if [[ -n "$file_path" ]]; then
-                  echo $file_path
                   echo "Success! IP RTL generated"
-                  input_path=$file_path
-                  echo "PInput path assignment"
-                  echo $input_path
-                  dir_path=$(dirname "$input_path")
+                  #input_path=$file_path
+                  echo "Input path assignment"
+                  #echo $input_path
+                  dir_path=$(dirname "$file_path")
                   echo $dir_path
                   # Append "sim" to the directory path
                   sim_path="$dir_path/../sim/"
