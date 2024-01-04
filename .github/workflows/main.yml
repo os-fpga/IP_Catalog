@@ -81,7 +81,7 @@ jobs:
                   sim_path="$dir_path/../sim/"
                   
                   echo $sim_path
-                  make -C $sim_path
+                  make -C "$dir_path/../sim/"
 
               else
                   echo "IP RTL wrapper not generated. Exiting."
