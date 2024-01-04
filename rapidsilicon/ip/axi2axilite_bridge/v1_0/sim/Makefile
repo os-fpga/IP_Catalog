@@ -21,7 +21,7 @@
 TOPLEVEL_LANG = verilog
 PWD=$(shell pwd)
 export PYTHONPATH := $(PWD)/../model:$(PYTHONPATH)
-OUT_DIR ?= 3
+OUT_DIR ?= $(PWD)
 
 SIM ?= icarus
 
@@ -31,7 +31,7 @@ COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axi2axilite_bridge
-MODULE_NAME ?= $(DUT)
+MODULE_NAME ?= $(DUT)_wrapper
 TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v

@@ -23,7 +23,7 @@ TOPLEVEL_LANG = verilog
 SIM ?= icarus
 WAVES ?= 1
 
-OUT_DIR ?=3
+OUT_DIR ?= $(PWD)
 
 SIM_BUILD = $(OUT_DIR)
 
@@ -36,7 +36,7 @@ export PARAM_M_COUNT ?= 2
 export PARAM_AXI4FULL ?= 0
 
 DUT      = axil_crossbar
-MODULE_NAME ?= $(DUT)
+MODULE_NAME ?= $(DUT)_wrapper
 TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 
