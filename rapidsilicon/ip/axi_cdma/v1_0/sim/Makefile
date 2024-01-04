@@ -23,7 +23,7 @@ TOPLEVEL_LANG = verilog
 SIM ?= icarus
 WAVES ?= 1
 
-OUT_DIR ?=3
+OUT_DIR ?= $(PWD)
 
 SIM_BUILD = $(OUT_DIR)
 
