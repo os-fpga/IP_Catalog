@@ -44,7 +44,7 @@ module eio_top #
  input wire  S_AXI_ARESETN,
  
  // AXIL write address channel
- input  wire     [16-1 : 0] S_AXI_AWADDR,
+ input  wire     [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_AWADDR,
  input  wire                        [2 : 0] S_AXI_AWPROT,
  input  wire                                S_AXI_AWVALID,
  output wire                                S_AXI_AWREADY,
@@ -58,7 +58,7 @@ module eio_top #
  output wire                                S_AXI_BVALID,
  input  wire                                S_AXI_BREADY,
  // AXIL read address channel
- input  wire     [16-1 : 0] S_AXI_ARADDR,
+ input  wire     [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_ARADDR,
  input  wire                        [2 : 0] S_AXI_ARPROT,
  input  wire                                S_AXI_ARVALID,
  output wire                                S_AXI_ARREADY,
@@ -110,7 +110,7 @@ integer t_index;
 **********************************************************************************/
 axil_slave # (
    .C_S_AXI_DATA_WIDTH   (C_S_AXI_DATA_WIDTH),
-   .C_S_AXI_ADDR_WIDTH   (16),
+   .C_S_AXI_ADDR_WIDTH   (C_S_AXI_ADDR_WIDTH),
    .NO_OF_IN_PROBE_REGS  (NO_OF_IN_PROBE_REGS),
    .NO_OF_OUT_PROBE_REGS (NO_OF_OUT_PROBE_REGS)
   )
