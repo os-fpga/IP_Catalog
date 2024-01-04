@@ -70,7 +70,7 @@ jobs:
 
             if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
               if [[ -n "$file_path" ]]; then
-                  echo "Success! IP RTL generated at: $file_path"
+                  echo "Success! IP RTL generated"
                   input_path=$file_path
                   echo $input_path
                   dir_path=$(dirname "$input_path")
