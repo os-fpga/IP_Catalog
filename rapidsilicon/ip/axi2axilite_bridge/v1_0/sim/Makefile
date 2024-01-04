@@ -21,7 +21,7 @@
 TOPLEVEL_LANG = verilog
 PWD=$(shell pwd)
 export PYTHONPATH := $(PWD)/../model:$(PYTHONPATH)
-OUT_DIR ?= 3
+OUT_DIR ?= $(PWD)
 
 SIM ?= icarus
 
