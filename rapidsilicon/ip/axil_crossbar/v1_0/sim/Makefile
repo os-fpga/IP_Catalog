@@ -35,7 +35,7 @@ export PARAM_S_COUNT ?= 4
 export PARAM_M_COUNT ?= 4
 
 DUT      = axil_crossbar
-MODULE_NAME ?= $(DUT)
+MODULE_NAME ?= $(DUT)_wrapper
 TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v

@@ -36,7 +36,7 @@ export PARAM_M_COUNT ?= 2
 export PARAM_AXI4FULL ?= 0
 
 DUT      = axil_crossbar
-MODULE_NAME ?= $(DUT)
+MODULE_NAME ?= $(DUT)_wrapper
 TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 

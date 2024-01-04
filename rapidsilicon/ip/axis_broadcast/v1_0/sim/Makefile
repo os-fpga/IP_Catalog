@@ -35,7 +35,7 @@ export M_COUNT ?= 4
 
 DUT      = axis_broadcast
 WRAPPER  = $(DUT)_wrapper
-MODULE_NAME ?= $(DUT)
+MODULE_NAME ?= $(DUT)_wrapper
 TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v

@@ -32,7 +32,7 @@ COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axi_cdma
-MODULE_NAME ?= $(DUT)
+MODULE_NAME ?= $(DUT)_wrapper
 TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v
