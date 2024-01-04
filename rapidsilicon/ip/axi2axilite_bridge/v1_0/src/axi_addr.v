@@ -46,9 +46,8 @@
 module	axi_addr #(
 		// {{{
 		parameter	AW = 32,
-				DW = 32,
+				DW = 32
 		// parameter [0:0]	OPT_AXI3 = 1'b0,
-		localparam	LENB = 8
 		// }}}
 	) (
 		// {{{
@@ -64,6 +63,7 @@ module	axi_addr #(
 	// {{{
 	localparam		DSZ = $clog2(DW)-3;
 	localparam [1:0]	FIXED     = 2'b00;
+	localparam	LENB = 8;
 	// localparam [1:0]	INCREMENT = 2'b01;
 	// localparam [1:0]	WRAP      = 2'b10;
 
