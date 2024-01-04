@@ -44,7 +44,7 @@ module eio_top #
  input wire  S_AXI_ARESETN,
  
  // AXIL write address channel
- input  wire     [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_AWADDR,
+ input  wire     [16-1 : 0] S_AXI_AWADDR,
  input  wire                        [2 : 0] S_AXI_AWPROT,
  input  wire                                S_AXI_AWVALID,
  output wire                                S_AXI_AWREADY,
@@ -58,7 +58,7 @@ module eio_top #
  output wire                                S_AXI_BVALID,
  input  wire                                S_AXI_BREADY,
  // AXIL read address channel
- input  wire     [C_S_AXI_ADDR_WIDTH-1 : 0] S_AXI_ARADDR,
+ input  wire     [16-1 : 0] S_AXI_ARADDR,
  input  wire                        [2 : 0] S_AXI_ARPROT,
  input  wire                                S_AXI_ARVALID,
  output wire                                S_AXI_ARREADY,
@@ -80,6 +80,7 @@ localparam             ADDR_LSB = (C_S_AXI_DATA_WIDTH/32) + 1;
 localparam  ADDR_MSB = $clog2(NO_OF_IN_PROBE_REGS) + 2 ; //Added 2 for catering IP type, name version registers
 localparam  spare_input_probes = (INPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH)  == 0 ? C_S_AXI_DATA_WIDTH : INPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH;
 localparam  spare_output_probes = OUTPUT_PROBE_WIDTH % C_S_AXI_DATA_WIDTH;
+localparam  output_probe_addr_width = $clog2(NO_OF_OUT_PROBE_REGS)  ;
 
 // calculation for no. of registers
 reg  [C_S_AXI_DATA_WIDTH-1 : 0]  input_probe_reg_i [NO_OF_IN_PROBE_REGS-1 : 0];     // 32/64-bit input registers
@@ -96,6 +97,7 @@ reg   [C_S_AXI_DATA_WIDTH-1 : 0] CONTROL_REG;
 reg [C_S_AXI_DATA_WIDTH-1 : 0] ip_type    = IP_TYPE;      // 0x4 
 reg [C_S_AXI_DATA_WIDTH-1 : 0] ip_version = IP_VERSION;   // 0x8
 reg [C_S_AXI_DATA_WIDTH-1 : 0] ip_id      = IP_ID;        // 0xC
+reg [output_probe_addr_width-1:0] output_probe_addr;
 
 integer strb_index = 0;
 integer probe_index;
@@ -108,7 +110,7 @@ integer t_index;
 **********************************************************************************/
 axil_slave # (
    .C_S_AXI_DATA_WIDTH   (C_S_AXI_DATA_WIDTH),
-   .C_S_AXI_ADDR_WIDTH   (C_S_AXI_ADDR_WIDTH),
+   .C_S_AXI_ADDR_WIDTH   (16),
    .NO_OF_IN_PROBE_REGS  (NO_OF_IN_PROBE_REGS),
    .NO_OF_OUT_PROBE_REGS (NO_OF_OUT_PROBE_REGS)
   )
@@ -272,19 +274,21 @@ begin
                     if (S_AXI_WSTRB[strb_index] == 1) 
                         CONTROL_REG[(strb_index*8) +: 8] <= S_AXI_WDATA[(strb_index*8) +: 8];
                 end
+         2'h1: ip_type = ip_type;
+         2'h2: ip_version = ip_version;
+         2'h3: ip_id = ip_id;
           default : begin
+            output_probe_addr = (S_AXI_AWADDR - 32'h10) >> ADDR_LSB;
              for (strb_index = 0 ; strb_index <= (C_S_AXI_DATA_WIDTH/8)-1 ; strb_index = strb_index+1)
                 begin
                      if (S_AXI_WSTRB[strb_index] == 1) 
-                         output_probe_reg[((S_AXI_AWADDR[C_S_AXI_ADDR_WIDTH-1 : ADDR_LSB])-1)][(strb_index*8) +: 8] <= S_AXI_WDATA[(strb_index*8) +: 8];
+                         output_probe_reg[((output_probe_addr[output_probe_addr_width-1 : 0]))][(strb_index*8) +: 8] <= S_AXI_WDATA[(strb_index*8) +: 8];
                 end end
         endcase
       end
   end
 end    
  
-
-
 
 
 
