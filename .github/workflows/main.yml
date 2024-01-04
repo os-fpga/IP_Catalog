@@ -71,7 +71,7 @@ jobs:
             if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
               if [[ -n "$file_path" ]]; then
                   echo "Success! IP RTL generated"
-                  #input_path=$file_path
+                  echo $file_path
                   echo "Input path assignment"
                   #echo $input_path
                   echo "Dir path assignment"
