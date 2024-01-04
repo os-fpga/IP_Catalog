@@ -93,6 +93,7 @@ jobs:
             else
                 echo "Skipping wrapper check for $ip_name"
             fi
+            file_path=""
         done
 
     - name: Test IP Generation
