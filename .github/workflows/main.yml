@@ -74,6 +74,7 @@ jobs:
                   #input_path=$file_path
                   echo "Input path assignment"
                   #echo $input_path
+                  echo "Dir path assignment"
                   dir_path=$(dirname "$file_path")
                   echo $dir_path
                   # Append "sim" to the directory path
