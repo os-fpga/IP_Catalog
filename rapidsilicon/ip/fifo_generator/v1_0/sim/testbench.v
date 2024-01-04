@@ -42,7 +42,7 @@ initial begin
     repeat (1) @ (posedge wrt_clk);
     wr_en = 1'b0;
     rd_en = 1'b1;
-    for (integer i=1; i<=DEPTH; i=i+1) begin
+    for (i=1; i<=DEPTH; i=i+1) begin
         repeat (1) @ (posedge rd_clk);
         if (dout !== mem [i]) begin
             $display("DOUT mismatch. din: %0d, dout: %0d, Entry No.: %0d", mem[i], dout, i);
