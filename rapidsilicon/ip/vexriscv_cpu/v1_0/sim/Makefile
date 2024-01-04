@@ -53,7 +53,7 @@ WITH_USER_IO?=no
 LINUX_REGRESSION?=yes
 VEXRISCV_JTAG?=yes
 
-OUT_DIR ?=3
+OUT_DIR ?= $(PWD)
 
 
 
@@ -348,9 +348,9 @@ all: clean run
 
 run: compile
 	./obj_dir/V$(MODULE_NAME)
-	@mv obj_dir $(OUT_DIR)
-	@mv linux.logTrace $(OUT_DIR)
-	@mv linux.debugTrace $(OUT_DIR)
+	-@mv obj_dir $(OUT_DIR)
+	-@mv linux.logTrace $(OUT_DIR)
+	-@mv linux.debugTrace $(OUT_DIR)
 
 verilate: ${VEXRISCV_FILE}
 	verilator -cc  ${VEXRISCV_FILE} -I../src/ -O3 -CFLAGS -std=c++11 -LDFLAGS -pthread  ${ADDCFLAGS} --gdbbt ${VERILATOR_ARGS} -Wno-UNOPTFLAT -Wno-WIDTH --x-assign unique --exe main.cpp

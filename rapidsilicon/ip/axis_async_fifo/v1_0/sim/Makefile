@@ -23,7 +23,7 @@ TOPLEVEL_LANG = verilog
 SIM ?= icarus
 WAVES ?= 1
 
-OUT_DIR ?=3
+OUT_DIR ?= $(PWD)
 
 SIM_BUILD = $(OUT_DIR)
 
@@ -32,8 +32,8 @@ COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axis_async_fifo
-MODULE_NAME ?= $(DUT)
-TOPLEVEL = $(MODULE_NAME)
+MODULE_NAME ?= $(DUT)_wrapper
+TOPLEVEL = $(MODULE_NAME)_wrapper
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v
 
