@@ -71,6 +71,15 @@ jobs:
             if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
               if [[ -n "$file_path" ]]; then
                   echo "Success! IP RTL generated at: $file_path"
+                  input_path=$file_path
+                  dir_path=$(dirname "$input_path")
+                  echo $dir_path
+                  # Append "sim" to the directory path
+                  sim_path="$dir_path/../sim/"
+                  
+                  echo $sim_path
+                  make -C $sim_path
+
               else
                   echo "IP RTL wrapper not generated. Exiting."
                   exit 1
