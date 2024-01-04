@@ -70,6 +70,7 @@ jobs:
             # Check if the IP name is in the excluded_ips array
 
             if [[ " ${simulation_list[@]} " =~ " $ip_name " ]]; then
+                  echo $file_path
                   dir_path=`dirname $file_path`
                   echo $dir_path
                   make -C "$dir_path/../sim/"
