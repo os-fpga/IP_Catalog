@@ -33,7 +33,7 @@ COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axis_ram_switch
 WRAPPER  = $(DUT)_wrapper
-MODULE_NAME ?= $(DUT)
+MODULE_NAME ?= $(DUT)_wrapper
 TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v
