@@ -268,7 +268,7 @@ def main():
     
     # Core string parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--variant",     type=str,      default="Cache_MMU",      choices=["Cacheless", "Cache_MMU", "Cache_MMU_PLIC_CLINT"],    help="Select Variant")
+    core_string_param_group.add_argument("--variant",     type=str,      default="Cacheless",      choices=["Cacheless", "Cache_MMU", "Cache_MMU_PLIC_CLINT"],    help="Select Variant")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
