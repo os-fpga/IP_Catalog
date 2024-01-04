@@ -72,6 +72,7 @@ jobs:
               if [[ -n "$file_path" ]]; then
                   echo "Success! IP RTL generated at: $file_path"
                   input_path=$file_path
+                  echo $input_path
                   dir_path=$(dirname "$input_path")
                   echo $dir_path
                   # Append "sim" to the directory path
