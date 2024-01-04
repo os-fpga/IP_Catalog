@@ -81,10 +81,10 @@ jobs:
                   sim_path="$dir_path/../sim/"
 
 
-                  cd /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin/rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/../sim/
-                  make
+                  #cd /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin/rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/../sim/
+                  #make
                   echo $sim_path
-                  make -C "$dir_path/../sim/"
+                  make -C $dir_path/../sim/"
 
               else
                   echo "IP RTL wrapper not generated. Exiting."
