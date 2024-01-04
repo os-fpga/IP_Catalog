@@ -73,6 +73,7 @@ jobs:
                   dir_path=`dirname $file_path`
                   echo $dir_path
                   make -C "$dir_path/../sim/"
+                fi
 
             if [[ ! " ${excluded_ips[@]} " =~ " $ip_name " ]]; then
               if [[ -n "$file_path" ]]; then
