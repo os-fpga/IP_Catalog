@@ -75,7 +75,6 @@ jobs:
                   echo "Input path assignment"
                   #echo $input_path
                   echo "Dir path assignment"
-                  dir_path=$(dirname "$file_path")
                   echo $dir_path
                   # Append "sim" to the directory path
                   sim_path="$dir_path/../sim/"
@@ -83,8 +82,9 @@ jobs:
 
                   #cd /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin/rapidsilicon/ip/axi_crossbar/v1_0/axi_crossbar_wrapper/src/../sim/
                   #make
-                  echo $sim_path
-                  make -C "$(dirname "$file_path")/../sim/"
+                  dir_path=$(dirname "$file_path")
+                  echo $dir_path
+                  make -C "$dir_path/../sim/"
 
               else
                   echo "IP RTL wrapper not generated. Exiting."
