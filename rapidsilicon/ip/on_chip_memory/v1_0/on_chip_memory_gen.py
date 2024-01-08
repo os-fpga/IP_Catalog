@@ -216,7 +216,7 @@ def main():
         bram            = args.bram,
         file_path       = args.file_path,
         file_extension  = os.path.splitext(args.file_path)[1]
-        # wrapper         = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
+        # wrapper         = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
     )
 
     # Build Project --------------------------------------------------------------------------------
@@ -230,7 +230,8 @@ def main():
         rs_builder.generate_tcl()
         rs_builder.generate_wrapper(
             platform   = platform,
-            module     = module
+            module     = module,
+            version     = "v1_0"
         )
         
         # IP_ID Parameter
@@ -253,7 +254,7 @@ def main():
         ip_version = "00000000_00000000_0000000000000001"
         ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
         
-        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
         new_lines = []
         with open (wrapper, "r") as file:
             lines = file.readlines()
@@ -268,7 +269,7 @@ def main():
         
         # DRAM
         if (args.bram == 0):
-            # wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
+            # wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
             with open (wrapper, "r") as file:
                 lines = file.readlines()
                 for i, line in enumerate(lines):

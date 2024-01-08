@@ -66,7 +66,7 @@ jobs:
 
             #file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v")
 
-            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -iname "${ip_name}_wrapper.v" -o -iname "${ip_name}_wrapper.sv" -o -iname "${ip_name}.v" | head -n 1)
+            file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -iname "${ip_name}_wrapper_v1_0.v" -o -iname "${ip_name}_wrapper_v2_0.v" -o -iname "${ip_name}_wrapper_v1_0.sv" -o -iname "${ip_name}_wrapper_v2_0.sv" -o -iname "${ip_name}_v1_0.v" -o -iname "${ip_name}_v2_0.v" | head -n 1)
             # Check if the IP name is in the excluded_ips array
 
             if [[ " ${simulation_list[@]} " =~ " $ip_name " ]]; then

@@ -158,6 +158,7 @@ def main():
         rs_builder.generate_wrapper(
             platform   = platform,
             module     = module,
+            version = "v1_0"
         )
         
         # IP_ID Parameter
@@ -180,7 +181,7 @@ def main():
         ip_version = "00000000_00000000_0000000000000001"
         ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
         
-        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axil_crossbar", "v1_0", args.build_name, "src",args.build_name+".v")
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axil_crossbar", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
         new_lines = []
         with open (wrapper, "r") as file:
             lines = file.readlines()
