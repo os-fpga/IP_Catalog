@@ -167,7 +167,7 @@ def main():
         ip_version = "00000000_00000000_0000000000000001"
         ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
         
-        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axil_gpio", "v1_0", args.build_name, "src",args.build_name+".sv")
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axil_gpio", "v1_0", args.build_name, "src",args.build_name + "_v1_0" + ".sv")
         new_lines = []
         with open (wrapper, "r") as file:
             lines = file.readlines()
