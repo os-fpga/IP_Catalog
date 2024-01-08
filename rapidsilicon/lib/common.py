@@ -328,7 +328,7 @@ class IP_Builder:
         
         # Changing File Extension from .v to .sv
         if (self.language == "sverilog"):
-            old_wrapper = os.path.join(self.src_path, f'{self.build_name}.v')
+            old_wrapper = os.path.join(self.src_path, f'{new_name}.v')
             new_wrapper = old_wrapper.replace('.v','.sv')
             os.rename(old_wrapper, new_wrapper)
 
