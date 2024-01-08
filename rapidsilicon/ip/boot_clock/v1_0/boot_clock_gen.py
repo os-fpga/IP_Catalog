@@ -123,6 +123,7 @@ def main():
         rs_builder.generate_wrapper(
             platform   = platform,
             module     = module,
+            version = "v1_0"
         )
 
 if __name__ == "__main__":

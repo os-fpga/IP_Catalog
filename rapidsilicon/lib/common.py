@@ -306,15 +306,16 @@ class IP_Builder:
         f.write("\n".join(tcl))
         f.close()
 
-    def generate_wrapper(self, platform, module):
+    def generate_wrapper(self, platform, module, version):
         assert self.prepared
         build_path     = "litex_build"
-        build_filename = os.path.join(build_path, self.build_name) + ".v"
+        new_name =  self.build_name + "_" + version
+        build_filename = os.path.join(build_path, new_name) + ".v"
 
         # Build LiteX module.
         platform.build(module,
             build_dir    = build_path,
-            build_name   = self.build_name,
+            build_name   = new_name,
             run          = False,
             regular_comb = False
         )
@@ -327,7 +328,7 @@ class IP_Builder:
         
         # Changing File Extension from .v to .sv
         if (self.language == "sverilog"):
-            old_wrapper = os.path.join(self.src_path, f'{self.build_name}.v')
+            old_wrapper = os.path.join(self.src_path, f'{new_name}.v')
             new_wrapper = old_wrapper.replace('.v','.sv')
             os.rename(old_wrapper, new_wrapper)
 
