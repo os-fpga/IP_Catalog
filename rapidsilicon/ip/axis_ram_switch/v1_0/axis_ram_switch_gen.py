@@ -334,7 +334,7 @@ def main():
         rs_builder.generate_wrapper(
             platform   = platform,
             module     = module,
-            module     = "v1_0"
+            version     = "v1_0"
         )
         
         # IP_ID Parameter
