@@ -66,13 +66,13 @@ module gpcore #
   reg [31:0] reg_ID;
   reg [31:0] reg_VERSION;
   
-  parameter[7:0]	  GPDAT        = 8'h0,
-  			          GPDIR        = 8'h1,
-  			          GPIEN        = 8'h2,
-  			          GPINT        = 8'h3,
-  			          GP_TYPE      = 8'h4,
-  			          GP_ID        = 8'h5,
-  			          GP_VERSION   = 8'h6;
+  parameter[7:0]	  GP_TYPE      = 8'h0,
+                      GP_VERSION   = 8'h1,
+                      GP_ID        = 8'h2,
+                      GPDAT        = 8'h3,
+  			          GPDIR        = 8'h4,
+  			          GPIEN        = 8'h5,
+  			          GPINT        = 8'h6;
   
   assign oRDAT 		    = regDatQ;
   assign oERR 		    = isErrQ;
@@ -147,13 +147,13 @@ module gpcore #
   always @* begin
     regDat = 32'h0;
     case (regAdr)
+      GP_TYPE:      regDat = reg_TYPE;
+      GP_VERSION:   regDat = reg_VERSION;
+      GP_ID:        regDat = reg_ID;
       GPDAT:        regDat = rGpDat;
       GPDIR:        regDat = rGpDir;
       GPIEN:        regDat = {31'h0, rGpIen};
-      GPINT:        regDat = {31'h0, rGpInt};
-      GP_TYPE:      regDat = reg_TYPE;
-      GP_ID:        regDat = reg_ID;
-      GP_VERSION:   regDat = reg_VERSION;
+      GPINT:        regDat = {31'h0, rGpInt}; 
       default:      regDat = 32'h0;
     endcase
   end
