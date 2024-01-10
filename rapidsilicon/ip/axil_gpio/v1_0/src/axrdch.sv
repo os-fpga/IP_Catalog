@@ -78,7 +78,7 @@ module axrdch #
       rAddr <= 8'h0;
     end
     else begin
-      rAddr <= iARVALID ? iARADDR[7:0] : 8'h0;
+      rAddr <= iARVALID ? iARADDR[9:2] : 8'h0;
     end 
   end
 
