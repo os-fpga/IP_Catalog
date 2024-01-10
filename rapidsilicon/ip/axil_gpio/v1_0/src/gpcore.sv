@@ -65,22 +65,26 @@ module gpcore #
   reg [31:0] reg_TYPE;
   reg [31:0] reg_ID;
   reg [31:0] reg_VERSION;
+  reg [31:0] reg_reserved1;
+  reg [31:0] reg_reserved2;
   
-  parameter[7:0]	  GP_TYPE      = 8'h0,
-                      GP_VERSION   = 8'h1,
-                      GP_ID        = 8'h2,
-                      GPDAT        = 8'h3,
-  			          GPDIR        = 8'h4,
-  			          GPIEN        = 8'h5,
-  			          GPINT        = 8'h6;
+  parameter[7:0]	GP_TYPE      = 8'h0,
+                  GP_VERSION   = 8'h1,
+                  GP_ID        = 8'h2,
+                  GP_RSVD1     = 8'h3,
+                  GP_RSVD2     = 8'h4,
+                  GPDAT        = 8'h5,
+  			          GPDIR        = 8'h6,
+  			          GPIEN        = 8'h7,
+  			          GPINT        = 8'h8;
   
   assign oRDAT 		    = regDatQ;
   assign oERR 		    = isErrQ;
-  assign oINT		    = rGpInt;
+  assign oINT		      = rGpInt;
   assign oGPOUT		    = rGpDat & ~rGpDir;
-  assign reg_TYPE       = IP_TYPE;
-  assign reg_ID         = IP_ID;
-  assign reg_VERSION    = IP_VERSION;
+  assign reg_TYPE     = IP_TYPE;
+  assign reg_ID       = IP_ID;
+  assign reg_VERSION  = IP_VERSION;
 
   // interrupt logic
   assign gpInDir 	= rGpDir & iGPIN;
@@ -150,6 +154,8 @@ module gpcore #
       GP_TYPE:      regDat = reg_TYPE;
       GP_VERSION:   regDat = reg_VERSION;
       GP_ID:        regDat = reg_ID;
+      GP_RSVD1:     regDat = 32'h0;
+      GP_RSVD2:     regDat = 32'h0;
       GPDAT:        regDat = rGpDat;
       GPDIR:        regDat = rGpDir;
       GPIEN:        regDat = {31'h0, rGpIen};
