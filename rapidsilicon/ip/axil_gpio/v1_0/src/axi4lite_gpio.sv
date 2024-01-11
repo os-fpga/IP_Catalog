@@ -124,7 +124,10 @@ module axi4lite_gpio #
   );
   
   gpcore #(
-    .DATA_WIDTH(DATA_WIDTH)
+    .DATA_WIDTH(DATA_WIDTH),
+    .IP_TYPE(IP_TYPE),
+    .IP_VERSION(IP_VERSION),
+    .IP_ID(IP_ID)   
   ) 
   gpcore (
     .iCLK		  (CLK), 

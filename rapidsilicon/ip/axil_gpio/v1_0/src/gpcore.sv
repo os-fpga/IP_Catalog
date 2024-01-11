@@ -26,6 +26,10 @@
 
 module gpcore #
 (
+  parameter IP_TYPE 		= "GPIO",
+  parameter IP_VERSION 	= 32'h1, 
+  parameter IP_ID 		  = 32'h2591754,
+  
   // width of data bus in bits
   parameter DATA_WIDTH = 32
 )
@@ -56,17 +60,31 @@ module gpcore #
   reg			                   isErr, isErrQ;
   
   wire [DATA_WIDTH-1:0]		          gpInDir;
-  reg                               gpInt;
+  reg                                 gpInt;
   
-  parameter[7:0]	GPDAT = 8'h0,
-  			          GPDIR = 8'h1,
-  			          GPIEN = 8'h2,
-  			          GPINT = 8'h3;
+  reg [31:0] reg_TYPE;
+  reg [31:0] reg_ID;
+  reg [31:0] reg_VERSION;
+  reg [31:0] reg_reserved1;
+  reg [31:0] reg_reserved2;
   
-  assign oRDAT 		= regDatQ;
-  assign oERR 		= isErrQ;
-  assign oINT		  = rGpInt;
-  assign oGPOUT		= rGpDat & ~rGpDir;
+  parameter[7:0]	GP_TYPE      = 8'h0,
+                  GP_VERSION   = 8'h1,
+                  GP_ID        = 8'h2,
+                  GP_RSVD1     = 8'h3,
+                  GP_RSVD2     = 8'h4,
+                  GPDAT        = 8'h5,
+  			          GPDIR        = 8'h6,
+  			          GPIEN        = 8'h7,
+  			          GPINT        = 8'h8;
+  
+  assign oRDAT 		    = regDatQ;
+  assign oERR 		    = isErrQ;
+  assign oINT		      = rGpInt;
+  assign oGPOUT		    = rGpDat & ~rGpDir;
+  assign reg_TYPE     = IP_TYPE;
+  assign reg_ID       = IP_ID;
+  assign reg_VERSION  = IP_VERSION;
 
   // interrupt logic
   assign gpInDir 	= rGpDir & iGPIN;
@@ -133,11 +151,16 @@ module gpcore #
   always @* begin
     regDat = 32'h0;
     case (regAdr)
-      GPDAT:   regDat = rGpDat;
-      GPDIR:   regDat = rGpDir;
-      GPIEN:   regDat = {31'h0, rGpIen};
-      GPINT:   regDat = {31'h0, rGpInt};
-      default: regDat = 32'h0;
+      GP_TYPE:      regDat = reg_TYPE;
+      GP_VERSION:   regDat = reg_VERSION;
+      GP_ID:        regDat = reg_ID;
+      GP_RSVD1:     regDat = 32'h0;
+      GP_RSVD2:     regDat = 32'h0;
+      GPDAT:        regDat = rGpDat;
+      GPDIR:        regDat = rGpDir;
+      GPIEN:        regDat = {31'h0, rGpIen};
+      GPINT:        regDat = {31'h0, rGpInt}; 
+      default:      regDat = 32'h0;
     endcase
   end
   
