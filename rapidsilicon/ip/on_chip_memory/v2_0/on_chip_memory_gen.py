@@ -25,8 +25,10 @@ from litex.build.osfpga import OSFPGAPlatform
 
 def get_clkin_ios(memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B):    
     
-    read_depth_A    = int((write_depth_A * write_width_A) / read_width_A)
-    # print("opr", write_depth_A, read_depth_A, write_depth_B, read_depth_B)
+    # read_depth_A    = int((write_depth_A * write_width_A) / read_width_A)
+    
+    print( "\nWrite_Depth_A", write_depth_A,"\nRead_Depth_A", read_depth_A, "\nWrite_Depth_B", write_depth_B, "\nRead_Depth_B", read_depth_B)
+    
     # read_depth_A depends upon Port A
     if (memory_type == "Single_Port"):
         if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
@@ -36,12 +38,11 @@ def get_clkin_ios(memory_type, write_width_A, write_width_B, read_width_A, read_
     
     # read_depth_B depends upon Port A
     elif (memory_type == "Simple_Dual_Port"):
-        read_depth_B    = int((write_depth_A * write_width_A) / read_width_B)
         write_depth_B   = read_depth_B # assigning greater value to addr_A port
     
     # read_depth_B depends upon Port B only
     elif (memory_type == "True_Dual_Port"):
-        read_depth_B    = int((write_depth_B * write_width_B) / read_width_B)
+        # read_depth_B    = int((write_depth_B * write_width_B) / read_width_B)
         if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
             write_depth_A = write_depth_A
         else:
@@ -150,7 +151,7 @@ def main():
     
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--memory_type",    type=str,   default="Single_Port",   choices=["Simple_Dual_Port"],   help="RAM Type")
+    core_string_param_group.add_argument("--memory_type",    type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
     
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
@@ -186,7 +187,7 @@ def main():
     
     details =  {   "IP details": {
     'Name' : 'On Chip Memory Generator',
-    'Version' : 'V2_0',
+    'Version' : 'V1_0',
     'Interface' : 'Native',
     'Description' : 'On Chip Memory Generator is an IP Core with native interface. This IP Core simplifies the integration of memory elements, allowing designers to generate customized on-chip memory instances that match their specific requirements. It include the ability to configure memory size, data width, organization (e.g., single-port, dual-port), and various memory types (e.g., single-ported RAM, simple dual-port RAM and true dual port RAM).'}
     }
@@ -370,6 +371,17 @@ def main():
     
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    
+    if (args.memory_type == "Single_Port"):
+        read_depth_A = int((args.write_depth_A * args.write_width_A) / args.read_width_A)
+        read_depth_B = 0
+    elif (args.memory_type == "Simple_Dual_Port"):
+        read_depth_A = 0
+        read_depth_B = int((args.write_depth_A * args.write_width_A) / args.read_width_B)
+    elif (args.memory_type == "True_Dual_Port"):
+        read_depth_A = int((args.write_depth_A * args.write_width_A) / args.read_width_A)
+        read_depth_B = int((args.write_depth_B * args.write_width_B) / args.read_width_B)
+    
     module   = OCMWrapper(platform,
         memory_type     = args.memory_type,
         write_width_A   = args.write_width_A,
@@ -378,8 +390,8 @@ def main():
         read_width_B    = args.read_width_B,
         write_depth_A   = args.write_depth_A,
         write_depth_B   = args.write_depth_B,
-        read_depth_A    = int((args.write_depth_A * args.write_width_A) / args.read_width_A),
-        read_depth_B    = args.write_depth_B,
+        read_depth_A    = read_depth_A,
+        read_depth_B    = read_depth_B,
         common_clk      = args.common_clk,
         bram            = args.bram,
         file_path       = args.file_path,
@@ -392,7 +404,7 @@ def main():
         rs_builder.prepare(
             build_dir  = args.build_dir,
             build_name = args.build_name,
-            version    = "v2_0"
+            version    = "v1_0"
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
         rs_builder.generate_tcl()
