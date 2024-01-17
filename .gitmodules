@@ -1,4 +1,3 @@
 [submodule "Raptor_Tools"]
 	path = Raptor_Tools
-	url = git@github.com:RapidSilicon/Raptor_Tools.git
-	branch = main
+	url = https://github.com/os-fpga/Raptor_Tools.git
