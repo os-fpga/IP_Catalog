@@ -15,6 +15,15 @@ These are the parameters for FIR core along with their keyword and values: -
 | 2. | Coefficients | coefficients | `<numbers separated by commas or whitespaces>` |
 | 3. | Coefficients File | coefficients_file | 1 / 0 |
 | 4. | File Path | file_path | `<path to .txt file with numbers separated by commas or whitespaces>` |
+| 5. | Optimization | optimization | Area / Performance |
+| 6. | Number of Coefficients | number_of_coefficients | 1 - 120 |
+| 7. | Coefficient Fractional Bits | coeff_fractional_bits | 0 - 20 |
+| 8. | Signed | signed | 0 / 1 |
+| 9. | Input Fractional Bits | input_fractional_bits | 0 - 18 |
+| 10. | Coefficient Width | coefficient_width | 0 - 20 |
+| 11. | Output Data Width | output_data_width | 0 - 38 |
+| 12. | Truncated Output | truncated_output | 0 / 1 |
+
 
 
 To generate RTL with above parameters, run the following command:
