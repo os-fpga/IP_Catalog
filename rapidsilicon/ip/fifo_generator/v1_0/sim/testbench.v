@@ -8,7 +8,7 @@ reg [WRITE_WIDTH - 1:0] din; wire [READ_WIDTH - 1:0] dout;
 reg wrt_clk, rd_clk, rst, wr_en, rd_en; wire full, empty, almost_empty, almost_full, underflow, overflow, prog_empty, prog_full;
 FIFO_generator fifo(.din(din), .dout(dout), .wrt_clock(wrt_clk), .rd_clock(rd_clk), .rst(rst), .wr_en(wr_en), .rd_en(rd_en),
 .full(full), .empty(empty), .underflow(underflow), .overflow(overflow));
-integer mismatch = 0;
+integer mismatch = 0; integer i =0;
 reg [WRITE_WIDTH - 1:0] mem [0:DEPTH];
 reg [WRITE_WIDTH - 1:0] a;
 initial begin
@@ -32,7 +32,7 @@ initial begin
     # 20;
     repeat (1) @ (posedge wrt_clk);
     wr_en = 1'b1;
-    for (integer i=1; i<=DEPTH; i=i+1) begin
+    for (i=1; i<=DEPTH; i=i+1) begin
         a = $random;
         din <= a;
         mem [i] <= a;
@@ -42,7 +42,7 @@ initial begin
     repeat (1) @ (posedge wrt_clk);
     wr_en = 1'b0;
     rd_en = 1'b1;
-    for (integer i=1; i<=DEPTH; i=i+1) begin
+    for (i=1; i<=DEPTH; i=i+1) begin
         repeat (1) @ (posedge rd_clk);
         if (dout !== mem [i]) begin
             $display("DOUT mismatch. din: %0d, dout: %0d, Entry No.: %0d", mem[i], dout, i);
