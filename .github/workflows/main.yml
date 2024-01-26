@@ -14,12 +14,6 @@ jobs:
       with:
         access_token: ${{ github.token }}
         
-    - name: ssh-agent
-      uses: webfactory/ssh-agent@v0.5.4
-      with: 
-        ssh-private-key: |
-          ${{ secrets.SSH_PRIVATE_KEY_RAPTOR_TOOLS }}
-
     - name: Checkout code
       uses: actions/checkout@v2
       with:
@@ -157,11 +151,6 @@ jobs:
           yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
           yum install -y git
 
-      - name: ssh-agent
-        uses: webfactory/ssh-agent@v0.5.4
-        with: 
-          ssh-private-key: |
-            ${{ secrets.SSH_PRIVATE_KEY_RAPTOR_TOOLS }}
 
       - name: Checkout code
         uses: actions/checkout@v2
