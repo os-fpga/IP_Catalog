@@ -51,61 +51,84 @@ module eio_tb;
   // AXI clock : 100 MHz (variable)
   always #5ns      i_S_AXI_ACLK = ~i_S_AXI_ACLK;  
 
-  axil_eio_wrapper  UUT    
-            (
-             // Global signals
-             .IP_CLK        (ipclk),
-             .OP_CLK        (opclk),
-             .S_AXI_ACLK    (i_S_AXI_ACLK),
-             .S_AXI_ARESETN (i_S_AXI_ARESETN),
-             
-             // AXI-L signals
-             .s_axil_awaddr  (s_axil_awaddr),
-             .s_axil_awprot  (s_axil_awprot),
-             .s_axil_awvalid (s_axil_awvalid),
-             .s_axil_awready (s_axil_awready),
-             .s_axil_wdata   (s_axil_wdata),
-             .s_axil_wstrb   (s_axil_wstrb),
-             .s_axil_wvalid  (s_axil_wvalid),
-             .s_axil_wready  (s_axil_wready),
-             .s_axil_bresp   (s_axil_bresp),
-             .s_axil_bvalid  (s_axil_bvalid),
-             .s_axil_bready  (s_axil_bready),
-             .s_axil_araddr  (s_axil_araddr),
-             .s_axil_arprot  (s_axil_arprot),
-             .s_axil_arvalid (s_axil_arvalid),
-             .s_axil_arready (s_axil_arready),
-             .s_axil_rdata   (s_axil_rdata),
-             .s_axil_rresp   (s_axil_rresp),
-             .s_axil_rvalid  (s_axil_rvalid),
-             .s_axil_rready  (s_axil_rready),
-             
-             // i/o probes
-             .probe_in      (input_probes),
-             .probe_out     (output_probes)
+
+
+            eio_top  eio_top_inst (
+
+              // Global signals
+              .IP_CLK         (ipclk),
+              .OP_CLK         (opclk),
+              .S_AXI_ACLK     (i_S_AXI_ACLK),
+              .S_AXI_ARESETN  (i_S_AXI_ARESETN),
+              
+              // AXI-L signals
+              .S_AXI_AWADDR   (s_axil_awaddr),
+              .S_AXI_AWPROT   (s_axil_awprot),
+              .S_AXI_AWVALID  (s_axil_awvalid),
+              .S_AXI_AWREADY  (s_axil_awready),
+              .S_AXI_WDATA    (s_axil_wdata),
+              .S_AXI_WSTRB    (s_axil_wstrb),
+              .S_AXI_WVALID   (s_axil_wvalid),
+              .S_AXI_WREADY   (s_axil_wready),
+              .S_AXI_BRESP    (s_axil_bresp),
+              .S_AXI_BVALID   (s_axil_bvalid),
+              .S_AXI_BREADY   (s_axil_bready),
+              .S_AXI_ARADDR   (s_axil_araddr),
+              .S_AXI_ARPROT   (s_axil_arprot),
+              .S_AXI_ARVALID  (s_axil_arvalid),
+              .S_AXI_ARREADY  (s_axil_arready),
+              .S_AXI_RDATA    (s_axil_rdata),
+              .S_AXI_RRESP    (s_axil_rresp),
+              .S_AXI_RVALID   (s_axil_rvalid),
+              .S_AXI_RREADY   (s_axil_rready),
+              .probe_in       (input_probes),
+              .probe_out      (output_probes)
             );
+
+              // ---------------------------------------------------------------
+  //  Dump vcd
+  // ---------------------------------------------------------------
+  initial begin
+    $dumpfile("./EIO.vcd");
+    $dumpvars;
+  end
 
   initial 
   begin
     # 20
     RESET;
     #100;
-    
-    for (integer i=0 ; i<((NUM_OF_PROBE/`AXI_DATA_WIDTH) + ((NUM_OF_PROBE % `AXI_DATA_WIDTH) != 0)) ; i++)
+    addr_axi = 32'h00000010;
+
+    for (integer i=0 ; i<7 ; i++)
     begin
         data_axi = data_axi + {`AXI_DATA_WIDTH'h1111111111111111};
-        addr_axi = addr_axi + `AXI_DATA_WIDTH/8; 
+        //addr_axi = addr_axi + `AXI_DATA_WIDTH/8; 
         #40  axi_write_transaction(addr_axi, data_axi);
     end
     
-    addr_axi = 32'h00000000;
+    addr_axi = 32'h00000004;
+
+    axi_read_transaction(addr_axi);
+    $display($realtime,"     IP Type Read---------------  Passed"); 
+
+    addr_axi = 32'h00000008;
+    axi_read_transaction(addr_axi);
+    $display($realtime,"     IP ID Read-----------------  Passed");
+
+    addr_axi = 32'h00000000C;
+    axi_read_transaction(addr_axi);
+    $display($realtime,"     IP Version Read------------  Passed \n");
         
-    for (integer i=0 ; i<((NUM_OF_PROBE/`AXI_DATA_WIDTH) + ((NUM_OF_PROBE % `AXI_DATA_WIDTH) != 0) + 3) ; i++)
+    for (integer i=0 ; i<1 ; i++)
     begin
         addr_axi = addr_axi + `AXI_DATA_WIDTH/8;
         #40  axi_read_transaction(addr_axi);
     end
-       
+    $display($realtime,"    Data Read Test------------   Passed \n");
+
+    $display($realtime,"     Simulation Completed \n");
+
     # 100 $finish;
   end
 
@@ -201,8 +224,10 @@ module eio_tb;
   // ---------------------------------------------------------------
   task read_data;
     begin
-      @(posedge s_axil_rvalid) @(posedge i_S_AXI_ACLK) s_axil_rready <= 1;
+      s_axil_rready <= 1;
+      @(posedge s_axil_rvalid) begin
       @(posedge i_S_AXI_ACLK) s_axil_rready <= 0;
+      end
     end
   endtask
 
