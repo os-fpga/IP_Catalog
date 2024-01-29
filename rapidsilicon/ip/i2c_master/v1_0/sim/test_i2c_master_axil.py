@@ -58,14 +58,14 @@ def bench():
     rst = Signal(bool(0))
     current_test = Signal(intbv(0)[8:])
 
-    s_axil_awaddr = Signal(intbv(0)[4:])
+    s_axil_awaddr = Signal(intbv(0)[6:])
     s_axil_awprot = Signal(intbv(0)[3:])
     s_axil_awvalid = Signal(bool(0))
     s_axil_wdata = Signal(intbv(0)[32:])
     s_axil_wstrb = Signal(intbv(0)[4:])
     s_axil_wvalid = Signal(bool(0))
     s_axil_bready = Signal(bool(0))
-    s_axil_araddr = Signal(intbv(0)[4:])
+    s_axil_araddr = Signal(intbv(0)[6:])
     s_axil_arprot = Signal(intbv(0)[3:])
     s_axil_arvalid = Signal(bool(0))
     s_axil_rready = Signal(bool(0))
@@ -249,7 +249,7 @@ def bench():
         yield clk.posedge
 
         while True:
-            axil_master_inst.init_read(0, 1)
+            axil_master_inst.init_read(20, 1)
             yield axil_master_inst.wait()
             data = axil_master_inst.get_read_data()
             if data[1][0] & 0x03 == 0:
@@ -278,16 +278,16 @@ def bench():
         yield clk.posedge
 
         while True:
-            axil_master_inst.init_read(0, 1)
+            axil_master_inst.init_read(20, 1)
             yield axil_master_inst.wait()
             data = axil_master_inst.get_read_data()
             if data[1][0] & 0x03 == 0:
                 break
 
-        axil_master_inst.init_read(8, 2)
-        axil_master_inst.init_read(8, 2)
-        axil_master_inst.init_read(8, 2)
-        axil_master_inst.init_read(8, 2)
+        axil_master_inst.init_read(28, 2)
+        axil_master_inst.init_read(28, 2)
+        axil_master_inst.init_read(28, 2)
+        axil_master_inst.init_read(28, 2)
 
         yield axil_master_inst.wait()
         yield clk.posedge
@@ -322,7 +322,7 @@ def bench():
         yield clk.posedge
 
         while True:
-            axil_master_inst.init_read(0, 1)
+            axil_master_inst.init_read(20, 1)
             yield axil_master_inst.wait()
             data = axil_master_inst.get_read_data()
             if data[1][0] & 0x03 == 0:
@@ -351,16 +351,16 @@ def bench():
         yield clk.posedge
 
         while True:
-            axil_master_inst.init_read(0, 1)
+            axil_master_inst.init_read(20, 1)
             yield axil_master_inst.wait()
             data = axil_master_inst.get_read_data()
             if data[1][0] & 0x03 == 0:
                 break
 
-        axil_master_inst.init_read(8, 2)
-        axil_master_inst.init_read(8, 2)
-        axil_master_inst.init_read(8, 2)
-        axil_master_inst.init_read(8, 2)
+        axil_master_inst.init_read(28, 2)
+        axil_master_inst.init_read(28, 2)
+        axil_master_inst.init_read(28, 2)
+        axil_master_inst.init_read(28, 2)
 
         yield axil_master_inst.wait()
         yield clk.posedge
@@ -396,7 +396,7 @@ def bench():
         got_missed_ack = False
 
         while True:
-            axil_master_inst.init_read(0, 1)
+            axil_master_inst.init_read(20, 1)
             yield axil_master_inst.wait()
             data = axil_master_inst.get_read_data()
             if data[1][0] & 0x08:
