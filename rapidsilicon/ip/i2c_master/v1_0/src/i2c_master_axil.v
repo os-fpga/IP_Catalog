@@ -62,7 +62,7 @@ module i2c_master_axil #
     output wire [1:0]  s_axil_bresp,
     output wire        s_axil_bvalid,
     input  wire        s_axil_bready,
-    input  wire [4:0]  s_axil_araddr,
+    input  wire [5:0]  s_axil_araddr,
     input  wire [2:0]  s_axil_arprot,
     input  wire        s_axil_arvalid,
     output wire        s_axil_arready,
@@ -611,8 +611,20 @@ always @* begin
         s_axil_rvalid_next = 1'b1;
         s_axil_rdata_next = 32'd0;
 
-        case ({s_axil_araddr[4:2], 2'b00})
+        case ({s_axil_araddr[5:2], 2'b00})
             4'h0: begin
+                // ip type register
+                s_axil_rdata_next = IP_TYPE_REG;
+            end
+            4'h4: begin
+                // ip version register
+                s_axil_rdata_next = IP_VERSION_REG;
+            end
+            4'h8: begin
+                // ip id register
+                s_axil_rdata_next = IP_ID_REG;
+            end
+            5'h14: begin
                 // status
                 s_axil_rdata_next[0]  = busy_int;
                 s_axil_rdata_next[1]  = bus_control_int;
@@ -631,7 +643,7 @@ always @* begin
                 s_axil_rdata_next[14] = read_fifo_empty;
                 s_axil_rdata_next[15] = read_fifo_full;
             end
-            4'h4: begin
+            5'h18: begin
                 // command
                 s_axil_rdata_next[6:0] = cmd_address_reg;
                 s_axil_rdata_next[7]  = 1'b0;
@@ -644,28 +656,16 @@ always @* begin
                 s_axil_rdata_next[14] = 1'b0;
                 s_axil_rdata_next[15] = 1'b0;
             end
-            4'h8: begin
+            5'h1C: begin
                 // data
                 s_axil_rdata_next[7:0] = data_out;
                 s_axil_rdata_next[8] = data_out_valid;
                 s_axil_rdata_next[9] = data_out_last;
                 data_out_ready_next = data_out_valid;
             end
-            4'hC: begin
+            6'h20: begin
                 // prescale
                 s_axil_rdata_next = prescale_reg;
-            end
-            5'h10: begin
-                // ip type register
-                s_axil_rdata_next = IP_TYPE_REG;
-            end
-            5'h14: begin
-                // ip version register
-                s_axil_rdata_next = IP_VERSION_REG;
-            end
-            5'h18: begin
-                // ip id register
-                s_axil_rdata_next = IP_ID_REG;
             end
         endcase
     end
