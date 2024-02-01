@@ -12,8 +12,6 @@ import math
 
 from datetime import datetime
 
-from datetime import datetime
-
 from litex_wrapper.on_chip_memory_litex_wrapper import *
 
 from migen import *
@@ -25,21 +23,45 @@ from litex.build.osfpga import OSFPGAPlatform
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
-def get_clkin_ios(data_width, write_depth):
+def get_clkin_ios(memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B):    
+    
+    # read_depth_A depends upon Port A
+    if (memory_type == "Single_Port"):
+        if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
+            write_depth_A = write_depth_A
+        else:
+            write_depth_A = read_depth_A
+    
+    # read_depth_B depends upon Port A
+    elif (memory_type == "Simple_Dual_Port"):
+        write_depth_B   = read_depth_B # assigning greater value to addr_A port
+    
+    # read_depth_B depends upon Port B only
+    elif (memory_type == "True_Dual_Port"):
+        if (write_depth_A > read_depth_A): # assigning greater value to addr_A port
+            write_depth_A = write_depth_A
+        else:
+            write_depth_A = read_depth_A
+        
+        if (write_depth_B > read_depth_B): # assigning greater value to addr_B port
+            write_depth_B = write_depth_B
+        else:
+            write_depth_B = read_depth_B
+    
     return [
         ("clk",     0, Pins(1)),
         ("clk_A",   0, Pins(1)),
         ("clk_B",   0, Pins(1)),
         ("rst",     0, Pins(1)),
         
-        ("addr_A",  0, Pins(math.ceil(math.log2(write_depth)))),
-        ("addr_B",  0, Pins(math.ceil(math.log2(write_depth)))),
+        ("addr_A",  0, Pins(math.ceil(math.log2(write_depth_A)))),
+        ("addr_B",  0, Pins(math.ceil(math.log2(write_depth_B)))),
         
-        ("din_A",   0, Pins(data_width)),
-        ("din_B",   0, Pins(data_width)),
+        ("din_A",   0, Pins(write_width_A)),
+        ("din_B",   0, Pins(write_width_B)),
         
-        ("dout_A",  0, Pins(data_width)),
-        ("dout_B",  0, Pins(data_width)),
+        ("dout_A",  0, Pins(read_width_A)),
+        ("dout_B",  0, Pins(read_width_B)),
         
         ("wen_A",   0, Pins(1)),
         ("ren_A",   0, Pins(1)),
@@ -50,13 +72,13 @@ def get_clkin_ios(data_width, write_depth):
 
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
-    def __init__(self, platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
+    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
         # Clocking ---------------------------------------------------------------------------------
-        platform.add_extension(get_clkin_ios(data_width, write_depth))
-        self.clock_domains.cd_sys  = ClockDomain()
-        self.clock_domains.cd_clk1  = ClockDomain()
-        self.clock_domains.cd_clk2  = ClockDomain()
-        self.submodules.sp = ram = OCM(platform, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension)
+        platform.add_extension(get_clkin_ios(memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B))
+        self.clock_domains.cd_sys   = ClockDomain()
+        self.clock_domains.A  = ClockDomain()
+        self.clock_domains.B  = ClockDomain()
+        self.submodules.sp = ram = OCM(platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension)
         
         # Single Port RAM
         if (memory_type == "Single_Port"):
@@ -79,8 +101,8 @@ class OCMWrapper(Module):
             if (common_clk == 1):
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
             else:
-                self.comb += self.cd_clk1.clk.eq(platform.request("clk_A"))
-                self.comb += self.cd_clk2.clk.eq(platform.request("clk_B"))
+                self.comb += self.A.clk.eq(platform.request("clk_A"))
+                self.comb += self.B.clk.eq(platform.request("clk_B"))
                 
         # True Dual Port
         elif (memory_type == "True_Dual_Port"):
@@ -98,8 +120,8 @@ class OCMWrapper(Module):
             if (common_clk == 1):
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
             else:
-                self.comb += self.cd_clk1.clk.eq(platform.request("clk_A"))
-                self.comb += self.cd_clk2.clk.eq(platform.request("clk_B"))
+                self.comb += self.A.clk.eq(platform.request("clk_A"))
+                self.comb += self.B.clk.eq(platform.request("clk_B"))
             
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -126,25 +148,29 @@ def main():
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
     core_string_param_group.add_argument("--memory_type",    type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
     
-    # Core range value parameters.
-    core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    core_range_param_group.add_argument("--data_width",    type=int,   default=32,         choices=range(1,129),         help="RAM Write/Read Width")
-    core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth")
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--write_width_A",    type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],         help="RAM Write Width for Port A")
+    core_fix_param_group.add_argument("--write_width_B",    type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],         help="RAM Write Width for Port B")
+    core_fix_param_group.add_argument("--read_width_A",     type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],         help="RAM Read Width for Port A")
+    core_fix_param_group.add_argument("--read_width_B",     type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],         help="RAM Read Width for Port B")
+
+    core_fix_param_group.add_argument("--write_depth_A",    type=int,   default=1024,       choices=[1024, 2048, 4096, 8192,16384, 32768],  help="RAM Depth for Port A")
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--bram",        type=bool,   default=False,     help="Block RAM vs Distributed Memory")
-    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,     help="Ports Common Clock")
+    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock")
+    core_bool_param_group.add_argument("--bram",        type=bool,   default=True,    help="BRAM vs Distributed Memory")
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--file_path",    type=str,   default="",   help="File Path for memory initialization file (.bin/.hex)")
+    core_file_path_group.add_argument("--file_path",    type=str,    default="",       help="File Path for memory initialization file (.bin/.hex)")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
-    build_group.add_argument("--build",         action="store_true",                        help="Build Core")
-    build_group.add_argument("--build-dir",     default="./",                               help="Build Directory")
-    build_group.add_argument("--build-name",    default="on_chip_memory",                   help="Build Folder Name, Build RTL File Name and Module Name")
+    build_group.add_argument("--build",         action="store_true",              help="Build Core")
+    build_group.add_argument("--build-dir",     default="./",                     help="Build Directory")
+    build_group.add_argument("--build-name",    default="on_chip_memory",         help="Build Folder Name, Build RTL File Name and Module Name")
 
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
@@ -166,18 +192,32 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         
         if (args.memory_type in ["Single_Port"]):
-            option_strings_to_remove = ['--common_clk']
+            option_strings_to_remove = ['--common_clk', '--write_width_B', '--read_width_B','--file_path']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-
+            if (args.write_width_A != args.read_width_A):
+                option_strings_to_remove = ['--bram']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            
+        elif (args.memory_type in ["Simple_Dual_Port"]):
+            option_strings_to_remove = ['--write_width_B', '--read_width_A', '--file_path']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            if (args.write_width_A != args.read_width_B):
+                option_strings_to_remove = ['--bram']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            
+        elif (args.memory_type in ["True_Dual_Port"]):
+            option_strings_to_remove = ['--file_path']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            if (args.write_width_A != args.read_width_A or args.write_width_A != args.write_width_B or args.write_width_B != args.read_width_B):
+                option_strings_to_remove = ['--bram']
+                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+        
     if (args.memory_type == "Single_Port"):
         memory = "Single Port RAM"
     elif (args.memory_type == "Simple_Dual_Port"):
         memory = "Simple Dual Port RAM"
     else:
         memory = "True Dual Port RAM"
-    
-    m = math.ceil(args.data_width/36)
-    n = math.ceil(args.write_depth/1024)
     
     if (args.bram == 1):
         memory_mapping = "Block RAM"
@@ -186,21 +226,17 @@ def main():
     
     summary =  { 
     "Type of Memory": memory,
-    "Data Width": args.data_width,
-    "Address Width": math.ceil(math.log2(args.write_depth)),
     "Mapping": memory_mapping,
-    "Memory Init File Path": args.file_path
     }
     
     if (args.bram == 1):
-        summary["Number of BRAMs"] = m*n
+        summary["Number of BRAMs"] = 1
         
     if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
         if (args.common_clk == 1):
-            summary["Common Clock"] = "Both Ports are synchronized"
-            
-    if (args.file_path == ""):
-        summary["Memory Init File Path"] = "None"
+            summary["Synchronization"] = "True"
+        else:
+            summary["Synchronization"] = "False"
     
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -208,17 +244,36 @@ def main():
     
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    
+    if (args.memory_type == "Single_Port"):
+        read_depth_A = int((args.write_depth_A * args.write_width_A) / args.read_width_A)
+        read_depth_B = 0
+        write_depth_B = read_depth_A
+    elif (args.memory_type == "Simple_Dual_Port"):
+        read_depth_A = 0
+        read_depth_B = int((args.write_depth_A * args.write_width_A) / args.read_width_B)
+        write_depth_B =read_depth_B
+    elif (args.memory_type == "True_Dual_Port"):
+        write_depth_B   = int((args.write_depth_A * args.write_width_A) / args.write_width_B)
+        read_depth_A    = int((args.write_depth_A * args.write_width_A) / args.read_width_A)
+        read_depth_B    = int((write_depth_B * args.write_width_B) / args.read_width_B)
+    
     module   = OCMWrapper(platform,
         memory_type     = args.memory_type,
-        data_width      = args.data_width,
-        write_depth     = args.write_depth,
+        write_width_A   = args.write_width_A,
+        write_width_B   = args.write_width_B,
+        read_width_A    = args.read_width_A,
+        read_width_B    = args.read_width_B,
+        write_depth_A   = args.write_depth_A,
+        write_depth_B   = write_depth_B,
+        read_depth_A    = read_depth_A,
+        read_depth_B    = read_depth_B,
         common_clk      = args.common_clk,
         bram            = args.bram,
         file_path       = args.file_path,
         file_extension  = os.path.splitext(args.file_path)[1]
-        # wrapper         = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
     )
-
+    
     # Build Project --------------------------------------------------------------------------------
     if args.build:
         rs_builder.prepare(
@@ -230,8 +285,7 @@ def main():
         rs_builder.generate_tcl()
         rs_builder.generate_wrapper(
             platform   = platform,
-            module     = module,
-            version     = "v1_0"
+            module     = module
         )
         
         # IP_ID Parameter
@@ -254,13 +308,13 @@ def main():
         ip_version = "00000000_00000000_0000000000000001"
         ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
         
-        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
         new_lines = []
         with open (wrapper, "r") as file:
             lines = file.readlines()
             for i, line in enumerate(lines):
                 if ("module {}".format(args.build_name)) in line:
-                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"OCMGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"OCMGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(\n".format(args.build_name, ip_version, ip_id))
                 else:
                     new_lines.append(line)
                 
@@ -269,7 +323,7 @@ def main():
         
         # DRAM
         if (args.bram == 0):
-            # wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
+            wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name+".v")
             with open (wrapper, "r") as file:
                 lines = file.readlines()
                 for i, line in enumerate(lines):
