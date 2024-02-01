@@ -692,8 +692,8 @@ class OCM(Module):
                         self.comb += Case(self.addr_A[0:ratio], wen_mux)
                     else:
                         self.comb += Case(Cat(self.addr_A[0:ratio], self.addr_A[msb_A-(math.ceil(math.log2(n_temp))):msb_A]), wen_mux)
-                        self.comb += Case(self.addr_B[msb_read-(math.ceil(math.log2(n_temp))):msb_read], ren_mux)
-                        self.sync += Case(self.addr_B[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
+                        self.comb += Case(self.addr_A[msb_read-(math.ceil(math.log2(n_temp))):msb_read], ren_mux)
+                        self.sync += Case(self.addr_A[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
                 
                 for i in range(n):  # horizontal memory
                     
