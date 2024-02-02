@@ -248,11 +248,11 @@ class FIR(Module):
                                self.sel_coeff.eq(i - 1)
                                )
                     ]
-                
-                self.specials.coefficients = Memory(width=20, depth=(number_of_coefficients))
-                self.port = self.coefficients.get_port(write_capable=False, async_read=True, mode=READ_FIRST, has_re=False)
-                self.specials += self.port
-                self.comb += self.port.adr.eq(self.sel_coeff)
+                if (number_of_coefficients > 1):
+                    self.specials.coefficients = Memory(width=20, depth=number_of_coefficients)
+                    self.port = self.coefficients.get_port(write_capable=False, async_read=True, mode=READ_FIRST, has_re=False)
+                    self.specials += self.port
+                    self.comb += self.port.adr.eq(self.sel_coeff)
             else:
                 self.sel_coeff = Signal()
             
@@ -314,7 +314,7 @@ class FIR(Module):
                     )
                 ]
             self.input_coeff = Signal(20)
-            if (coefficients_file):
+            if (coefficients_file and number_of_coefficients > 1):
                 self.comb += self.input_coeff.eq(Mux(self.ready, self.port.dat_r, 0))
             multiplier, divisor = find_x_y(number_of_coefficients)
             self.comb += self.feedback.eq(Mux(self.count == 0, C(1, 3), C(0, 3)))
