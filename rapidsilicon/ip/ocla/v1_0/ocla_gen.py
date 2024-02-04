@@ -232,15 +232,16 @@ class AXILITEOCLAWrapper(Module):
                 if mode == "NATIVE" or mode == "NATIVE_AXI":
                     self.comb += ocla.probes_intr[i].eq(platform.request(f"probe_{i}")) 
 
+        if are_all_zeros == False:
 
-        if Sampling_Clock == "MULTIPLE":
-        #    platform.add_extension(get_sclk_ios(nprobes))
-            for i in range(1, nprobes+1):
+            if Sampling_Clock == "MULTIPLE":
+            #    platform.add_extension(get_sclk_ios(nprobes))
+                for i in range(1, nprobes+1):
+                    if mode == "NATIVE" or mode == "NATIVE_AXI":
+                        self.comb += ocla.sampling_clk_int[i].eq(platform.request(f"sampling_clk_{i}"))
+            else:
                 if mode == "NATIVE" or mode == "NATIVE_AXI":
-                    self.comb += ocla.sampling_clk_int[i].eq(platform.request(f"sampling_clk_{i}"))
-        else:
-            if mode == "NATIVE" or mode == "NATIVE_AXI":
-                self.comb += ocla.sampling_clk.eq(platform.request("sampling_clk"))
+                    self.comb += ocla.sampling_clk.eq(platform.request("sampling_clk"))
 
             
                 
@@ -457,6 +458,10 @@ def main():
             
     if args.EIO_Enable:
             summary["EIO Feature Enabled"] = "YES"
+            summary["EIO Input Port Width"] = args.Input_Probe_Width,
+            summary["EIO Output Port Width"] = args.Ouput_Probe_width,
+
+
     else:
             summary["EIO Feature Enabled"] = "NO"
             
