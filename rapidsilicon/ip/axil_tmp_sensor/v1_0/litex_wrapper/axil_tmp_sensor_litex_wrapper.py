@@ -86,7 +86,6 @@ class AXILITETEMPSENSOR(Module):
 
             # AR.
             i_S_AXI_ARADDR   = s_axil.ar.addr,
-            i_S_AXI_ARPROT   = s_axil.ar.prot,
             i_S_AXI_ARVALID  = s_axil.ar.valid,
             o_S_AXI_ARREADY  = s_axil.ar.ready,
 
