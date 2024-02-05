@@ -61,8 +61,8 @@ module axi_lite_temp_sensor #
   //----------------------------------------------
   //-- Signals for user logic register space example
   //------------------------------------------------
-  wire [C_S_AXI_DATA_WIDTH-1:0]	temperature_data;
-  wire [C_S_AXI_DATA_WIDTH-1:0]	rd_data;
+  wire [8-1:0]	temperature_data;
+  wire [8-1:0]	rd_data;
 
 
 
@@ -332,8 +332,6 @@ module axi_lite_temp_sensor #
   end
 
 
-
-
   SOC_FPGA_TEMPERATURE # (
                          .INITIAL_TEMPERATURE(INITIAL_TEMPERATURE),
                          .TEMPERATURE_FILE(TEMPERATURE_FILE)
@@ -346,7 +344,7 @@ module axi_lite_temp_sensor #
 
   afifo # (
           .ADDRSIZE(3),
-          .DATASIZE(C_S_AXI_DATA_WIDTH)
+          .DATASIZE(8)
         )
         afifo_inst (
           .wclk(cnt_tick),
