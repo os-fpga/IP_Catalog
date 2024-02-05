@@ -527,7 +527,7 @@ def main():
         ip_version = "00000000_00000000_0000000000000001"
         ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
         
-        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "ocla", "v1_0", args.build_name, "src",args.build_name+".sv")
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "ocla", "v1_0", args.build_name, "src",args.build_name + "_v1_0" + ".sv")
         new_lines = []
         with open (wrapper, "r") as file:
             lines = file.readlines()
@@ -540,12 +540,12 @@ def main():
         with open(os.path.join(wrapper), "w") as file:
             file.writelines(new_lines)
         
-        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
-        file = os.path.join(args.build_dir, "rapidsilicon/ip/ocla/v1_0", build_name, "sim/ocla_wrapper_tb.sv")
-        file = Path(file)
-        text = file.read_text()
-        text = text.replace("ocla_wrapper", "%s" % build_name)
-        file.write_text(text)
+        #build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        #file = os.path.join(args.build_dir, "rapidsilicon/ip/ocla/v1_0", build_name, "sim/ocla_wrapper_tb.sv")
+        #file = Path(file)
+        #text = file.read_text()
+        #text = text.replace("ocla_wrapper", "%s" % build_name)
+        #file.write_text(text)
         
 if __name__ == "__main__":
     main()
