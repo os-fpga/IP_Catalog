@@ -88,10 +88,7 @@ module eio_tb;
               // ---------------------------------------------------------------
   //  Dump vcd
   // ---------------------------------------------------------------
-  initial begin
-    $dumpfile("./EIO.vcd");
-    $dumpvars;
-  end
+
 
   initial 
   begin
@@ -243,5 +240,8 @@ module eio_tb;
       i_S_AXI_ARESETN = 'b1;
     end
   endtask
-
+  initial begin
+    $dumpfile("EIO.vcd");
+    $dumpvars;
+  end
 endmodule
