@@ -85,7 +85,7 @@ class OCMWrapper(Module):
             self.comb += ram.addr_A.eq(platform.request("addr_A"))
             self.comb += ram.din_A.eq(platform.request("din_A"))
             self.comb += platform.request("dout_A").eq(ram.dout_A)
-            self.comb += self.cd_sys.clk.eq(platform.request("clk_A"))
+            self.comb += self.A.clk.eq(platform.request("clk_A"))
             self.comb += ram.wen_A.eq(platform.request("wen_A"))
             self.comb += ram.ren_A.eq(platform.request("ren_A"))
         
