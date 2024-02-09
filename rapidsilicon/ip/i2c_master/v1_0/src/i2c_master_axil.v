@@ -62,7 +62,7 @@ module i2c_master_axil #
     output wire [1:0]  s_axil_bresp,
     output wire        s_axil_bvalid,
     input  wire        s_axil_bready,
-    input  wire [4:0]  s_axil_araddr,
+    input  wire [5:0]  s_axil_araddr,
     input  wire [2:0]  s_axil_arprot,
     input  wire        s_axil_arvalid,
     output wire        s_axil_arready,
@@ -101,28 +101,33 @@ Registers:
 
 | Addr  | Name          |
 |-------|---------------|
-| 0x00  | Status        |
-| 0x04  | Command       |
-| 0x08  | Data          |
-| 0x0C  | Prescale      |
+| 0x00  | Type          |
+| 0x04  | Version       |
+| 0x08  | Register      |
+| 0x0C  | Reserved      |
+| 0x10  | Reserved      |
+| 0x14  | Status        |
+| 0x18  | Command       |
+| 0x1C  | Data          |
+| 0x20  | Prescale      |
 
 Status register:
 
 | Addr  | Name          |   Bit 31  |   Bit 30  |   Bit 29  |   Bit 28  |   Bit 27  |   Bit 26  |   Bit 25  |   Bit 24  |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x00  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
+| 0x14  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
 
 | Addr  | Name          |   Bit 23  |   Bit 22  |   Bit 21  |   Bit 20  |   Bit 19  |   Bit 18  |   Bit 17  |   Bit 16  |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x00  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
+| 0x14  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
 
 | Addr  | Name          |   Bit 15  |   Bit 14  |   Bit 13  |   Bit 12  |   Bit 11  |   Bit 10  |   Bit 9   |   Bit 8   |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x00  | Status        |  rd_full  | rd_empty  |  wr_ovf   |  wr_full  | wr_empty  |  cmd_ovf  | cmd_full  | cmd_empty |
+| 0x14  | Status        |  rd_full  | rd_empty  |  wr_ovf   |  wr_full  | wr_empty  |  cmd_ovf  | cmd_full  | cmd_empty |
 
 | Addr  | Name          |   Bit 7   |   Bit 6   |   Bit 5   |   Bit 4   |   Bit 3   |   Bit 2   |   Bit 1   |   Bit 0   |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x00  | Status        |     -     |     -     |     -     |     -     | miss_ack  |  bus_act  | bus_cont  |   busy    |
+| 0x14  | Status        |     -     |     -     |     -     |     -     | miss_ack  |  bus_act  | bus_cont  |   busy    |
 
 busy: high when module is performing an I2C operation
 bus_cont: high when module has control of active bus
@@ -141,19 +146,19 @@ Command register:
 
 | Addr  | Name          |   Bit 31  |   Bit 30  |   Bit 29  |   Bit 28  |   Bit 27  |   Bit 26  |   Bit 25  |   Bit 24  |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x04  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
+| 0x18  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
 
 | Addr  | Name          |   Bit 23  |   Bit 22  |   Bit 21  |   Bit 20  |   Bit 19  |   Bit 18  |   Bit 17  |   Bit 16  |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x04  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
+| 0x18  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
 
 | Addr  | Name          |   Bit 15  |   Bit 14  |   Bit 13  |   Bit 12  |   Bit 11  |   Bit 10  |   Bit 9   |   Bit 8   |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x04  | Command       |     -     |     -     |     -     | cmd_stop  | cmd_wr_m  | cmd_write | cmd_read  | cmd_start |
+| 0x18  | Command       |     -     |     -     |     -     | cmd_stop  | cmd_wr_m  | cmd_write | cmd_read  | cmd_start |
 
 | Addr  | Name          |   Bit 7   |   Bit 6   |   Bit 5   |   Bit 4   |   Bit 3   |   Bit 2   |   Bit 1   |   Bit 0   |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x04  | Command       |     -     |                               cmd_address[6:0]                                    |
+| 0x18  | Command       |     -     |                               cmd_address[6:0]                                    |
 
 cmd_address: I2C address for command
 cmd_start: set high to issue I2C start, write to push on command FIFO
@@ -171,19 +176,19 @@ Data register:
 
 | Addr  | Name          |   Bit 31  |   Bit 30  |   Bit 29  |   Bit 28  |   Bit 27  |   Bit 26  |   Bit 25  |   Bit 24  |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x08  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
+| 0x1C  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
 
 | Addr  | Name          |   Bit 23  |   Bit 22  |   Bit 21  |   Bit 20  |   Bit 19  |   Bit 18  |   Bit 17  |   Bit 16  |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x08  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
+| 0x1C  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
 
 | Addr  | Name          |   Bit 15  |   Bit 14  |   Bit 13  |   Bit 12  |   Bit 11  |   Bit 10  |   Bit 9   |   Bit 8   |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x08  | Data          |     -     |     -     |     -     |     -     |     -     |     -     | data_last | data_valid |
+| 0x1C  | Data          |     -     |     -     |     -     |     -     |     -     |     -     | data_last | data_valid |
 
 | Addr  | Name          |   Bit 7   |   Bit 6   |   Bit 5   |   Bit 4   |   Bit 3   |   Bit 2   |   Bit 1   |   Bit 0   |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x08  | Data          |                                           data[7:0]                                           |
+| 0x1C  | Data          |                                           data[7:0]                                           |
 
 data: I2C data, write to push on write data FIFO, read to pull from read data FIFO
 data_valid: indicates valid read data, must be accessed with atomic 16 bit reads and writes
@@ -193,19 +198,19 @@ Prescale register:
 
 | Addr  | Name          |   Bit 31  |   Bit 30  |   Bit 29  |   Bit 28  |   Bit 27  |   Bit 26  |   Bit 25  |   Bit 24  |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x0C  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
+| 0x20  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
 
 | Addr  | Name          |   Bit 23  |   Bit 22  |   Bit 21  |   Bit 20  |   Bit 19  |   Bit 18  |   Bit 17  |   Bit 16  |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x0C  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
+| 0x20  | Data          |     -     |     -     |     -     |     -     |     -     |     -     |     -     |     -     |
 
 | Addr  | Name          |   Bit 15  |   Bit 14  |   Bit 13  |   Bit 12  |   Bit 11  |   Bit 10  |   Bit 9   |   Bit 8   |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x0C  | Prescale      |                                         prescale[15:8]                                        |
+| 0x20  | Prescale      |                                         prescale[15:8]                                        |
 
 | Addr  | Name          |   Bit 7   |   Bit 6   |   Bit 5   |   Bit 4   |   Bit 3   |   Bit 2   |   Bit 1   |   Bit 0   |
 |-------|---------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|
-| 0x0C  | Prescale      |                                         prescale[7:0]                                         |
+| 0x20  | Prescale      |                                         prescale[7:0]                                         |
 
 prescale: set prescale value
 
@@ -611,8 +616,20 @@ always @* begin
         s_axil_rvalid_next = 1'b1;
         s_axil_rdata_next = 32'd0;
 
-        case ({s_axil_araddr[4:2], 2'b00})
+        case ({s_axil_araddr[5:2], 2'b00})
             4'h0: begin
+                // ip type register
+                s_axil_rdata_next = IP_TYPE_REG;
+            end
+            4'h4: begin
+                // ip version register
+                s_axil_rdata_next = IP_VERSION_REG;
+            end
+            4'h8: begin
+                // ip id register
+                s_axil_rdata_next = IP_ID_REG;
+            end
+            5'h14: begin
                 // status
                 s_axil_rdata_next[0]  = busy_int;
                 s_axil_rdata_next[1]  = bus_control_int;
@@ -631,7 +648,7 @@ always @* begin
                 s_axil_rdata_next[14] = read_fifo_empty;
                 s_axil_rdata_next[15] = read_fifo_full;
             end
-            4'h4: begin
+            5'h18: begin
                 // command
                 s_axil_rdata_next[6:0] = cmd_address_reg;
                 s_axil_rdata_next[7]  = 1'b0;
@@ -644,28 +661,16 @@ always @* begin
                 s_axil_rdata_next[14] = 1'b0;
                 s_axil_rdata_next[15] = 1'b0;
             end
-            4'h8: begin
+            5'h1C: begin
                 // data
                 s_axil_rdata_next[7:0] = data_out;
                 s_axil_rdata_next[8] = data_out_valid;
                 s_axil_rdata_next[9] = data_out_last;
                 data_out_ready_next = data_out_valid;
             end
-            4'hC: begin
+            6'h20: begin
                 // prescale
                 s_axil_rdata_next = prescale_reg;
-            end
-            5'h10: begin
-                // ip type register
-                s_axil_rdata_next = IP_TYPE_REG;
-            end
-            5'h14: begin
-                // ip version register
-                s_axil_rdata_next = IP_VERSION_REG;
-            end
-            5'h18: begin
-                // ip id register
-                s_axil_rdata_next = IP_ID_REG;
             end
         endcase
     end

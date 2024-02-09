@@ -104,7 +104,7 @@ def main():
     core_range_param_group.add_argument("--number_of_coefficients",  type=int,   default=4,  	choices=range(1,121),   help="Number of Coefficients for the Filter")
     core_range_param_group.add_argument("--coefficient_width",  type=int,   default=2,  	choices=range(1,21),   help="Bit width for the coefficients")
     core_range_param_group.add_argument("--coefficient_fractional_bits",  type=int,   default=0,  	choices=range(0,21),   help="Fractional Bit Width of the coefficients")
-    core_range_param_group.add_argument("--output_data_width",  type=int,   default=2,  	choices=range(0,39),   help="Output Data Bit Width")
+    core_range_param_group.add_argument("--output_data_width",  type=int,   default=2,  	choices=range(1,39),   help="Output Data Bit Width")
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
@@ -147,6 +147,9 @@ def main():
                 option_strings_to_remove = ['--number_of_coefficients']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             else:
+                if (args.number_of_coefficients == 1):
+                    parser._actions[4].default = 2
+                parser._actions[4].choices = range(2, 121)
                 option_strings_to_remove = ['--coefficient_width']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         else:
