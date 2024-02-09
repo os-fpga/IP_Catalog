@@ -22,8 +22,8 @@ timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 logging.info(f'Log started at {timestamp}')
 
 # On Chip Memory ------------------------------------------------------------------------------------------
-class OCM(Module):
-    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
+class OCM_ASYM(Module):
+    def __init__(self, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
         
         self.write_depth_A  = write_depth_A
         self.write_width_A  = write_width_A
