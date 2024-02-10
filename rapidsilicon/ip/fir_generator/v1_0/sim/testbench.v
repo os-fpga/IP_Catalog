@@ -27,6 +27,7 @@ initial begin
         din <= i;
         repeat (1) @ (posedge clk);
     end
+    $display("\n**** Simulation Passed ****");
     #1000;
     $finish;
 end
