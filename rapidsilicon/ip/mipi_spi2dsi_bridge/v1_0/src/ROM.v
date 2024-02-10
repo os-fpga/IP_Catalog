@@ -45,7 +45,6 @@ module ROM (Address, OutClock, OutClockEn, Reset, Q)/* synthesis NGD_DRC_MASK=1 
     reg qdataout2_ffin_1;
     reg qdataout1_ffin_1;
     reg qdataout0_ffin_1;
-    wire [7:0]Q_1;
 
 
 //FD1P3DX replacement

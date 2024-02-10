@@ -20,7 +20,7 @@ logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 logging.info(f'Log started at {timestamp}')
 
-# RESET RELEASE  ---------------------------------------------------------------------------------------
+# MIPISPI2DSIBRIDGE  ---------------------------------------------------------------------------------------
 class MIPISPI2DSIBRIDGE(Module):
     def __init__(self, platform):
         
