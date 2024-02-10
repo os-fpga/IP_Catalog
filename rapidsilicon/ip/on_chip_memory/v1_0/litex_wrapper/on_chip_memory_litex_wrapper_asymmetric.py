@@ -22,8 +22,8 @@ timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 logging.info(f'Log started at {timestamp}')
 
 # On Chip Memory ------------------------------------------------------------------------------------------
-class OCM(Module):
-    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
+class OCM_ASYM(Module):
+    def __init__(self, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
         
         self.write_depth_A  = write_depth_A
         self.write_width_A  = write_width_A
@@ -2350,9 +2350,9 @@ class OCM(Module):
                     self.port_B = self.memory.get_port(write_capable=False, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="sys")
                     self.specials += self.port_B
                 else:
-                    self.port_A = self.memory.get_port(write_capable=True, async_read=True, mode=WRITE_FIRST, has_re=False, clock_domain="clk_A")
+                    self.port_A = self.memory.get_port(write_capable=True, async_read=True, mode=WRITE_FIRST, has_re=False, clock_domain="A")
                     self.specials += self.port_A
-                    self.port_B = self.memory.get_port(write_capable=False, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="clk_B")
+                    self.port_B = self.memory.get_port(write_capable=False, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="B")
                     self.specials += self.port_B
                 
                 self.comb += [
@@ -2371,9 +2371,9 @@ class OCM(Module):
                     self.port_B = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="sys")
                     self.specials += self.port_B
                 else:
-                    self.port_A = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="clk_A")
+                    self.port_A = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="A")
                     self.specials += self.port_A
-                    self.port_B = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="clk_B")
+                    self.port_B = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="B")
                     self.specials += self.port_B
 
                 self.comb += [
