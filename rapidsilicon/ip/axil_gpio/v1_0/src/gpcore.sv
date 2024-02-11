@@ -64,9 +64,9 @@ module gpcore #
   
   reg [31:0] reg_TYPE       = 32'd0;
   reg [31:0] reg_ID         = 32'd0;
-  reg [31:0] reg_VERSION;   = 32'd0; 
-  reg [31:0] reg_reserved1; = 32'd0;
-  reg [31:0] reg_reserved2; = 32'd0;
+  reg [31:0] reg_VERSION    = 32'd0; 
+  reg [31:0] reg_reserved1  = 32'd0;
+  reg [31:0] reg_reserved2  = 32'd0;
   
   parameter[7:0]  GP_TYPE      = 8'h0,
                   GP_VERSION   = 8'h1,
@@ -82,9 +82,12 @@ module gpcore #
   assign oERR 		  = isErrQ;
   assign oINT		  = rGpInt;
   assign oGPOUT		  = rGpDat & ~rGpDir;
-  assign reg_TYPE     = IP_TYPE;
-  assign reg_ID       = IP_ID;
-  assign reg_VERSION  = IP_VERSION;
+
+  always @(*) begin
+    reg_TYPE     = IP_TYPE;
+    reg_ID       = IP_ID;
+    reg_VERSION  = IP_VERSION;
+  end
 
   // interrupt logic
   assign gpInDir 	= rGpDir & iGPIN;
