@@ -78,6 +78,11 @@ class AXILITEOCLA(Module):
                 nprobes,  
                 mem_depth, 
                 probesize,
+                address_width1,   
+                data_width1,         
+                address_width2,    
+                data_width2,  
+                No_AXI_Bus,    
                 mode,
                 axi_type,
                 Sampling_Clock,
@@ -161,71 +166,399 @@ class AXILITEOCLA(Module):
         self.logger.info(f"===================================================")
         
         # OCLA Signals
-        self.awaddr     =   Signal(32)
+        self.awaddr     =   Signal(address_width1)
         self.awprot     =   Signal(3)
         self.awvalid    =   Signal(1)
         self.awready    =   Signal(1)
-        self.wdata      =   Signal(32)
-        self.wstrb      =   Signal(4)
+        self.wdata      =   Signal(data_width1)
+        self.wstrb      =   Signal(data_width1//8)
         self.wvalid     =   Signal(1)
         self.wready     =   Signal(1)
         self.bresp      =   Signal(2)
         self.bvalid     =   Signal(1)
         self.bready     =   Signal(1)
-        self.araddr     =   Signal(32)
+        self.araddr     =   Signal(address_width1)
         self.arprot     =   Signal(3)
         self.arvalid    =   Signal(1)
         self.arready    =   Signal(1)
-        self.rdata      =   Signal(32)
+        self.rdata      =   Signal(data_width1)
         self.rresp      =   Signal(2)
         self.rvalid     =   Signal(1)
         self.rready     =   Signal(1)
         
-        self.AWADDR     =   Signal(32) 
+        self.awaddr1     =   Signal(address_width2)
+        self.awprot1     =   Signal(3)
+        self.awvalid1    =   Signal(1)
+        self.awready1    =   Signal(1)
+        self.wdata1      =   Signal(data_width2)
+        self.wstrb1      =   Signal(data_width2//8)
+        self.wvalid1     =   Signal(1)
+        self.wready1     =   Signal(1)
+        self.bresp1      =   Signal(2)
+        self.bvalid1     =   Signal(1)
+        self.bready1     =   Signal(1)
+        self.araddr1     =   Signal(address_width2)
+        self.arprot1     =   Signal(3)
+        self.arvalid1    =   Signal(1)
+        self.arready1    =   Signal(1)
+        self.rdata1      =   Signal(data_width2)
+        self.rresp1      =   Signal(2)
+        self.rvalid1     =   Signal(1)
+        self.rready1     =   Signal(1)
+        
+        if(No_AXI_Bus == 1):
+            axil_range = 19
+            axi4_range = 44
+            axil_probes_sum = 152
+            axi4_probes_sum = 250
+        else:
+            axil_range = 38
+            axi4_range = 88
+            axil_probes_sum = 304
+            axi4_probes_sum = 500
+
+        
+
+        axil_dict = {}
+        
+        if address_width1 == 32:
+            axil_dict [0] = self.awaddr
+        elif address_width1 == 16:
+            axil_dict [0]    = Cat(self.awaddr[0:32-16],Replicate(0,16))
+        else:
+            axil_dict [0]    = Cat(self.awaddr[0:32-24],Replicate(0,24))
+        #axil_dict [0] = self.awaddr
+        axil_dict [1] = self.awprot
+        axil_dict [2] = self.awvalid
+        axil_dict [3] = self.awready
+        if data_width1 == 32:
+            axil_dict [4] = self.wdata
+        elif data_width1 == 16:
+            axil_dict [4]    = Cat(self.wdata[0:32-16],Replicate(0,16))
+        else:
+            axil_dict [4]    = Cat(self.wdata[0:32-24],Replicate(0,24))
+            
+        if data_width1 == 32:
+            axil_dict [5] = self.wstrb
+        elif data_width1 == 16:
+            axil_dict [5]    = Cat(self.wstrb[0:1],Replicate(0,1))
+        else:
+            axil_dict [5]    = Cat(self.wstrb[0],Replicate(0,3))    
+        axil_dict [6] = self.wvalid
+        axil_dict [7] = self.wready
+        axil_dict [8] = self.bresp
+        axil_dict [9] = self.bvalid
+        axil_dict [10] = self.bready
+        
+        if address_width1 == 32:
+            axil_dict [11] = self.araddr
+        elif address_width1 == 16:
+            axil_dict [11]    = Cat(self.araddr[0:32-16],Replicate(0,16))
+        else:
+            axil_dict [11]    = Cat(self.araddr[0:32-24],Replicate(0,24))
+            
+        axil_dict [12] = self.arprot
+        axil_dict [13] = self.arvalid
+        axil_dict [14] = self.arready
+        if data_width1 == 32:
+            axil_dict [15] = self.rdata
+        elif data_width1 == 16:
+            axil_dict [15]    = Cat(self.rdata[0:32-16],Replicate(0,16))
+        else:
+            axil_dict [15]    = Cat(self.rdata[0:32-24],Replicate(0,24))
+        
+        axil_dict [16] = self.rresp
+        axil_dict [17] = self.rvalid
+        axil_dict [18] = self.rready
+        
+        
+        if address_width2 == 32:
+            axil_dict [19] = self.awaddr1
+        elif address_width2 == 16:
+            axil_dict [19]    = Cat(self.awaddr1[0:32-16],Replicate(0,16))
+        else:
+            axil_dict [19]    = Cat(self.awaddr1[0:32-24],Replicate(0,24))
+        
+        axil_dict [20] = self.awprot1
+        axil_dict [21] = self.awvalid1
+        axil_dict [22] = self.awready1
+        if data_width2 == 32:
+            axil_dict [23] = self.wdata1
+        elif data_width2 == 16:
+            axil_dict [23]    = Cat(self.wdata1[0:32-16],Replicate(0,16))
+        else:
+            axil_dict [23]    = Cat(self.wdata1[0:32-24],Replicate(0,24))
+              
+        if data_width2 == 32:
+            axil_dict [24] = self.wstrb1
+        elif data_width2 == 16:
+            axil_dict [24]    = Cat(self.wstrb1[0:1],Replicate(0,1))
+        else:
+            axil_dict [24]    = Cat(self.wstrb1[0],Replicate(0,3)) 
+        
+        axil_dict [25] = self.wvalid1
+        axil_dict [26] = self.wready1
+        axil_dict [27] = self.bresp1
+        axil_dict [28] = self.bvalid1
+        axil_dict [29] = self.bready1
+        if address_width2 == 32:
+            axil_dict [30] = self.araddr1
+        elif address_width2 == 16:
+            axil_dict [30]    = Cat(self.araddr1[0:32-16],Replicate(0,16))
+        else:
+            axil_dict [30]    = Cat(self.araddr1[0:32-24],Replicate(0,24))
+        axil_dict [31] = self.arprot1
+        axil_dict [32] = self.arvalid1
+        axil_dict [33] = self.arready1
+        
+        if data_width2 == 32:
+            axil_dict [34] = self.rdata1
+        elif data_width2 == 16:
+            axil_dict [34]    = Cat(self.rdata1[0:32-16],Replicate(0,16))
+        else:
+            axil_dict [34]    = Cat(self.rdata1[0:32-24],Replicate(0,24))
+            
+        axil_dict [35] = self.rresp1
+        axil_dict [36] = self.rvalid1
+        axil_dict [37] = self.rready1
+
+        
+        
+        self.AWADDR     =   Signal(address_width1) 
         self.AWPROT     =   Signal(3)
         self.AWVALID    =   Signal(1)
         self.AWREADY    =   Signal(1)
         self.AWBURST    =   Signal(2)
         self.AWSIZE     =   Signal(3)
         self.AWLEN      =   Signal(8)
-        self.AWID       =   Signal(1)
+        self.AWID       =   Signal(8)
         self.AWCACHE    =   Signal(4)
         self.AWREGION   =   Signal(4)
         self.AWUSER     =   Signal(1)
         self.AWQOS      =   Signal(4)
         self.AWLOCK     =   Signal(1)
-        self.WDATA      =   Signal(32)
-        self.WSTRB      =   Signal(4)
+        self.WDATA      =   Signal(data_width1)
+        self.WSTRB      =   Signal(data_width1//8)
         self.WVALID     =   Signal(1)
         self.WREADY     =   Signal(1)
-        self.WID        =   Signal(1)
+        self.WID        =   Signal(8)
         self.WLAST      =   Signal(1)
         self.BRESP      =   Signal(2)
         self.BVALID     =   Signal(1)
         self.BREADY     =   Signal(1)
-        self.BID        =   Signal(1)
+        self.BID        =   Signal(8)
         self.BUSER      =   Signal(1)
-        self.ARADDR     =   Signal(32)
+        self.ARADDR     =   Signal(address_width1)
         self.ARPROT     =   Signal(3)
         self.ARVALID    =   Signal(1)
         self.ARREADY    =   Signal(1)
         self.ARBUSRT    =   Signal(2)
         self.ARSIZE     =   Signal(3)
         self.ARLEN      =   Signal(8)
-        self.ARID       =   Signal(1)
+        self.ARID       =   Signal(8)
         self.ARCACHE    =   Signal(4)
         self.ARREGION   =   Signal(4)
         self.ARUSER     =   Signal(1)
         self.ARQOS      =   Signal(4)
         self.ARLOCK     =   Signal(1)
-        self.RDATA      =   Signal(32)
+        self.RDATA      =   Signal(data_width1)
         self.RRESP      =   Signal(2)
         self.RREADY     =   Signal(1)
         self.RVALID     =   Signal(1)
-        self.RID        =   Signal(1)
+        self.RID        =   Signal(8)
         self.RUSER      =   Signal(1)
         self.RLAST      =   Signal(1)
         
+        
+        self.AWADDR1     =   Signal(address_width2) 
+        self.AWPROT1     =   Signal(3)
+        self.AWVALID1    =   Signal(1)
+        self.AWREADY1    =   Signal(1)
+        self.AWBURST1    =   Signal(2)
+        self.AWSIZE1     =   Signal(3)
+        self.AWLEN1      =   Signal(8)
+        self.AWID1       =   Signal(8)
+        self.AWCACHE1    =   Signal(4)
+        self.AWREGION1   =   Signal(4)
+        self.AWUSER1     =   Signal(1)
+        self.AWQOS1      =   Signal(4)
+        self.AWLOCK1     =   Signal(1)
+        self.WDATA1      =   Signal(data_width2)
+        self.WSTRB1      =   Signal(data_width2//8)
+        self.WVALID1     =   Signal(1)
+        self.WREADY1     =   Signal(1)
+        self.WID1        =   Signal(8)
+        self.WLAST1      =   Signal(1)
+        self.BRESP1      =   Signal(2)
+        self.BVALID1     =   Signal(1)
+        self.BREADY1     =   Signal(1)
+        self.BID1        =   Signal(8)
+        self.BUSER1      =   Signal(1)
+        self.ARADDR1     =   Signal(address_width2)
+        self.ARPROT1     =   Signal(3)
+        self.ARVALID1    =   Signal(1)
+        self.ARREADY1    =   Signal(1)
+        self.ARBUSRT1    =   Signal(2)
+        self.ARSIZE1     =   Signal(3)
+        self.ARLEN1      =   Signal(8)
+        self.ARID1       =   Signal(8)
+        self.ARCACHE1    =   Signal(4)
+        self.ARREGION1   =   Signal(4)
+        self.ARUSER1     =   Signal(1)
+        self.ARQOS1      =   Signal(4)
+        self.ARLOCK1     =   Signal(1)
+        self.RDATA1      =   Signal(data_width2)
+        self.RRESP1      =   Signal(2)
+        self.RREADY1     =   Signal(1)
+        self.RVALID1     =   Signal(1)
+        self.RID1        =   Signal(8)
+        self.RUSER1      =   Signal(1)
+        self.RLAST1      =   Signal(1)
+        
+        axi4_dict = {}
+        
+        if address_width1 == 32:
+            axi4_dict [0] = self.AWADDR
+        elif address_width1 == 16:
+            axi4_dict [0]    = Cat(self.AWADDR[0:32-16],Replicate(0,16))
+        else:
+            axi4_dict [0]    = Cat(self.AWADDR[0:32-24],Replicate(0,24))
+        axi4_dict [1] = self.AWPROT
+        axi4_dict [2] = self.AWVALID
+        axi4_dict [3] = self.AWREADY
+        axi4_dict [4] = self.AWBURST
+        axi4_dict [5] = self.AWSIZE
+        axi4_dict [6] = self.AWLEN
+        axi4_dict [7] = self.AWID
+        axi4_dict [8] = self.AWCACHE
+        axi4_dict [9] = self.AWREGION
+        axi4_dict [10] = self.AWUSER
+        axi4_dict [11] = self.AWQOS
+        axi4_dict [12] = self.AWLOCK
+        if data_width1 == 32:
+            axi4_dict [13] = self.WDATA
+        elif data_width1 == 16:
+            axi4_dict [13]    = Cat(self.WDATA[0:32-16],Replicate(0,16))
+        else:
+            axi4_dict [13]    = Cat(self.WDATA[0:32-24],Replicate(0,24))
+            
+        if data_width1 == 32:
+            axi4_dict [14] = self.WSTRB
+        elif data_width1 == 16:
+            axi4_dict [14]    = Cat(self.WSTRB[0:1],Replicate(0,1))
+        else:
+            axi4_dict [14]    = Cat(self.WSTRB[0],Replicate(0,3))    
+        axi4_dict [15] = self.WVALID
+        axi4_dict [16] = self.WREADY
+        axi4_dict [17] = self.WID
+        axi4_dict [18] = self.WLAST
+        axi4_dict [19] = self.BRESP
+        axi4_dict [20] = self.BVALID
+        axi4_dict [21] = self.BREADY
+        axi4_dict [22] = self.BID
+        axi4_dict [23] = self.BUSER
+        if address_width1 == 32:
+            axi4_dict [24] = self.ARADDR
+        elif address_width1 == 16:
+            axi4_dict [24]    = Cat(self.ARADDR[0:32-16],Replicate(0,16))
+        else:
+            axi4_dict [24]    = Cat(self.ARADDR[0:32-24],Replicate(0,24))
+        axi4_dict [25] = self.ARPROT
+        axi4_dict [26] = self.ARVALID
+        axi4_dict [27] = self.ARREADY
+        axi4_dict [28] = self.ARBUSRT
+        axi4_dict [29] = self.ARSIZE
+        axi4_dict [30] = self.ARLEN
+        axi4_dict [31] = self.ARID
+        axi4_dict [32] = self.ARCACHE
+        axi4_dict [33] = self.ARREGION
+        axi4_dict [34] = self.ARUSER
+        axi4_dict [35] = self.ARQOS
+        axi4_dict [36] = self.ARLOCK
+        if data_width1 == 32:
+            axi4_dict [37] = self.RDATA
+        elif data_width1 == 16:
+            axi4_dict [37]    = Cat(self.RDATA[0:32-16],Replicate(0,16))
+        else:
+            axi4_dict [37]    = Cat(self.RDATA[0:32-24],Replicate(0,24))
+        axi4_dict [38] = self.RRESP
+        axi4_dict [39] = self.RREADY
+        axi4_dict [40] = self.RVALID
+        axi4_dict [41] = self.RID
+        axi4_dict [42] = self.RUSER
+        axi4_dict [43] = self.RLAST
+        
+        
+        if address_width2 == 32:
+            axi4_dict [44] = self.AWADDR1
+        elif address_width2 == 16:
+            axi4_dict [44]    = Cat(self.AWADDR1[0:32-16],Replicate(0,16))
+        else:
+            axi4_dict [44]    = Cat(self.AWADDR1[0:32-24],Replicate(0,24)) 
+        axi4_dict [45] = self.AWPROT1
+        axi4_dict [46] = self.AWVALID1
+        axi4_dict [47] = self.AWREADY1
+        axi4_dict [48] = self.AWBURST1
+        axi4_dict [49] = self.AWSIZE1
+        axi4_dict [50] = self.AWLEN1
+        axi4_dict [51] = self.AWID1
+        axi4_dict [52] = self.AWCACHE1
+        axi4_dict [53] = self.AWREGION1
+        axi4_dict [54] = self.AWUSER1
+        axi4_dict [55] = self.AWQOS1
+        axi4_dict [56] = self.AWLOCK1
+        if data_width2 == 32:
+            axi4_dict [57] = self.WDATA1
+        elif data_width2 == 16:
+            axi4_dict [57]    = Cat(self.WDATA1[0:32-16],Replicate(0,16))
+        else:
+            axi4_dict [57]    = Cat(self.WDATA1[0:32-24],Replicate(0,24))
+        if data_width2 == 32:
+            axi4_dict [58] = self.WSTRB1
+        elif data_width2 == 16:
+            axi4_dict [58]    = Cat(self.WSTRB1[0:1],Replicate(0,1))
+        else:
+            axi4_dict [58]    = Cat(self.WSTRB1[0],Replicate(0,3))  
+        axi4_dict [59] = self.WVALID1
+        axi4_dict [60] = self.WREADY1
+        axi4_dict [61] = self.WID1
+        axi4_dict [62] = self.WLAST1
+        axi4_dict [63] = self.BRESP1
+        axi4_dict [64] = self.BVALID1
+        axi4_dict [65] = self.BREADY1
+        axi4_dict [66] = self.BID1
+        axi4_dict [67] = self.BUSER1
+        if address_width2 == 32:
+            axi4_dict [68] = self.ARADDR1
+        elif address_width2 == 16:
+            axi4_dict [68]    = Cat(self.ARADDR1[0:32-16],Replicate(0,16))
+        else:
+            axi4_dict [68]    = Cat(self.ARADDR1[0:32-24],Replicate(0,24)) 
+        axi4_dict [69] = self.ARPROT1
+        axi4_dict [70] = self.ARVALID1
+        axi4_dict [71] = self.ARREADY1
+        axi4_dict [72] = self.ARBUSRT1
+        axi4_dict [73] = self.ARSIZE1
+        axi4_dict [74] = self.ARLEN1
+        axi4_dict [75] = self.ARID1
+        axi4_dict [76] = self.ARCACHE1
+        axi4_dict [77] = self.ARREGION1
+        axi4_dict [78] = self.ARUSER1
+        axi4_dict [79] = self.ARQOS1
+        axi4_dict [80] = self.ARLOCK1
+        if data_width2 == 32:
+            axi4_dict [81] = self.RDATA1
+        elif data_width2 == 16:
+            axi4_dict [81]    = Cat(self.RDATA1[0:32-16],Replicate(0,16))
+        else:
+            axi4_dict [81]    = Cat(self.RDATA1[0:32-24],Replicate(0,24))
+        axi4_dict [82] = self.RRESP1
+        axi4_dict [83] = self.RREADY1
+        axi4_dict [84] = self.RVALID1
+        axi4_dict [85] = self.RID1
+        axi4_dict [86] = self.RUSER1
+        axi4_dict [87] = self.RLAST1
+
         
         self.jtag_tck  =   Signal(1)
         self.jtag_tms   =   Signal(1)
@@ -237,8 +570,8 @@ class AXILITEOCLA(Module):
         self.probes_out =   Signal(Ouput_Probe_width)
         self.eio_ip_clk = Signal(1)
         self.eio_op_clk = Signal(1)
-        self.axilite =   Signal(155)
-        self.axifull =   Signal(215)
+        self.axilite =   Signal(152)
+        self.axifull =   Signal(250)
         self.axi_sampling_clk = Signal(1)
         self.sampling_clk = Signal(1)
  
@@ -267,6 +600,7 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                    p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                #     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk             = Sampling_Clock,
@@ -355,6 +689,8 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                    p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
+
                #     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk             = Sampling_Clock,
@@ -439,11 +775,13 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                    p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
+
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(0),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd152"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{axil_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
             
@@ -513,7 +851,8 @@ class AXILITEOCLA(Module):
                     i_jtag_trst        = self.jtag_trst,
                     # OCLA Signals
                     i_probes           = 0,
-                    i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
+                    i_axiLite_probes = Cat(*[axil_dict[value] for value in range(axil_range)]),
+                    #i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
                     i_axi4_probes      = self.axifull,
                     i_probes_in        =self.probes_in,
                     o_probes_out       =self.probes_out,
@@ -526,11 +865,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(0),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd215"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{axi4_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                 
@@ -601,7 +941,8 @@ class AXILITEOCLA(Module):
                     # OCLA Signals
                     i_probes           = 0,
                     i_axiLite_probes     = self.axilite,
-                    i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
+                    i_axi4_probes = Cat(*[axi4_dict[value] for value in range(axi4_range)]),
+                    #i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
                     i_probes_in        =self.probes_in,
                     o_probes_out       =self.probes_out,
                     )
@@ -614,11 +955,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(0),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd215"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{axi4_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                
@@ -685,7 +1027,8 @@ class AXILITEOCLA(Module):
                     # OCLA Signals
                     i_probes           = 0,
                     i_axiLite_probes     = self.axilite,
-                    i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
+                    i_axi4_probes = Cat(*[axi4_dict[value] for value in range(axi4_range)]),
+                    #i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
                     i_probes_in        =self.probes_in,
                     )
                 else:
@@ -696,11 +1039,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(0),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd152"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{axil_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                  
@@ -764,9 +1108,11 @@ class AXILITEOCLA(Module):
                     i_jtag_tdi         = self.jtag_tdi,
                     o_jtag_tdo         = self.jtag_tdo,
                     i_jtag_trst        = self.jtag_trst,
-                    # OCLA Signals
+                    # OCLA Signals  axil_dict
                     i_probes           = 0,
-                    i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
+                    i_axiLite_probes = Cat(*[axil_dict[value] for value in range(axil_range)]),
+
+                   # i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
                     i_axi4_probes      = self.axifull,
                     i_probes_in        =self.probes_in,
                     )   
@@ -780,11 +1126,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(nprobes),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + 152}"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + axil_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(nprobes + 1), 
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                  
@@ -854,7 +1201,9 @@ class AXILITEOCLA(Module):
                     i_jtag_trst        = self.jtag_trst,
                     # OCLA Signals
                     i_probes           = Cat(*[probes_dict[value] for value in probes_names]),
-                    i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
+                    i_axiLite_probes = Cat(*[axil_dict[value] for value in range(axil_range)]),
+
+                    #i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
                     i_axi4_probes      = self.axifull,
                     i_probes_in        =self.probes_in,
                     o_probes_out       =self.probes_out,
@@ -867,11 +1216,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(nprobes),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + 215}"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + axi4_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(nprobes + 1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                    
@@ -942,7 +1292,8 @@ class AXILITEOCLA(Module):
                     # OCLA Signals
                     i_probes           = Cat(*[probes_dict[value] for value in probes_names]),
                     i_axiLite_probes     = self.axilite,
-                    i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
+                    i_axi4_probes = Cat(*[axi4_dict[value] for value in range(axi4_range)]),
+                    #i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
                     i_probes_in        =self.probes_in,
                     o_probes_out       =self.probes_out,
                     )
@@ -955,11 +1306,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(nprobes),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + 215}"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + axi4_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(nprobes + 1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                    
@@ -1026,7 +1378,8 @@ class AXILITEOCLA(Module):
                     # OCLA Signals
                     i_probes           = Cat(*[probes_dict[value] for value in probes_names]),
                     i_axiLite_probes     = self.axilite,
-                    i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
+                    i_axi4_probes = Cat(*[axi4_dict[value] for value in range(axi4_range)]),
+                    #i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
                     i_probes_in        =self.probes_in,
                     )
                 else:
@@ -1037,11 +1390,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(nprobes),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + 152}"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + axil_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(nprobes + 1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                    
@@ -1107,7 +1461,9 @@ class AXILITEOCLA(Module):
                     i_jtag_trst        = self.jtag_trst,
                     # OCLA Signals
                     i_probes           = Cat(*[probes_dict[value] for value in probes_names]),
-                    i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
+                    i_axiLite_probes = Cat(*[axil_dict[value] for value in range(axil_range)]),
+
+                    #i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
                     i_axi4_probes      = self.axifull,
                     i_probes_in        =self.probes_in,
                     )
@@ -1121,6 +1477,7 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                #     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
@@ -1211,6 +1568,7 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                #     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
@@ -1296,11 +1654,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(0),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd152"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{axil_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                   
@@ -1370,7 +1729,8 @@ class AXILITEOCLA(Module):
                     i_jtag_trst        = self.jtag_trst,
                     # OCLA Signals
                     i_probes           = 0,
-                    i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
+                    i_axiLite_probes = Cat(*[axil_dict[value] for value in range(axil_range)]),
+                    #i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
                     i_axi4_probes      = self.axifull,
                     i_probes_in        =self.probes_in,
                     o_probes_out       =self.probes_out,
@@ -1383,11 +1743,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(0),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd215"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{axi4_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                  
@@ -1458,7 +1819,8 @@ class AXILITEOCLA(Module):
                     # OCLA Signals
                     i_probes           = 0,
                     i_axiLite_probes     = self.axilite,
-                    i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
+                    i_axi4_probes = Cat(*[axi4_dict[value] for value in range(axi4_range)]),
+                    #i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
                     i_probes_in        =self.probes_in,
                     o_probes_out       =self.probes_out,
                     )
@@ -1471,11 +1833,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(0),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd215"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{axi4_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                 
@@ -1542,7 +1905,8 @@ class AXILITEOCLA(Module):
                     # OCLA Signals
                     i_probes           = 0,
                     i_axiLite_probes     = self.axilite,
-                    i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
+                    i_axi4_probes = Cat(*[axi4_dict[value] for value in range(axi4_range)]),
+                    #i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
                     i_probes_in        =self.probes_in,
                     )
                 else:
@@ -1553,11 +1917,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(0),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd152"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{axil_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                    
@@ -1623,7 +1988,8 @@ class AXILITEOCLA(Module):
                     i_jtag_trst        = self.jtag_trst,
                     # OCLA Signals
                     i_probes           = 0,
-                    i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
+                    i_axiLite_probes = Cat(*[axil_dict[value] for value in range(axil_range)]),
+                    #i_axiLite_probes     = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
                     i_axi4_probes      = self.axifull,
                     i_probes_in        =self.probes_in,
                     )   
@@ -1637,11 +2003,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                    = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION               = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                     = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                 = axi_type,
                     p_EIO_Enable               = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk           = Sampling_Clock,
                     p_No_Probes             = Instance.PreformattedParam(nprobes),
-                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + 152}"),
+                    p_Probes_Sum               = Instance.PreformattedParam(f"14'd{sum(probesize) + axil_probes_sum}"),
                     p_Cores                    = Instance.PreformattedParam(len(dummy_list) + 1),
                     p_Mem_Depth               = Instance.PreformattedParam(mem_depth),
                   
@@ -1711,7 +2078,8 @@ class AXILITEOCLA(Module):
                     i_jtag_trst        = self.jtag_trst,
                     # OCLA Signals
                     i_probes           = Cat(*[probes_dict[value] for value in probes_names]),
-                    i_axiLite_probes   = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
+                    i_axiLite_probes = Cat(*[axil_dict[value] for value in range(axil_range)]),
+                    #i_axiLite_probes   = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
                     i_axi4_probes      = self.axifull,
                     i_probes_in        =self.probes_in,
                     o_probes_out       =self.probes_out,
@@ -1724,11 +2092,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                     = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION                = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                      = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                  = axi_type,
                     p_EIO_Enable                = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk              = Sampling_Clock,
                     p_No_Probes                 = Instance.PreformattedParam(nprobes),
-                    p_Probes_Sum                = Instance.PreformattedParam(f"14'd{sum(probesize) + 215}"),
+                    p_Probes_Sum                = Instance.PreformattedParam(f"14'd{sum(probesize) + axi4_probes_sum}"),
                     p_Cores                     = Instance.PreformattedParam(len(dummy_list) + 1),
                     p_Mem_Depth                 = Instance.PreformattedParam(mem_depth),
                 
@@ -1799,7 +2168,8 @@ class AXILITEOCLA(Module):
                     # OCLA Signals
                     i_probes            = Cat(*[probes_dict[value] for value in probes_names]),
                     i_axiLite_probes    = self.axilite,
-                    i_axi4_probes       = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
+                    i_axi4_probes = Cat(*[axi4_dict[value] for value in range(axi4_range)]),
+                    #i_axi4_probes       = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
                     i_probes_in         =self.probes_in,
                     o_probes_out        =self.probes_out,
                     )
@@ -1812,11 +2182,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                     = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION                = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                      = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                  = axi_type,
                     p_EIO_Enable                = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk              = Sampling_Clock,
                     p_No_Probes                 = Instance.PreformattedParam(nprobes),
-                    p_Probes_Sum                = Instance.PreformattedParam(f"14'd{sum(probesize) + 215}"),
+                    p_Probes_Sum                = Instance.PreformattedParam(f"14'd{sum(probesize) + axi4_probes_sum}"),
                     p_Cores                     = Instance.PreformattedParam(len(dummy_list) + 1),
                     p_Mem_Depth                 = Instance.PreformattedParam(mem_depth),
                  
@@ -1883,7 +2254,8 @@ class AXILITEOCLA(Module):
                     # OCLA Signals
                     i_probes           = Cat(*[probes_dict[value] for value in probes_names]),
                     i_axiLite_probes   = self.axilite,
-                    i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
+                    i_axi4_probes = Cat(*[axi4_dict[value] for value in range(axi4_range)]),
+                    #i_axi4_probes      = Cat(self.AWADDR,self.AWPROT,self.AWVALID,self.AWREADY,self.AWBURST,self.AWSIZE,self.AWLEN,self.AWID,self.AWCACHE,self.AWREGION,self.AWUSER,self.AWQOS,self.AWLOCK,self.WDATA,self.WSTRB,self.WVALID,self.WREADY,self.WID,self.WLAST,self.BRESP,self.BVALID,self.BREADY,self.BID,self.BUSER,self.ARADDR,self.ARPROT,self.ARVALID,self.ARREADY,self.ARBUSRT,self.ARSIZE,self.ARLEN,self.ARID,self.ARCACHE,self.ARREGION,self.ARUSER,self.ARQOS,self.ARLOCK,self.RDATA,self.RRESP,self.RREADY,self.RVALID,self.RID,self.RUSER,self.RLAST),
                     i_probes_in        = self.probes_in,
                     )
                 else:
@@ -1894,11 +2266,12 @@ class AXILITEOCLA(Module):
                     p_IP_ID                     = Instance.PreformattedParam("IP_ID"),
                     p_IP_VERSION                = Instance.PreformattedParam("IP_VERSION"),
                     p_Mode                      = mode,
+                     p_No_AXI_Bus               = Instance.PreformattedParam(No_AXI_Bus),
                     p_Axi_Type                  = axi_type,
                     p_EIO_Enable                = Instance.PreformattedParam(EIO_Enable),
                     p_Sampling_Clk              = Sampling_Clock,
                     p_No_Probes                 = Instance.PreformattedParam(nprobes),
-                    p_Probes_Sum                = Instance.PreformattedParam(f"14'd{sum(probesize) + 152}"),
+                    p_Probes_Sum                = Instance.PreformattedParam(f"14'd{sum(probesize) + axil_probes_sum}"),
                     p_Cores                     = Instance.PreformattedParam(len(dummy_list) + 1),
                     p_Mem_Depth                 = Instance.PreformattedParam(mem_depth),
             
@@ -1964,7 +2337,8 @@ class AXILITEOCLA(Module):
                     i_jtag_trst         = self.jtag_trst,
                     # OCLA Signals
                     i_probes            = Cat(*[probes_dict[value] for value in probes_names]),
-                    i_axiLite_probes    = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
+                    i_axiLite_probes = Cat(*[axil_dict[value] for value in range(axil_range)]),
+                    #i_axiLite_probes    = Cat(self.awaddr,self.awprot,self.awvalid,self.awready,self.wdata,self.wstrb,self.wvalid,self.wready,self.bresp,self.bvalid,self.bready,self.araddr,self.arprot,self.arvalid,self.arready,self.rdata,self.rresp,self.rvalid,self.rready),
                     i_axi4_probes       = self.axifull,
                     i_probes_in         = self.probes_in,
                     )

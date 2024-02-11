@@ -5,39 +5,39 @@ module ocla_debug_subsystem #(
 
     /**********************IP Special Parameters*******************/
 
-    parameter  IP_TYPE                = "ocla",
-    parameter  IP_VERSION             = 32'h1,
-    parameter  IP_ID                  = 32'h3881734,
+    parameter  IP_TYPE              = "ocla",
+    parameter  IP_VERSION           = 32'h1,
+    parameter  IP_ID                = 32'h3881734,
 
     /*************************************************************/
 
-    parameter  Mode                   = "NATIVE",     // NATIVE, AXI, NATIVE_AXI
-    parameter  Axi_Type               = "AXI4" ,      // AXI4, AXILite
-    parameter  No_AXI_Bus             = 1,            // Total number of AXI bus:   Range (1 ----->  4)
-    parameter  EIO_Enable             = 1,            // EIO Enable = 1 --------  EIO Disable = 0
-    parameter  Sampling_Clk           = "single",     // single, multiple
-    parameter  Cores                  = 1,            // Number of OCLA Core used
+    parameter  Mode                 = "NATIVE",     // NATIVE, AXI, NATIVE_AXI
+    parameter  Axi_Type             = "AXI4" ,      // AXI4, AXILite
+    parameter  No_AXI_Bus           = 1,            // Total number of AXI bus:   Range (1 ----->  4)
+    parameter  EIO_Enable           = 1,            // EIO Enable = 1 --------  EIO Disable = 0
+    parameter  Sampling_Clk         = "single",     // single, multiple
+    parameter  Cores                = 1,            // Number of OCLA Core used
 
-    parameter  No_Probes              = 4'd5,         // Total Number of Probes: Range (1 ----->  15)
-    parameter  Probes_Sum             = 14'd1,        // Total probes width
-    parameter  Mem_Depth              = 11'd512,      // Buffer size
+    parameter  No_Probes             = 4'd5,         // Total Number of Probes: Range (1 ----->  15)
+    parameter  Probes_Sum           = 14'd1,        // Total probes width
+    parameter  Mem_Depth            = 11'd512,      // Buffer size
 
     /**********************Width of each probe*******************/
-    parameter  Probe01_Width          = 11'd0,
-    parameter  Probe02_Width          = 11'd0,
-    parameter  Probe03_Width          = 11'd0,
-    parameter  Probe04_Width          = 11'd0,
-    parameter  Probe05_Width          = 11'd0,
-    parameter  Probe06_Width          = 11'd0,
-    parameter  Probe07_Width          = 11'd0,
-    parameter  Probe08_Width          = 11'd0,
-    parameter  Probe09_Width          = 11'd0,
-    parameter  Probe10_Width          = 11'd0,
-    parameter  Probe11_Width          = 11'd0,
-    parameter  Probe12_Width          = 11'd0,
-    parameter  Probe13_Width          = 11'd0,
-    parameter  Probe14_Width          = 11'd0,
-    parameter  Probe15_Width          = 11'd0 ,
+    parameter  Probe01_Width         = 11'd0,
+    parameter  Probe02_Width         = 11'd0,
+    parameter  Probe03_Width         = 11'd0,
+    parameter  Probe04_Width         = 11'd0,
+    parameter  Probe05_Width         = 11'd0,
+    parameter  Probe06_Width         = 11'd0,
+    parameter  Probe07_Width         = 11'd0,
+    parameter  Probe08_Width         = 11'd0,
+    parameter  Probe09_Width         = 11'd0,
+    parameter  Probe10_Width        = 11'd0,
+    parameter  Probe11_Width        = 11'd0,
+    parameter  Probe12_Width        = 11'd0,
+    parameter  Probe13_Width        = 11'd0,
+    parameter  Probe14_Width        = 11'd0,
+    parameter  Probe15_Width        = 11'd0 ,
 
     /*************************EIO IP Base Address**************************/
 
@@ -112,7 +112,7 @@ module ocla_debug_subsystem #(
     input  wire                               jtag_trst,
 
     input  wire [Probes_Sum     -     1 : 0]   probes,
-    input  wire [No_AXI_Bus*214 -     1 : 0]   axi4_probes,
+    input  wire [No_AXI_Bus*250 -     1 : 0]   axi4_probes,
     input  wire [No_AXI_Bus*152 -     1 : 0]   axiLite_probes,
 
 
@@ -122,7 +122,7 @@ module ocla_debug_subsystem #(
   );
 
 
-  localparam AXI_TOATAL_PROBES = (Axi_Type == "AXI4") ? No_AXI_Bus *214 : No_AXI_Bus * 152;
+  localparam AXI_TOATAL_PROBES = (Axi_Type == "AXI4") ? No_AXI_Bus *250 : No_AXI_Bus * 152;
 
   localparam M_Count    = (Mode == "NATIVE") ? Cores +2 : Cores + 1;
 
@@ -940,3 +940,4 @@ assign core_sampling_clk = (Sampling_Clk == "SINGLE") ? {OCLA_COUNT{native_sampl
   endgenerate
 
 endmodule
+
