@@ -77,75 +77,212 @@ def get_eio_clk():
     
     
     
-def get_axi_lite_ios():
+def get_axi_lite_ios(address_width1,data_width1):
     return [
-        ("awaddr"   , 0, Pins(32)),
+        ("awaddr"   , 0, Pins(address_width1)),
         ("awprot"   , 0, Pins(3)),
         ("awvalid"  , 0, Pins(1)),
         ("awready"  , 0, Pins(1)),
-        ("wdata"    , 0, Pins(32)),
-        ("wstrb"    , 0, Pins(4)),
+        ("wdata"    , 0, Pins(data_width1)),
+        ("wstrb"    , 0, Pins(data_width1//8)),
         ("wvalid"   , 0, Pins(1)),
         ("wready"   , 0, Pins(1)),
         ("bresp"    , 0, Pins(2)),
         ("bvalid"   , 0, Pins(1)),
         ("bready"   , 0, Pins(1)),
-        ("araddr"   , 0, Pins(32)),
+        ("araddr"   , 0, Pins(address_width1)),
         ("arprot"   , 0, Pins(3)),
         ("arvalid"  , 0, Pins(1)),
         ("arready"  , 0, Pins(1)),
-        ("rdata"    , 0, Pins(32)),
+        ("rdata"    , 0, Pins(data_width1)),
         ("rresp"    , 0, Pins(2)),
         ("rvalid"   , 0, Pins(1)),
         ("rready"   , 0, Pins(1)),
     ]    
     
-def get_axi_full_ios():
+def get_axi_full_ios(address_width1,data_width1):
     return [
-        ("AWADDR"   , 0, Pins(32)),
+        ("AWADDR"   , 0, Pins(address_width1)),
         ("AWPROT"   , 0, Pins(3)),
         ("AWVALID"  , 0, Pins(1)),
         ("AWREADY"  , 0, Pins(1)),
         ("AWBURST"  , 0, Pins(2)),
         ("AWSIZE"   , 0, Pins(3)),
         ("AWLEN"    , 0, Pins(8)),
-        ("AWID"     , 0, Pins(1)),
+        ("AWID"     , 0, Pins(8)),
         ("AWCACHE"  , 0, Pins(4)),
         ("AWREGION" , 0, Pins(4)),
         ("AWUSER"   , 0, Pins(1)),
         ("AWQOS"    , 0, Pins(4)),
         ("AWLOCK"   , 0, Pins(1)),
-        ("WDATA"    , 0, Pins(32)),
-        ("WSTRB"    , 0, Pins(4)),
+        ("WDATA"    , 0, Pins(data_width1)),
+        ("WSTRB"    , 0, Pins(data_width1//8)),
         ("WVALID"   , 0, Pins(1)),
         ("WREADY"   , 0, Pins(1)),
-        ("WID"      , 0, Pins(1)),
+        ("WID"      , 0, Pins(8)),
         ("WLAST"    , 0, Pins(1)),
         ("BRESP"    , 0, Pins(2)),
         ("BVALID"   , 0, Pins(1)),
         ("BREADY"   , 0, Pins(1)),
-        ("BID"      , 0, Pins(1)),
+        ("BID"      , 0, Pins(8)),
         ("BUSER"    , 0, Pins(1)),
-        ("ARADDR"   , 0, Pins(32)),
+        ("ARADDR"   , 0, Pins(address_width1)),
         ("ARPROT"   , 0, Pins(3)),
         ("ARVALID"  , 0, Pins(1)),
         ("ARREADY"  , 0, Pins(1)),
         ("ARBUSRT"  , 0, Pins(2)),
         ("ARSIZE"   , 0, Pins(3)),
         ("ARLEN"    , 0, Pins(8)),
-        ("ARID"     , 0, Pins(1)),
+        ("ARID"     , 0, Pins(8)),
         ("ARCACHE"  , 0, Pins(4)),
         ("ARREGION" , 0, Pins(4)),
         ("ARUSER"   , 0, Pins(1)),
         ("ARQOS"    , 0, Pins(4)),
         ("ARLOCK"   , 0, Pins(1)),
-        ("RDATA"    , 0, Pins(32)),
+        ("RDATA"    , 0, Pins(data_width1)),
         ("RRESP"    , 0, Pins(2)),
         ("RREADY"   , 0, Pins(1)),
         ("RVALID"   , 0, Pins(1)),
-        ("RID"      , 0, Pins(1)),
+        ("RID"      , 0, Pins(8)),
         ("RUSER"    , 0, Pins(1)),
         ("RLAST"    , 0, Pins(1)),
+    ]
+    
+    
+def get_axi_lite_ios1(address_width1,data_width1,address_width2,data_width2):
+    return [
+        ("awaddr"   , 0, Pins(address_width1)),
+        ("awprot"   , 0, Pins(3)),
+        ("awvalid"  , 0, Pins(1)),
+        ("awready"  , 0, Pins(1)),
+        ("wdata"    , 0, Pins(data_width1)),
+        ("wstrb"    , 0, Pins(data_width1//8)),
+        ("wvalid"   , 0, Pins(1)),
+        ("wready"   , 0, Pins(1)),
+        ("bresp"    , 0, Pins(2)),
+        ("bvalid"   , 0, Pins(1)),
+        ("bready"   , 0, Pins(1)),
+        ("araddr"   , 0, Pins(address_width1)),
+        ("arprot"   , 0, Pins(3)),
+        ("arvalid"  , 0, Pins(1)),
+        ("arready"  , 0, Pins(1)),
+        ("rdata"    , 0, Pins(data_width1)),
+        ("rresp"    , 0, Pins(2)),
+        ("rvalid"   , 0, Pins(1)),
+        ("rready"   , 0, Pins(1)),
+        
+        ("awaddr1"   , 0, Pins(address_width2)),
+        ("awprot1"   , 0, Pins(3)),
+        ("awvalid1"  , 0, Pins(1)),
+        ("awready1"  , 0, Pins(1)),
+        ("wdata1"    , 0, Pins(data_width2)),
+        ("wstrb1"    , 0, Pins(data_width2//8)),
+        ("wvalid1"   , 0, Pins(1)),
+        ("wready1"   , 0, Pins(1)),
+        ("bresp1"    , 0, Pins(2)),
+        ("bvalid1"   , 0, Pins(1)),
+        ("bready1"   , 0, Pins(1)),
+        ("araddr1"   , 0, Pins(address_width2)),
+        ("arprot1"   , 0, Pins(3)),
+        ("arvalid1"  , 0, Pins(1)),
+        ("arready1"  , 0, Pins(1)),
+        ("rdata1"    , 0, Pins(data_width2)),
+        ("rresp1"    , 0, Pins(2)),
+        ("rvalid1"   , 0, Pins(1)),
+        ("rready1"   , 0, Pins(1)),
+    ]    
+    
+def get_axi_full_ios1(address_width1,data_width1,address_width2,data_width2):
+    return [
+        ("AWADDR"   , 0, Pins(address_width1)),
+        ("AWPROT"   , 0, Pins(3)),
+        ("AWVALID"  , 0, Pins(1)),
+        ("AWREADY"  , 0, Pins(1)),
+        ("AWBURST"  , 0, Pins(2)),
+        ("AWSIZE"   , 0, Pins(3)),
+        ("AWLEN"    , 0, Pins(8)),
+        ("AWID"     , 0, Pins(8)),
+        ("AWCACHE"  , 0, Pins(4)),
+        ("AWREGION" , 0, Pins(4)),
+        ("AWUSER"   , 0, Pins(1)),
+        ("AWQOS"    , 0, Pins(4)),
+        ("AWLOCK"   , 0, Pins(1)),
+        ("WDATA"    , 0, Pins(data_width1)),
+        ("WSTRB"    , 0, Pins(data_width1//8)),
+        ("WVALID"   , 0, Pins(1)),
+        ("WREADY"   , 0, Pins(1)),
+        ("WID"      , 0, Pins(8)),
+        ("WLAST"    , 0, Pins(1)),
+        ("BRESP"    , 0, Pins(2)),
+        ("BVALID"   , 0, Pins(1)),
+        ("BREADY"   , 0, Pins(1)),
+        ("BID"      , 0, Pins(8)),
+        ("BUSER"    , 0, Pins(1)),
+        ("ARADDR"   , 0, Pins(address_width1)),
+        ("ARPROT"   , 0, Pins(3)),
+        ("ARVALID"  , 0, Pins(1)),
+        ("ARREADY"  , 0, Pins(1)),
+        ("ARBUSRT"  , 0, Pins(2)),
+        ("ARSIZE"   , 0, Pins(3)),
+        ("ARLEN"    , 0, Pins(8)),
+        ("ARID"     , 0, Pins(8)),
+        ("ARCACHE"  , 0, Pins(4)),
+        ("ARREGION" , 0, Pins(4)),
+        ("ARUSER"   , 0, Pins(1)),
+        ("ARQOS"    , 0, Pins(4)),
+        ("ARLOCK"   , 0, Pins(1)),
+        ("RDATA"    , 0, Pins(data_width1)),
+        ("RRESP"    , 0, Pins(2)),
+        ("RREADY"   , 0, Pins(1)),
+        ("RVALID"   , 0, Pins(1)),
+        ("RID"      , 0, Pins(8)),
+        ("RUSER"    , 0, Pins(1)),
+        ("RLAST"    , 0, Pins(1)),
+        
+        ("AWADDR1"   , 0, Pins(address_width2)),
+        ("AWPROT1"   , 0, Pins(3)),
+        ("AWVALID1"  , 0, Pins(1)),
+        ("AWREADY1"  , 0, Pins(1)),
+        ("AWBURST1"  , 0, Pins(2)),
+        ("AWSIZE1"   , 0, Pins(3)),
+        ("AWLEN1"    , 0, Pins(8)),
+        ("AWID1"     , 0, Pins(8)),
+        ("AWCACHE1"  , 0, Pins(4)),
+        ("AWREGION1" , 0, Pins(4)),
+        ("AWUSER1"   , 0, Pins(1)),
+        ("AWQOS1"    , 0, Pins(4)),
+        ("AWLOCK1"   , 0, Pins(1)),
+        ("WDATA1"    , 0, Pins(data_width2)),
+        ("WSTRB1"    , 0, Pins(data_width2//8)),
+        ("WVALID1"   , 0, Pins(1)),
+        ("WREADY1"   , 0, Pins(1)),
+        ("WID1"      , 0, Pins(8)),
+        ("WLAST1"    , 0, Pins(1)),
+        ("BRESP1"    , 0, Pins(2)),
+        ("BVALID1"   , 0, Pins(1)),
+        ("BREADY1"   , 0, Pins(1)),
+        ("BID1"      , 0, Pins(8)),
+        ("BUSER1"    , 0, Pins(1)),
+        ("ARADDR1"   , 0, Pins(address_width2)),
+        ("ARPROT1"   , 0, Pins(3)),
+        ("ARVALID1"  , 0, Pins(1)),
+        ("ARREADY1"  , 0, Pins(1)),
+        ("ARBUSRT1"  , 0, Pins(2)),
+        ("ARSIZE1"   , 0, Pins(3)),
+        ("ARLEN1"    , 0, Pins(8)),
+        ("ARID1"     , 0, Pins(8)),
+        ("ARCACHE1"  , 0, Pins(4)),
+        ("ARREGION1" , 0, Pins(4)),
+        ("ARUSER1"   , 0, Pins(1)),
+        ("ARQOS1"    , 0, Pins(4)),
+        ("ARLOCK1"   , 0, Pins(1)),
+        ("RDATA1"    , 0, Pins(data_width2)),
+        ("RRESP1"    , 0, Pins(2)),
+        ("RREADY1"   , 0, Pins(1)),
+        ("RVALID1"   , 0, Pins(1)),
+        ("RID1"      , 0, Pins(8)),
+        ("RUSER1"    , 0, Pins(1)),
+        ("RLAST1"    , 0, Pins(1)),
     ]
 
 def get_io_s(nprobes,probesize):
@@ -167,7 +304,7 @@ def get_io_s(nprobes,probesize):
 
 # AXI LITE OCLA Wrapper ----------------------------------------------------------------------------------
 class AXILITEOCLAWrapper(Module):
-    def __init__(self, platform, address_width, data_width, nprobes,mem_depth,probesize,mode,axi_type,Sampling_Clock,EIO_Enable,Input_Probe_Width,Ouput_Probe_width):
+    def __init__(self, platform, address_width1, data_width1,address_width2, data_width2,No_AXI_Bus, nprobes,mem_depth,probesize,mode,axi_type,Sampling_Clock,EIO_Enable,Input_Probe_Width,Ouput_Probe_width):
         
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_axiclknrst_ios())
@@ -183,8 +320,8 @@ class AXILITEOCLAWrapper(Module):
 
         # AXI LITE --------------------------------------------------------------------------------------
         s_axil = AXILiteInterface(
-            address_width       = address_width,
-            data_width          = data_width
+            address_width       = address_width1,
+            data_width         = data_width1
         )
         
       
@@ -194,6 +331,11 @@ class AXILITEOCLAWrapper(Module):
         # AXI-LITE-OCLA ----------------------------------------------------------------------------------
         self.submodules.ocla = ocla =  AXILITEOCLA(platform, 
             s_axil              =   s_axil,
+            address_width1       = address_width1,
+            data_width1          = data_width1,
+            address_width2       = address_width2,
+            data_width2          = data_width2,
+            No_AXI_Bus           = No_AXI_Bus,
             nprobes             =   nprobes,
             mem_depth           =   mem_depth,
             probesize           =   probesize,
@@ -208,8 +350,10 @@ class AXILITEOCLAWrapper(Module):
         platform.add_extension(get_ocla_ios(Input_Probe_Width,Ouput_Probe_width))
         platform.add_extension(get_eio_clk())
         platform.add_extension(get_sclk_ios(nprobes))
-        platform.add_extension(get_axi_lite_ios())
-        platform.add_extension(get_axi_full_ios())
+        platform.add_extension(get_axi_lite_ios(address_width1,data_width1))
+        platform.add_extension(get_axi_full_ios(address_width1,data_width1))
+        platform.add_extension(get_axi_lite_ios1(address_width1,data_width1,address_width2,data_width2))
+        platform.add_extension(get_axi_full_ios1(address_width1,data_width1,address_width2,data_width2))
         platform.add_extension(get_nssclk_ios())
         platform.add_extension(jtag_interface())
         platform.add_extension(get_axisclk_ios())  
@@ -251,71 +395,204 @@ class AXILITEOCLAWrapper(Module):
         if mode == "AXI" or mode == "NATIVE_AXI":
             self.comb += ocla.axi_sampling_clk.eq(platform.request("axi_sampling_clk"))
             if axi_type == "AXILite":
-                self.comb += ocla.awaddr.eq(platform.request("awaddr"))
-                self.comb += ocla.awprot.eq(platform.request("awprot"))
-                self.comb += ocla.awvalid.eq(platform.request("awvalid"))
-                self.comb += ocla.awready.eq(platform.request("awready"))
-                self.comb += ocla.wdata.eq(platform.request("wdata"))
-                self.comb += ocla.wstrb.eq(platform.request("wstrb"))
-                self.comb += ocla.wvalid.eq(platform.request("wvalid"))
-                self.comb += ocla.wready.eq(platform.request("wready"))
-                self.comb += ocla.bresp.eq(platform.request("bresp"))
-                self.comb += ocla.bvalid.eq(platform.request("bvalid"))
-                self.comb += ocla.bready.eq(platform.request("bready"))
-                self.comb += ocla.araddr.eq(platform.request("araddr"))
-                self.comb += ocla.arprot.eq(platform.request("arprot"))
-                self.comb += ocla.arvalid.eq(platform.request("arvalid"))
-                self.comb += ocla.arready.eq(platform.request("arready"))
-                self.comb += ocla.rdata.eq(platform.request("rdata"))
-                self.comb += ocla.rresp.eq(platform.request("rresp"))
-                self.comb += ocla.rvalid.eq(platform.request("rvalid"))
-                self.comb += ocla.rready.eq(platform.request("rready"))
+                if No_AXI_Bus == 1:    
+                    self.comb += ocla.awaddr.eq(platform.request("awaddr"))
+                    self.comb += ocla.awprot.eq(platform.request("awprot"))
+                    self.comb += ocla.awvalid.eq(platform.request("awvalid"))
+                    self.comb += ocla.awready.eq(platform.request("awready"))
+                    self.comb += ocla.wdata.eq(platform.request("wdata"))
+                    self.comb += ocla.wstrb.eq(platform.request("wstrb"))
+                    self.comb += ocla.wvalid.eq(platform.request("wvalid"))
+                    self.comb += ocla.wready.eq(platform.request("wready"))
+                    self.comb += ocla.bresp.eq(platform.request("bresp"))
+                    self.comb += ocla.bvalid.eq(platform.request("bvalid"))
+                    self.comb += ocla.bready.eq(platform.request("bready"))
+                    self.comb += ocla.araddr.eq(platform.request("araddr"))
+                    self.comb += ocla.arprot.eq(platform.request("arprot"))
+                    self.comb += ocla.arvalid.eq(platform.request("arvalid"))
+                    self.comb += ocla.arready.eq(platform.request("arready"))
+                    self.comb += ocla.rdata.eq(platform.request("rdata"))
+                    self.comb += ocla.rresp.eq(platform.request("rresp"))
+                    self.comb += ocla.rvalid.eq(platform.request("rvalid"))
+                    self.comb += ocla.rready.eq(platform.request("rready"))
+                else:
+                    self.comb += ocla.awaddr.eq(platform.request("awaddr"))
+                    self.comb += ocla.awprot.eq(platform.request("awprot"))
+                    self.comb += ocla.awvalid.eq(platform.request("awvalid"))
+                    self.comb += ocla.awready.eq(platform.request("awready"))
+                    self.comb += ocla.wdata.eq(platform.request("wdata"))
+                    self.comb += ocla.wstrb.eq(platform.request("wstrb"))
+                    self.comb += ocla.wvalid.eq(platform.request("wvalid"))
+                    self.comb += ocla.wready.eq(platform.request("wready"))
+                    self.comb += ocla.bresp.eq(platform.request("bresp"))
+                    self.comb += ocla.bvalid.eq(platform.request("bvalid"))
+                    self.comb += ocla.bready.eq(platform.request("bready"))
+                    self.comb += ocla.araddr.eq(platform.request("araddr"))
+                    self.comb += ocla.arprot.eq(platform.request("arprot"))
+                    self.comb += ocla.arvalid.eq(platform.request("arvalid"))
+                    self.comb += ocla.arready.eq(platform.request("arready"))
+                    self.comb += ocla.rdata.eq(platform.request("rdata"))
+                    self.comb += ocla.rresp.eq(platform.request("rresp"))
+                    self.comb += ocla.rvalid.eq(platform.request("rvalid"))
+                    self.comb += ocla.rready.eq(platform.request("rready"))
+                    
+                    self.comb += ocla.awaddr1.eq(platform.request("awaddr1"))
+                    self.comb += ocla.awprot1.eq(platform.request("awprot1"))
+                    self.comb += ocla.awvalid1.eq(platform.request("awvalid1"))
+                    self.comb += ocla.awready1.eq(platform.request("awready1"))
+                    self.comb += ocla.wdata1.eq(platform.request("wdata1"))
+                    self.comb += ocla.wstrb1.eq(platform.request("wstrb1"))
+                    self.comb += ocla.wvalid1.eq(platform.request("wvalid1"))
+                    self.comb += ocla.wready1.eq(platform.request("wready1"))
+                    self.comb += ocla.bresp1.eq(platform.request("bresp1"))
+                    self.comb += ocla.bvalid1.eq(platform.request("bvalid1"))
+                    self.comb += ocla.bready1.eq(platform.request("bready1"))
+                    self.comb += ocla.araddr1.eq(platform.request("araddr1"))
+                    self.comb += ocla.arprot1.eq(platform.request("arprot1"))
+                    self.comb += ocla.arvalid1.eq(platform.request("arvalid1"))
+                    self.comb += ocla.arready1.eq(platform.request("arready1"))
+                    self.comb += ocla.rdata1.eq(platform.request("rdata1"))
+                    self.comb += ocla.rresp1.eq(platform.request("rresp1"))
+                    self.comb += ocla.rvalid1.eq(platform.request("rvalid1"))
+                    self.comb += ocla.rready1.eq(platform.request("rready1"))
             else:
-                self.comb += ocla.AWADDR.eq(platform.request("AWADDR"))
-                self.comb += ocla.AWPROT.eq(platform.request("AWPROT"))
-                self.comb += ocla.AWVALID.eq(platform.request("AWVALID"))
-                self.comb += ocla.AWREADY.eq(platform.request("AWREADY"))
-                self.comb += ocla.AWBURST.eq(platform.request("AWBURST"))
-                self.comb += ocla.AWSIZE.eq(platform.request("AWSIZE"))
-                self.comb += ocla.AWLEN.eq(platform.request("AWLEN"))
-                self.comb += ocla.AWID.eq(platform.request("AWID"))
-                self.comb += ocla.AWCACHE.eq(platform.request("AWCACHE"))
-                self.comb += ocla.AWREGION.eq(platform.request("AWREGION"))
-                self.comb += ocla.AWUSER.eq(platform.request("AWUSER"))
-                self.comb += ocla.AWQOS.eq(platform.request("AWQOS"))
-                self.comb += ocla.AWLOCK.eq(platform.request("AWLOCK"))
-                self.comb += ocla.WDATA.eq(platform.request("WDATA"))
-                self.comb += ocla.WSTRB.eq(platform.request("WSTRB"))
-                self.comb += ocla.WVALID.eq(platform.request("WVALID"))
-                self.comb += ocla.WREADY.eq(platform.request("WREADY"))
-                self.comb += ocla.WID.eq(platform.request("WID"))
-                self.comb += ocla.WLAST.eq(platform.request("WLAST"))
-                self.comb += ocla.BRESP.eq(platform.request("BRESP"))
-                self.comb += ocla.BVALID.eq(platform.request("BVALID"))
-                self.comb += ocla.BREADY.eq(platform.request("BREADY"))
-                self.comb += ocla.BID.eq(platform.request("BID"))
-                self.comb += ocla.BUSER.eq(platform.request("BUSER"))
-                self.comb += ocla.ARADDR.eq(platform.request("ARADDR"))
-                self.comb += ocla.ARPROT.eq(platform.request("ARPROT"))
-                self.comb += ocla.ARVALID.eq(platform.request("ARVALID"))
-                self.comb += ocla.ARREADY.eq(platform.request("ARREADY"))
-                self.comb += ocla.ARBUSRT.eq(platform.request("ARBUSRT"))
-                self.comb += ocla.ARSIZE.eq(platform.request("ARSIZE"))
-                self.comb += ocla.ARLEN.eq(platform.request("ARLEN"))
-                self.comb += ocla.ARID.eq(platform.request("ARID"))
-                self.comb += ocla.ARCACHE.eq(platform.request("ARCACHE"))
-                self.comb += ocla.ARREGION.eq(platform.request("ARREGION"))
-                self.comb += ocla.ARUSER.eq(platform.request("ARUSER"))
-                self.comb += ocla.ARQOS.eq(platform.request("ARQOS"))
-                self.comb += ocla.ARLOCK.eq(platform.request("ARLOCK"))
-                self.comb += ocla.RDATA.eq(platform.request("RDATA"))
-                self.comb += ocla.RRESP.eq(platform.request("RRESP"))
-                self.comb += ocla.RREADY.eq(platform.request("RREADY"))
-                self.comb += ocla.RVALID.eq(platform.request("RVALID"))
-                self.comb += ocla.RID.eq(platform.request("RID"))
-                self.comb += ocla.RUSER.eq(platform.request("RUSER"))
-                self.comb += ocla.RLAST.eq(platform.request("RLAST"))
-                
+                if No_AXI_Bus == 1:    
+
+                    self.comb += ocla.AWADDR.eq(platform.request("AWADDR"))
+                    self.comb += ocla.AWPROT.eq(platform.request("AWPROT"))
+                    self.comb += ocla.AWVALID.eq(platform.request("AWVALID"))
+                    self.comb += ocla.AWREADY.eq(platform.request("AWREADY"))
+                    self.comb += ocla.AWBURST.eq(platform.request("AWBURST"))
+                    self.comb += ocla.AWSIZE.eq(platform.request("AWSIZE"))
+                    self.comb += ocla.AWLEN.eq(platform.request("AWLEN"))
+                    self.comb += ocla.AWID.eq(platform.request("AWID"))
+                    self.comb += ocla.AWCACHE.eq(platform.request("AWCACHE"))
+                    self.comb += ocla.AWREGION.eq(platform.request("AWREGION"))
+                    self.comb += ocla.AWUSER.eq(platform.request("AWUSER"))
+                    self.comb += ocla.AWQOS.eq(platform.request("AWQOS"))
+                    self.comb += ocla.AWLOCK.eq(platform.request("AWLOCK"))
+                    self.comb += ocla.WDATA.eq(platform.request("WDATA"))
+                    self.comb += ocla.WSTRB.eq(platform.request("WSTRB"))
+                    self.comb += ocla.WVALID.eq(platform.request("WVALID"))
+                    self.comb += ocla.WREADY.eq(platform.request("WREADY"))
+                    self.comb += ocla.WID.eq(platform.request("WID"))
+                    self.comb += ocla.WLAST.eq(platform.request("WLAST"))
+                    self.comb += ocla.BRESP.eq(platform.request("BRESP"))
+                    self.comb += ocla.BVALID.eq(platform.request("BVALID"))
+                    self.comb += ocla.BREADY.eq(platform.request("BREADY"))
+                    self.comb += ocla.BID.eq(platform.request("BID"))
+                    self.comb += ocla.BUSER.eq(platform.request("BUSER"))
+                    self.comb += ocla.ARADDR.eq(platform.request("ARADDR"))
+                    self.comb += ocla.ARPROT.eq(platform.request("ARPROT"))
+                    self.comb += ocla.ARVALID.eq(platform.request("ARVALID"))
+                    self.comb += ocla.ARREADY.eq(platform.request("ARREADY"))
+                    self.comb += ocla.ARBUSRT.eq(platform.request("ARBUSRT"))
+                    self.comb += ocla.ARSIZE.eq(platform.request("ARSIZE"))
+                    self.comb += ocla.ARLEN.eq(platform.request("ARLEN"))
+                    self.comb += ocla.ARID.eq(platform.request("ARID"))
+                    self.comb += ocla.ARCACHE.eq(platform.request("ARCACHE"))
+                    self.comb += ocla.ARREGION.eq(platform.request("ARREGION"))
+                    self.comb += ocla.ARUSER.eq(platform.request("ARUSER"))
+                    self.comb += ocla.ARQOS.eq(platform.request("ARQOS"))
+                    self.comb += ocla.ARLOCK.eq(platform.request("ARLOCK"))
+                    self.comb += ocla.RDATA.eq(platform.request("RDATA"))
+                    self.comb += ocla.RRESP.eq(platform.request("RRESP"))
+                    self.comb += ocla.RREADY.eq(platform.request("RREADY"))
+                    self.comb += ocla.RVALID.eq(platform.request("RVALID"))
+                    self.comb += ocla.RID.eq(platform.request("RID"))
+                    self.comb += ocla.RUSER.eq(platform.request("RUSER"))
+                    self.comb += ocla.RLAST.eq(platform.request("RLAST"))
+                else:
+                    self.comb += ocla.AWADDR.eq(platform.request("AWADDR"))
+                    self.comb += ocla.AWPROT.eq(platform.request("AWPROT"))
+                    self.comb += ocla.AWVALID.eq(platform.request("AWVALID"))
+                    self.comb += ocla.AWREADY.eq(platform.request("AWREADY"))
+                    self.comb += ocla.AWBURST.eq(platform.request("AWBURST"))
+                    self.comb += ocla.AWSIZE.eq(platform.request("AWSIZE"))
+                    self.comb += ocla.AWLEN.eq(platform.request("AWLEN"))
+                    self.comb += ocla.AWID.eq(platform.request("AWID"))
+                    self.comb += ocla.AWCACHE.eq(platform.request("AWCACHE"))
+                    self.comb += ocla.AWREGION.eq(platform.request("AWREGION"))
+                    self.comb += ocla.AWUSER.eq(platform.request("AWUSER"))
+                    self.comb += ocla.AWQOS.eq(platform.request("AWQOS"))
+                    self.comb += ocla.AWLOCK.eq(platform.request("AWLOCK"))
+                    self.comb += ocla.WDATA.eq(platform.request("WDATA"))
+                    self.comb += ocla.WSTRB.eq(platform.request("WSTRB"))
+                    self.comb += ocla.WVALID.eq(platform.request("WVALID"))
+                    self.comb += ocla.WREADY.eq(platform.request("WREADY"))
+                    self.comb += ocla.WID.eq(platform.request("WID"))
+                    self.comb += ocla.WLAST.eq(platform.request("WLAST"))
+                    self.comb += ocla.BRESP.eq(platform.request("BRESP"))
+                    self.comb += ocla.BVALID.eq(platform.request("BVALID"))
+                    self.comb += ocla.BREADY.eq(platform.request("BREADY"))
+                    self.comb += ocla.BID.eq(platform.request("BID"))
+                    self.comb += ocla.BUSER.eq(platform.request("BUSER"))
+                    self.comb += ocla.ARADDR.eq(platform.request("ARADDR"))
+                    self.comb += ocla.ARPROT.eq(platform.request("ARPROT"))
+                    self.comb += ocla.ARVALID.eq(platform.request("ARVALID"))
+                    self.comb += ocla.ARREADY.eq(platform.request("ARREADY"))
+                    self.comb += ocla.ARBUSRT.eq(platform.request("ARBUSRT"))
+                    self.comb += ocla.ARSIZE.eq(platform.request("ARSIZE"))
+                    self.comb += ocla.ARLEN.eq(platform.request("ARLEN"))
+                    self.comb += ocla.ARID.eq(platform.request("ARID"))
+                    self.comb += ocla.ARCACHE.eq(platform.request("ARCACHE"))
+                    self.comb += ocla.ARREGION.eq(platform.request("ARREGION"))
+                    self.comb += ocla.ARUSER.eq(platform.request("ARUSER"))
+                    self.comb += ocla.ARQOS.eq(platform.request("ARQOS"))
+                    self.comb += ocla.ARLOCK.eq(platform.request("ARLOCK"))
+                    self.comb += ocla.RDATA.eq(platform.request("RDATA"))
+                    self.comb += ocla.RRESP.eq(platform.request("RRESP"))
+                    self.comb += ocla.RREADY.eq(platform.request("RREADY"))
+                    self.comb += ocla.RVALID.eq(platform.request("RVALID"))
+                    self.comb += ocla.RID.eq(platform.request("RID"))
+                    self.comb += ocla.RUSER.eq(platform.request("RUSER"))
+                    self.comb += ocla.RLAST.eq(platform.request("RLAST"))
+                    
+                    self.comb += ocla.AWADDR1.eq(platform.request("AWADDR1"))
+                    self.comb += ocla.AWPROT1.eq(platform.request("AWPROT1"))
+                    self.comb += ocla.AWVALID1.eq(platform.request("AWVALID1"))
+                    self.comb += ocla.AWREADY1.eq(platform.request("AWREADY1"))
+                    self.comb += ocla.AWBURST1.eq(platform.request("AWBURST1"))
+                    self.comb += ocla.AWSIZE1.eq(platform.request("AWSIZE1"))
+                    self.comb += ocla.AWLEN1.eq(platform.request("AWLEN1"))
+                    self.comb += ocla.AWID1.eq(platform.request("AWID1"))
+                    self.comb += ocla.AWCACHE1.eq(platform.request("AWCACHE1"))
+                    self.comb += ocla.AWREGION1.eq(platform.request("AWREGION1"))
+                    self.comb += ocla.AWUSER1.eq(platform.request("AWUSER1"))
+                    self.comb += ocla.AWQOS1.eq(platform.request("AWQOS1"))
+                    self.comb += ocla.AWLOCK1.eq(platform.request("AWLOCK1"))
+                    self.comb += ocla.WDATA1.eq(platform.request("WDATA1"))
+                    self.comb += ocla.WSTRB1.eq(platform.request("WSTRB1"))
+                    self.comb += ocla.WVALID1.eq(platform.request("WVALID1"))
+                    self.comb += ocla.WREADY1.eq(platform.request("WREADY1"))
+                    self.comb += ocla.WID1.eq(platform.request("WID1"))
+                    self.comb += ocla.WLAST1.eq(platform.request("WLAST1"))
+                    self.comb += ocla.BRESP1.eq(platform.request("BRESP1"))
+                    self.comb += ocla.BVALID1.eq(platform.request("BVALID1"))
+                    self.comb += ocla.BREADY1.eq(platform.request("BREADY1"))
+                    self.comb += ocla.BID1.eq(platform.request("BID1"))
+                    self.comb += ocla.BUSER1.eq(platform.request("BUSER1"))
+                    self.comb += ocla.ARADDR1.eq(platform.request("ARADDR1"))
+                    self.comb += ocla.ARPROT1.eq(platform.request("ARPROT1"))
+                    self.comb += ocla.ARVALID1.eq(platform.request("ARVALID1"))
+                    self.comb += ocla.ARREADY1.eq(platform.request("ARREADY1"))
+                    self.comb += ocla.ARBUSRT1.eq(platform.request("ARBUSRT1"))
+                    self.comb += ocla.ARSIZE1.eq(platform.request("ARSIZE1"))
+                    self.comb += ocla.ARLEN1.eq(platform.request("ARLEN1"))
+                    self.comb += ocla.ARID1.eq(platform.request("ARID1"))
+                    self.comb += ocla.ARCACHE1.eq(platform.request("ARCACHE1"))
+                    self.comb += ocla.ARREGION1.eq(platform.request("ARREGION1"))
+                    self.comb += ocla.ARUSER1.eq(platform.request("ARUSER1"))
+                    self.comb += ocla.ARQOS1.eq(platform.request("ARQOS1"))
+                    self.comb += ocla.ARLOCK1.eq(platform.request("ARLOCK1"))
+                    self.comb += ocla.RDATA1.eq(platform.request("RDATA1"))
+                    self.comb += ocla.RRESP1.eq(platform.request("RRESP1"))
+                    self.comb += ocla.RREADY1.eq(platform.request("RREADY1"))
+                    self.comb += ocla.RVALID1.eq(platform.request("RVALID1"))
+                    self.comb += ocla.RID1.eq(platform.request("RID1"))
+                    self.comb += ocla.RUSER1.eq(platform.request("RUSER1"))
+                    self.comb += ocla.RLAST1.eq(platform.request("RLAST1"))
+
 
             #else:
              #   self.comb += s_axil.connect_to_pads(platform.request("s_axil"), mode="slave")
@@ -343,10 +620,8 @@ def main():
     
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="OCLA IP Core fix parameters")
-    core_fix_param_group.add_argument("--mem_depth",             type=int,      default=32,     choices=[32, 64, 128, 256, 512, 1024],   help="OCLA Trace Memory Depth.")
-    core_fix_param_group.add_argument("--s_axi_addr_width",      type=int,      default=32,     choices=[8, 16, 32],                     help="OCLA Address Width.")
-    core_fix_param_group.add_argument("--s_axi_data_width",      type=int,      default=32,     choices=[32],                            help="OCLA Data Width.")
-    
+    core_fix_param_group.add_argument("--mem_depth",             type=int,      default=32,     choices=[32, 64, 128, 256, 512, 1024],      help="OCLA Trace Memory Depth.")
+
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="OCLA IP Core range parameters")
 
@@ -360,6 +635,11 @@ def main():
     core_string_param_group.add_argument("--Sampling_Clock",     type=str,      default="SINGLE",      choices=["SINGLE","MULTIPLE"],           help="Select Equation")
     core_string_param_group.add_argument("--mode",               type=str,      default="NATIVE",      choices=["NATIVE","AXI","NATIVE_AXI"],    help="Select Equation")
     core_string_param_group.add_argument("--axi_type",           type=str,      default="AXILite",     choices=["AXILite","AXI4"],              help="Select Equation")
+    core_fix_param_group.add_argument("--No_AXI_Bus",           type=int,      default=1,     choices=[1,2],                                help="AXI Bus numbers.")
+    core_fix_param_group.add_argument("--axi1_addr_width",      type=int,      default=32,     choices=[8, 16, 32],                         help="OCLA Address Width1.")
+    core_fix_param_group.add_argument("--axi1_data_width",      type=int,      default=32,     choices=[8,16,32],                           help="OCLA Data Width1.")
+    core_fix_param_group.add_argument("--axi2_addr_width",      type=int,      default=32,     choices=[8, 16, 32],                         help="OCLA Address Width2.")
+    core_fix_param_group.add_argument("--axi2_data_width",      type=int,      default=32,     choices=[8,16,32],                           help="OCLA Data Width2.")
 
 
     core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1,       choices=range(1,16),          help="Number of Probes.")
@@ -405,13 +685,27 @@ def main():
             
         if (args.mode == 'NATIVE'):
             dep_dict.update({
-                'axi_type'     :     'True'
+                'axi_type'     :     'True',
+                'No_AXI_Bus'        :   'True',
+                'axi1_addr_width'  : 'True',
+                'axi1_data_width' : 'True',
+                'axi2_addr_width'  : 'True',
+                'axi2_data_width' : 'True',
+
+            })
+            
+        if (args.No_AXI_Bus == 1):
+            dep_dict.update({
+ 
+                'axi2_addr_width'  : 'True',
+                'axi2_data_width' : 'True'
+
             })
 
         if (args.mode == "AXI"):
             dep_dict.update({
-                'no_of_probes'   :  'True',
-                'probe1_Width'      : 'True'
+                'no_of_probes'      :   'True',
+                'probe1_Width'      :   'True'
             })
 
         n= args.no_of_probes
@@ -428,9 +722,9 @@ def main():
        #         arg_help = "probe_clock " + str(i)
        #         core_range_param_group.add_argument(arg_name, type=int, default=50, choices=range(1, 251), help="Probe Clock")
 
-        if(num_elements == ((1*n) + 15)):
+        if(num_elements == ((1*n) + 18)):
             for i in range (1, n+1):
-                if((i + 15) <= num_elements):
+                if((i + 18) <= num_elements):
                     arg_name = "probe" + str(i) + "_Width"
                     probe_size[i] = (eval(f'args.{arg_name}'))
                 else:
@@ -472,8 +766,11 @@ def main():
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
     module     = AXILITEOCLAWrapper(platform,
-        address_width     = args.s_axi_addr_width,
-        data_width        = args.s_axi_data_width,
+        address_width1     = args.axi1_addr_width,
+        data_width1        = args.axi1_data_width,
+        address_width2     = args.axi2_addr_width,
+        data_width2        = args.axi2_data_width,
+        No_AXI_Bus         = args.No_AXI_Bus,
         nprobes           = args.no_of_probes, 
         mem_depth         = args.mem_depth,
         probesize         = probe_size,
