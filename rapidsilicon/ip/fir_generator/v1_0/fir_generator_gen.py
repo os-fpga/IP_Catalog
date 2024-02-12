@@ -209,7 +209,7 @@ def main():
             summary ["Coefficient Bit Width"] = "20"
             summary ["Input Frequency"] = f"{input_minimum} MHz - {input_maximum} MHz"
             summary ["Input File"] = "Only .hex file format is supported without any prefix for numbers."
-            summary ["Fast Clock Frequency"] = f"Fast clock must be {args.number_of_coefficients}x of the input clock."
+            summary ["Fast Clock Frequency"] = f"Fast clock must be {args.number_of_coefficients}x of the input master clock."
             if (not args.truncated_output):
                 summary ["Output Width"] = f"{min(args.input_width + bit_growth, 38)} with worst case bit growth."
             summary ["Number of DSPs"] = "1"
@@ -239,7 +239,7 @@ def main():
             summary ["Input Frequency"] = f"{input_minimum} MHz - {input_maximum} MHz"
             summary ["Optimization"] = "Area"
             summary ["Number of DSPs"] = "1"
-            summary ["Fast Clock Frequency"] = f"Fast clock must be {len(extract_numbers(coefficients, args.coefficients_file))}x of the input clock."
+            summary ["Fast Clock Frequency"] = f"Fast clock must be {len(extract_numbers(coefficients, args.coefficients_file))}x of the input master clock."
         else:
             summary ["Optimization"] = "Performance"
             summary ["Number of DSPs"] = len(extract_numbers(coefficients, args.coefficients_file))
