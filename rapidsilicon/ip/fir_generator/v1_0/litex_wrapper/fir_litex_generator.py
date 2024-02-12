@@ -272,13 +272,12 @@ class FIR(Module):
             self.comb += [
                 self.dout_reg.eq(self.data_out)
             ]
-            
-            # self.comb += ResetSignal("accelerated").eq(self.rst)
-            self.sync.accelerated += [
-                If(self.count == 0,
-                   self.dsp_in.eq(self.shift_reg[number_of_coefficients - 1])
-                   )
-            ]
+            if (number_of_coefficients > 0):
+                self.sync.accelerated += [
+                    If(self.count == 0,
+                       self.dsp_in.eq(self.shift_reg[number_of_coefficients - 1])
+                       )
+                ]
             for i in range(1, number_of_coefficients):
                 self.sync.accelerated += [
                     If(self.count == i,

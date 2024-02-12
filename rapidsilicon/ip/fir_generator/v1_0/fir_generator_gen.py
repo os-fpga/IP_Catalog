@@ -121,7 +121,7 @@ def main():
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--coefficients_file",        type=bool,   default=True,     help="Enter Coefficients manually or select a text file containing them")
+    core_bool_param_group.add_argument("--coefficients_file",        type=bool,   default=False,     help="Enter Coefficients manually or select a text file containing them")
     core_bool_param_group.add_argument("--truncated_output",        type=bool,   default=False,     help="Truncated Output Data Width")
     core_bool_param_group.add_argument("--signed",        type=bool,   default=False,     help="Signed or Unsigned Input")
     
