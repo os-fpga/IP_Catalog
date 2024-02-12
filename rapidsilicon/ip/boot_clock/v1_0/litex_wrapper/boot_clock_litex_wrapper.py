@@ -48,9 +48,9 @@ class BOOT_CLOCK(Module):
             o_O=self.O
         )
 
-        self.add_sources(platform)
-
-    @staticmethod
-    def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "boot_clock.v"))
+#        self.add_sources(platform)
+#
+#    @staticmethod
+#    def add_sources(platform):
+#        rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
+#        platform.add_source(os.path.join(rtl_dir, "boot_clock.v"))
