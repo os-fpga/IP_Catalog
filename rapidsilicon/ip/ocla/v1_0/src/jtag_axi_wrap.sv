@@ -103,7 +103,8 @@ module jtag_axi_wrap #
    assign axi_request = axireg_i[0];
    assign loadstore   = axireg_i[1];   // set for write, clear for read
 
-   always_comb 
+   //always_comb 
+   always@(*)
    begin
       state_dn = state_dp;
 

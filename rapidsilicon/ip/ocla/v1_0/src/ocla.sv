@@ -1168,7 +1168,8 @@ logic out_sig0, out_sig1, out_sig2, out_sig3;
 
 // dflop dff_out_sig (.sample_clk(sample_clk),.rstn(rstn),.D(out_sig),.Q(vc_trigger_event));
 
-always_comb
+//always_comb
+always@(*)
 begin
 if (en)
 begin
