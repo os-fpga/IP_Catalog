@@ -62,29 +62,32 @@ module gpcore #
   wire [DATA_WIDTH-1:0]		          gpInDir;
   reg                                 gpInt;
   
-  reg [31:0] reg_TYPE;
-  reg [31:0] reg_ID;
-  reg [31:0] reg_VERSION;
-  reg [31:0] reg_reserved1;
-  reg [31:0] reg_reserved2;
+  reg [31:0] reg_TYPE       = 32'd0;
+  reg [31:0] reg_ID         = 32'd0;
+  reg [31:0] reg_VERSION    = 32'd0; 
+  reg [31:0] reg_reserved1  = 32'd0;
+  reg [31:0] reg_reserved2  = 32'd0;
   
-  parameter[7:0]	GP_TYPE      = 8'h0,
+  parameter[7:0]  GP_TYPE      = 8'h0,
                   GP_VERSION   = 8'h1,
                   GP_ID        = 8'h2,
                   GP_RSVD1     = 8'h3,
                   GP_RSVD2     = 8'h4,
                   GPDAT        = 8'h5,
-  			          GPDIR        = 8'h6,
-  			          GPIEN        = 8'h7,
-  			          GPINT        = 8'h8;
+  			      GPDIR        = 8'h6,
+  			      GPIEN        = 8'h7,
+  			      GPINT        = 8'h8;
   
-  assign oRDAT 		    = regDatQ;
-  assign oERR 		    = isErrQ;
-  assign oINT		      = rGpInt;
-  assign oGPOUT		    = rGpDat & ~rGpDir;
-  assign reg_TYPE     = IP_TYPE;
-  assign reg_ID       = IP_ID;
-  assign reg_VERSION  = IP_VERSION;
+  assign oRDAT 		  = regDatQ;
+  assign oERR 		  = isErrQ;
+  assign oINT		  = rGpInt;
+  assign oGPOUT		  = rGpDat & ~rGpDir;
+
+  initial @(*) begin
+    reg_TYPE     = IP_TYPE;
+    reg_ID       = IP_ID;
+    reg_VERSION  = IP_VERSION;
+  end
 
   // interrupt logic
   assign gpInDir 	= rGpDir & iGPIN;
@@ -154,8 +157,8 @@ module gpcore #
       GP_TYPE:      regDat = reg_TYPE;
       GP_VERSION:   regDat = reg_VERSION;
       GP_ID:        regDat = reg_ID;
-      GP_RSVD1:     regDat = 32'h0;
-      GP_RSVD2:     regDat = 32'h0;
+      GP_RSVD1:     regDat = reg_reserved1;
+      GP_RSVD2:     regDat = reg_reserved2;
       GPDAT:        regDat = rGpDat;
       GPDIR:        regDat = rGpDir;
       GPIEN:        regDat = {31'h0, rGpIen};

@@ -140,10 +140,6 @@ class OCM_SYM(Module):
         
         # BRAM Utilization Logic
         if (bram == 1):
-            # Number of Data Out Ports from BRAMS
-            self.bram_out_A = [Signal(36*n) for i in range(m)]
-            self.bram_out_B = [Signal(36*n) for i in range(m)]
-
             if (write_depth in [1024, 2048, 4096, 8192, 16384, 32768]):
                 # Single Port RAM
                 if (memory_type == "Single_Port"):
