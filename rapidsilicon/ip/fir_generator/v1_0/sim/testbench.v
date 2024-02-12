@@ -1,10 +1,14 @@
 `timescale 1ns/1ps
 
 module tb;
-reg clk, rst; reg [17:0] din; wire [37:0] dout; wire ready;
+reg clk, rst, accelerated_clk; reg [17:0] din; wire [37:0] dout; wire ready;
 initial begin
     clk = 1'b1;
     forever #5 clk = ~clk;
+end
+initial begin
+    accelerated_clk = 1'b1;
+    forever #5 accelerated_clk = ~accelerated_clk;
 end
 initial begin
     rst = 1'b1;
@@ -16,8 +20,8 @@ FIR_generator fir_filter(
     .clk(clk),
     .rst(rst),
     .data_in(din),
-    .data_out(dout),
-    .ready(ready)
+    .ready(ready),
+    .data_out(dout)
 );
 
 initial begin

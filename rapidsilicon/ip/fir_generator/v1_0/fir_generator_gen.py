@@ -32,6 +32,7 @@ def is_valid_extension(file_path):
 def get_clkin_ios(data_in, data_out):
     return [
         ("clk",         0,  Pins(1)),
+        ("fast_clk",    0,  Pins(1)),
         ("rst",         0,  Pins(1)),
 		("data_in",     0,  Pins(data_in)),
         ("data_out",    0,  Pins(data_out)),
@@ -57,20 +58,27 @@ class FIRGenerator(Module):
             bit_growth = math.ceil(math.log2(abs_sum))
 
         platform.add_extension(get_clkin_ios(input_width, min(input_width + bit_growth, 38) if not truncated_output else output_data_width))
-        self.clock_domains.cd_sys  = ClockDomain()
+        
         if(optimization == "Area"):
-            self.clock_domains.cd_fast	= ClockDomain()
+            self.clock_domains.cd_sys  = ClockDomain(reset_less=True)
+            self.clock_domains.cd_accelerated	= ClockDomain()
+        else:
+            self.clock_domains.cd_sys  = ClockDomain()
 	
         self.submodules.fir = fir = FIR(input_width, coefficients, coefficients_file, coefficient_fractional_bits, signed, optimization, number_of_coefficients, coefficient_width, input_fractional_bits, truncated_output, output_data_width)
     
         self.comb += fir.data_in.eq(platform.request("data_in"))
         if (optimization == "Area"):
             self.sync += platform.request("data_out").eq(fir.data_out)
+            self.sync += fir.rst.eq(platform.request("rst"))  
+            self.comb += self.cd_accelerated.rst.eq(fir.rst)  
+            self.comb += self.cd_accelerated.clk.eq(platform.request("fast_clk"))
         else:
             self.comb += platform.request("data_out").eq(fir.data_out)
-        self.comb += platform.request("ready").eq(fir.ready)
+            self.comb += self.cd_sys.rst.eq(platform.request("rst"))   
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        self.comb += self.cd_sys.rst.eq(platform.request("rst"))    
+        self.comb += platform.request("ready").eq(fir.ready)
+         
             
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -113,7 +121,7 @@ def main():
 
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--coefficients_file",        type=bool,   default=False,     help="Enter Coefficients manually or select a text file containing them")
+    core_bool_param_group.add_argument("--coefficients_file",        type=bool,   default=True,     help="Enter Coefficients manually or select a text file containing them")
     core_bool_param_group.add_argument("--truncated_output",        type=bool,   default=False,     help="Truncated Output Data Width")
     core_bool_param_group.add_argument("--signed",        type=bool,   default=False,     help="Signed or Unsigned Input")
     
@@ -201,6 +209,7 @@ def main():
             summary ["Coefficient Bit Width"] = "20"
             summary ["Input Frequency"] = f"{input_minimum} MHz - {input_maximum} MHz"
             summary ["Input File"] = "Only .hex file format is supported without any prefix for numbers."
+            summary ["Fast Clock Frequency"] = f"Fast clock must be {args.number_of_coefficients}x of the input clock."
             if (not args.truncated_output):
                 summary ["Output Width"] = f"{min(args.input_width + bit_growth, 38)} with worst case bit growth."
             summary ["Number of DSPs"] = "1"
@@ -230,6 +239,7 @@ def main():
             summary ["Input Frequency"] = f"{input_minimum} MHz - {input_maximum} MHz"
             summary ["Optimization"] = "Area"
             summary ["Number of DSPs"] = "1"
+            summary ["Fast Clock Frequency"] = f"Fast clock must be {len(extract_numbers(coefficients, args.coefficients_file))}x of the input clock."
         else:
             summary ["Optimization"] = "Performance"
             summary ["Number of DSPs"] = len(extract_numbers(coefficients, args.coefficients_file))
@@ -349,8 +359,16 @@ end
             text = text.replace("[37:0] dout", "[%s:0] dout" % str(min(args.input_width + bit_growth, 38) - 1))
         file.write_text(text)
         if (args.optimization == "Area"):
-            text = text.replace("forever #5", "forever #%s" % str(((1/input_maximum)/2) * 1000))
+            text = text.replace("#5 clk", "#%s clk" % str(((1/input_maximum)/2) * 1000))
             file.write_text(text)
+            text = text.replace(".data_out(dout)", ".data_out(dout), .fast_clk(accelerated_clk)")
+            file.write_text(text)
+            if (not args.coefficients_file):
+                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(((1/input_maximum)/2) * 1000 / len(extract_numbers(args.coefficients, args.coefficients_file))))
+                file.write_text(text)
+            else:
+                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(((1/input_maximum)/2) * 1000 /args.number_of_coefficients))
+                file.write_text(text)
 
 if __name__ == "__main__":
     main()
