@@ -1,6 +1,6 @@
 `timescale 1ps/1ps
 
-module mipi_dsi_bridge(rst, clk, 
+module mipi_spi2dsi_bridge(rst, clk, 
 				data_p, 
 				data_n, 
 				clk_p, 

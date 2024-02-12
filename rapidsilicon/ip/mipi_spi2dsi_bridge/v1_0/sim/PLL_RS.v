@@ -7,7 +7,7 @@
 // Copyright (c) 2023 Rapid Silicon, Inc.  All rights reserved.
 //
 
-module PLL_RS#(
+module PLL #(
   parameter DIVIDE_CLK_IN_BY_2 = "FALSE", // Enable input divider (TRUE/FALSE)
   parameter PLL_MULT = 16, // VCO clock multiplier value (16-1000)
   parameter PLL_DIV = 1, // VCO clock divider value (1-63)
