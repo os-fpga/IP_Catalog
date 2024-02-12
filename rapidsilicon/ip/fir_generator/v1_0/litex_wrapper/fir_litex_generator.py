@@ -61,15 +61,6 @@ def decimal_to_fixed_point(decimal_number, integer=4, fraction=4, signed=False):
         binary_result = sign_extension + binary_result
     return int(binary_result, 2)
 
-# Find the multiplier and divisor
-def find_x_y(result, x_range=(16, 1000), y_range=(1, 63)):
-    for x in range(x_range[0], x_range[1] + 1):
-        for y in range(y_range[0], y_range[1] + 1):
-            if x / y == result:
-                return x, y
-
-    return 0, 0
-
 # logging.basicConfig(level=logging.INFO)
 logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
 
@@ -108,10 +99,10 @@ class FIR(Module):
         self.data_out = Signal(bits_sign=(min(input_width + bit_growth, 38) if not truncated_output else output_data_width, True if signed else False))
 
         if (optimization == "Performance"):
-            self.z = Array(Signal() for _ in range (len(coefficients)))
-            self.delay_b = Array(Signal() for _ in range (len(coefficients)))
             self.ready = Signal()
             self.comb += self.ready.eq(~ResetSignal())
+            self.z = Array(Signal() for _ in range (len(coefficients)))
+            self.delay_b = Array(Signal() for _ in range (len(coefficients)))
 
             for i in range (len(coefficients)):
                 self.delay_b[i] = Signal(bits_sign=(input_width, True if signed else False), name=f"delay_b_{i}")
@@ -214,10 +205,12 @@ class FIR(Module):
                         i_SUBTRACT      = 0
                     )
         elif (len(coefficients) > 0 or number_of_coefficients > 0):
+            self.rst = Signal()
+            self.ready = Signal()
+            self.comb += self.ready.eq(~self.rst)
             if (not coefficients_file):
                 number_of_coefficients = len(coefficients)
             self.count = Signal(len(bin(number_of_coefficients - 1)[2:]), reset=0)
-            self.ready = Signal()
 
             if (not coefficients_file and number_of_coefficients > 0):
                 self.sel_coeff = Signal(20)
@@ -226,33 +219,19 @@ class FIR(Module):
                     coefficients.reverse()
                 for i in range (number_of_coefficients):
                     self.COEFF[i] = Signal(bits_sign=(20, True if signed else False), name=f"COEFF_{i}", reset=decimal_to_fixed_point(coefficients[i], coefficient_width - fractional_bits, fractional_bits, signed))
-                self.comb += [
-                    If(self.count == 0,
-                       self.sel_coeff.eq(self.COEFF[number_of_coefficients - 1]))
-                ]
-                for i in range (1, number_of_coefficients):
+
+                for i in range (number_of_coefficients):
                     self.comb += [
                         If(self.count == i,
-                           self.sel_coeff.eq(self.COEFF[i - 1]))
+                           self.sel_coeff.eq(self.COEFF[i]))
                     ]
             elif (number_of_coefficients > 0):
                 self.sel_coeff = Signal(len(bin(number_of_coefficients - 1)[2:]), reset=0)
-                self.comb += [
-                    If(self.count == 0,
-                       self.sel_coeff.eq(number_of_coefficients - 1)
-                       )
-                ]
-                for i in range (1, number_of_coefficients):
-                    self.comb += [
-                            If(self.count == i,
-                               self.sel_coeff.eq(i - 1)
-                               )
-                    ]
                 if (number_of_coefficients > 1):
                     self.specials.coefficients = Memory(width=20, depth=number_of_coefficients)
                     self.port = self.coefficients.get_port(write_capable=False, async_read=True, mode=READ_FIRST, has_re=False)
                     self.specials += self.port
-                    self.comb += self.port.adr.eq(self.sel_coeff)
+                    self.comb += self.port.adr.eq(self.count)
             else:
                 self.sel_coeff = Signal()
             
@@ -261,29 +240,27 @@ class FIR(Module):
 
             # Create shift register signals
             self.shift_reg = [Signal(input_width) for _ in range(number_of_coefficients)]
-            self.ready_flop = Signal()
-            self.sync += self.ready_flop.eq(self.ready)
             if (coefficients != ""):
                 self.sync += [
-                    If(self.ready,
-                       self.shift_reg[0].eq(self.data_in)
-                    )
-                              ]
+                    self.shift_reg[0].eq(self.data_in),
+                    If(self.rst,
+                       self.shift_reg[0].eq(0))
+                    ]
                 for i in range (1, number_of_coefficients):
                     self.sync += [
-                        If(self.ready,
                         # Shift the data through the register
-                            self.shift_reg[i].eq(self.shift_reg[i - 1]
-                                                 )
-                        )
+                        self.shift_reg[i].eq(self.shift_reg[i - 1]
+                            ),
+                    If(self.rst,
+                       self.shift_reg[i].eq(0))
+
                     ]
-            self.sync.fast += [
-                If(self.ready_flop,
-                    self.count.eq(self.count - 1),
-                    If(self.count == 0,
-                       self.count.eq(number_of_coefficients - 1)
-                       )
-                )
+            self.sync.accelerated += [
+                self.count.eq(self.count - 1),
+                If(self.count == 0,
+                   self.count.eq(number_of_coefficients - 1)
+                   )
+
             ]
             self.dsp_in = Signal(input_width)
             self.dout_reg = Signal(min(input_width + bit_growth, 38) if not truncated_output else output_data_width)
@@ -295,29 +272,24 @@ class FIR(Module):
             self.comb += [
                 self.dout_reg.eq(self.data_out)
             ]
-            
-            self.comb += ResetSignal("fast").eq(ResetSignal("sys"))
             if (number_of_coefficients > 0):
-                self.comb += [
-                    If(self.ready,
-                        If(self.count == 0,
-                           self.dsp_in.eq(self.shift_reg[number_of_coefficients - 1])
-                           )
-                    )
+                self.sync.accelerated += [
+                    If(self.count == 0,
+                       self.dsp_in.eq(self.shift_reg[number_of_coefficients - 1])
+                       )
                 ]
             for i in range(1, number_of_coefficients):
-                self.comb += [
-                    If(self.ready,
-                        If(self.count == i,
-                           self.dsp_in.eq(self.shift_reg[i - 1])
-                           )
-                    )
+                self.sync.accelerated += [
+                    If(self.count == i,
+                       self.dsp_in.eq(self.shift_reg[i - 1])
+                       )
+
                 ]
             self.input_coeff = Signal(20)
             if (coefficients_file and number_of_coefficients > 1):
-                self.comb += self.input_coeff.eq(Mux(self.ready, self.port.dat_r, 0))
-            multiplier, divisor = find_x_y(number_of_coefficients)
-            self.comb += self.feedback.eq(Mux(self.count == 0, C(1, 3), C(0, 3)))
+                self.comb += self.input_coeff.eq(self.port.dat_r)
+
+            self.comb += self.feedback.eq(Mux(self.count == number_of_coefficients - 1, C(1, 3), C(0, 3)))
 
             self.specials += Instance("DSP38",
 
@@ -329,8 +301,8 @@ class FIR(Module):
                 p_INPUT_REG_EN  = "FALSE",
 
                 # Reset
-                i_CLK           = ClockSignal("fast"),
-                i_RESET         = ResetSignal(),
+                i_CLK           = ClockSignal("accelerated"),
+                i_RESET         = self.rst,
                 # IOs
                 i_A             = self.input_coeff if coefficients_file else self.sel_coeff,
                 i_B             = self.dsp_in,
@@ -343,18 +315,5 @@ class FIR(Module):
                 i_SATURATE      = 1,
                 i_SHIFT_RIGHT   = C(0, 6),
                 i_SUBTRACT      = 0
-            )
-
-            self.specials += Instance("PLL",
-                # Parameters.
-                # -----------
-                # Mode Bits to configure DSP
-                p_PLL_MULT          = multiplier,
-                p_PLL_DIV           = divisor,
-                # IOs
-                i_CLK_IN            = ClockSignal(),
-                i_PLL_EN            = ~ResetSignal(),
-                o_SERDES_FAST_CLK   = ClockSignal("fast"),
-                o_LOCK              = self.ready
             )
             
