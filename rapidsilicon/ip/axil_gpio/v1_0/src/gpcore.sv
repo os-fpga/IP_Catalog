@@ -83,7 +83,7 @@ module gpcore #
   assign oINT		  = rGpInt;
   assign oGPOUT		  = rGpDat & ~rGpDir;
 
-  always @(*) begin
+  initial @(*) begin
     reg_TYPE     = IP_TYPE;
     reg_ID       = IP_ID;
     reg_VERSION  = IP_VERSION;
