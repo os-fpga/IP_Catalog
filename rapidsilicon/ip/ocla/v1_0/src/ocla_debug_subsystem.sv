@@ -125,6 +125,8 @@ module ocla_debug_subsystem #(
   localparam AXI_TOATAL_PROBES = (Axi_Type == "AXI4") ? No_AXI_Bus *250 : No_AXI_Bus * 152;
 
   localparam M_Count    = (Mode == "NATIVE") ? Cores +2 : Cores + 1;
+  localparam m_count    = (Mode == "NATIVE") ? Cores : Cores - 1;
+
 
   localparam Data_Width = 32;
   localparam Addr_Width = 32;
@@ -268,7 +270,7 @@ module ocla_debug_subsystem #(
   wire      [3  : 0]    r_m_axi_awcache;
   wire      [3  : 0]    r_m_axi_awqos;
   wire      [3  : 0]    r_m_axi_awregion;
-  wire      [1  : 0]    r_m_axi_awid;
+  wire      [3  : 0]    r_m_axi_awid;
   wire      [1  : 0]    r_m_axi_awuser;
   wire                  r_m_axi_wvalid;
   wire                  r_m_axi_wready;
@@ -279,7 +281,7 @@ module ocla_debug_subsystem #(
   wire                  r_m_axi_bvalid;
   wire                  r_m_axi_bready;
   wire      [1  : 0]    r_m_axi_bresp;
-  wire      [1  : 0]    r_m_axi_bid;
+  wire      [3  : 0]    r_m_axi_bid;
   wire      [1  : 0]    r_m_axi_buser;
   wire                  r_m_axi_arvalid;
   wire                  r_m_axi_arready;
@@ -292,14 +294,14 @@ module ocla_debug_subsystem #(
   wire      [3  : 0]    r_m_axi_arcache;
   wire      [3  : 0]    r_m_axi_arqos;
   wire      [3  : 0]    r_m_axi_arregion;
-  wire      [1  : 0]    r_m_axi_arid;
+  wire      [3  : 0]    r_m_axi_arid;
   wire      [1  : 0]    r_m_axi_aruser;
   wire                  r_m_axi_rvalid;
   wire                  r_m_axi_rready;
   wire                  r_m_axi_rlast;
   wire      [1  : 0]    r_m_axi_rresp;
   wire      [31 : 0]    r_m_axi_rdata;
-  wire      [1  : 0]    r_m_axi_rid;
+  wire      [3  : 0]    r_m_axi_rid;
   wire      [1  : 0]    r_m_axi_ruser;
 
 
@@ -372,26 +374,26 @@ module ocla_debug_subsystem #(
 
   //---------------------master interface signals generation----------------
 
-  logic [M_Count-1:0]             m_axil_arready;
-  logic [M_Count-1:0]             m_axil_awready;
-  logic [M_Count*2-1:0]           m_axil_bresp;
-  logic [M_Count-1:0]             m_axil_bvalid;
-  logic [M_Count*Data_Width-1:0]  m_axil_rdata;
-  logic [M_Count*2-1:0]           m_axil_rresp;
-  logic [M_Count-1:0]             m_axil_rvali;
-  logic [M_Count*Addr_Width-1:0]  m_axil_araddr;
-  logic [M_Count*3-1:0]           m_axil_arprot;
-  logic [M_Count-1:0]             m_axil_arvalid;
-  logic [M_Count*Addr_Width-1:0]  m_axil_awaddr;
-  logic [M_Count*3-1:0]           m_axil_awprot;
-  logic [M_Count-1:0]             m_axil_awvalid;
-  logic [M_Count-1:0]             m_axil_bready;
-  logic [M_Count-1:0]             m_axil_rready;
-  logic [M_Count*Data_Width-1:0]  m_axil_wdata;
-  logic [M_Count-1:0]             m_axil_wready;
-  logic [M_Count*STRB_WIDTH-1:0]  m_axil_wstrb;
-  logic [M_Count-1:0]             m_axil_wvalid;
-  logic [M_Count-1:0]             m_axil_rvalid;
+  logic [m_count-1:0]             m_axil_arready;
+  logic [m_count-1:0]             m_axil_awready;
+  logic [m_count*2-1:0]           m_axil_bresp;
+  logic [m_count-1:0]             m_axil_bvalid;
+  logic [m_count*Data_Width-1:0]  m_axil_rdata;
+  logic [m_count*2-1:0]           m_axil_rresp;
+  logic [m_count-1:0]             m_axil_rvali;
+  logic [m_count*Addr_Width-1:0]  m_axil_araddr;
+  logic [m_count*3-1:0]           m_axil_arprot;
+  logic [m_count-1:0]             m_axil_arvalid;
+  logic [m_count*Addr_Width-1:0]  m_axil_awaddr;
+  logic [m_count*3-1:0]           m_axil_awprot;
+  logic [m_count-1:0]             m_axil_awvalid;
+  logic [m_count-1:0]             m_axil_bready;
+  logic [m_count-1:0]             m_axil_rready;
+  logic [m_count*Data_Width-1:0]  m_axil_wdata;
+  logic [m_count-1:0]             m_axil_wready;
+  logic [m_count*STRB_WIDTH-1:0]  m_axil_wstrb;
+  logic [m_count-1:0]             m_axil_wvalid;
+  logic [m_count-1:0]             m_axil_rvalid;
 
 
   logic                           S_AXI_ARREADY;
@@ -441,7 +443,7 @@ assign core_sampling_clk = (Sampling_Clk == "SINGLE") ? {OCLA_COUNT{native_sampl
   // JTAG_AXI
 
   jtag_to_axi_top # (
-                    .C_S_AXI_ID_WIDTH(32),
+                    .C_S_AXI_ID_WIDTH(4),
                     .C_S_AXI_DATA_WIDTH(32),
                     .C_S_AXI_ADDR_WIDTH(32),
                     .C_S_AXI_AWUSER_WIDTH(2),
@@ -511,7 +513,7 @@ assign core_sampling_clk = (Sampling_Clk == "SINGLE") ? {OCLA_COUNT{native_sampl
   axi2axilite #(
                 .C_AXI_ADDR_WIDTH(32),
                 .C_AXI_DATA_WIDTH(32),
-                .C_AXI_ID_WIDTH(2)
+                .C_AXI_ID_WIDTH(4)
               ) axi2axilite (
                 .M_AXI_ARREADY(m_axi_arready),
                 .M_AXI_AWREADY(m_axi_awready),
@@ -898,7 +900,7 @@ assign core_sampling_clk = (Sampling_Clk == "SINGLE") ? {OCLA_COUNT{native_sampl
                 .OP_CLK(eio_op_clk),
                 .S_AXI_ACLK(ACLK),
                 .S_AXI_ARESETN(RESETn),
-                .S_AXI_AWADDR(S_AXI_AWADDR),
+                .S_AXI_AWADDR(S_AXI_AWADDR[15:0]),
                 .S_AXI_AWPROT(S_AXI_AWPROT),
                 .S_AXI_AWVALID(S_AXI_AWVALID),
                 .S_AXI_AWREADY(S_AXI_AWREADY),
@@ -909,7 +911,7 @@ assign core_sampling_clk = (Sampling_Clk == "SINGLE") ? {OCLA_COUNT{native_sampl
                 .S_AXI_BRESP(S_AXI_BRESP),
                 .S_AXI_BVALID(S_AXI_BVALID),
                 .S_AXI_BREADY(S_AXI_BREADY),
-                .S_AXI_ARADDR(S_AXI_ARADDR),
+                .S_AXI_ARADDR(S_AXI_ARADDR[15:0]),
                 .S_AXI_ARPROT(S_AXI_ARPROT),
                 .S_AXI_ARVALID(S_AXI_ARVALID),
                 .S_AXI_ARREADY(S_AXI_ARREADY),
