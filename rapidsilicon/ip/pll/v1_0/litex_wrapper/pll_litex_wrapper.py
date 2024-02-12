@@ -60,7 +60,7 @@ def colorer(s, color="bright"):
 # PLL Wrapper ------------------------------------------------------------------------------------
 
 class PLL(Module):
-    def __init__(self, platform, divided_clks, divide_clk_in_by_2, fast_clk_freq, ref_clk_freq, clk_out0_div, clk_out1_div, clk_out2_div, clk_out3_div, **kwargs):
+    def __init__(self, platform, divide_clk_in_by_2, fast_clk_freq, ref_clk_freq, pll_post_div, **kwargs):
         self.logger = logging.getLogger("PLL")
         self.logger.propagate = True
 
@@ -75,132 +75,121 @@ class PLL(Module):
         self.logger.info(f"DIVIDE_CLK_IN_BY_2   : {divide_clk_in_by_2}")
 #        self.logger.info(f"PLL_MULT             : {pll_mult}")
 #        self.logger.info(f"PLL_DIV              : {pll_div}")
-        self.logger.info(f"CLK_OUT0_DIV         : {clk_out0_div}")
-        self.logger.info(f"CLK_OUT1_DIV         : {clk_out1_div}")
-        self.logger.info(f"CLK_OUT2_DIV         : {clk_out2_div}")
-        self.logger.info(f"CLK_OUT3_DIV         : {clk_out3_div}")        
+#        self.logger.info(f"CLK_OUT0_DIV         : {clk_div_1}")
+#        self.logger.info(f"CLK_OUT1_DIV         : {clk_div_2}")
+#        self.logger.info(f"CLK_OUT2_DIV         : {clk_div_3}")
+#        self.logger.info(f"CLK_OUT3_DIV         : {clk_div_4}")        
         self.logger.info(f"===================================================")
         
         # Create input/output signals
         self.PLL_EN = Signal()
         self.CLK_IN = Signal()
-        self.CLK_OUT0_EN = Signal()
-        self.CLK_OUT1_EN = Signal()
-        self.CLK_OUT2_EN = Signal()
-        self.CLK_OUT3_EN = Signal()
-        self.CLK_OUT0 = Signal()
-        self.CLK_OUT1 = Signal()
-        self.CLK_OUT2 = Signal()
-        self.CLK_OUT3 = Signal()
-        self.GEARBOX_FAST_CLK = Signal()
+        self.CLK_OUT = Signal()
+        self.CLK_OUT_DIV2 = Signal()
+        self.CLK_OUT_DIV3 = Signal()
+        self.CLK_OUT_DIV4 = Signal()
+        self.SERDES_FAST_CLK = Signal()
         self.LOCK = Signal()
 
         pll_mult, pll_div = freq_calc(self, fast_clk_freq, ref_clk_freq, c_range=63, d_range=1000)
 
+        if (divide_clk_in_by_2 == 1):
+            divide_by_2 = "TRUE"
+        else:
+            divide_by_2 = "FALSE"
 
-        if divided_clks == 4:
-            self.specials += Instance("PLL",
+        self.specials += Instance("PLL",
                     **kwargs,
-                    p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
+                    p_DIVIDE_CLK_IN_BY_2    = (divide_by_2),
                     p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
                     p_PLL_DIV               = Instance.PreformattedParam(pll_div),
-                    p_CLK_OUT0_DIV          = Instance.PreformattedParam(clk_out0_div),
-                    p_CLK_OUT1_DIV          = Instance.PreformattedParam(clk_out1_div),
-                    p_CLK_OUT2_DIV          = Instance.PreformattedParam(clk_out2_div),
-                    p_CLK_OUT3_DIV          = Instance.PreformattedParam(clk_out3_div),
+                    p_PLL_POST_DIV          = Instance.PreformattedParam(pll_post_div),
 
                     i_PLL_EN                = 1,
                     i_CLK_IN                = self.CLK_IN,
-                    i_CLK_OUT0_EN           = 1,
-                    i_CLK_OUT1_EN           = 1,
-                    i_CLK_OUT2_EN           = 1,
-                    i_CLK_OUT3_EN           = 1,
-                    o_CLK_OUT0              = self.CLK_OUT0,
-                    o_CLK_OUT1              = self.CLK_OUT1,
-                    o_CLK_OUT2              = self.CLK_OUT2,
-                    o_CLK_OUT3              = self.CLK_OUT3,
-                    o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
+                    o_CLK_OUT               = self.CLK_OUT,
+                    o_CLK_OUT_DIV2          = self.CLK_OUT_DIV2,
+                    o_CLK_OUT_DIV3          = self.CLK_OUT_DIV3,
+                    o_CLK_OUT_DIV4          = self.CLK_OUT_DIV4,
+                    o_SERDES_FAST_CLK       = self.SERDES_FAST_CLK,
                     o_LOCK                  = self.LOCK
                 )
-        elif divided_clks == 3:
-            self.specials += Instance("PLL",
-                    **kwargs,
-                    p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
-                    p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
-                    p_PLL_DIV               = Instance.PreformattedParam(pll_div),
-                    p_CLK_OUT0_DIV          = Instance.PreformattedParam(clk_out0_div),
-                    p_CLK_OUT1_DIV          = Instance.PreformattedParam(clk_out1_div),
-                    p_CLK_OUT2_DIV          = Instance.PreformattedParam(clk_out2_div),
-                    p_CLK_OUT3_DIV          = Instance.PreformattedParam(clk_out3_div),
-
-                    i_PLL_EN                = 1,
-                    i_CLK_IN                = self.CLK_IN,
-                    i_CLK_OUT0_EN           = 1,
-                    i_CLK_OUT1_EN           = 1,
-                    i_CLK_OUT2_EN           = 1,
-                    i_CLK_OUT3_EN           = 0,
-                    o_CLK_OUT0              = self.CLK_OUT0,
-                    o_CLK_OUT1              = self.CLK_OUT1,
-                    o_CLK_OUT2              = self.CLK_OUT2,
-#                    o_CLK_OUT3              = self.CLK_OUT3,
-                    o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
-                    o_LOCK                  = self.LOCK
-                )
-
-        elif divided_clks == 2:
-            self.specials += Instance("PLL",
-                    **kwargs,
-                    p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
-                    p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
-                    p_PLL_DIV               = Instance.PreformattedParam(pll_div),
-                    p_CLK_OUT0_DIV          = Instance.PreformattedParam(clk_out0_div),
-                    p_CLK_OUT1_DIV          = Instance.PreformattedParam(clk_out1_div),
-                    p_CLK_OUT2_DIV          = Instance.PreformattedParam(clk_out2_div),
-                    p_CLK_OUT3_DIV          = Instance.PreformattedParam(clk_out3_div),
-
-                    i_PLL_EN                = 1,
-                    i_CLK_IN                = self.CLK_IN,
-                    i_CLK_OUT0_EN           = 1,
-                    i_CLK_OUT1_EN           = 1,
-                    i_CLK_OUT2_EN           = 0,
-                    i_CLK_OUT3_EN           = 0,
-                    o_CLK_OUT0              = self.CLK_OUT0,
-                    o_CLK_OUT1              = self.CLK_OUT1,
+#        elif clk_div_2 == True:
+#            self.specials += Instance("PLL",
+#                    **kwargs,
+#                    p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
+#                    p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
+#                    p_PLL_DIV               = Instance.PreformattedParam(pll_div),
+#                    p_CLK_OUT0_DIV          = Instance.PreformattedParam(1),
+#                    p_CLK_OUT1_DIV          = Instance.PreformattedParam(2),
+#                    p_CLK_OUT2_DIV          = Instance.PreformattedParam(3),
+#                    p_CLK_OUT3_DIV          = Instance.PreformattedParam(4),
+#
+#                    i_PLL_EN                = 1,
+#                    i_CLK_IN                = self.CLK_IN,
+#                    i_CLK_OUT0_EN           = 1,
+#                    i_CLK_OUT1_EN           = 1,
+#                    i_CLK_OUT2_EN           = 0,
+#                    i_CLK_OUT3_EN           = 0,
+#                    o_CLK_OUT0              = self.CLK_OUT0,
+#                    o_CLK_OUT1              = self.CLK_OUT1,
+#                    o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
+#                    o_LOCK                  = self.LOCK
+#                )
+#
+#        elif clk_div_3 == True:
+#            self.specials += Instance("PLL",
+#                    **kwargs,
+#                    p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
+#                    p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
+#                    p_PLL_DIV               = Instance.PreformattedParam(pll_div),
+#                    p_CLK_OUT0_DIV          = Instance.PreformattedParam(1),
+#                    p_CLK_OUT1_DIV          = Instance.PreformattedParam(2),
+#                    p_CLK_OUT2_DIV          = Instance.PreformattedParam(3),
+#                    p_CLK_OUT3_DIV          = Instance.PreformattedParam(34),
+#
+#                    i_PLL_EN                = 1,
+#                    i_CLK_IN                = self.CLK_IN,
+#                    i_CLK_OUT0_EN           = 1,
+#                    i_CLK_OUT1_EN           = 1,
+#                    i_CLK_OUT2_EN           = 1,
+#                    i_CLK_OUT3_EN           = 0,
+#                    o_CLK_OUT0              = self.CLK_OUT0,
+#                    o_CLK_OUT1              = self.CLK_OUT1,
 #                    o_CLK_OUT2              = self.CLK_OUT2,
-#                    o_CLK_OUT3              = self.CLK_OUT3,
-                    o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
-                    o_LOCK                  = self.LOCK
-                )
-
-        elif divided_clks == 1:
-            self.specials += Instance("PLL",
-                    **kwargs,
-                    p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
-                    p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
-                    p_PLL_DIV               = Instance.PreformattedParam(pll_div),
-                    p_CLK_OUT0_DIV          = Instance.PreformattedParam(clk_out0_div),
-                    p_CLK_OUT1_DIV          = Instance.PreformattedParam(clk_out1_div),
-                    p_CLK_OUT2_DIV          = Instance.PreformattedParam(clk_out2_div),
-                    p_CLK_OUT3_DIV          = Instance.PreformattedParam(clk_out3_div),
-
-                    i_PLL_EN                = 1,
-                    i_CLK_IN                = self.CLK_IN,
-                    i_CLK_OUT0_EN           = 1,
-                    i_CLK_OUT1_EN           = 0,
-                    i_CLK_OUT2_EN           = 0,
-                    i_CLK_OUT3_EN           = 0,
-                    o_CLK_OUT0              = self.CLK_OUT0,
+#                    o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
+#                    o_LOCK                  = self.LOCK
+#                )
+#
+#        elif clk_div_4 == True:
+#            self.specials += Instance("PLL",
+#                    **kwargs,
+#                    p_DIVIDE_CLK_IN_BY_2    = Instance.PreformattedParam(divide_clk_in_by_2),
+#                    p_PLL_MULT              = Instance.PreformattedParam(pll_mult),
+#                    p_PLL_DIV               = Instance.PreformattedParam(pll_div),
+#                    p_CLK_OUT0_DIV          = Instance.PreformattedParam(1),
+#                    p_CLK_OUT1_DIV          = Instance.PreformattedParam(2),
+#                    p_CLK_OUT2_DIV          = Instance.PreformattedParam(3),
+#                    p_CLK_OUT3_DIV          = Instance.PreformattedParam(4),
+#
+#                    i_PLL_EN                = 1,
+#                    i_CLK_IN                = self.CLK_IN,
+#                    i_CLK_OUT0_EN           = 1,
+#                    i_CLK_OUT1_EN           = 1,
+#                    i_CLK_OUT2_EN           = 1,
+#                    i_CLK_OUT3_EN           = 1,
+#                    o_CLK_OUT0              = self.CLK_OUT0,
 #                    o_CLK_OUT1              = self.CLK_OUT1,
 #                    o_CLK_OUT2              = self.CLK_OUT2,
 #                    o_CLK_OUT3              = self.CLK_OUT3,
-                    o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
-                    o_LOCK                  = self.LOCK
-                )
+#                    o_GEARBOX_FAST_CLK      = self.GEARBOX_FAST_CLK,
+#                    o_LOCK                  = self.LOCK
+#                )
 
 
-        self.add_sources(platform)
+#        self.add_sources(platform)
 
-    @staticmethod
-    def add_sources(platform):
-        rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "PLL.v"))
+#    @staticmethod
+#    def add_sources(platform):
+#        rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
+#        platform.add_source(os.path.join(rtl_dir, "PLL.v"))

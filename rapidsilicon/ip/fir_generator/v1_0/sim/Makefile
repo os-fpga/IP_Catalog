@@ -4,7 +4,7 @@
 
 MODULE_NAME ?= fir_generator
 
-OUT_DIR ?= 3
+OUT_DIR ?= $(PWD)
 
 all:
 	@sed -i "s|fir.vcd|$(OUT_DIR)/fir.vcd|g" ./testbench.v

@@ -144,8 +144,10 @@ endtask
 
 initial
 begin
-    $vcdplusfile("dump_2.vpd");
-    $vcdpluson(0,test_bench_spi);
+//    $vcdplusfile("dump_2.vpd");
+//    $vcdpluson(0,test_bench_spi);
+	$dumpfile("mipi_dsi.vcd");
+	$dumpvars;
 end
 
 initial

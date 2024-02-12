@@ -4,7 +4,7 @@
 
 MODULE_NAME ?= fifo_generator
 
-OUT_DIR ?= 3
+OUT_DIR ?= $(PWD)
 
 all:
 	@sed -i "s|fifo.vcd|$(OUT_DIR)/fifo.vcd|g" ./testbench.v
