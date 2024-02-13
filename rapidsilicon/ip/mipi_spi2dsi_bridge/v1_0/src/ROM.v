@@ -223,7 +223,6 @@ module memory256X1 # (initval = 256'h0)
     output reg  data_out);
 
   reg [255:0] mem = initval; // Example initialization
-  reg data_out;
     
 
   always @* begin
