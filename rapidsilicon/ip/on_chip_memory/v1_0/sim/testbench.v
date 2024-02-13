@@ -83,7 +83,7 @@ input clk_A;
 input wen_A, ren_A;
 input [9:0] addr_A;
 input [31:0] din_A;
-output reg [31:0] dout_A;
+output reg [31:0] dout_A = 0;
 reg [31:0] RAM [1023:0];
 always @(posedge clk_A)
     begin
