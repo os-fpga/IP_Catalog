@@ -99,10 +99,9 @@ class OCMWrapper(Module):
         
         if asymmetric == 1:
             self.submodules.sp = ram = OCM_ASYM(write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension)
-            ram
         else:
             self.submodules.sp = ram = OCM_SYM(data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension)
-
+            
         # Single Port RAM
         if (memory_type == "Single_Port"):
             self.comb += ram.addr_A.eq(platform.request("addr_A"))
@@ -247,39 +246,10 @@ def main():
             if (args.write_width_A != args.read_width_A or args.write_width_A != args.write_width_B or args.write_width_B != args.read_width_B):
                 option_strings_to_remove = ['--bram']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-        
-    if (args.memory_type == "Single_Port"):
-        memory = "Single Port RAM"
-    elif (args.memory_type == "Simple_Dual_Port"):
-        memory = "Simple Dual Port RAM"
-    else:
-        memory = "True Dual Port RAM"
-    
-    if (args.bram == 1):
-        memory_mapping = "Block RAM"
-    else:
-        memory_mapping = "Distributed RAM (LUTs)"
-    
-    summary =  { 
-    "Type of Memory": memory,
-    "Mapping": memory_mapping,
-    }
-    
-    # if (args.bram == 1):
-    #     summary["Number of BRAMs"] = 1
-        
-    if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
-        if (args.common_clk == 1):
-            summary["Synchronization"] = "True"
-        else:
-            summary["Synchronization"] = "False"
-    
-    # Export JSON Template (Optional) --------------------------------------------------------------
-    if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
     
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
+    file_extension  = os.path.splitext(args.file_path)[1]
     
     if (args.memory_type == "Single_Port"):
         read_depth_A = int((args.write_depth_A * args.write_width_A) / args.read_width_A)
@@ -294,6 +264,61 @@ def main():
         read_depth_A    = int((args.write_depth_A * args.write_width_A) / args.read_width_A)
         read_depth_B    = int((write_depth_B * args.write_width_B) / args.read_width_B)
     
+    if args.asymmetric == 1:
+        ram = OCM_ASYM(args.write_width_A, args.write_width_B, args.read_width_A, args.read_width_B, args.memory_type, args.common_clk, args.write_depth_A, read_depth_A, write_depth_B, read_depth_B, args.bram, args.file_path, file_extension)
+    else:
+        ram = OCM_SYM(args.data_width, args.memory_type, args.common_clk, args.write_depth, args.bram, args.file_path, file_extension)
+    
+    if (args.memory_type == "Single_Port"):
+        memory = "Single Port RAM"
+    elif (args.memory_type == "Simple_Dual_Port"):
+        memory = "Simple Dual Port RAM"
+    else:
+        memory = "True Dual Port RAM"
+    
+    if (args.bram == 1):
+        memory_mapping = "Block RAM"
+    else:
+        memory_mapping = "Distributed RAM(LUTs)"
+    
+    summary =  { 
+    "Type of Memory": memory,
+    "Mapping": memory_mapping,
+    }
+    
+    if (args.bram == 1):
+        summary["Number of BRAMs"] = ram.m * ram.n
+    
+    if args.asymmetric == 1:
+        if (args.memory_type == "Single_Port"):
+            summary["Address A"] = math.ceil(math.log2(args.write_depth_A))
+        elif args.memory_type == "Simple_Dual_Port":
+            summary["Address A"] = math.ceil(math.log2(args.write_depth_A))
+            summary["Address B"] = math.ceil(math.log2(read_depth_B))
+        elif args.memory_type == "True_Dual_Port":
+            if (args.write_depth_A > read_depth_A): # assigning greater value to addr_A port
+                write_depthA = args.write_depth_A
+            else:
+                write_depthA = read_depth_A
+            if (write_depth_B > read_depth_B): # assigning greater value to addr_B port
+                write_depthB = write_depth_B
+            else:
+                write_depthB = read_depth_B
+            summary["Address A"] = math.ceil(math.log2(write_depthA))
+            summary["Address B"] = math.ceil(math.log2(write_depthB))
+    else:
+        summary["Address"] = math.ceil(math.log2(args.write_depth))
+    
+    if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
+        if (args.common_clk == 1):
+            summary["Synchronization"] = "True"
+        else:
+            summary["Synchronization"] = "False"
+    
+    # Export JSON Template (Optional) --------------------------------------------------------------
+    if args.json_template:
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+        
     module   = OCMWrapper(platform,
         memory_type     = args.memory_type,
         data_width      = args.data_width,
@@ -310,7 +335,7 @@ def main():
         bram            = args.bram,
         asymmetric      = args.asymmetric,
         file_path       = args.file_path,
-        file_extension  = os.path.splitext(args.file_path)[1]
+        file_extension  = file_extension
     )
     
     # Build Project --------------------------------------------------------------------------------
@@ -354,7 +379,7 @@ def main():
             lines = file.readlines()
             for i, line in enumerate(lines):
                 if ("module {}".format(args.build_name)) in line:
-                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"OCMGEN\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(\n".format(args.build_name, ip_version, ip_id))
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"OCM\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(\n".format(args.build_name, ip_version, ip_id))
                 else:
                     new_lines.append(line)
                 
