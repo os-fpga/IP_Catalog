@@ -118,7 +118,7 @@ class OCM_ASYM(Module):
         if (memory_type == "Single_Port"):
             write_width = write_width_A
             read_width  = read_width_A
-            if (write_width_A > read_width_A):
+            if (write_width_A >= read_width_A):
                 memory_width = write_width_A
                 memory_depth = write_depth_A
             else:
@@ -126,13 +126,13 @@ class OCM_ASYM(Module):
                 memory_depth = read_depth_A
                 
         elif (memory_type == "Simple_Dual_Port"):
-            if (write_width_A > read_width_B):
+            if (write_width_A >= read_width_B):
                 memory_width = write_width_A
                 memory_depth = write_depth_A
             else:
                 memory_width = read_width_B
                 memory_depth = read_depth_A
-        
+
         elif (memory_type == "True_Dual_Port"):
             if (read_width_A > read_width_B):
                 large_read_width = read_width_A
@@ -224,7 +224,7 @@ class OCM_ASYM(Module):
                         large_read_width = read_width_B
                     elif (read_width_A == read_width_B):
                         large_read_width = read_width_A
-            
+        
         MEMORY_SIZE = 36*1024
         
         if (memory_type == "Single_Port"):
@@ -431,6 +431,8 @@ class OCM_ASYM(Module):
                 
         self.m = m # vertical memory
         self.n = n # horizontal memory
+        
+        print("M", m, "N", n)
         
         # Write Enables internal
         self.wen_A1       = Signal(m*n)
@@ -1714,7 +1716,73 @@ class OCM_ASYM(Module):
                                     w_parity_A     = Cat(self.din_A[((i*9)+8)], Replicate(0,3))
                         
                         elif (write_width_A == read_width_B): # Symmetric Memory
-                            if (write_depth_A == 8192):
+                            if (write_depth_A in [1024]):
+                                z = write_width_A - 36*(m-1)
+                                if (m == (j+1)): # for last bram din calculations
+                                    if (z > 35):
+                                        write_data_A   = Cat(self.din_A[(j*36):((j*36)+8)], self.din_A[(j*36)+9:((j*36)+17)], self.din_A[(j*36)+18:((j*36)+26)], self.din_A[(j*36)+27:((j*36)+35)])
+                                        w_parity_A     = Cat(self.din_A[((j*36)+8)], self.din_A[((j*36)+17)], self.din_A[((j*36)+26)], self.din_A[((j*36)+35)])
+                                    elif (z > 27):
+                                        write_data_A   = Cat(self.din_A[(j*36):((j*36)+8)], self.din_A[(j*36)+9:((j*36)+17)], self.din_A[(j*36)+18:((j*36)+26)], self.din_A[(j*36)+27:((j*36)+35)])
+                                        w_parity_A     = Cat(self.din_A[((j*36)+8)], self.din_A[((j*36)+17)], self.din_A[((j*36)+26)], Replicate(0,1))
+                                    elif (z > 26):
+                                        write_data_A   = Cat(self.din_A[(j*36):((j*36)+8)], self.din_A[(j*36)+9:((j*36)+17)], self.din_A[(j*36)+18:((j*36)+26)])
+                                        w_parity_A     = Cat(self.din_A[((j*36)+8)], self.din_A[((j*36)+17)], self.din_A[((j*36)+26)], Replicate(0,1))
+                                    elif (z > 18):
+                                        write_data_A   = Cat(self.din_A[(j*36):((j*36)+8)], self.din_A[(j*36)+9:((j*36)+17)], self.din_A[(j*36)+18:((j*36)+26)])
+                                        w_parity_A     = Cat(self.din_A[((j*36)+8)], self.din_A[((j*36)+17)], Replicate(0,2))
+                                    elif (z > 17):
+                                        write_data_A   = Cat(self.din_A[(j*36):((j*36)+8)], self.din_A[(j*36)+9:((j*36)+17)])
+                                        w_parity_A     = Cat(self.din_A[((j*36)+8)], self.din_A[((j*36)+17)], Replicate(0,2))
+                                    elif (z > 9):
+                                        write_data_A   = Cat(self.din_A[(j*36):((j*36)+8)], self.din_A[(j*36)+9:((j*36)+17)])
+                                        w_parity_A     = Cat(self.din_A[((j*36)+8)], Replicate(0,3))
+                                    elif (z > 8):
+                                        write_data_A   = Cat(self.din_A[(j*36):((j*36)+8)])
+                                        w_parity_A     = Cat(self.din_A[((j*36)+8)], Replicate(0,3))
+                                    else:
+                                        write_data_A   = self.din_A[36*(m-1):write_width_A]
+                                        w_parity_A     = Replicate(0,4)
+                                else:
+                                    if (write_width_A > 36):
+                                        write_data_A   = Cat(self.din_A[(j*36):((j*36)+8)], self.din_A[(j*36)+9:((j*36)+17)], self.din_A[(j*36)+18:((j*36)+26)], self.din_A[(j*36)+27:((j*36)+35)])
+                                        w_parity_A     = Cat(self.din_A[((j*36)+8)], self.din_A[((j*36)+17)], self.din_A[((j*36)+26)], self.din_A[((j*36)+35)])
+
+                            elif (write_depth_A == 2048):
+                                z = write_width_A - 18*(m-1)
+                                if (m == (j+1)): # for last bram input data calculations
+                                    if (z > 17):
+                                        write_data_A = Cat(self.din_A[(j*18):((j*18)+8)], self.din_A[(j*18)+9:((j*18)+17)])
+                                        w_parity_A   = Cat(self.din_A[(j*18)+8], self.din_A[(j*18)+17], Replicate(0,2))
+                                    elif (z > 16):
+                                        write_data_A = Cat(self.din_A[(j*18):((j*18)+8)], self.din_A[(j*18)+9:((j*18)+17)])
+                                        w_parity_A   = Cat(self.din_A[(j*18)+8], Replicate(0,3))
+                                    elif (z > 9):
+                                        write_data_A   = Cat(self.din_A[(j*18):((j*18)+8)], self.din_A[(j*18)+9:((j*18)+17)])
+                                        w_parity_A     = Cat(self.din_A[((j*18)+8)], Replicate(0,3))
+                                    elif (z > 8):
+                                        write_data_A   = Cat(self.din_A[(j*18):((j*18)+8)])
+                                        w_parity_A     = Cat(self.din_A[((j*18)+8)], Replicate(0,3))
+                                    else:
+                                        write_data_A = self.din_A[(j*18):((j*18)+8)]
+                                        w_parity_A   = Replicate(0,4)
+                                else:
+                                    write_data_A = Cat(self.din_A[(j*18):((j*18)+8)], self.din_A[(j*18)+9:((j*18)+17)])
+                                    w_parity_A   = Cat(self.din_A[(j*18)+8], self.din_A[(j*18)+17], Replicate(0,2))
+
+                            elif (write_depth_A == 4096):
+                                z = write_width_A - 9*(m-1)
+                                if (m == (j+1)):
+                                    if (z > 8):
+                                        write_data_A   = Cat(self.din_A[(j*9):((j*9)+8)])
+                                        w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
+                                    else:
+                                        write_data_A = self.din_A[(j*9):((j*9)+8)]
+                                        w_parity_A   = Replicate(0,4)
+                                else:
+                                    write_data_A   = Cat(self.din_A[(j*9):((j*9)+8)])
+                                    w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
+                            elif (write_depth_A == 8192):
                                 write_data_A = self.din_A[(j*4):((j*4)+4)]
                                 w_parity_A   = Replicate(0,4)
                             
