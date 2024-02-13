@@ -1059,17 +1059,28 @@ class OCM_ASYM(Module):
                         p_INIT_PARITY       = Instance.PreformattedParam("{4096{1'b0}}"),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_A      = param_read_width_A,
+                        p_WRITE_WIDTH_B     = 36,
+                        p_READ_WIDTH_B      = 36,
                         # Ports.
                         # -----------
                         i_CLK_A     = clock1,
+                        i_CLK_B     = 0,
                         i_WEN_A     = wen,
+                        i_WEN_B     = 0,
                         i_REN_A     = ren,
-                        i_BE_A      = 15, # all ones
+                        i_REN_B     = 0,
+                        i_BE_A      = Replicate(1,4), # all ones
+                        i_BE_B      = Replicate(0,4),
                         i_ADDR_A    = self.address,
+                        i_ADDR_B    = Replicate(0,15),
                         i_WDATA_A   = write_data_A,
+                        i_WDATA_B   = Replicate(0,32),
                         i_WPARITY_A = w_parity_A,
+                        i_WPARITY_B = Replicate(0,4),
                         o_RDATA_A   = self.bram_out_A[j][((i*32)):((i*32)+32)],
-                        o_RPARITY_A = self.rparity_A[j][((i*4)):((i*4)+4)]
+                        o_RDATA_B   = self.bram_out_B[j][((i*32)):((i*32)+32)],
+                        o_RPARITY_A = self.rparity_A[j][((i*4)):((i*4)+4)],
+                        o_RPARITY_B = self.rparity_B[j][((i*4)):((i*4)+4)]
                         )
                 self.comb += If((self.wen_A), self.address.eq(address_A))
                 self.comb += If((self.ren_A), self.address.eq(address_B))
@@ -1723,19 +1734,28 @@ class OCM_ASYM(Module):
                         p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
                         p_INIT_PARITY       = Instance.PreformattedParam("{4096{1'b0}}"),
                         p_WRITE_WIDTH_A     = param_write_width_A,
+                        p_WRITE_WIDTH_B     = 36,
+                        p_READ_WIDTH_A      = 36,
                         p_READ_WIDTH_B      = param_read_width_B,
                         # Ports.
                         # -----------
                         i_CLK_A     = clock1,
                         i_CLK_B     = clock2,
                         i_WEN_A     = wen,
+                        i_WEN_B     = 0,
+                        i_REN_A     = 0,
                         i_REN_B     = ren,
-                        i_BE_A      = 15, # all ones
+                        i_BE_A      = Replicate(1,4), # all ones
+                        i_BE_B      = Replicate(0,4),
                         i_ADDR_A    = address_A,
                         i_ADDR_B    = address_B,
                         i_WDATA_A   = write_data_A,
+                        i_WDATA_B   = Replicate(0,32),
                         i_WPARITY_A = w_parity_A,
+                        i_WPARITY_B = Replicate(0,4),
+                        o_RDATA_A   = self.bram_out_A[j][((i*32)):((i*32)+32)],
                         o_RDATA_B   = self.bram_out_B[j][((i*32)):((i*32)+32)],
+                        o_RPARITY_A = self.rparity_A[j][((i*4)):((i*4)+4)],
                         o_RPARITY_B = self.rparity_B[j][((i*4)):((i*4)+4)]
                     )
                     k = k + int(m/read_loop)
@@ -2281,8 +2301,8 @@ class OCM_ASYM(Module):
                         i_WEN_B     = wen_B,
                         i_REN_A     = ren_A,
                         i_REN_B     = ren_B,
-                        i_BE_A      = 15, # all ones
-                        i_BE_B      = 15, # all ones
+                        i_BE_A      = Replicate(1,4), # all ones
+                        i_BE_B      = Replicate(1,4), # all ones
                         i_ADDR_A    = self.address_A,
                         i_ADDR_B    = self.address_B,
                         i_WDATA_A   = write_data_A,
