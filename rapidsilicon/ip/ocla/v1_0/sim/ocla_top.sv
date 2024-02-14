@@ -20,7 +20,7 @@
 // Module
 //------------------------------------------------------------------------------
 
-module ocla_wrapper #(
+module ocla_top_wrapper #(
 	parameter IP_TYPE 		= "OCLA",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h4c259c7

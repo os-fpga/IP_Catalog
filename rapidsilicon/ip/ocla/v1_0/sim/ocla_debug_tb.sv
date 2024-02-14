@@ -82,12 +82,12 @@ module counter_design_tb;
     else
       counter <= counter;
 
-  ocla_wrapper # (
+      ocla_top_wrapper # (
                  .IP_TYPE("OCLA"),
                  .IP_VERSION(32'h00000001),
                  .IP_ID(32'habcd1234)
                )
-               ocla_wrapper_inst (
+               ocla_top_wrapper_inst (
                  .clk(ACLK),
                  .rstn(RESETn),
                  .jtag_tck(JTAG_TCK),
