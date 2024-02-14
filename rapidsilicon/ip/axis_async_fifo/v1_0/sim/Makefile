@@ -32,8 +32,8 @@ COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
 DUT      = axis_async_fifo
-MODULE_NAME ?= $(DUT)_wrapper
-TOPLEVEL = $(MODULE_NAME)_wrapper
+MODULE_NAME ?= $(DUT)
+TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v
 
