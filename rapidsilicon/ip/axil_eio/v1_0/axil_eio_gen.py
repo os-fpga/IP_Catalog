@@ -161,7 +161,7 @@ def main():
             version    = "v1_0"
         )
         rs_builder.copy_files(gen_path=os.path.dirname(__file__))
-        rs_builder.generate_tcl()
+        rs_builder.generate_tcl(version    = "v1_0")
         rs_builder.generate_wrapper(
             platform   = platform,
             module     = module,

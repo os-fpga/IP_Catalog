@@ -258,7 +258,7 @@ class IP_Builder:
                 elif os.path.isdir(full_file_path):
                     shutil.copytree(simulate_path, self.sim_path, ignore=shutil.ignore_patterns('rapidsilicon'), dirs_exist_ok=True)
 
-    def generate_tcl(self):
+    def generate_tcl(self,version):
         assert self.prepared
 
         # Build .tcl file.
@@ -282,13 +282,13 @@ class IP_Builder:
         # Add Sources.
         # Verilog vs System Verilog
         if   (self.language == "sverilog"):
-            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.sv')}")
+            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '_' + version + '.sv')}")
             
         elif (self.language == "verilog"):
-            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
+            tcl.append(f"add_design_file {os.path.join('../src', self.build_name +  '_' + version +'.v')}")
             
         else:
-            tcl.append(f"add_design_file {os.path.join('../src', self.build_name + '.v')}")
+            tcl.append(f"add_design_file {os.path.join('../src', self.build_name +  '_' + version+'.v')}")
 
         # Set Top Module.
         tcl.append(f"set_top_module {self.build_name}")
