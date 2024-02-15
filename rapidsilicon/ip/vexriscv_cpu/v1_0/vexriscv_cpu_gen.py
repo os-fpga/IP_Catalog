@@ -367,7 +367,7 @@ def main():
             shutil.rmtree(file)
             file = os.path.join(args.build_dir, "rapidsilicon/ip/vexriscv_cpu/v1_0", build_name, "sim")
             os.mkdir(file)
-        rs_builder.generate_tcl()
+        rs_builder.generate_tcl(version    = "v1_0")
         rs_builder.generate_wrapper(
             platform   = platform,
             module     = module,

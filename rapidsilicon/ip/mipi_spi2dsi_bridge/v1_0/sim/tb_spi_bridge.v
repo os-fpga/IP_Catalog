@@ -46,7 +46,7 @@ wire reset_g;
 //GSR GSR_INST (.GSR (reset_g));
 //PUR PUR_INST (.PUR (reset_g));
 
-mipi_dsi_bridge mipi_dsi_bridge_ins(nsys_reset, 
+mipi_spi2dsi_bridge mipi_dsi_bridge_ins(nsys_reset, 
 					clock, 
 					data_p,
 					data_n,
