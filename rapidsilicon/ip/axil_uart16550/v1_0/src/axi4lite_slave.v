@@ -68,7 +68,7 @@ module axi4lite_slave #(
 
     // custom signals
     input wire [DATA_WIDTH-1:0] r_data_in_dbg,
-    input wire [         8-1:0] r_data_in,
+    input wire [         31:0] r_data_in,
 
     output wire [ADDRESS_WIDTH-1:0] addr_in,
     output reg                      re,
@@ -125,7 +125,7 @@ module axi4lite_slave #(
   assign s_axi_arready = s_axi_arvalid;
 
   assign addr_in = we ? awaddr_ff : araddr_ff;
-  assign rdata = re_dbg ? r_data_in_dbg : {24'b0, r_data_in};
+  assign rdata = re_dbg ? r_data_in_dbg :  r_data_in;
   assign re_dbg = re && (araddr == `UART_REG_DBG1) | (araddr == `UART_REG_DBG2);
 
   assign waddrss_cond   = (awaddr_ff == `UART_REG_TR | awaddr_ff == `UART_REG_IE | awaddr_ff == `UART_REG_LC | awaddr_ff == `UART_REG_FC |  awaddr_ff == `UART_REG_MC ) ;
@@ -229,7 +229,7 @@ end
         awaddr_ff <= #1'b0;
       end
       if (s_axi_arready) araddr_ff <= #1 araddr;
-      else if (s_axi_rready) araddr_ff <= #1'b0;
+    //  else if (s_axi_rready) araddr_ff <= araddr;
       if (s_axi_wvalid) begin
         wdata_ff <= #1 wdata0;
         wstrb_ff <= #1 wstrb;

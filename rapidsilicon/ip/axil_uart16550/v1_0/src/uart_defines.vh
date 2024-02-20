@@ -141,7 +141,7 @@
 //  `define UART_ADDR_WIDTH 3
 //  `define UART_DATA_WIDTH 8
 // `else
- `define UART_ADDR_WIDTH 5
+ `define UART_ADDR_WIDTH 16
  `define UART_DATA_WIDTH 32
 // `endif
 
@@ -153,21 +153,27 @@
 // `define UART_HAS_BAUDRATE_OUTPUT
 
 // Register addresses
-`define UART_REG_RB	    `UART_ADDR_WIDTH'd0	 // receiver buffer
-`define UART_REG_TR     `UART_ADDR_WIDTH'd0	 // transmitter
-`define UART_REG_IE	    `UART_ADDR_WIDTH'd1	 // Interrupt enable
-`define UART_REG_II     `UART_ADDR_WIDTH'd2	 // Interrupt identification
-`define UART_REG_FC     `UART_ADDR_WIDTH'd2	 // FIFO control
-`define UART_REG_LC	    `UART_ADDR_WIDTH'd3	 // Line Control
-`define UART_REG_MC	    `UART_ADDR_WIDTH'd4	 // Modem control
-`define UART_REG_LS     `UART_ADDR_WIDTH'd5	 // Line status
-`define UART_REG_MS     `UART_ADDR_WIDTH'd6	 // Modem status
-`define UART_REG_SR     `UART_ADDR_WIDTH'd7	 // Scratch register
-`define UART_REG_DL1	`UART_ADDR_WIDTH'd0	 // Divisor latch bytes (1-2)
-`define UART_REG_DL2	`UART_ADDR_WIDTH'd1
-`define UART_REG_DBG    `UART_ADDR_WIDTH'd11 // debug interface 
-`define UART_REG_DBG1   `UART_ADDR_WIDTH'd8
-`define UART_REG_DBG2    `UART_ADDR_WIDTH'd12
+`define UART_REG_TYPE	    `UART_ADDR_WIDTH'h0	 // IP TYPE
+`define UART_REG_VERSION    `UART_ADDR_WIDTH'h4	 // IP VERSION
+`define UART_REG_ID	        `UART_ADDR_WIDTH'h8	 // IP ID
+`define UART_REG_RSVD1	    `UART_ADDR_WIDTH'hC	 // Reserved
+`define UART_REG_RSVD2	    `UART_ADDR_WIDTH'h10	 // Reserved
+
+`define UART_REG_RB	    `UART_ADDR_WIDTH'h14	 // receiver buffer
+`define UART_REG_TR     `UART_ADDR_WIDTH'h14	 // transmitter
+`define UART_REG_IE	    `UART_ADDR_WIDTH'h15	 // Interrupt enable
+`define UART_REG_II     `UART_ADDR_WIDTH'h16	 // Interrupt identification
+`define UART_REG_FC     `UART_ADDR_WIDTH'h16	 // FIFO control
+`define UART_REG_LC	    `UART_ADDR_WIDTH'h17	 // Line Control
+`define UART_REG_MC	    `UART_ADDR_WIDTH'h18	 // Modem control
+`define UART_REG_LS     `UART_ADDR_WIDTH'h19     // Line status
+`define UART_REG_MS     `UART_ADDR_WIDTH'h1A     // Modem status
+`define UART_REG_SR     `UART_ADDR_WIDTH'h1B     // Scratch register
+`define UART_REG_DL1	`UART_ADDR_WIDTH'h14	 // Divisor latch bytes (1-2)
+`define UART_REG_DL2	`UART_ADDR_WIDTH'h15
+`define UART_REG_DBG    `UART_ADDR_WIDTH'h1F     // debug interface 
+`define UART_REG_DBG1   `UART_ADDR_WIDTH'h1C
+`define UART_REG_DBG2   `UART_ADDR_WIDTH'h20
 // Interrupt Enable register bits
 `define UART_IE_RDA	0	// Received Data available interrupt
 `define UART_IE_THRE	1	// Transmitter Holding Register empty interrupt
