@@ -242,7 +242,7 @@ def main():
             lines = file.readlines()
             for i, line in enumerate(lines):
                 if ("module {}".format(args.build_name)) in line:
-                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"AXIS_PREG\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
+                    new_lines.append("module {} #(\n\tparameter IP_TYPE \t\t= \"ASPR\",\n\tparameter IP_VERSION \t= {}, \n\tparameter IP_ID \t\t= {}\n)\n(".format(args.build_name, ip_version, ip_id))
                 else:
                     new_lines.append(line)
                 

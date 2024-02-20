@@ -31,7 +31,7 @@ THE SOFTWARE.
  */
 module i2c_slave_axil_master #
 (
-    parameter IP_TYPE 		= "I2CSLAVE",
+    parameter IP_TYPE 		= "I2CS",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2e91202,
     

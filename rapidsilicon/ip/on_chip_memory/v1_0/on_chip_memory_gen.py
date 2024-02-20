@@ -219,6 +219,9 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         
+        if (args.write_width_A >= 288 or args.read_width_A >= 288 or args.write_width_B >= 288 or args.read_width_B >= 288):
+                parser._actions[11].choices = [1024, 2048, 4096, 8192]
+
         if (args.asymmetric == 0):
             option_strings_to_remove = ['--write_width_A', '--write_width_B', '--read_width_A', '--read_width_B', '--write_depth_A', '--file_path']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -227,26 +230,32 @@ def main():
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         if (args.memory_type in ["Single_Port"]):
-            option_strings_to_remove = ['--common_clk', '--write_width_B', '--read_width_B','--file_path']
+            dep_dict.update({
+                        'common_clk':     'True'
+                    })
+            option_strings_to_remove = ['--write_width_B', '--read_width_B','--file_path']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.write_width_A != args.read_width_A):
-                option_strings_to_remove = ['--bram']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            
+                dep_dict.update({
+                        'bram'      :     'True'
+                    })
+                
         elif (args.memory_type in ["Simple_Dual_Port"]):
             option_strings_to_remove = ['--write_width_B', '--read_width_A', '--file_path']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.write_width_A != args.read_width_B):
-                option_strings_to_remove = ['--bram']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            
+                dep_dict.update({
+                        'bram'     :     'True'
+                    })
+
         elif (args.memory_type in ["True_Dual_Port"]):
             option_strings_to_remove = ['--file_path']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.write_width_A != args.read_width_A or args.write_width_A != args.write_width_B or args.write_width_B != args.read_width_B):
-                option_strings_to_remove = ['--bram']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-    
+                dep_dict.update({
+                        'bram'     :     'True'
+                    })
+                
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     file_extension  = os.path.splitext(args.file_path)[1]

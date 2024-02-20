@@ -432,8 +432,6 @@ class OCM_ASYM(Module):
         self.m = m # vertical memory
         self.n = n # horizontal memory
         
-        print("M", m, "N", n)
-        
         # Write Enables internal
         self.wen_A1       = Signal(m*n)
         self.wen_B1       = Signal(m*n)
@@ -1436,7 +1434,6 @@ class OCM_ASYM(Module):
                     
                     elif (write_width_A > read_width_B):
                         read_depth = int(read_depth_B / (m*n))
-                        # print("Each Depth", read_depth)
                         if (write_depth_A == 1024):
                             param_write_width_A = 36
                             param_read_width_B  = 36

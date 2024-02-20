@@ -32,7 +32,7 @@ THE SOFTWARE.
 
 module reset_release #
 (
-    parameter IP_TYPE 		        = "RST_RLSE",
+    parameter IP_TYPE 		        = "RSTR",
 	parameter IP_VERSION 	        = 32'h1, 
 	parameter IP_ID 		        = 32'h2e91209,
 

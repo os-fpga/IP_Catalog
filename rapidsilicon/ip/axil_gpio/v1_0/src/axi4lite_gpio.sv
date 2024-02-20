@@ -26,7 +26,7 @@
 
 module axi4lite_gpio #
 (
-  parameter IP_TYPE 		= "GPIO",
+  parameter IP_TYPE 		= "ALGP",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		  = 32'h2591754,
   

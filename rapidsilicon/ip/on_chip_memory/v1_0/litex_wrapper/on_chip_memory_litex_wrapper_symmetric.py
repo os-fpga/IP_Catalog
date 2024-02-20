@@ -842,21 +842,21 @@ class OCM_SYM(Module):
                             z = data_width - 9*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 8):
-                                    write_data_A   = Cat(self.din_A[(j*18):((j*18)+8)])
-                                    w_parity_A     = Cat(self.din_A[((j*18)+8)], Replicate(0,3))
-                                    write_data_B   = Cat(self.din_B[(j*18):((j*18)+8)])
-                                    w_parity_B     = Cat(self.din_B[((j*18)+8)], Replicate(0,3))
+                                    write_data_A   = Cat(self.din_A[(j*9):((j*9)+8)])
+                                    w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
+                                    write_data_B   = Cat(self.din_B[(j*9):((j*9)+8)])
+                                    w_parity_B     = Cat(self.din_B[((j*9)+8)], Replicate(0,3))
                                 else:
-                                    write_data_A   = self.din_A[18*(m-1):data_width]
+                                    write_data_A   = self.din_A[9*(m-1):data_width]
                                     w_parity_A     = Replicate(0,4)
-                                    write_data_B   = self.din_B[18*(m-1):data_width]
+                                    write_data_B   = self.din_B[9*(m-1):data_width]
                                     w_parity_B     = Replicate(0,4)
                             else:
                                 if (data_width > 9):
-                                    write_data_A   = Cat(self.din_A[(j*18):((j*18)+8)])
-                                    w_parity_A     = Cat(self.din_A[((j*18)+8)], Replicate(0,3))
-                                    write_data_B   = Cat(self.din_B[(j*18):((j*18)+8)])
-                                    w_parity_B     = Cat(self.din_B[((j*18)+8)], Replicate(0,3))
+                                    write_data_A   = Cat(self.din_A[(j*9):((j*9)+8)])
+                                    w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
+                                    write_data_B   = Cat(self.din_B[(j*9):((j*9)+8)])
+                                    w_parity_B     = Cat(self.din_B[((j*9)+8)], Replicate(0,3))
                             
                         elif (write_depth == 8192):
                             write_data_A    = self.din_A[(j*4):((j*4)+4)]

@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axi_crossbar #
 (
-    parameter IP_TYPE 		= "CRSSBAR1",
+    parameter IP_TYPE 		= "AXBR",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591503,
     

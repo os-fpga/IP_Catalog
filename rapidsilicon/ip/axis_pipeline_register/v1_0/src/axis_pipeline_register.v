@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axis_pipeline_register #
 (
-    parameter IP_TYPE 		= "AXIS_PREG",
+    parameter IP_TYPE 		= "ASPR",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2e91138,
     
