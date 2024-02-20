@@ -30,7 +30,7 @@ THE SOFTWARE.
 
 module axi_ram #
 (
-    parameter IP_TYPE 		= "AXI_RAM",
+    parameter IP_TYPE 		= "ARAM",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591524,
     

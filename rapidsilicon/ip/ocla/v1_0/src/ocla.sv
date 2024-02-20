@@ -35,7 +35,7 @@
 
 
 module ocla #(
-  parameter IP_TYPE = "ocla",
+  parameter IP_TYPE = "OCLA",
   parameter IP_VERSION = 32'h1,
   parameter IP_ID = 32'h3881734,
   parameter NO_OF_PROBES = 1024,

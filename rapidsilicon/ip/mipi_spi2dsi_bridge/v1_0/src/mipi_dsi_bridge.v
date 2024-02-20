@@ -1,23 +1,26 @@
 `timescale 1ps/1ps
 
 module mipi_spi2dsi_bridge #(
-	parameter IP_TYPE 		= "MIPI SPI2DSI",
-	parameter IP_VERSION 	= 32'h1, 
-	parameter IP_ID 		= 32'h4f209bb
+	parameter IP_TYPE 		                 = "MIPI",
+	parameter IP_VERSION 	                 = 32'h1, 
+	parameter IP_ID 		                 = 32'h2691748
 )
-(rst, clk, 
-				data_p, 
-				data_n, 
-				clk_p, 
-				clk_n,
-				reg_1v8_en, 
-				reg_3v0_en, 
-				lcd_rst, 
-				bl_en, 
-				spi_mosi_i, 
-				spi_csn_i, 
-				spi_clk_i, 
-				lcd_test_i);
+(	
+	rst, 
+	clk, 
+	data_p, 
+	data_n, 
+	clk_p, 
+	clk_n,
+	reg_1v8_en, 
+	reg_3v0_en, 
+	lcd_rst, 
+	bl_en, 
+	spi_mosi_i, 
+	spi_csn_i, 
+	spi_clk_i, 
+	lcd_test_i
+);
 
 output reg reg_1v8_en;
 output reg reg_3v0_en;

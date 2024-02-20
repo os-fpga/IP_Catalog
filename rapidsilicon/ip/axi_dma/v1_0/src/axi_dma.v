@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axi_dma #
 (
-    parameter IP_TYPE 		= "AXI_DMA",
+    parameter IP_TYPE 		= "ADMA",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591512,
     

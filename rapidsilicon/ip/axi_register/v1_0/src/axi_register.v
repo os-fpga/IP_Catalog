@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axi_register #
 (
-    parameter IP_TYPE 		= "AXI_REG",
+    parameter IP_TYPE 		= "AREG",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591527,
     

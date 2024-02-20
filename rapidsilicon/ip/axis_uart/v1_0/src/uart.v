@@ -31,7 +31,7 @@ THE SOFTWARE.
  */
 module uart #
 (
-    parameter IP_TYPE 		= "AXISUART",
+    parameter IP_TYPE 		= "ASUR",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2e91152,
     parameter DATA_WIDTH    = 8

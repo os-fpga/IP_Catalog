@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axis_async_fifo #
 (
-    parameter IP_TYPE 		= "ASYNFIFO",
+    parameter IP_TYPE 		= "ASSF",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2691021,
     

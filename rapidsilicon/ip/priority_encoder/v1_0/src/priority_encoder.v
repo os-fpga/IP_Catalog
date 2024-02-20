@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module priority_encoder #
 (
-    parameter IP_TYPE 		    = "P_ENCODR",
+    parameter IP_TYPE 		    = "PREN",
 	parameter IP_VERSION 	    = 32'h1, 
 	parameter IP_ID 		    = 32'h2e91207,
     parameter WIDTH             = 4,

@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axil_interconnect #
 (
-    parameter IP_TYPE 		= "AXIL_IC",
+    parameter IP_TYPE 		= "ALIN",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591801,
     

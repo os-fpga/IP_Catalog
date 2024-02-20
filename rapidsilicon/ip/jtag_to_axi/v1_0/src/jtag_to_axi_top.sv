@@ -19,7 +19,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module jtag_to_axi_top #(
-                         parameter IP_TYPE 		                 = "JTAG2AXI",
+                         parameter IP_TYPE 		                 = "JTAG",
 	                     parameter IP_VERSION 	                 = 32'h1, 
 	                     parameter IP_ID 		                 = 32'h2691748,
                          

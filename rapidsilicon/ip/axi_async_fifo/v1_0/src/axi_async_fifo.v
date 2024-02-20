@@ -1,6 +1,9 @@
 `timescale 1ns / 1ps
 
 module axi_async_fifo #(
+    parameter IP_TYPE 		  = "AAFF",
+    parameter IP_VERSION 	  = 32'h1, 
+    parameter IP_ID 		  = 32'h5423b2b,
 	/* ID width for master and slave interface */
 	parameter	AXI_ID_WIDTH	= 	8,
 	/* Data width of axi bus */

@@ -25,9 +25,12 @@
 `define RV_FPGA_OPTIMIZE 1
 
 module ahb_to_axi4 #(
-parameter ID_WIDTH	        = 1,
-parameter Address_Width     = 32,
-parameter Data_Width        = 32
+    parameter IP_TYPE 		  = "A2HB",
+    parameter IP_VERSION 	  = 32'h1, 
+    parameter IP_ID 		  = 32'h5423b2b,
+    parameter ID_WIDTH	      = 1,
+    parameter Address_Width   = 32,
+    parameter Data_Width      = 32
 ) 
 
 (

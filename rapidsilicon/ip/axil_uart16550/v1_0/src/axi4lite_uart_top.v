@@ -21,7 +21,7 @@
 `include "./timescale.v"
 
 module axi4lite_uart_top #(
-    parameter IP_TYPE 		    = "UART",
+    parameter IP_TYPE 		    = "ALUR",
 	parameter IP_VERSION 	    = 32'h8, 
 	parameter IP_ID 		    = 32'h2591807,
     

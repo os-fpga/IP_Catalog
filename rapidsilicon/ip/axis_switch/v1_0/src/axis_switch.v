@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axis_switch #
 (
-    parameter IP_TYPE 		= "AXISSWTH",
+    parameter IP_TYPE 		= "ASSW",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2e91145,
     
