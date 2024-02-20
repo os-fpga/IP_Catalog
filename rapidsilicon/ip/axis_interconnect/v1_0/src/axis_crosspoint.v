@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axis_crosspoint #
 (
-    parameter IP_TYPE 		= "AXIS_IC",
+    parameter IP_TYPE 		= "ASIN",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2e91136,
     

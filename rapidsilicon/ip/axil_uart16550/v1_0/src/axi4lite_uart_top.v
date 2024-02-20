@@ -21,9 +21,9 @@
 `include "./timescale.v"
 
 module axi4lite_uart_top #(
-    parameter IP_TYPE 		    = "AXIL_URT",
+    parameter IP_TYPE 		    = "ALUR",
 	parameter IP_VERSION 	    = 32'h1, 
-	parameter IP_ID 		    = 32'h2591807,
+	parameter IP_ID 	    = 32'h2591807,
     
     parameter ADDRESS_WIDTH     = 16,
     parameter DATA_WIDTH        = 32,
@@ -88,7 +88,7 @@ wire  [`UART_FIFO_COUNTER_W-1:0]    rf_count;
 wire  [`UART_FIFO_COUNTER_W-1:0]    tf_count;
 wire  [2:0]                         tstate;
 wire  [3:0]                         rstate; 
-wire  [8-1:0]                       r_data_in;
+wire  [31:0]                       r_data_in;
 wire  [DATA_WIDTH-1:0]              r_data_in_dbg;
 
 wire  [ADDRESS_WIDTH-1:0]           addr_in;
@@ -134,7 +134,11 @@ axi4lite_slave_dut (
 );
 
 
-uart_regs uart_regs_dut (
+uart_regs #(
+.IP_TYPE(IP_TYPE),
+.IP_VERSION(IP_VERSION),
+.IP_ID(IP_ID)
+) uart_regs_dut (
 .clk (s_axi_aclk ),
 .wb_rst_i (!s_axi_aresetn ),
 .wb_addr_i (addr_in ),

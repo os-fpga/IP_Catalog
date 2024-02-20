@@ -51,7 +51,7 @@
 `default_nettype	none
 // }}}
 module axi2axilite #(
-	parameter IP_TYPE 					= "AXI2AXIL",
+	parameter IP_TYPE 					= "A2AL",
 	parameter IP_VERSION 				= 32'h1, 
 	parameter IP_ID 					= 32'h2591529,
 	// {{{

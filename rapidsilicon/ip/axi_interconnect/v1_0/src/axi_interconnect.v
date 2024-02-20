@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axi_interconnect #
 (
-    parameter IP_TYPE 		= "AXI_IC",
+    parameter IP_TYPE 		= "AINT",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591431,
     

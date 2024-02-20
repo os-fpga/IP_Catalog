@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axis_adapter #
 (
-    parameter IP_TYPE 		= "AXIS_ADP",
+    parameter IP_TYPE 		= "ASAD",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591810,
     

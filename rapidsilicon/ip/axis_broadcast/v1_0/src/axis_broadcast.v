@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axis_broadcast #
 (
-    parameter IP_TYPE 		= "AXIS_BRD",
+    parameter IP_TYPE 		= "ASBR",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2691033,
     

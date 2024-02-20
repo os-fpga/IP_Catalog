@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axil_crossbar #
 (
-    parameter IP_TYPE 		= "LCRSSBR1",
+    parameter IP_TYPE 		= "ALXB",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591646,
 

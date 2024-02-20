@@ -232,8 +232,12 @@
 `define UART_DL1 7:0
 `define UART_DL2 15:8
 
-module uart_regs (clk,
-	wb_rst_i, wb_addr_i, wb_dat_i, wb_dat_o, wb_we_i, wb_re_i, 
+module uart_regs #(
+	parameter IP_TYPE 		    = "UART",
+	parameter IP_VERSION 	    = 32'h1, 
+	parameter IP_ID 		    = 32'h2591807
+)(
+	clk, wb_rst_i, wb_addr_i, wb_dat_i, wb_dat_o, wb_we_i, wb_re_i, 
 
 // additional signals
 	modem_inputs,
@@ -255,7 +259,7 @@ input 									clk;
 input 									wb_rst_i;
 input [`UART_ADDR_WIDTH-1:0] 		    wb_addr_i;
 input [7:0] 							wb_dat_i;
-output [7:0] 							wb_dat_o;
+output [31:0] 							wb_dat_o;
 input 									wb_we_i;
 input 									wb_re_i;
 
@@ -298,7 +302,7 @@ wire 										stx_pad_o;		// received from transmitter module
 wire 										srx_pad_i;
 wire 										srx_pad;
 
-reg [7:0] 								wb_dat_o;
+reg [31:0] 								wb_dat_o;
 
 wire [`UART_ADDR_WIDTH-1:0] 		    wb_addr_i;
 wire [7:0] 								wb_dat_i;
@@ -380,6 +384,19 @@ reg  [7:0]                block_value; // One character length minus stop bit
 // Transmitter Instance
 wire serial_out;
 
+// IP Registers
+reg [31:0] reg_TYPE			= 32'd0;
+reg [31:0] reg_VERSION		= 32'd0;
+reg [31:0] reg_ID			= 32'd0;
+reg [31:0] reg_reserved1	= 32'd0;
+reg [31:0] reg_reserved2	= 32'd0;
+
+initial begin
+	reg_TYPE 	= IP_TYPE;
+	reg_VERSION = IP_VERSION;
+	reg_ID 		= IP_ID;
+end
+
 //uart_transmitter transmitter(clk, wb_rst_i, lcr, tf_push, wb_dat_i, enable, serial_out, tstate, tf_count, tx_reset, lsr_mask);
 uart_transmitter transmitter (
   .clk (clk ),
@@ -442,14 +459,20 @@ always @(dl or dlab or ier or iir or scratch
 			or lcr or lsr or msr or rf_data_out or wb_addr_i or wb_re_i)   // asynchrounous reading
 begin
 	case (wb_addr_i)
-		`UART_REG_RB   : wb_dat_o = dlab ? dl[`UART_DL1] : rf_data_out[10:3];
+		`UART_REG_TYPE		: wb_dat_o = reg_TYPE;
+		`UART_REG_VERSION	: wb_dat_o = reg_VERSION;
+		`UART_REG_ID		: wb_dat_o = reg_ID;
+		`UART_REG_RSVD1		: wb_dat_o = reg_reserved1;
+		`UART_REG_RSVD2		: wb_dat_o = reg_reserved2;
+
+		`UART_REG_RB    : wb_dat_o = dlab ? dl[`UART_DL1] : rf_data_out[10:3];
 		`UART_REG_IE	: wb_dat_o = dlab ? dl[`UART_DL2] : {4'b0000,ier};
 		`UART_REG_II	: wb_dat_o = {4'b1100,iir};
 		`UART_REG_LC	: wb_dat_o = lcr;
 		`UART_REG_LS	: wb_dat_o = lsr;
 		`UART_REG_MS	: wb_dat_o = msr;
 		`UART_REG_SR	: wb_dat_o = scratch;
-		default:  wb_dat_o = 8'b0; // ??
+		default:  wb_dat_o = 32'b0; // ??
 	endcase // case(wb_addr_i)
 end // always @ (dl or dlab or ier or iir or scratch...
 

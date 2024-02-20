@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axis_ram_switch #
 (
-    parameter IP_TYPE 		= "RAMSWTCH",
+    parameter IP_TYPE 		= "ASRS",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2e91141,
     

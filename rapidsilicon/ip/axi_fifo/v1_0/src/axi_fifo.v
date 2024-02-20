@@ -33,7 +33,7 @@ THE SOFTWARE.
  */
 module axi_fifo #
 (
-    parameter IP_TYPE 		= "AXI_FIFO",
+    parameter IP_TYPE 		= "AFFO",
 	parameter IP_VERSION 	= 32'h1, 
 	parameter IP_ID 		= 32'h2591520,
     
