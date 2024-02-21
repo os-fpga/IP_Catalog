@@ -64,10 +64,7 @@ initial begin
     $dumpvars(0, test_uart_rx);
 end
 
-uart_rx #(
-    .DATA_WIDTH(8)
-)
-UUT (
+axis_uart_wrapper UUT (
     .clk(clk),
     .rst(rst),
     // axi output
@@ -76,10 +73,10 @@ UUT (
     .m_axis_tready(m_axis_tready),
     // input
     .rxd(rxd),
-    // status
-    .busy(busy),
-    .overrun_error(overrun_error),
-    .frame_error(frame_error),
+    // // status
+    .rx_busy(busy),
+    .rx_overrun_error(overrun_error),
+    .rx_frame_error(frame_error),
     // configuration
     .prescale(prescale)
 );

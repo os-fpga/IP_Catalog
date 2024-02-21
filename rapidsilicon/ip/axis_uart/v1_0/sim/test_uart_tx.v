@@ -60,10 +60,7 @@ initial begin
     $dumpvars(0, test_uart_tx);
 end
 
-uart_tx #(
-    .DATA_WIDTH(8)
-)
-UUT (
+axis_uart_wrapper UUT (
     .clk(clk),
     .rst(rst),
     // axi input
@@ -73,7 +70,7 @@ UUT (
     // output
     .txd(txd),
     // status
-    .busy(busy),
+    .tx_busy(busy),
     // configuration
     .prescale(prescale)
 );

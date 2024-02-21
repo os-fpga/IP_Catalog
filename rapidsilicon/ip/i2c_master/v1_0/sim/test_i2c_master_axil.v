@@ -114,17 +114,7 @@ initial begin
     $dumpvars(0, test_i2c_master_axil);
 end
 
-i2c_master_axil #(
-    .DEFAULT_PRESCALE(DEFAULT_PRESCALE),
-    .FIXED_PRESCALE(FIXED_PRESCALE),
-    .CMD_FIFO(CMD_FIFO),
-    .CMD_FIFO_ADDR_WIDTH(CMD_FIFO_ADDR_WIDTH),
-    .WRITE_FIFO(WRITE_FIFO),
-    .WRITE_FIFO_ADDR_WIDTH(WRITE_FIFO_ADDR_WIDTH),
-    .READ_FIFO(READ_FIFO),
-    .READ_FIFO_ADDR_WIDTH(READ_FIFO_ADDR_WIDTH)
-)
-UUT (
+i2c_master_wrapper UUT (
     .clk(clk),
     .rst(rst),
     .s_axil_awaddr(s_axil_awaddr),

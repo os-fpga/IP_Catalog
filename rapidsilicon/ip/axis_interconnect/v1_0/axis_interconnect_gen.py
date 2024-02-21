@@ -9,6 +9,7 @@ import sys
 import logging
 import argparse
 import math
+from pathlib import Path
 
 from datetime import datetime
 
@@ -233,6 +234,12 @@ def main():
                 
         with open(os.path.join(wrapper), "w") as file:
             file.writelines(new_lines)
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/axis_interconnect/v1_0", build_name, "sim/test_axis_crosspoint_4x4.v")
+        file = Path(file)
+        text = file.read_text()
+        text = text.replace("axis_interconnect_wrapper", build_name)
+        file.write_text(text)
 
 if __name__ == "__main__":
     main()
