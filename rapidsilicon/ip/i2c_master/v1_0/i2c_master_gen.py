@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 import argparse
+from pathlib import Path
 
 from datetime import datetime
 
@@ -42,7 +43,7 @@ def get_i2c_ios():
 
 # I2C Master Wrapper ----------------------------------------------------------------------------------
 class I2CMASTERWrapper(Module):
-    def __init__(self, platform, default_prescale, fixed_prescale, cmd_fifo, cmd_addr_width, write_fifo, write_addr_width, read_fifo, read_addr_width):
+    def __init__(self, platform, default_prescale, fixed_prescale, cmd_fifo, cmd_addr_width, write_fifo, write_addr_fifo_width, read_fifo, read_addr_fifo_width):
         
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
@@ -51,7 +52,7 @@ class I2CMASTERWrapper(Module):
         self.comb += self.cd_sys.rst.eq(platform.request("rst"))
 
         # AXI LITE ----------------------------------------------------------------------------------
-        axil = AXILiteInterface()
+        axil = AXILiteInterface(address_width=6)
         platform.add_extension(axil.get_ios("s_axil"))
         self.comb += axil.connect_to_pads(platform.request("s_axil"), mode="slave")
 
@@ -62,9 +63,9 @@ class I2CMASTERWrapper(Module):
             cmd_fifo            = cmd_fifo,
             cmd_addr_width      = cmd_addr_width,
             write_fifo          = write_fifo,
-            write_addr_width    = write_addr_width,
+            write_addr_fifo_width    = write_addr_fifo_width,
             read_fifo           = read_fifo,
-            read_addr_width     = read_addr_width
+            read_addr_fifo_width     = read_addr_fifo_width
             )
         
         # I2C Signals --------------------------------
@@ -112,8 +113,8 @@ def main():
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--cmd_addr_width",         type=int,      default=5,     choices=range(1, 6),      help="I2C FIFO Command Address Width.")
-    core_range_param_group.add_argument("--write_addr_width",       type=int,      default=5,     choices=range(1, 6),      help="I2C FIFO Write Address Width.")
-    core_range_param_group.add_argument("--read_addr_width",        type=int,      default=5,     choices=range(1, 6),      help="I2C FIFO Read Address Width.")
+    core_range_param_group.add_argument("--write_addr_fifo_width",       type=int,      default=5,     choices=range(1, 6),      help="I2C FIFO Write Address Width.")
+    core_range_param_group.add_argument("--read_addr_fifo_width",        type=int,      default=5,     choices=range(1, 6),      help="I2C FIFO Read Address Width.")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build Parameters")
@@ -141,12 +142,14 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
     summary =  { 
-    "Write Address Width" : args.write_addr_width,
-    "Read Address Width" : args.read_addr_width,
-    "Status Register" : "0x00",
-    "Command Register" : "0x04",
-    "Data Register" : "0x08",
-    "Prescale Register" : "0x0C"
+    "Address Width" : "6 Bit Wide",
+    "Type Register" : "0x00",
+    "Version Register" : "0x04",
+    "ID Register" : "0x08",
+    "Status Register" : "0x14",
+    "Command Register" : "0x18",
+    "Data Register" : "0x1C",
+    "Prescale Register" : "0x20"
     }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
@@ -161,9 +164,9 @@ def main():
         cmd_fifo         = args.cmd_fifo,
         cmd_addr_width   = args.cmd_addr_width,
         write_fifo       = args.write_fifo,
-        write_addr_width = args.write_addr_width,
+        write_addr_fifo_width = args.write_addr_fifo_width,
         read_fifo        = args.read_fifo,
-        read_addr_width  = args.read_addr_width,
+        read_addr_fifo_width  = args.read_addr_fifo_width,
     )
 
     # Build Project --------------------------------------------------------------------------------
@@ -213,6 +216,12 @@ def main():
                 
         with open(os.path.join(wrapper), "w") as file:
             file.writelines(new_lines)
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/i2c_master/v1_0", build_name, "sim/test_i2c_master_axil.v")
+        file = Path(file)
+        text = file.read_text()
+        text = text.replace("i2c_master_wrapper", build_name)
+        file.write_text(text)
 
 if __name__ == "__main__":
     main()

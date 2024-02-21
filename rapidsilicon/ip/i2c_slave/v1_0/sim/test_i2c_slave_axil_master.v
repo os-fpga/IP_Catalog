@@ -120,13 +120,7 @@ initial begin
     $dumpvars(0, test_i2c_slave_axil_master);
 end
 
-i2c_slave_axil_master #(
-    .FILTER_LEN(FILTER_LEN),
-    .DATA_WIDTH(DATA_WIDTH),
-    .ADDR_WIDTH(ADDR_WIDTH),
-    .STRB_WIDTH(STRB_WIDTH)
-)
-UUT (
+i2c_slave_wrapper UUT (
     .clk(clk),
     .rst(rst),
     .i2c_scl_i(i2c_scl_i),
