@@ -218,7 +218,7 @@ def main():
         file = os.path.join(args.build_dir, "rapidsilicon/ip/i2c_slave/v1_0", build_name, "sim/test_i2c_slave_axil_master.v")
         file = Path(file)
         text = file.read_text()
-        text = text.replace("i2c_slave_axil_master", build_name)
+        text = text.replace("i2c_slave_wrapper", build_name)
         file.write_text(text)
 
 if __name__ == "__main__":
