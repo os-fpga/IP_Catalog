@@ -22,8 +22,8 @@
 
 module ff_sync_eio #
                (
-                DATA_SIZE = 1,
-                SYNC      = 1 
+               parameter DATA_SIZE = 1,
+               parameter SYNC      = 1 
                )
                (
                 input                     destination_clk,

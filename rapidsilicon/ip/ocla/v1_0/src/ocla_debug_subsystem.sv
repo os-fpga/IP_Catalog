@@ -1,26 +1,30 @@
 
 ////////////////////////////////////////////////
 `default_nettype	wire
+
+
+
+
 module ocla_debug_subsystem #(
 
     /**********************IP Special Parameters*******************/
 
-    parameter  IP_TYPE              = "ocla",
-    parameter  IP_VERSION           = 32'h1,
-    parameter  IP_ID                = 32'h3881734,
+    parameter  IP_TYPE               = "OCLA",
+    parameter  IP_VERSION            = 32'h1,
+    parameter  IP_ID                 = 32'h3881734,
 
     /*************************************************************/
 
-    parameter  Mode                 = "NATIVE",     // NATIVE, AXI, NATIVE_AXI
-    parameter  Axi_Type             = "AXI4" ,      // AXI4, AXILite
-    parameter  No_AXI_Bus           = 1,            // Total number of AXI bus:   Range (1 ----->  4)
-    parameter  EIO_Enable           = 1,            // EIO Enable = 1 --------  EIO Disable = 0
-    parameter  Sampling_Clk         = "single",     // single, multiple
-    parameter  Cores                = 1,            // Number of OCLA Core used
+    parameter  Mode                  = "NATIVE",     // NATIVE, AXI, NATIVE_AXI
+    parameter  Axi_Type              = "AXI4" ,      // AXI4, AXILite
+    parameter  No_AXI_Bus            = 1,            // Total number of AXI bus:   Range (1 ----->  4)
+    parameter  EIO_Enable            = 1,            // EIO Enable = 1 --------  EIO Disable = 0
+    parameter  Sampling_Clk          = "SINGLE",     // SINGLE, MULTIPLE
+    parameter  Cores                 = 1,            // Number of OCLA Core used
 
     parameter  No_Probes             = 4'd5,         // Total Number of Probes: Range (1 ----->  15)
-    parameter  Probes_Sum           = 14'd1,        // Total probes width
-    parameter  Mem_Depth            = 11'd512,      // Buffer size
+    parameter  Probes_Sum            = 14'd1,        // Total probes width
+    parameter  Mem_Depth             = 11'd512,      // Buffer size
 
     /**********************Width of each probe*******************/
     parameter  Probe01_Width         = 11'd0,
@@ -32,20 +36,20 @@ module ocla_debug_subsystem #(
     parameter  Probe07_Width         = 11'd0,
     parameter  Probe08_Width         = 11'd0,
     parameter  Probe09_Width         = 11'd0,
-    parameter  Probe10_Width        = 11'd0,
-    parameter  Probe11_Width        = 11'd0,
-    parameter  Probe12_Width        = 11'd0,
-    parameter  Probe13_Width        = 11'd0,
-    parameter  Probe14_Width        = 11'd0,
-    parameter  Probe15_Width        = 11'd0 ,
+    parameter  Probe10_Width         = 11'd0,
+    parameter  Probe11_Width         = 11'd0,
+    parameter  Probe12_Width         = 11'd0,
+    parameter  Probe13_Width         = 11'd0,
+    parameter  Probe14_Width         = 11'd0,
+    parameter  Probe15_Width         = 11'd0 ,
 
     /*************************EIO IP Base Address**************************/
 
-    parameter EIO_BaseAddress       = 32'h01000000,
+    parameter EIO_BaseAddress        = 32'h01000000,
 
     /*************************AXI Core Base Address************************/
 
-    parameter AXI_Core_BaseAddress  = 32'h01000000,
+    parameter AXI_Core_BaseAddress   = 32'h01000000,
 
     /************************* Native Cores Base Addresses******************/
 
@@ -93,23 +97,23 @@ module ocla_debug_subsystem #(
 
   )
   (
-    input  wire                               RESETn,
-    input  wire                               eio_ip_clk,
-    input  wire                               eio_op_clk,
-    input  wire                               ACLK,
+    input  wire                                RESETn,
+    input  wire                                eio_ip_clk,
+    input  wire                                eio_op_clk,
+    input  wire                                ACLK,
 
-    `ifdef single_sample_clock
-    input  wire [Cores          -     1 : 0]  native_sampling_clk,
-    `else
-    input  wire                               native_sampling_clk,
-    `endif 
+`ifdef single_sample_clock
+    input  wire [Cores          -     1 : 0]   native_sampling_clk,
+`else
+    input  wire                                native_sampling_clk,
+`endif
 
-    input  wire                               axi_sampling_clk,
-    input  wire                               jtag_tck,
-    input  wire                               jtag_tms,
-    input  wire                               jtag_tdi,
-    output wire                               jtag_tdo,
-    input  wire                               jtag_trst,
+    input  wire                                axi_sampling_clk,
+    input  wire                                jtag_tck,
+    input  wire                                jtag_tms,
+    input  wire                                jtag_tdi,
+    output wire                                jtag_tdo,
+    input  wire                                jtag_trst,
 
     input  wire [Probes_Sum     -     1 : 0]   probes,
     input  wire [No_AXI_Bus*250 -     1 : 0]   axi4_probes,
@@ -134,19 +138,19 @@ module ocla_debug_subsystem #(
 
   localparam OCLA_COUNT     = (Mode == "NATIVE_AXI")? Cores-1 :Cores;
 
-  localparam [960-1:0]IF_Probes  = {IF15_Probes,IF14_Probes,IF13_Probes,IF12_Probes,IF11_Probes,IF10_Probes,IF09_Probes,IF08_Probes,IF07_Probes,IF06_Probes,IF05_Probes,IF04_Probes,IF03_Probes,IF02_Probes,IF01_Probes};
+  localparam [960-1:0]IF_Probes   = {IF15_Probes,IF14_Probes,IF13_Probes,IF12_Probes,IF11_Probes,IF10_Probes,IF09_Probes,IF08_Probes,IF07_Probes,IF06_Probes,IF05_Probes,IF04_Probes,IF03_Probes,IF02_Probes,IF01_Probes};
   localparam [165-1:0]Probes_Size = {Probe15_Width,Probe14_Width,Probe13_Width,Probe12_Width,Probe11_Width,Probe10_Width,Probe09_Width,Probe08_Width,Probe07_Width,Probe06_Width,Probe05_Width,Probe04_Width,Probe03_Width,Probe02_Width,Probe01_Width};
 
   localparam [543 : 0]InterconnectBaseAddress0 = {IF15_BaseAddress,IF14_BaseAddress,IF13_BaseAddress,IF12_BaseAddress,IF11_BaseAddress,IF10_BaseAddress,IF09_BaseAddress,IF08_BaseAddress,IF07_BaseAddress,IF06_BaseAddress,IF05_BaseAddress,IF04_BaseAddress,IF03_BaseAddress,IF02_BaseAddress,IF01_BaseAddress,AXI_Core_BaseAddress,EIO_BaseAddress};
   localparam [543 : 0]InterconnectBaseAddress1 = {IF15_BaseAddress,IF14_BaseAddress,IF13_BaseAddress,IF12_BaseAddress,IF11_BaseAddress,IF10_BaseAddress,IF09_BaseAddress,IF08_BaseAddress,IF07_BaseAddress,IF06_BaseAddress,IF05_BaseAddress,IF04_BaseAddress,IF03_BaseAddress,IF02_BaseAddress,IF01_BaseAddress,AXI_Core_BaseAddress,32'h010000000};
-  localparam [543 : 0]InterconnectBaseAddress =  (EIO_Enable == 1) ? InterconnectBaseAddress0 : InterconnectBaseAddress1;
-  initial
-  begin
-    $display("M_Count = %0d",M_Count );
-    $display("Base Addresses are = %0x",InterconnectBaseAddress );
-    $display("AXI_TOATAL_PROBES = %0d",AXI_TOATAL_PROBES );
-    $display("OCLA_COUNT = %0d",OCLA_COUNT );
-  end
+  localparam [543 : 0]InterconnectBaseAddress  = (EIO_Enable == 1) ? InterconnectBaseAddress0 : InterconnectBaseAddress1;
+  // initial
+  // begin
+  //   $display("M_Count = %0d",M_Count );
+  //   $display("Base Addresses are = %0x",InterconnectBaseAddress );
+  //   $display("AXI_TOATAL_PROBES = %0d",AXI_TOATAL_PROBES );
+  //   $display("OCLA_COUNT = %0d",OCLA_COUNT );
+  // end
 
   //---------- Total no of Probes for each OCLA Core ----------------------//
 
@@ -194,25 +198,34 @@ module ocla_debug_subsystem #(
   function [240-1:0] start_index(input [31:0] dummy);
     integer i,j,k;
     reg [16-1:0] PROBE_SIZE ;
+    reg [16-1:0] Probes_No_Reg ;
+    reg [16-1:0] Start_Index_Reg ;
+
     reg [240-1:0] TOTAL_PROBE_SIZE;
 
     begin
       start_index = 240'd0;
+      PROBE_SIZE  = 16'd0;
+      Probes_No_Reg = 16'd0;
+      Start_Index_Reg = 16'd0; 
       for (i = 0; i < 15; i = i + 1)
       begin
         if(i==0)
           start_index[i*16 +: 16] = 0;
         else
-          start_index[i*16 +: 16] = Probes_No[(i-1)*16 +: 16] +  start_index[(i-1)*16 +: 16];
-
+        begin
+          Probes_No_Reg = Probes_No[(i-1)*16 +: 16];
+          Start_Index_Reg = start_index[(i-1)*16 +: 16];
+          start_index[i*16 +: 16] = Probes_No_Reg +  Start_Index_Reg;
+        end
       end
 
     end
 
   endfunction
 
-  //localparam [240-1:0] probe_start_index = start_index(0);
-  localparam [240-1:0] probe_start_index = {16'd12,16'd4,16'd0};
+  localparam [240-1:0] probe_start_index = start_index(0);
+  //localparam [240-1:0] probe_start_index = {16'd12,16'd4,16'd0};
 
 
   //------------ Probe Ending index for each OCLA Core-----------------//
@@ -239,21 +252,21 @@ module ocla_debug_subsystem #(
   localparam [240-1:0] probe_end_index = end_index(0);
   //localparam [240-1:0] probe_end_index = {16'd1024,16'd8,16'd4};
   integer k;
-  initial
-  begin
-    for ( k=0 ; k < 15 ; k= k+1)
-    begin
-      $display("No of probes = %0d",Probes_No[k*16 +: 16] );
-    end
-    for ( k=0 ; k < 15 ; k= k+1)
-    begin
-      $display("starting index= %0d",probe_start_index [k*16 +: 16]);
-    end
-    for ( k=0 ; k < 15 ; k= k+1)
-    begin
-      $display("end index = %0d",probe_end_index [k*16 +: 16]);
-    end
-  end
+  //initial
+  //begin
+  //  for ( k=0 ; k < 15 ; k= k+1)
+  //  begin
+  //    $display("No of probes = %0d",Probes_No[k*16 +: 16] );
+  //  end
+  //  for ( k=0 ; k < 15 ; k= k+1)
+  //  begin
+  //    $display("starting index= %0d",probe_start_index [k*16 +: 16]);
+  //  end
+  //  for ( k=0 ; k < 15 ; k= k+1)
+  //  begin
+  //    $display("end index = %0d",probe_end_index [k*16 +: 16]);
+  //  end
+  //end
 
   // clock signals
   wire [OCLA_COUNT-1:0] core_sampling_clk;
@@ -325,119 +338,73 @@ module ocla_debug_subsystem #(
   wire      [1  : 0]    m_axi_rresp;
   wire      [31 : 0]    m_axi_rdata;
 
-  //------------------------------------------------------------------------------
-  wire      [32-1 : 0]  r_counter_1;
-  wire      [32-1 : 0]  r_counter_2;
-  wire                  r_s00_axi_aclk;
-  wire      [32-1 : 0]  r_s00_axi_awaddr;
-  wire      [2    : 0]  r_s00_axi_awprot;
-  wire                  r_s00_axi_awvalid;
-  wire                  r_s00_axi_awready;
-  wire      [32-1 : 0]  r_s00_axi_wdata;
-  wire      [(32/8)-1 : 0] r_s00_axi_wstrb;
-  wire                  r_s00_axi_wvalid;
-  wire                  r_s00_axi_wready;
-  wire      [1    : 0]  r_s00_axi_bresp;
-  wire                  r_s00_axi_bvalid;
-  wire                  r_s00_axi_bready;
-  wire      [32-1 : 0]  r_s00_axi_araddr;
-  wire      [2    : 0]  r_s00_axi_arprot;
-  wire                  r_s00_axi_arvalid;
-  wire                  r_s00_axi_arready;
-  wire      [32-1 : 0]  r_s00_axi_rdata;
-  wire      [1    : 0]  r_s00_axi_rresp;
-  wire                  r_s00_axi_rvalid;
-  wire                  r_s00_axi_rready;
-
-
-  wire        o_s_axil_awvalid  , o_s_axil_awvalid1;
-  wire        o_s_axil_awready  , o_s_axil_awready1;
-  wire [31:0] o_s_axil_awaddr   , o_s_axil_awaddr1;
-  wire [2:0]  o_s_axil_awprot   , o_s_axil_awprot1;
-  wire        o_s_axil_wvalid   , o_s_axil_wvalid1;
-  wire        o_s_axil_wready   , o_s_axil_wready1;
-  wire [31:0] o_s_axil_wdata    , o_s_axil_wdata1;
-  wire [3:0]  o_s_axil_wstrb    , o_s_axil_wstrb1;
-  wire        o_s_axil_bvalid   , o_s_axil_bvalid1;
-  wire        o_s_axil_bready   , o_s_axil_bready1;
-  wire [1:0]  o_s_axil_bresp    , o_s_axil_bresp1;
-  wire        o_s_axil_arvalid  , o_s_axil_arvalid1;
-  wire        o_s_axil_arready  , o_s_axil_arready1;
-  wire [31:0] o_s_axil_araddr   , o_s_axil_araddr1;
-  wire [2:0]  o_s_axil_arprot   , o_s_axil_arprot1;
-  wire        o_s_axil_rvalid   , o_s_axil_rvalid1;
-  wire        o_s_axil_rready   , o_s_axil_rready1;
-  wire [1:0]  o_s_axil_rresp    , o_s_axil_rresp1;
-  wire [31:0] o_s_axil_rdata    , o_s_axil_rdata1;
-
-
 
   //---------------------master interface signals generation----------------
 
-  logic [m_count-1:0]             m_axil_arready;
-  logic [m_count-1:0]             m_axil_awready;
-  logic [m_count*2-1:0]           m_axil_bresp;
-  logic [m_count-1:0]             m_axil_bvalid;
-  logic [m_count*Data_Width-1:0]  m_axil_rdata;
-  logic [m_count*2-1:0]           m_axil_rresp;
-  logic [m_count-1:0]             m_axil_rvali;
-  logic [m_count*Addr_Width-1:0]  m_axil_araddr;
-  logic [m_count*3-1:0]           m_axil_arprot;
-  logic [m_count-1:0]             m_axil_arvalid;
-  logic [m_count*Addr_Width-1:0]  m_axil_awaddr;
-  logic [m_count*3-1:0]           m_axil_awprot;
-  logic [m_count-1:0]             m_axil_awvalid;
-  logic [m_count-1:0]             m_axil_bready;
-  logic [m_count-1:0]             m_axil_rready;
-  logic [m_count*Data_Width-1:0]  m_axil_wdata;
-  logic [m_count-1:0]             m_axil_wready;
-  logic [m_count*STRB_WIDTH-1:0]  m_axil_wstrb;
-  logic [m_count-1:0]             m_axil_wvalid;
-  logic [m_count-1:0]             m_axil_rvalid;
+  wire [m_count-1:0]             m_axil_arready;
+  wire [m_count-1:0]             m_axil_awready;
+  wire [m_count*2-1:0]           m_axil_bresp;
+  wire [m_count-1:0]             m_axil_bvalid;
+  wire [m_count*Data_Width-1:0]  m_axil_rdata;
+  wire [m_count*2-1:0]           m_axil_rresp;
+  wire [m_count-1:0]             m_axil_rvali;
+  wire [m_count*Addr_Width-1:0]  m_axil_araddr;
+  wire [m_count*3-1:0]           m_axil_arprot;
+  wire [m_count-1:0]             m_axil_arvalid;
+  wire [m_count*Addr_Width-1:0]  m_axil_awaddr;
+  wire [m_count*3-1:0]           m_axil_awprot;
+  wire [m_count-1:0]             m_axil_awvalid;
+  wire [m_count-1:0]             m_axil_bready;
+  wire [m_count-1:0]             m_axil_rready;
+  wire [m_count*Data_Width-1:0]  m_axil_wdata;
+  wire [m_count-1:0]             m_axil_wready;
+  wire [m_count*STRB_WIDTH-1:0]  m_axil_wstrb;
+  wire [m_count-1:0]             m_axil_wvalid;
+  wire [m_count-1:0]             m_axil_rvalid;
 
 
-  logic                           S_AXI_ARREADY;
-  logic                           S_AXI_AWREADY;
-  logic   [1  : 0]                S_AXI_BRESP;
-  logic                           S_AXI_BVALID;
-  logic   [31 : 0]                S_AXI_RDATA;
-  logic   [1  : 0]                S_AXI_RRESP;
-  logic                           S_AXI_RVALID;
-  logic   [31 : 0]                S_AXI_ARADDR;
-  logic   [2  : 0]                S_AXI_ARPROT;
-  logic                           S_AXI_ARVALID;
-  logic   [31 : 0]                S_AXI_AWADDR;
-  logic   [2  : 0]                S_AXI_AWPROT;
-  logic                           S_AXI_AWVALID;
-  logic                           S_AXI_BREADY;
-  logic                           S_AXI_RREADY;
-  logic   [31 : 0]                S_AXI_WDATA;
-  logic                           S_AXI_WREADY;
-  logic   [3  : 0]                S_AXI_WSTRB;
-  logic                           S_AXI_WVALID;
+  wire                           S_AXI_ARREADY;
+  wire                           S_AXI_AWREADY;
+  wire   [1  : 0]                S_AXI_BRESP;
+  wire                           S_AXI_BVALID;
+  wire   [31 : 0]                S_AXI_RDATA;
+  wire   [1  : 0]                S_AXI_RRESP;
+  wire                           S_AXI_RVALID;
+  wire   [31 : 0]                S_AXI_ARADDR;
+  wire   [2  : 0]                S_AXI_ARPROT;
+  wire                           S_AXI_ARVALID;
+  wire   [31 : 0]                S_AXI_AWADDR;
+  wire   [2  : 0]                S_AXI_AWPROT;
+  wire                           S_AXI_AWVALID;
+  wire                           S_AXI_BREADY;
+  wire                           S_AXI_RREADY;
+  wire   [31 : 0]                S_AXI_WDATA;
+  wire                           S_AXI_WREADY;
+  wire   [3  : 0]                S_AXI_WSTRB;
+  wire                           S_AXI_WVALID;
 
-  logic   [31 : 0]                ma_axil_awaddr;
-  logic   [2  : 0]                ma_axil_awprot;
-  logic                           ma_axil_awvalid;
-  logic                           ma_axil_awready;
-  logic   [31 : 0]                ma_axil_wdata;
-  logic   [3  : 0]                ma_axil_wstrb;
-  logic                           ma_axil_wvalid;
-  logic                           ma_axil_wready;
-  logic   [1  : 0]                ma_axil_bresp;
-  logic                           ma_axil_bvalid;
-  logic                           ma_axil_bready;
-  logic   [31 : 0]                ma_axil_araddr;
-  logic   [2  : 0]                ma_axil_arprot;
-  logic                           ma_axil_arvalid;
-  logic                           ma_axil_arready;
-  logic   [31 : 0]                ma_axil_rdata;
-  logic   [1  : 0]                ma_axil_rresp;
-  logic                           ma_axil_rvalid;
-  logic                           ma_axil_rready;
+  wire   [31 : 0]                ma_axil_awaddr;
+  wire   [2  : 0]                ma_axil_awprot;
+  wire                           ma_axil_awvalid;
+  wire                           ma_axil_awready;
+  wire   [31 : 0]                ma_axil_wdata;
+  wire   [3  : 0]                ma_axil_wstrb;
+  wire                           ma_axil_wvalid;
+  wire                           ma_axil_wready;
+  wire   [1  : 0]                ma_axil_bresp;
+  wire                           ma_axil_bvalid;
+  wire                           ma_axil_bready;
+  wire   [31 : 0]                ma_axil_araddr;
+  wire   [2  : 0]                ma_axil_arprot;
+  wire                           ma_axil_arvalid;
+  wire                           ma_axil_arready;
+  wire   [31 : 0]                ma_axil_rdata;
+  wire   [1  : 0]                ma_axil_rresp;
+  wire                           ma_axil_rvalid;
+  wire                           ma_axil_rready;
 
 
-assign core_sampling_clk = (Sampling_Clk == "SINGLE") ? {OCLA_COUNT{native_sampling_clk}} : native_sampling_clk;
+  assign core_sampling_clk = (Sampling_Clk == "SINGLE") ? {OCLA_COUNT{native_sampling_clk}} : native_sampling_clk;
 
   //------------------------------------------------------------------------------
   // JTAG_AXI
