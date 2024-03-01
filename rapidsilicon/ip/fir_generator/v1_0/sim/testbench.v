@@ -75,6 +75,8 @@ initial begin
         if (dout_mem [i] !== dout_golden_mem [i]) begin
             $display("DOUT mismatch. dout: %0d, dout_golden: %0d, Entry No.: %0d", dout_mem[i], dout_golden_mem[i], i);
             mismatch = mismatch + 1;
+        end else begin
+            $display("DOUT Matched. dout: %0d, dout_golden: %0d, Entry No.: %0d", dout_mem[i], dout_golden_mem[i], i);
         end
     end
 
