@@ -1,5 +1,4 @@
 # IP_Catalog
-
 Copyright (c) 2022-2024 Rapid Silicon Inc.
 
 This program is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact zarin.said@rapidsilicon.com for non-GPL Commercial Licensing option.
-
 
 IP Catalog is an IP library for Raptor toolchain.
 
@@ -37,8 +35,8 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── axil_ethernet
 			├── axil_gpio
 			├── axil_interconnect
-			├── axil_ocla
 			├── axil_quadspi
+			├── axil_tmp_sensor
 			├── axil_uart16550
 			├── axi_ram
 			├── axi_register
@@ -58,6 +56,8 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── i2c_master
 			├── i2c_slave
 			├── jtag_to_axi
+			├── mipi_spi2dsi_bridge
+			├── ocla
 			├── on_chip_memory
 			├── pll
 			├── priority_encoder

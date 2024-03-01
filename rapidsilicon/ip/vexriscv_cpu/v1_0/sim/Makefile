@@ -1,6 +1,7 @@
 DEBUG=no
 MODULE_NAME ?= vexriscv_cpu_wrapper
 REGRESSION_PATH?=./
+$(shell mv ../src/$(MODULE_NAME)_v1_0.v ../src/$(MODULE_NAME).v)
 VEXRISCV_FILE?=../src/$(MODULE_NAME).v
 IBUS?=CACHED
 IBUS_TC?=no
@@ -344,9 +345,9 @@ ifneq ($(ZEPHYR),no)
 endif
 endif
 
-all: clean run
+all: run clear
 
-run: compile
+run: compile rename_back
 	./obj_dir/V$(MODULE_NAME)
 	-@mv obj_dir $(OUT_DIR)
 	-@mv linux.logTrace $(OUT_DIR)
@@ -357,7 +358,11 @@ verilate: ${VEXRISCV_FILE}
 
 compile: verilate
 	make  -j${THREAD_COUNT} -C obj_dir/ -f V$(MODULE_NAME).mk V$(MODULE_NAME)
+
+rename_back:
+	mv ../src/$(MODULE_NAME).v ../src/$(MODULE_NAME)_v1_0.v
  	
-clean:
-	rm -rf obj_dir ../litex_wrapper/__pycache__
-	rm -rf linux.debugTrace linux.logTrace
+clear:
+	@rm -rf obj_dir ../litex_wrapper/__pycache__
+	@rm -rf linux.debugTrace linux.logTrace
+	@mv ../src/$(MODULE_NAME).v ../src/$(MODULE_NAME)_v1_0.v

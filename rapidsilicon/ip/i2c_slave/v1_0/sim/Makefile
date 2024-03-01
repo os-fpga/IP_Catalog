@@ -14,5 +14,5 @@ all:
 	-@mv test_i2c.vcd $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/test_i2c_slave_axil_master.lxt|test_i2c_slave_axil_master.lxt|g" ./test_i2c_slave_axil_master.v
 	@echo "TEST 2 PASSED"
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__

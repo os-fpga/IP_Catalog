@@ -23,7 +23,7 @@ logging.info(f'Log started at {timestamp}')
 
 # I2C_MASTER -------------------------------------------------------------------------------------
 class I2CMASTER(Module):
-    def __init__(self, platform, s_axil, default_prescale, fixed_prescale, cmd_fifo, cmd_addr_width, write_fifo, write_addr_width, read_fifo, read_addr_width):
+    def __init__(self, platform, s_axil, default_prescale, fixed_prescale, cmd_fifo, cmd_addr_width, write_fifo, write_addr_fifo_width, read_fifo, read_addr_fifo_width):
         
         self.logger = logging.getLogger("I2C_MASTER")
         
@@ -47,13 +47,13 @@ class I2CMASTER(Module):
         self.logger.info(f"WRITE_FIFO           : {write_fifo}")
         
         # WRITE_FIFO_ADDR_WIDTH
-        self.logger.info(f"WRITE_FIFO_ADDR_WIDTH: {write_addr_width}")
+        self.logger.info(f"WRITE_FIFO_ADDR_WIDTH: {write_addr_fifo_width}")
         
         # READ_FIFO
         self.logger.info(f"READ_FIFO            : {read_fifo}")
         
         # READ_FIFO_ADDR_WIDTH
-        self.logger.info(f"READ_FIFO_ADDR_WIDTH : {read_addr_width}")
+        self.logger.info(f"READ_FIFO_ADDR_WIDTH : {read_addr_fifo_width}")
         
         self.logger.info(f"===================================================")
         
@@ -75,8 +75,8 @@ class I2CMASTER(Module):
             p_IP_ID                 = Instance.PreformattedParam("IP_ID"),
             p_IP_VERSION            = Instance.PreformattedParam("IP_VERSION"),
             p_CMD_FIFO_ADDR_WIDTH   = Instance.PreformattedParam(cmd_addr_width),
-            p_WRITE_FIFO_ADDR_WIDTH = Instance.PreformattedParam(write_addr_width),
-            p_READ_FIFO_ADDR_WIDTH  = Instance.PreformattedParam(read_addr_width),
+            p_WRITE_FIFO_ADDR_WIDTH = Instance.PreformattedParam(write_addr_fifo_width),
+            p_READ_FIFO_ADDR_WIDTH  = Instance.PreformattedParam(read_addr_fifo_width),
             p_DEFAULT_PRESCALE      = default_prescale,
             p_FIXED_PRESCALE        = fixed_prescale,
             p_CMD_FIFO              = cmd_fifo,

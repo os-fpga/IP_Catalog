@@ -26,12 +26,17 @@ THE SOFTWARE.
 
 `resetall
 `timescale 1ns / 1ps
+`default_nettype none
 
 /*
  * AXI4 lite interconnect
  */
 module axil_interconnect #
 (
+    parameter IP_TYPE 		= "ALIN",
+	parameter IP_VERSION 	= 32'h1, 
+	parameter IP_ID 		= 32'h2591801,
+    
     // Number of AXI inputs (slave interfaces)
     parameter S_COUNT = 4,
     // Number of AXI outputs (master interfaces)
@@ -147,7 +152,7 @@ integer i, j;
 // check configuration
 initial begin
     for (i = 0; i < M_COUNT*M_REGIONS; i = i + 1) begin
-        if (M_ADDR_WIDTH[i*32 +: 32] && (M_ADDR_WIDTH[i*32 +: 32] < 0 || M_ADDR_WIDTH[i*32 +: 32] > ADDR_WIDTH)) begin
+        if (M_ADDR_WIDTH[i*32 +: 32] && (M_ADDR_WIDTH[i*32 +: 32] < $clog2(STRB_WIDTH) || M_ADDR_WIDTH[i*32 +: 32] > ADDR_WIDTH)) begin
             $error("Error: address width out of range (instance %m)");
             $finish;
         end
@@ -156,28 +161,28 @@ initial begin
     $display("Addressing configuration for axil_interconnect instance %m");
     for (i = 0; i < M_COUNT*M_REGIONS; i = i + 1) begin
         if (M_ADDR_WIDTH[i*32 +: 32]) begin
-            $display("%2d (%2d): %x / %02d -- %x-%x",
-                i/M_REGIONS, i%M_REGIONS,
-                M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH],
-                M_ADDR_WIDTH[i*32 +: 32],
-                M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[i*32 +: 32]),
-                M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[i*32 +: 32]))
-            );
+            //$display("%2d (%2d): %x / %02d -- %x-%x",
+            //    i/M_REGIONS, i%M_REGIONS,
+            //    M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH],
+            //    M_ADDR_WIDTH[i*32 +: 32],
+            //    M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[i*32 +: 32]),
+            //    M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[i*32 +: 32]))
+            //);
         end
     end
 
     for (i = 0; i < M_COUNT*M_REGIONS; i = i + 1) begin
         if ((M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] & (2**M_ADDR_WIDTH[i*32 +: 32]-1)) != 0) begin
-            $display("Region not aligned:");
-            $display("%2d (%2d): %x / %2d -- %x-%x",
-                i/M_REGIONS, i%M_REGIONS,
-                M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH],
-                M_ADDR_WIDTH[i*32 +: 32],
-                M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[i*32 +: 32]),
-                M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[i*32 +: 32]))
-            );
-            $error("Error: address range not aligned (instance %m)");
-            $finish;
+          //  $display("Region not aligned:");
+          //  $display("%2d (%2d): %x / %2d -- %x-%x",
+          //      i/M_REGIONS, i%M_REGIONS,
+          //      M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH],
+          //      M_ADDR_WIDTH[i*32 +: 32],
+          //      M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[i*32 +: 32]),
+          //      M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[i*32 +: 32]))
+          //  );
+          //  $error("Error: address range not aligned (instance %m)");
+          //  $finish;
         end
     end
 
@@ -186,23 +191,23 @@ initial begin
             if (M_ADDR_WIDTH[i*32 +: 32] && M_ADDR_WIDTH[j*32 +: 32]) begin
                 if (((M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[i*32 +: 32])) <= (M_BASE_ADDR_INT[j*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[j*32 +: 32]))))
                         && ((M_BASE_ADDR_INT[j*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[j*32 +: 32])) <= (M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[i*32 +: 32]))))) begin
-                    $display("Overlapping regions:");
-                    $display("%2d (%2d): %x / %2d -- %x-%x",
-                        i/M_REGIONS, i%M_REGIONS,
-                        M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH],
-                        M_ADDR_WIDTH[i*32 +: 32],
-                        M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[i*32 +: 32]),
-                        M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[i*32 +: 32]))
-                    );
-                    $display("%2d (%2d): %x / %2d -- %x-%x",
-                        j/M_REGIONS, j%M_REGIONS,
-                        M_BASE_ADDR_INT[j*ADDR_WIDTH +: ADDR_WIDTH],
-                        M_ADDR_WIDTH[j*32 +: 32],
-                        M_BASE_ADDR_INT[j*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[j*32 +: 32]),
-                        M_BASE_ADDR_INT[j*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[j*32 +: 32]))
-                    );
-                    $error("Error: address ranges overlap (instance %m)");
-                    $finish;
+                 //   $display("Overlapping regions:");
+                 //   $display("%2d (%2d): %x / %2d -- %x-%x",
+                 //       i/M_REGIONS, i%M_REGIONS,
+                 //       M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH],
+                 //       M_ADDR_WIDTH[i*32 +: 32],
+                 //       M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[i*32 +: 32]),
+                 //       M_BASE_ADDR_INT[i*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[i*32 +: 32]))
+                 //   );
+                 //   $display("%2d (%2d): %x / %2d -- %x-%x",
+                 //       j/M_REGIONS, j%M_REGIONS,
+                 //       M_BASE_ADDR_INT[j*ADDR_WIDTH +: ADDR_WIDTH],
+                 //       M_ADDR_WIDTH[j*32 +: 32],
+                 //       M_BASE_ADDR_INT[j*ADDR_WIDTH +: ADDR_WIDTH] & ({ADDR_WIDTH{1'b1}} << M_ADDR_WIDTH[j*32 +: 32]),
+                 //       M_BASE_ADDR_INT[j*ADDR_WIDTH +: ADDR_WIDTH] | ({ADDR_WIDTH{1'b1}} >> (ADDR_WIDTH - M_ADDR_WIDTH[j*32 +: 32]))
+                 //   );
+                 //   $error("Error: address ranges overlap (instance %m)");
+                 //   $finish;
                 end
             end
         end

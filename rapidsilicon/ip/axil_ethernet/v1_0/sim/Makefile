@@ -5,7 +5,7 @@
 all:
 	./test_axil_ethernet.py
 
-clean:
+clear:
 	@rm -rf build firmware/crt0.d firmware/crt0.o
 	@rm -rf firmware/ethernet.d firmware/ethernet.o
 	@rm -rf firmware/firmware.bin firmware/firmware.elf

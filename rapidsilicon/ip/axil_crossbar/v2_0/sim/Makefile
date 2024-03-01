@@ -74,7 +74,7 @@ iverilog_dump.v:
 	echo 'end' >> $@
 	echo 'endmodule' >> $@
 
-clean::
+clear::
 	@rm -rf iverilog_dump.v
 	@rm -rf dump.fst $(TOPLEVEL).fst
 	@rm -rf __pycache__

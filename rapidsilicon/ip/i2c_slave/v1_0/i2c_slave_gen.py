@@ -8,6 +8,7 @@ import os
 import sys
 import logging
 import argparse
+from pathlib import Path
 
 from datetime import datetime
 
@@ -213,6 +214,12 @@ def main():
                 
         with open(os.path.join(wrapper), "w") as file:
             file.writelines(new_lines)
+        build_name = args.build_name.rsplit( ".", 1 )[ 0 ]
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/i2c_slave/v1_0", build_name, "sim/test_i2c_slave_axil_master.v")
+        file = Path(file)
+        text = file.read_text()
+        text = text.replace("i2c_slave_wrapper", build_name)
+        file.write_text(text)
 
 if __name__ == "__main__":
     main()

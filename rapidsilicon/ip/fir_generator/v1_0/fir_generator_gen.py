@@ -361,7 +361,7 @@ end
         if (args.optimization == "Area"):
             text = text.replace("#5 clk", "#%s clk" % str(((1/input_maximum)/2) * 1000))
             file.write_text(text)
-            text = text.replace(".data_out(dout)", ".data_out(dout), .fast_clk(accelerated_clk)")
+            text = text.replace(".data_out(dout)", ".data_out(dout), \n\t.fast_clk(accelerated_clk)")
             file.write_text(text)
             if (not args.coefficients_file):
                 text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(((1/input_maximum)/2) * 1000 / max(len(extract_numbers(args.coefficients, args.coefficients_file)), 1)))
@@ -369,6 +369,38 @@ end
             else:
                 text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(((1/input_maximum)/2) * 1000 / max(args.number_of_coefficients, 1)))
                 file.write_text(text)
+        text = text.replace("18", "%s" % args.input_width)
+        file.write_text(text)
+        text = text.replace("4", "%s" % len(extract_numbers(args.coefficients, args.coefficients_file)))
+        file.write_text(text)
+
+        file = os.path.join(args.build_dir, "rapidsilicon/ip/fir_generator/v1_0", build_name, "sim/fir_golden.v")
+        file = Path(file)
+        text = file.read_text()
+        if (args.truncated_output):
+            text = text.replace("[37:0]", "[%s:0]" % args.output_data_width)
+        else:
+            text = text.replace("[37:0]", "[%s:0]" % str(min(args.input_width + bit_growth, 38) - 1))
+        file.write_text(text)
+        if (not args.coefficients_file):
+            replacement = " + ".join(f"product[{i}]" for i in range(len(extract_numbers(args.coefficients, args.coefficients_file))))
+            text = text.replace("product[0];", f"{replacement};")
+            file.write_text(text)
+        else:
+            replacement = " + ".join(f"product[{i}]" for i in range(args.number_of_coefficients))
+            text = text.replace("product[0];", f"{replacement};")
+            file.write_text(text)
+        if (args.optimization == "Area"):
+            text = text.replace("<= data_in_buff", "<= filter_in")
+            file.write_text(text)
+        with open(file, 'r') as files:
+            lines = files.readlines()
+        for i, value in enumerate(extract_numbers(args.coefficients, args.coefficients_file)):
+            insert_line = f"\tassign coeff[{i}] = {value};\n"
+            lines.insert(19 - 1 + i, insert_line)
+
+        with open(file, 'w') as files:
+            files.writelines(lines)
 
 if __name__ == "__main__":
     main()
