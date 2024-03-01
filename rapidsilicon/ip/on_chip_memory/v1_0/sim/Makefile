@@ -13,5 +13,5 @@ all:
 	-@mv ocm $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/ocm.vcd|ocm.vcd|g" ./testbench.v
 
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__ ocm

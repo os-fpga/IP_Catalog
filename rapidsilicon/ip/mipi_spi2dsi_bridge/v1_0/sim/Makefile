@@ -12,5 +12,5 @@ all:
 	-@mv mipi_dsi $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/mipi_dsi.vcd|mipi_dsi.vcd|g" ./tb_spi_bridge.v
 
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__

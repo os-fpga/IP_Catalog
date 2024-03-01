@@ -16,5 +16,5 @@ all:
 	@echo "TEST 2 PASSED"
 	@sed -i "s|$(OUT_DIR)/test_uart_rx.lxt|test_uart_rx.lxt|g" ./test_uart_rx.v
 	@sed -i "s|$(OUT_DIR)/test_uart_tx.lxt|test_uart_tx.lxt|g" ./test_uart_tx.v
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__

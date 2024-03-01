@@ -13,6 +13,6 @@ all:
 	-@mv axil_eio $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/EIO.vcd|EIO.vcd|g" ./eio_tb.sv
 
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__
 

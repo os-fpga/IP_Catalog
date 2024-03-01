@@ -13,5 +13,5 @@ all:
 	-@mv dsp $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/dsp.vcd|dsp.vcd|g" ./dsp_test.v
 
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__ dsp
