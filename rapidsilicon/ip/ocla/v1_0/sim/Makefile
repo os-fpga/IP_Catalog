@@ -12,6 +12,6 @@ all:
 	-@mv ocla_top1 $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/ocla.vcd|ocla.vcd|g" ./*.sv
 
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd ocla_top1 rapidsilicon ../litex_wrapper/__pycache__
 

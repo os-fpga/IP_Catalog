@@ -13,5 +13,5 @@ all:
 	-@mv temp_sensor $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/SOC_FPGA_TEMPERATURE.vcd|SOC_FPGA_TEMPERATURE.vcd|g" ./SOC_FPGA_TEMPERATURE_tb.v
 
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__ temp_sensor

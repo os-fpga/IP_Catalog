@@ -11,5 +11,5 @@ all:
 	-@mv test_axis_crosspoint_4x4.vvp $(OUT_DIR)
 	@echo "TEST PASSED"
 	@sed -i "s|$(OUT_DIR)/test_axis_crosspoint_4x4.lxt|test_axis_crosspoint_4x4.lxt|g" ./test_axis_crosspoint_4x4.v
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__

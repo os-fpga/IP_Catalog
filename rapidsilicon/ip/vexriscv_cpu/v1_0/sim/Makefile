@@ -365,7 +365,7 @@ rename:
 rename_back:
 	mv ../src/$(MODULE_NAME).v ../src/$(MODULE_NAME)_v1_0.v
  	
-clean:
+clear:
 	@rm -rf obj_dir ../litex_wrapper/__pycache__
 	@rm -rf linux.debugTrace linux.logTrace
 	@mv ../src/$(MODULE_NAME).v ../src/$(MODULE_NAME)_v1_0.v

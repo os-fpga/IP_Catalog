@@ -12,5 +12,5 @@ all:
 	-@mv res_rel $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/reset.vcd|reset.vcd|g" ./testbench.v
 
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__

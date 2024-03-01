@@ -13,5 +13,5 @@ all:
 	@mv fifo $(OUT_DIR)
 	@sed -i "s|$(OUT_DIR)/fifo.vcd|fifo.vcd|g" ./testbench.v
 
-clean:
+clear:
 	@rm -rf __pycache__ *.lxt *.vvp *.vcd rapidsilicon ../litex_wrapper/__pycache__ fifo
