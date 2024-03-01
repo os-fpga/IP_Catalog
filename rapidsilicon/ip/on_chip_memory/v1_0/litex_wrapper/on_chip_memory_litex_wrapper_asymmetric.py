@@ -27,6 +27,12 @@ class OCM_ASYM(Module):
         
         self.write_depth_A  = write_depth_A
         self.write_width_A  = write_width_A
+        self.read_depth_A   = read_depth_A
+        self.read_depth_B   = read_depth_B
+        
+        self.write_width_B  = write_width_B
+        self.read_width_A   = read_width_A
+        self.read_width_B   = read_width_B
         
         # Get/Check Parameters.
         # ---------------------
@@ -53,15 +59,15 @@ class OCM_ASYM(Module):
             read_depth  = read_depth_A
             # depth for m,n
             if (write_depth_A > read_depth_A):
-                write_depth = write_depth_A
+                write_depthA = write_depth_A
             else:
-                write_depth = read_depth_A
+                write_depthA = read_depth_A
             
             # Addressing
-            self.addr_A     = Signal(math.ceil(math.log2(write_depth)))
-            msb_SP          = math.ceil(math.log2(write_depth))
+            self.addr_A     = Signal(math.ceil(math.log2(write_depthA)))
+            msb_SP          = math.ceil(math.log2(write_depthA))
             self.address    = Signal(15)
-            msb_read        = math.ceil(math.log2(write_depth))
+            msb_read        = math.ceil(math.log2(write_depthA))
             
         elif (memory_type == "Simple_Dual_Port"):
             # widths for generating m,n
@@ -598,35 +604,35 @@ class OCM_ASYM(Module):
                     # For more than 1 BRAMS
                     if (m > 1):
                         if (write_depth_A == 1024 and read_width_A <= 36):
-                            self.sync += Case(self.addr_A[ratio:m_mux+ratio], addr_reg_mux)
+                            self.sync.A += Case(self.addr_A[ratio:m_mux+ratio], addr_reg_mux)
                             self.comb += Case(self.addr_reg_A, dout_mux)
                             self.comb += Case(self.addr_A[ratio:m_mux+ratio], ren_mux)
                         elif (write_depth_A == 2048 and read_width_A <= 18):
-                            self.sync += Case(self.addr_A[ratio:m_mux+ratio], addr_reg_mux)
+                            self.sync.A += Case(self.addr_A[ratio:m_mux+ratio], addr_reg_mux)
                             self.comb += Case(self.addr_reg_A, dout_mux)
                             self.comb += Case(self.addr_A[ratio:m_mux+ratio], ren_mux)
                         elif (write_depth_A == 4096 and read_width_A <= 9):
-                            self.sync += Case(self.addr_A[ratio:m_mux+ratio], addr_reg_mux)
+                            self.sync.A += Case(self.addr_A[ratio:m_mux+ratio], addr_reg_mux)
                             self.comb += Case(self.addr_reg_A, dout_mux)
                             self.comb += Case(self.addr_A[ratio:m_mux+ratio], ren_mux)
                         elif (write_depth_A in [8192, 16384, 32768]):
                             read_depth = int(read_depth_A / (m*n))
                             if (n == 1):
-                                self.sync += Case(Cat(self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                self.sync.A += Case(Cat(self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                 self.comb += Case(Cat(self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
                             elif (read_width_A <= 18):
-                                self.sync += Case(Cat(self.addr_A[ratio: math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                self.sync.A += Case(Cat(self.addr_A[ratio: math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                 self.comb += Case(Cat(self.addr_A[ratio: math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
                             elif (read_width_A == 36):
-                                self.sync += Case(Cat(self.addr_A[0:math.ceil(math.log2(n))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                self.sync.A += Case(Cat(self.addr_A[0:math.ceil(math.log2(n))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                 self.comb += Case(Cat(self.addr_A[0:math.ceil(math.log2(n))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
                             else:
-                                self.sync += Case(Cat(self.addr_A[0:math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                self.sync.A += Case(Cat(self.addr_A[0:math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                 self.comb += Case(Cat(self.addr_A[0:math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
                             self.comb += Case(self.addr_reg_A, dout_mux)
                             self.comb += Case(self.addr_A[10:msb_A], wen_mux)
                         else:
-                            self.sync += Case(self.addr_A[0:ratio], addr_reg_mux)
+                            self.sync.A += Case(self.addr_A[0:ratio], addr_reg_mux)
                             self.comb += Case(self.addr_reg_A, dout_mux)
                             self.comb += Case(self.addr_A[0:ratio], ren_mux)
                 
@@ -693,7 +699,7 @@ class OCM_ASYM(Module):
                     else:
                         self.comb += Case(Cat(self.addr_A[0:ratio], self.addr_A[msb_A-(math.ceil(math.log2(n_temp))):msb_A]), wen_mux)
                         self.comb += Case(self.addr_A[msb_read-(math.ceil(math.log2(n_temp))):msb_read], ren_mux)
-                        self.sync += Case(self.addr_A[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
+                        self.sync.A += Case(self.addr_A[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
                 
                 for i in range(n):  # horizontal memory
                     
@@ -1290,24 +1296,41 @@ class OCM_ASYM(Module):
                                 elif (write_depth_A in [8192, 16384, 32768]):
                                     read_depth = int(read_depth_B / (m*n))
                                     if (n == 1):
-                                        self.sync += Case(Cat(self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                         self.comb += Case(Cat(self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
+                                        if common_clk == 1:
+                                            self.sync += Case(Cat(self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                        else:
+                                            self.sync.B += Case(Cat(self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                            
                                     elif (read_width_B <= 18):
-                                        self.sync += Case(Cat(self.addr_B[ratio: math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                         self.comb += Case(Cat(self.addr_B[ratio: math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
+                                        if common_clk == 1:
+                                            self.sync += Case(Cat(self.addr_B[ratio: math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                        else:
+                                            self.sync.B += Case(Cat(self.addr_B[ratio: math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                            
                                     elif (read_width_B == 36):
-                                        self.sync += Case(Cat(self.addr_B[0:math.ceil(math.log2(n))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                         self.comb += Case(Cat(self.addr_B[0:math.ceil(math.log2(n))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
+                                        if common_clk == 1:
+                                            self.sync += Case(Cat(self.addr_B[0:math.ceil(math.log2(n))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                        else:
+                                            self.sync.B += Case(Cat(self.addr_B[0:math.ceil(math.log2(n))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                     else:
-                                        self.sync += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
                                         self.comb += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
+                                        if common_clk == 1:
+                                            self.sync += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                        else:
+                                            self.sync.B += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
 
                                     self.comb += Case(self.addr_reg_B, dout_mux)
                                     self.comb += Case(self.addr_A[10:msb_A], wen_mux)
                                 else:
-                                    self.sync += Case(self.addr_B[0:ratio], addr_reg_mux)
                                     self.comb += Case(self.addr_reg_B, dout_mux)
                                     self.comb += Case(self.addr_B[0:ratio], ren_mux)
+                                    if common_clk == 1:
+                                        self.sync += Case(self.addr_B[0:ratio], addr_reg_mux)
+                                    else:
+                                        self.sync.B += Case(self.addr_B[0:ratio], addr_reg_mux)
                                     
                         elif (read_width_B > write_width_A): # read wider output mux and write enable mux
                             wen_mux         = {}
@@ -1361,7 +1384,10 @@ class OCM_ASYM(Module):
                             else:
                                 self.comb += Case(Cat(self.addr_A[0:ratio], self.addr_A[msb_A-(math.ceil(math.log2(n_temp))):msb_A]), wen_mux)
                                 self.comb += Case(self.addr_B[msb_read-(math.ceil(math.log2(n_temp))):msb_read], ren_mux)
-                                self.sync += Case(self.addr_B[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
+                                if common_clk == 1:
+                                    self.sync += Case(self.addr_B[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
+                                else:
+                                    self.sync.B += Case(self.addr_B[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
                 b = 0
                 out_data = 0
                 for i in range(n):  # horizontal memory
@@ -2081,34 +2107,62 @@ class OCM_ASYM(Module):
                     if (n == 1): # when write depth is 1024
                         if read_width_A == 9:
                             self.comb += Case(self.addr_A[2:read_ratio_A+n_log], ren_mux_A)
-                            self.sync += Case(self.addr_A[2:read_ratio_A+n_log], addr_reg_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_A[2:read_ratio_A+n_log], addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(self.addr_A[2:read_ratio_A+n_log], addr_reg_mux_A)
                         elif read_width_A == 18:
                             self.comb += Case(self.addr_A[1:read_ratio_A+n_log], ren_mux_A)
-                            self.sync += Case(self.addr_A[1:read_ratio_A+n_log], addr_reg_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_A[1:read_ratio_A+n_log], addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(self.addr_A[1:read_ratio_A+n_log], addr_reg_mux_A)
                         elif read_width_A >= 36:
                             self.comb += Case(self.addr_A[0:read_ratio_A+n_log], ren_mux_A)
-                            self.sync += Case(self.addr_A[0:read_ratio_A+n_log], addr_reg_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_A[0:read_ratio_A+n_log], addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(self.addr_A[0:read_ratio_A+n_log], addr_reg_mux_A)
                     else:
                         if (m == 1): # when write width is 36 or less
                             if read_width_A == 9:
                                 self.comb += Case(Cat(self.addr_A[2], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                self.sync += Case(Cat(self.addr_A[2], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_A[2], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                else:
+                                    self.sync.A += Case(Cat(self.addr_A[2], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
                             elif read_width_A == 18:
                                 self.comb += Case(Cat(self.addr_A[1], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                self.sync += Case(Cat(self.addr_A[1], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_A[1], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                else:
+                                    self.sync.A += Case(Cat(self.addr_A[1], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
                             elif read_width_A >= 36:
                                 self.comb += Case(Cat(self.addr_A[0], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                self.sync += Case(Cat(self.addr_A[0], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_A[0], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                else:
+                                    self.sync.A += Case(Cat(self.addr_A[0], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
                         else: # when write width is greater than 36
                             if read_width_A == 9:
                                 self.comb += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                self.sync += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                else:
+                                    self.sync.A += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                    
                             elif read_width_A == 18:
                                 self.comb += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                self.sync += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                else:
+                                    self.sync.A += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
                             elif read_width_A >= 36:
                                 self.comb += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                self.sync += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                else: 
+                                    self.sync.A += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
                 else:
                     if n > 1:
                         for j in range(n):
@@ -2117,13 +2171,22 @@ class OCM_ASYM(Module):
                                 ren_mux_A[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                         if read_width_A == 9:
                             self.comb += Case(self.addr_A[msb_read_A-n_log:msb_read_A], ren_mux_A)
-                            self.sync += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
                         elif read_width_A == 18:
                             self.comb += Case(self.addr_A[msb_read_A-n_log:msb_read_A], ren_mux_A)
-                            self.sync += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
                         elif read_width_A >= 36:
                             self.comb += Case(self.addr_A[msb_read_A-n_log:msb_read_A], ren_mux_A)
-                            self.sync += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(self.addr_A[msb_read_A-n_log:msb_read_A], addr_reg_mux_A)
                     
                 #############################################################################################
                 # Read Mux B
@@ -2136,34 +2199,61 @@ class OCM_ASYM(Module):
                     if (n == 1): # when write depth is 1024
                         if read_width_B == 9:
                             self.comb += Case(self.addr_B[2:read_ratio_B+n_log], ren_mux_B)
-                            self.sync += Case(self.addr_B[2:read_ratio_B+n_log], addr_reg_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_B[2:read_ratio_B+n_log], addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(self.addr_B[2:read_ratio_B+n_log], addr_reg_mux_B)
                         elif read_width_B == 18:
                             self.comb += Case(self.addr_B[1:read_ratio_B+n_log], ren_mux_B)
-                            self.sync += Case(self.addr_B[1:read_ratio_B+n_log], addr_reg_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_B[1:read_ratio_B+n_log], addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(self.addr_B[1:read_ratio_B+n_log], addr_reg_mux_B)
                         elif read_width_B >= 36:
                             self.comb += Case(self.addr_B[0:read_ratio_B+n_log], ren_mux_B)
-                            self.sync += Case(self.addr_B[0:read_ratio_B+n_log], addr_reg_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_B[0:read_ratio_B+n_log], addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(self.addr_B[0:read_ratio_B+n_log], addr_reg_mux_B)
                     else:
                         if (m == 1): # when write width is 36 or less
                             if read_width_B == 9:
                                 self.comb += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                self.sync += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                else:
+                                    self.sync.B += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
                             elif read_width_B == 18:
                                 self.comb += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                self.sync += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                else:
+                                    self.sync.B += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
                             elif read_width_B >= 36:
                                 self.comb += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                self.sync += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                else:
+                                    self.sync.B += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
                         else: # when write width is greater than 36
                             if read_width_B == 9:
                                 self.comb += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                self.sync += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                else:
+                                    self.sync.B += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
                             elif read_width_B == 18:
                                 self.comb += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                self.sync += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                else:
+                                    self.sync.B += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
                             elif read_width_B >= 36:
                                 self.comb += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                self.sync += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                if common_clk == 1:
+                                    self.sync += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                else:
+                                    self.sync.B += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
                 else:
                     if n > 1:
                         for j in range(n):
@@ -2172,13 +2262,22 @@ class OCM_ASYM(Module):
                                 ren_mux_B[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                         if read_width_B == 9:
                             self.comb += Case(self.addr_B[msb_read_B-n_log:msb_read_B], ren_mux_B)
-                            self.sync += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
                         elif read_width_B == 18:
                             self.comb += Case(self.addr_B[msb_read_B-n_log:msb_read_B], ren_mux_B)
-                            self.sync += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
                         elif read_width_B >= 36:
                             self.comb += Case(self.addr_B[msb_read_B-n_log:msb_read_B], ren_mux_B)
-                            self.sync += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(self.addr_B[msb_read_B-n_log:msb_read_B], addr_reg_mux_B)
                     
                 l = 0 # din_A variable
                 p = 0 # din_B variable
