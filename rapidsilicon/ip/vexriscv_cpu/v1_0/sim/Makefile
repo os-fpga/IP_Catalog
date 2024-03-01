@@ -345,7 +345,7 @@ ifneq ($(ZEPHYR),no)
 endif
 endif
 
-all: run clean
+all: run clear
 
 run: compile rename_back
 	./obj_dir/V$(MODULE_NAME)
@@ -358,9 +358,6 @@ verilate: ${VEXRISCV_FILE}
 
 compile: verilate
 	make  -j${THREAD_COUNT} -C obj_dir/ -f V$(MODULE_NAME).mk V$(MODULE_NAME)
-
-rename:
-	mv ../src/$(MODULE_NAME)_v1_0.v ../src/$(MODULE_NAME).v
 
 rename_back:
 	mv ../src/$(MODULE_NAME).v ../src/$(MODULE_NAME)_v1_0.v
