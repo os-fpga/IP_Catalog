@@ -88,7 +88,7 @@ TDP_RAM36K #(
 	.CLK_B(1'd0),
 	.REN_A(ren_A_1),
 	.REN_B(1'd0),
-	.WDATA_A({din_A_1[31:27], din_A_1[25:18], din_A_1[16:9], din_A_1[7:0]}),
+	.WDATA_A({{3{1'd0}}, din_A_1[31:27], din_A_1[25:18], din_A_1[16:9], din_A_1[7:0]}),
 	.WDATA_B({32{1'd0}}),
 	.WEN_A(wen_A_1),
 	.WEN_B(1'd0),

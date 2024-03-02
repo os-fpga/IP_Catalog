@@ -23,6 +23,390 @@ logging.info(f'Log started at {timestamp}')
 
 # On Chip Memory ------------------------------------------------------------------------------------------
 class OCM_SYM(Module):
+    def memory_converter(self, file_path, file_extension):
+        if file_path == "":
+            return "x"
+        binary_data = []
+        with open(file_path, "r") as f:
+            file_content = f.readlines()
+            line_count = 0
+            self.logger.info(f"========== MEMORY INITIALIZATION STARTED ==========")
+            logging.info("Reading Memory File")
+            if (file_extension == ".hex"):
+                logging.info("Found (.hex) File")
+                logging.info("Processing")
+            elif (file_extension == ".bin"):
+                logging.info("Found (.bin) File")
+                logging.info("Processing")
+            else:
+                logging.error("Memory Initialization Failed. Invalid File Format")
+            
+            for line in file_content:
+                line_count += 1
+                if (file_extension == ".hex"):
+                    mem_file_data = int(line.strip(), 16)
+                    binary = format(mem_file_data, 'b') # hexadecimal to binary conversion
+                    binary_data.append(binary)
+                    self.binary_data    = binary_data
+                    self.line_count     = line_count
+                elif (file_extension == ".bin"):
+                    mem_file_data = int(line.strip(), 2) # binary(0b10101) to binary(10101) conversion
+                    binary = format(mem_file_data, 'b')
+                    binary_data.append(binary)
+                    self.binary_data    = binary_data
+                    self.line_count     = line_count
+                else:
+                    exit
+                    self.binary_data    = 0
+                    self.line_count     = 0
+            return binary_data
+    
+    def memory_init(self, file_path, file_extension):
+        self.memory_converter(file_path, file_extension)
+        
+        sram = {}
+        INIT        = []
+        INIT_PARITY = []
+        
+        # Empty File Path
+        if (file_path == "") or (self.line_count == 0):
+            return "0"
+        
+        # If File Path Exists
+        if self.write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
+            
+            # 1K Memory Initialization
+            if (self.write_depth == 1024):
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+
+                for i in range(lines):
+                    if self.data_width % 36 == 0:
+                            if len(self.binary_data[i]) < self.data_width:
+                                self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                            else:
+                                self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 36
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        self.binary_data[i] = '0' * (36 - temp) + self.binary_data[i]
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
+                if lines == self.line_count:
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (36-(self.data_width % 36))) * '0')
+
+                for j in range(self.m-1, -1, -1):
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    for i in range(1024): # 1024 * (1-line per iteration) = 1024 addresses
+                        bits = self.binary_data[i*1][(j*36):(j*36)+36]  # Extract 36 bits from the binary data
+                        sram[sram1].append(bits[1:9]+bits[10:18]+bits[19:27]+bits[28:36])  # (DATA) [34:27] + [25:18] + [16:9] + [7:0]
+                        sram[sram2].append(bits[0]+bits[9]+bits[18]+bits[27])              # (PARITY) [35] + [26] + [17] + [8]
+                    sram[data1] = "".join(sram[sram1][::-1]) # inverting indexing of list
+                    sram[data2] = "".join(sram[sram2][::-1]) # inverting indexing of list
+                    
+                    INIT.append(sram[data1])
+                    INIT_PARITY.append(sram[data2])
+                    
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
+                return INIT, INIT_PARITY
+            
+            # 2K Memory Initialization
+            elif (self.write_depth == 2048):
+                if (self.line_count) > 2048:
+                    if (len(self.binary_data) > self.write_depth):
+                        lines = self.write_depth
+                else:
+                    lines = self.line_count
+                
+                for i in range(lines):
+                    if self.data_width % 18 == 0:
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 18
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        self.binary_data[i] = '0' * (18 - temp) + self.binary_data[i]
+                
+                # Appending '0' on vacant addresses
+                x_data = self.write_depth - self.line_count
+                if lines == self.line_count:
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (18-(self.data_width % 18))) * '0')
+                        
+                for j in range(self.m-1, -1, -1):
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    for i in range(2048): # 2048 * (1-line per iteration) = 2048 addresses
+                        bits = self.binary_data[i*1][(j*18):(j*18)+18]  # Extract 18 bits from the binary data
+                        sram[sram1].append(bits[1:9]+bits[10:18])  # (DATA) [16:9] + [7:0]
+                        sram[sram2].append(bits[0]+bits[9])        # (PARITY) [17] + [8]
+                        
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+                    
+                    INIT.append(sram[data1])
+                    INIT_PARITY.append(sram[data2])
+                    
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
+                return INIT, INIT_PARITY
+
+            # 4K Memory Initialization
+            elif (self.write_depth == 4096):
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+
+                for i in range(lines):
+                    if self.data_width % 9 == 0:
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 9
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        self.binary_data[i] = '0' * (9 - temp) + self.binary_data[i]
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
+                if lines == self.line_count:
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (9-(self.data_width % 9))) * '0')
+                
+                for j in range(self.m-1, -1, -1):
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    for i in range(4096): # 4096 addresses
+                        bits = self.binary_data[i*1][(j*9):(j*9)+9]  # Extract 9 bits from the binary data
+                        sram[sram1].append(bits[1:9]) # (DATA) [7:0]
+                        sram[sram2].append(bits[0])   # (PARITY) [8]
+                        
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+
+                INIT.append(sram[data1])
+                INIT_PARITY.append(sram[data2])
+                
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
+                return INIT, INIT_PARITY
+
+            # 8K Memory
+            elif (self.write_depth == 8192):
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+                
+                for i in range(lines):
+                    if self.data_width % 4 == 0:
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 4
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        self.binary_data[i] = '0' * (4 - temp) + self.binary_data[i]
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
+                if lines == self.line_count:
+                    for i in range(x_data):
+                        self.binary_data.append((self.data_width + (4-(self.data_width % 4))) * '0')
+                        
+                for j in range(self.m-1, -1, -1):
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    for i in range(8192): # 8192 addresses
+                        bits = self.binary_data[i*1][(j*4):(j*4)+4]  # Extract 4 bits from the binary data
+                        sram[sram1].append(bits[0:4])  # (DATA) [3:0]
+                        sram[sram2].append("0")        # (PARITY) # making parity 0
+                        
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+                    
+                    INIT.append(sram[data1])
+                    INIT_PARITY.append(sram[data2])
+                
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
+                return INIT, INIT_PARITY
+                
+            # 16K Memory
+            elif (self.write_depth == 16384):
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+
+                for i in range(lines):
+                    if self.data_width % 4 == 0:
+                        valid_data_width = self.data_width
+                        if len(self.binary_data[i]) < self.data_width:
+                            self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        else:
+                            self.binary_data[i] = self.binary_data[i]
+                    else:
+                        temp = self.data_width % 2
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                        self.binary_data[i] = '0' * (2 - temp) + self.binary_data[i]
+                        valid_data_width = (self.data_width + (4-(self.data_width % 4)))
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
+                if lines == self.line_count:
+                    for i in range(x_data):
+                        self.binary_data.append(valid_data_width * '0')
+                
+                for j in range(self.m-1, -1, -1):
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    for i in range(16384): # 16384 addresses
+                        bits = self.binary_data[i*1][(j*2):(j*2)+2]  # [Extract 2 bits from the binary data]
+                        sram[sram1].append(bits[0:2])  # (DATA) [1:0]
+                        sram[sram2].append("0")        # (PARITY) # making parity 0
+                        
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+                    
+                    INIT.append(sram[data1])
+                    INIT_PARITY.append(sram[data2])
+                    
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
+                return INIT, INIT_PARITY
+            
+            # 32K Memory
+            elif (self.write_depth == 32768):
+                if (len(self.binary_data) > self.write_depth):
+                    lines = self.write_depth
+                else:
+                    lines = self.line_count
+
+                for i in range(lines):
+                    if len(self.binary_data[i]) < self.data_width:
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                
+                # Appending 'x' on vacant addresses
+                x_data = self.write_depth - self.line_count
+                if lines == self.line_count:
+                    for i in range(x_data):
+                        self.binary_data.append(self.data_width * '0')
+                for j in range(self.m-1, -1, -1):
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{j}"
+                    data2 = f"ram_data2_{j}"
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    for i in range(32768): # 32768 addresses
+                        bits = self.binary_data[i*1][(j*1):(j*1)+1]  # Extract 2 bits from the binary data
+                        sram[sram1].append(bits[0])  # (DATA) [0]
+                        sram[sram2].append("0")      # (PARITY) # making parity 0
+                    
+                    sram[data1] = "".join(sram[sram1][::-1]) 
+                    sram[data2] = "".join(sram[sram2][::-1])
+                    
+                    INIT.append(sram[data1])
+                    INIT_PARITY.append(sram[data2])
+                    
+                logging.info("Memory Initialized Successfully !!!")
+                self.logger.info(f"===================================================")
+                return INIT, INIT_PARITY
+        
+        # Other Memory Size Initialization
+        else:
+            lines = self.line_count
+            
+            for i in range(lines):
+                if self.data_width % 36 == 0:
+                    valid_data_width = self.data_width
+                    if len(self.binary_data[i]) < self.data_width:
+                        self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                    else:
+                        self.binary_data[i] = self.binary_data[i]
+                else:
+                    temp = self.data_width % 36
+                    self.binary_data[i] = '0' * (self.data_width - len(self.binary_data[i])) + self.binary_data[i]
+                    self.binary_data[i] = '0' * (36 - temp) + self.binary_data[i]
+                    valid_data_width = (self.data_width + (36-(self.data_width % 36)))
+                
+            valid_depth = self.write_depth + (1024-(self.write_depth % 1024))
+            x_data = valid_depth - self.line_count # Appending 'x' on vacant addresses
+            k = 0
+            for i in range(x_data):
+                self.binary_data.append(valid_data_width * '0')
+                
+            for j in range(self.m): # on depth
+                for x in range(self.n-1, -1, -1): # on data_width
+                    sram1 = f"sram1_{j}"
+                    sram2 = f"sram2_{j}"
+                    data1 = f"ram_data1_{k}"
+                    data2 = f"ram_data2_{k}"
+                    sram[sram1] = []
+                    sram[sram2] = []
+                    sram[data1] = []
+                    sram[data2] = []
+                    k=k+1 # to manage mxn 
+                    for i in range(1024): # 1024 * (1-line per iteration) = 1024 addresses
+                        bits = self.binary_data[i+(j*1024)][(x*36):(x*36)+36]  # Extract 36 bits from the binary data
+                        
+                        sram[sram1].append(bits[1:9]+bits[10:18]+bits[19:27]+bits[28:36])  # (DATA) [34:27] + [25:18] + [16:9] + [7:0]
+                        sram[sram2].append(bits[0]+bits[9]+bits[18]+bits[27])              # (PARITY) [35] + [26] + [17] + [8]
+                        
+                    sram[data1] = "".join(sram[sram1][::-1]) # inverting indexing of list
+                    sram[data2] = "".join(sram[sram2][::-1]) # inverting indexing of list
+                    
+                    INIT.append(sram[data1])
+                    INIT_PARITY.append(sram[data2])
+            
+            logging.info("Memory Initialized Successfully !!!")
+            self.logger.info(f"===================================================")
+            return INIT, INIT_PARITY
+    
     def __init__(self, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
         
         self.write_depth = write_depth
@@ -100,6 +484,10 @@ class OCM_SYM(Module):
         self.m = m
         self.n = n
         
+        if file_path is not "":
+            k = 0
+            init, init_parity = self.memory_init(file_path, file_extension)
+        
         if (bram == 1):
             self.logger.info(f"NUMBER OF BRAMS  : {m*n}")
             
@@ -127,8 +515,8 @@ class OCM_SYM(Module):
         self.rparity_B  = [Signal(4*n) for i in range(m)]
         
         # Registered Address for output logic
-        self.addr_A_reg = Signal(m*n)
-        self.addr_B_reg = Signal(m*n)
+        self.addr_A_reg = Signal(m)
+        self.addr_B_reg = Signal(m)
         
         # Synchronous/ Asynchronous Clock
         if (common_clk == 1):
@@ -311,7 +699,7 @@ class OCM_SYM(Module):
                             write_data_A   = Cat(self.din_A[(i*36):((i*36)+8)])
                             w_parity_A     = Cat(self.din_A[((i*36)+8)], Replicate(0,3))
                         else:
-                            write_data_A   = self.din_A[36*(m-1):data_width]
+                            write_data_A   = self.din_A[36*(n-1):data_width]
                             w_parity_A     = Replicate(0,4)
                     else:
                         if (data_width > 36):
@@ -346,8 +734,20 @@ class OCM_SYM(Module):
                         param_write_width_A = 36
                         param_read_width_A  = 36
                         address_A = Cat(Replicate(0,5), self.addr_A[0:10])
-
+                        
                     for j in range(m):
+                        if (file_path == "") or (self.line_count == 0):
+                            data    = '0'
+                            parity  = '0'
+                        else:
+                            if write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
+                                data        = hex(int(init[j], 2))[2:]          # hex conversion and removal of 0x from start of converted data
+                                parity      = hex(int(init_parity[j], 2))[2:]   # hex conversion and removal of 0x from start of converted data
+                            else:
+                                k = j * n + i
+                                data        = hex(int(init[k], 2))[2:]             # hex conversion and removal of 0x from start of converted data
+                                parity      = hex(int(init_parity[k], 2))[2:]      # hex conversion and removal of 0x from start of converted data
+                            
                         if (write_depth == 1024):
                             z = data_width - 36*(m-1)
                             if (m == (j+1)): # for last bram din calculations
@@ -436,8 +836,8 @@ class OCM_SYM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "SP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("{4096{1'b0}}"),
+                        p_INIT              = Instance.PreformattedParam("32768'h{}".format(data)),
+                        p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_A      = param_read_width_A,
                         p_WRITE_WIDTH_B     = 36,
@@ -492,7 +892,7 @@ class OCM_SYM(Module):
                             write_data_A   = Cat(self.din_A[(i*36):((i*36)+8)])
                             w_parity_A     = Cat(self.din_A[((i*36)+8)], Replicate(0,3))
                         else:
-                            write_data_A   = self.din_A[36*(m-1):data_width]
+                            write_data_A   = self.din_A[36*(n-1):data_width]
                             w_parity_A     = Replicate(0,4)
                     else:
                         if (data_width > 36):
@@ -535,7 +935,20 @@ class OCM_SYM(Module):
                         address_A = Cat(Replicate(0,5), self.addr_A[0:10])
                         address_B = Cat(Replicate(0,5), self.addr_B[0:10])
 
+                    k = 0
                     for j in range(m):
+                        if (file_path == "") or (self.line_count == 0):
+                            data    = '0'
+                            parity  = '0'
+                        else:
+                            if write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
+                                data        = hex(int(init[j], 2))[2:]          # hex conversion and removal of 0x from start of converted data
+                                parity      = hex(int(init_parity[j], 2))[2:]   # hex conversion and removal of 0x from start of converted data
+                            else:
+                                k = j * n + i
+                                data        = hex(int(init[k], 2))[2:]             # hex conversion and removal of 0x from start of converted data
+                                parity      = hex(int(init_parity[k], 2))[2:]      # hex conversion and removal of 0x from start of converted data
+                        
                         if (write_depth == 1024):
                             z = data_width - 36*(m-1)
                             if (m == (j+1)): # for last bram din calculations
@@ -625,8 +1038,8 @@ class OCM_SYM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "SDP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("{4096{1'b0}}"),
+                        p_INIT              = Instance.PreformattedParam("32768'h{}".format(data)),
+                        p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_WRITE_WIDTH_B     = 36,
                         p_READ_WIDTH_A      = 36,
@@ -679,7 +1092,6 @@ class OCM_SYM(Module):
                             w_parity_A     = Cat(self.din_A[((i*36)+8)], self.din_A[((i*36)+17)], Replicate(0,2))
                             write_data_B   = Cat(self.din_B[(i*36):((i*36)+8)], self.din_B[(i*36)+9:((i*36)+17)], self.din_B[(i*36)+18:((i*36)+26)])
                             w_parity_B     = Cat(self.din_B[((i*36)+8)], self.din_B[((i*36)+17)], Replicate(0,2))
-                        
                         elif (z > 17):
                             write_data_A   = Cat(self.din_A[(i*36):((i*36)+8)], self.din_A[(i*36)+9:((i*36)+17)])
                             w_parity_A     = Cat(self.din_A[((i*36)+8)], self.din_A[((i*36)+17)], Replicate(0,2))
@@ -696,9 +1108,9 @@ class OCM_SYM(Module):
                             write_data_B   = Cat(self.din_B[(i*36):((i*36)+8)])
                             w_parity_B     = Cat(self.din_B[((i*36)+8)], Replicate(0,3))
                         else:
-                            write_data_A   = self.din_A[36*(m-1):data_width]
+                            write_data_A   = self.din_A[36*(n-1):data_width]
                             w_parity_A     = Replicate(0,4)
-                            write_data_B   = self.din_B[36*(m-1):data_width]
+                            write_data_B   = self.din_B[36*(n-1):data_width]
                             w_parity_B     = Replicate(0,4)
                     else:
                         if (data_width > 36):
@@ -757,7 +1169,20 @@ class OCM_SYM(Module):
                         address_A = Cat(Replicate(0,5), self.addr_A[0:10])
                         address_B = Cat(Replicate(0,5), self.addr_B[0:10])
 
-                    for j in range(m): 
+                    k = 0
+                    for j in range(m):
+                        if (file_path == "") or (self.line_count == 0):
+                            data    = '0'
+                            parity  = '0'
+                        else:
+                            if write_depth in [1024, 2048, 4096, 8192, 16384, 32768]:
+                                data        = hex(int(init[j], 2))[2:]          # hex conversion and removal of 0x from start of converted data
+                                parity      = hex(int(init_parity[j], 2))[2:]   # hex conversion and removal of 0x from start of converted data
+                            else:
+                                k = j * n + i
+                                data        = hex(int(init[k], 2))[2:]             # hex conversion and removal of 0x from start of converted data
+                                parity      = hex(int(init_parity[k], 2))[2:]      # hex conversion and removal of 0x from start of converted data
+                        
                         if (write_depth == 1024):
                             z = data_width - 36*(m-1)
                             if (m == (j+1)): # for last bram din calculations
@@ -889,8 +1314,8 @@ class OCM_SYM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "TDP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("{4096{1'b0}}"),
+                        p_INIT              = Instance.PreformattedParam("32768'h{}".format(data)),
+                        p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_A      = param_read_width_A,
                         p_WRITE_WIDTH_B     = param_write_width_B,
