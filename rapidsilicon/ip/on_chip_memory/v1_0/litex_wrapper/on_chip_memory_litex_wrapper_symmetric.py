@@ -1346,7 +1346,7 @@ class OCM_SYM(Module):
         else:
             self.specials.memory = Memory(width=data_width, depth=write_depth)
             if (memory_type == "Single_Port"):
-                self.port = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True)
+                self.port = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="A")
                 self.specials += self.port
 
                 self.comb += [
