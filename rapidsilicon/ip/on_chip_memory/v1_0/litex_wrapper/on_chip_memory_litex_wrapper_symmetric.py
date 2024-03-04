@@ -407,7 +407,7 @@ class OCM_SYM(Module):
             self.logger.info(f"===================================================")
             return INIT, INIT_PARITY
     
-    def __init__(self, data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension):
+    def __init__(self, data_width, memory_type, common_clk, write_depth, memory_mapping, file_path, file_extension):
         
         self.write_depth = write_depth
         self.data_width  = data_width
@@ -428,7 +428,7 @@ class OCM_SYM(Module):
         
         self.logger.info(f"COMMON_CLK       : {common_clk}")
         
-        self.logger.info(f"BRAM             : {bram}")
+        self.logger.info(f"MEMORY_MAPPING   : {memory_mapping}")
         
         self.addr_A    = Signal(math.ceil(math.log2(write_depth)))
         self.addr_B    = Signal(math.ceil(math.log2(write_depth)))
@@ -484,11 +484,11 @@ class OCM_SYM(Module):
         self.m = m
         self.n = n
         
-        if file_path is not "":
+        if file_path != "":
             k = 0
             init, init_parity = self.memory_init(file_path, file_extension)
         
-        if (bram == 1):
+        if (memory_mapping == "Block_RAM"):
             self.logger.info(f"NUMBER OF BRAMS  : {m*n}")
             
         self.logger.info(f"===================================================")
@@ -527,7 +527,7 @@ class OCM_SYM(Module):
             clock2 = ClockSignal("B")
         
         # BRAM Utilization Logic
-        if (bram == 1):
+        if (memory_mapping == "Block_RAM"):
             if (write_depth in [1024, 2048, 4096, 8192, 16384, 32768]):
                 # Single Port RAM
                 if (memory_type == "Single_Port"):

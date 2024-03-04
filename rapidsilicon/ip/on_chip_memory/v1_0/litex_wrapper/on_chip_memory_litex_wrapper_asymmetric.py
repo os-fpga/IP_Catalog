@@ -23,7 +23,7 @@ logging.info(f'Log started at {timestamp}')
 
 # On Chip Memory ------------------------------------------------------------------------------------------
 class OCM_ASYM(Module):
-    def __init__(self, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
+    def __init__(self, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension):
         
         self.write_depth_A  = write_depth_A
         self.write_width_A  = write_width_A
@@ -50,7 +50,7 @@ class OCM_ASYM(Module):
         
         self.logger.info(f"COMMON_CLK       : {common_clk}")
         
-        self.logger.info(f"BRAM             : {bram}")
+        self.logger.info(f"MEMORY_MAPPING   : {memory_mapping}")
         
         if (memory_type == "Single_Port"):
             # widths for generating m,n
@@ -476,7 +476,7 @@ class OCM_ASYM(Module):
             clock2 = ClockSignal("B")
         
         # Block RAM Mapping
-        if (bram == 1):
+        if (memory_mapping == "Block_RAM"):
             # --------------------------------------------------------------------------------------------
             # --------------------------------------------------------------------------------------------
             # Single Port RAM
