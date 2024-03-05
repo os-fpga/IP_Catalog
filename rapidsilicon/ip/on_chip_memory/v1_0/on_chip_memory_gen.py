@@ -25,7 +25,7 @@ from litex.build.osfpga import OSFPGAPlatform
 
 # IOs/Interfaces -----------------------------------------------------------------------------------
 
-def get_clkin_ios(asymmetric, data_width, write_depth, memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B):    
+def get_clkin_ios(port_type, data_width, write_depth, memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B):    
     
     # read_depth_A depends upon Port A
     if (memory_type == "Single_Port"):
@@ -50,7 +50,7 @@ def get_clkin_ios(asymmetric, data_width, write_depth, memory_type, write_width_
         else:
             write_depth_B = read_depth_B
     
-    if asymmetric:
+    if port_type == "Asymmetric":
         write_width_A = write_width_A
         write_width_B = write_width_B
         read_width_A  = read_width_A
@@ -90,17 +90,17 @@ def get_clkin_ios(asymmetric, data_width, write_depth, memory_type, write_width_
 
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
-    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, write_depth, data_width, common_clk, asymmetric, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension):
+    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, write_depth, data_width, common_clk, port_type, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension):
         # Clocking ---------------------------------------------------------------------------------
-        platform.add_extension(get_clkin_ios(asymmetric, data_width, write_depth, memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B))
+        platform.add_extension(get_clkin_ios(port_type, data_width, write_depth, memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B))
         self.clock_domains.cd_sys   = ClockDomain()
         self.clock_domains.A  = ClockDomain()
         self.clock_domains.B  = ClockDomain()
         
-        if asymmetric == 1:
-            self.submodules.sp = ram = OCM_ASYM(write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, bram, file_path, file_extension)
+        if port_type == "Asymmetric":
+            self.submodules.sp = ram = OCM_ASYM(write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension)
         else:
-            self.submodules.sp = ram = OCM_SYM(data_width, memory_type, common_clk, write_depth, bram, file_path, file_extension)
+            self.submodules.sp = ram = OCM_SYM(data_width, memory_type, common_clk, write_depth, memory_mapping, file_path, file_extension)
             
         # Single Port RAM
         if (memory_type == "Single_Port"):
@@ -168,13 +168,13 @@ def main():
     
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--memory_type",    type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
+    core_string_param_group.add_argument("--memory_type",       type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
+    core_string_param_group.add_argument("--port_type",         type=str,   default="Symmetric",     choices=["Symmetric", "Asymmetric"],                             help="Ports Type")
+    core_string_param_group.add_argument("--memory_mapping",    type=str,   default="Block_RAM",     choices=["Block_RAM", "Distributed_RAM"],                        help="Memory mapping on Block RAM and Distributed RAM (LUTs)")
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--asymmetric",  type=bool,   default=False,    help="Symmetric or Asymmetric Memory")
     core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock")
-    core_bool_param_group.add_argument("--bram",        type=bool,   default=True,     help="BRAM vs Distributed Memory")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -222,8 +222,8 @@ def main():
         if (args.write_width_A >= 288 or args.read_width_A >= 288 or args.write_width_B >= 288 or args.read_width_B >= 288):
                 parser._actions[11].choices = [1024, 2048, 4096, 8192]
 
-        if (args.asymmetric == 0):
-            option_strings_to_remove = ['--write_width_A', '--write_width_B', '--read_width_A', '--read_width_B', '--write_depth_A', '--file_path']
+        if (args.port_type == "Symmetric"):
+            option_strings_to_remove = ['--write_width_A', '--write_width_B', '--read_width_A', '--read_width_B', '--write_depth_A']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         else:
             option_strings_to_remove = ['--data_width','--write_depth', '--file_path']
@@ -233,28 +233,21 @@ def main():
             dep_dict.update({
                         'common_clk':     'True'
                     })
-            option_strings_to_remove = ['--write_width_B', '--read_width_B','--file_path']
+            option_strings_to_remove = ['--write_width_B', '--read_width_B']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.write_width_A != args.read_width_A):
-                dep_dict.update({
-                        'bram'      :     'True'
-                    })
+                parser._actions[3].choices = ["Block_RAM"]
                 
         elif (args.memory_type in ["Simple_Dual_Port"]):
-            option_strings_to_remove = ['--write_width_B', '--read_width_A', '--file_path']
+            option_strings_to_remove = ['--write_width_B', '--read_width_A']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.write_width_A != args.read_width_B):
-                dep_dict.update({
-                        'bram'     :     'True'
-                    })
+                parser._actions[3].choices = ["Block_RAM"]
 
         elif (args.memory_type in ["True_Dual_Port"]):
-            option_strings_to_remove = ['--file_path']
-            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.write_width_A != args.read_width_A or args.write_width_A != args.write_width_B or args.write_width_B != args.read_width_B):
-                dep_dict.update({
-                        'bram'     :     'True'
-                    })
+                parser._actions[3].choices = ["Block_RAM"]
+
                 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -273,10 +266,10 @@ def main():
         read_depth_A    = int((args.write_depth_A * args.write_width_A) / args.read_width_A)
         read_depth_B    = int((write_depth_B * args.write_width_B) / args.read_width_B)
     
-    if args.asymmetric == 1:
-        ram = OCM_ASYM(args.write_width_A, args.write_width_B, args.read_width_A, args.read_width_B, args.memory_type, args.common_clk, args.write_depth_A, read_depth_A, write_depth_B, read_depth_B, args.bram, args.file_path, file_extension)
+    if args.port_type == "Asymmetric":
+        ram = OCM_ASYM(args.write_width_A, args.write_width_B, args.read_width_A, args.read_width_B, args.memory_type, args.common_clk, args.write_depth_A, read_depth_A, write_depth_B, read_depth_B, args.memory_mapping, args.file_path, file_extension)
     else:
-        ram = OCM_SYM(args.data_width, args.memory_type, args.common_clk, args.write_depth, args.bram, args.file_path, file_extension)
+        ram = OCM_SYM(args.data_width, args.memory_type, args.common_clk, args.write_depth, args.memory_mapping, args.file_path, file_extension)
     
     if (args.memory_type == "Single_Port"):
         memory = "Single Port RAM"
@@ -285,7 +278,7 @@ def main():
     else:
         memory = "True Dual Port RAM"
     
-    if (args.bram == 1):
+    if (args.memory_mapping == "Block_RAM"):
         memory_mapping = "Block RAM"
     else:
         memory_mapping = "Distributed RAM(LUTs)"
@@ -295,10 +288,10 @@ def main():
     "Mapping": memory_mapping,
     }
     
-    if (args.bram == 1):
+    if (args.memory_mapping == "Block_RAM"):
         summary["Number of BRAMs"] = ram.m * ram.n
     
-    if args.asymmetric == 1:
+    if args.port_type == "Asymmetric":
         if (args.memory_type == "Single_Port"):
             summary["Address A"] = math.ceil(math.log2(args.write_depth_A))
         elif args.memory_type == "Simple_Dual_Port":
@@ -341,8 +334,8 @@ def main():
         read_depth_A    = read_depth_A,
         read_depth_B    = read_depth_B,
         common_clk      = args.common_clk,
-        bram            = args.bram,
-        asymmetric      = args.asymmetric,
+        memory_mapping  = args.memory_mapping,
+        port_type       = args.port_type,
         file_path       = args.file_path,
         file_extension  = file_extension
     )
@@ -396,7 +389,7 @@ def main():
             file.writelines(new_lines)
         
         # DRAM
-        if (args.bram == 0):
+        if (args.memory_mapping == "Distributed_RAM"):
             wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "on_chip_memory", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
             with open (wrapper, "r") as file:
                 lines = file.readlines()
@@ -421,4 +414,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
