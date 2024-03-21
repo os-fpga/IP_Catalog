@@ -8,23 +8,421 @@
 # LiteX wrapper around on chip memory.
 
 import math
-import datetime
 import logging
 
 from migen import *
 
 from litex.soc.interconnect.axi import *
 
-# logging.basicConfig(level=logging.INFO)
-logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='%(levelname)s: %(message)s\n')
-
-timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-logging.info(f'Log started at {timestamp}')
+from litex_wrapper.on_chip_memory_litex_wrapper_symmetric import OCM_SYM
 
 # On Chip Memory ------------------------------------------------------------------------------------------
 class OCM_ASYM(Module):
-    def __init__(self, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension):
+    
+    def memory_init(self, file_path, file_extension, m, n, smaller_width, large_depth, memory_type, large_width):
+        binary_data =  OCM_SYM.memory_converter(self, file_path, file_extension)
         
+        sram        = {}
+        INIT        = []
+        INIT_PARITY = []
+        
+        # Empty File Path
+        if (file_path == "") or (self.line_count == 0):
+            return "0"
+        
+        # If File Path Exists
+        if self.write_depth_A in [1024, 2048, 4096, 8192, 16384, 32768]:
+            
+            ###################################################################################################
+            # Appending zeros
+            if (len(self.binary_data) > large_depth):
+                lines = large_depth
+            else:
+                lines = self.line_count
+            
+            if (smaller_width == 9):
+                for i in range(lines):
+                    if len(self.binary_data[i]) < smaller_width:
+                        self.binary_data[i] = '0' * (smaller_width - len(self.binary_data[i])) + self.binary_data[i]
+                    else:
+                        self.binary_data[i] = self.binary_data[i]
+                        
+                # Appending '0' on vacant addresses
+                x_data = large_depth - self.line_count
+                for i in range(x_data):
+                    self.binary_data.append((smaller_width + (9-(smaller_width % 9))) * '0')
+            
+            elif (smaller_width == 18):
+                for i in range(lines):
+                    if len(self.binary_data[i]) < smaller_width:
+                        self.binary_data[i] = '0' * (smaller_width - len(self.binary_data[i])) + self.binary_data[i]
+                    else:
+                        self.binary_data[i] = self.binary_data[i]
+                    
+                # Appending '0' on vacant addresses
+                x_data = large_depth - self.line_count
+                for i in range(x_data):
+                    self.binary_data.append((smaller_width + (18-(smaller_width % 18))) * '0')
+            elif (smaller_width >= 36):
+                for i in range(lines):
+                    if len(self.binary_data[i]) < smaller_width:
+                        self.binary_data[i] = '0' * (smaller_width - len(self.binary_data[i])) + self.binary_data[i]
+                    else:
+                        self.binary_data[i] = self.binary_data[i]
+                    
+                # Appending '0' on vacant addresses
+                x_data = large_depth - self.line_count
+                for i in range(x_data):
+                    self.binary_data.append((smaller_width + (36-(smaller_width % 36))) * '0')
+            
+            ###################################################################################################
+            # BRAM instance creation
+            f = 0
+            for i in range(n):
+                for j in range(m):
+                    sram[f"data_{f}"]          = []
+                    sram[f"parity_{f}"]        = []  
+                    sram[f"init_{f}"]          = []
+                    sram[f"init_parity_{f}"]   = []
+                    f = f+1
+            
+            ###################################################################################################
+            # Write Wider for SP
+            if memory_type == "Single_Port":
+                if (self.write_width_A > self.read_width_A):
+                    if (self.write_depth_A == 1024):
+                        # write width less than or equal to 18
+                        if self.write_width_A <= 18:
+                            for i in range(large_depth):
+                                # data from .hex file
+                                bits = self.binary_data[i] 
+                                c = i % m # Toggling between BRAMs
+                                if smaller_width == 9:
+                                    bits = self.binary_data[i]  
+                                    sram[f"data_{c}"].append(bits[1:9])  
+                                    sram[f"parity_{c}"].append(bits[0])              
+                                elif smaller_width == 18:
+                                    bits = self.binary_data[i]
+                                    sram[f"data_{c}"].append(bits[1:9]+bits[10:18]) 
+                                    sram[f"parity_{c}"].append(bits[0]+bits[9])
+                                else:
+                                    bits = self.binary_data[i]
+                                    sram[f"data_{c}"].append(bits[1:9]+bits[10:18]+bits[19:27]+bits[28:36])  
+                                    sram[f"parity_{c}"].append(bits[0]+bits[9]+bits[18]+bits[27])
+
+                        # write width greater than or equal to 36
+                        else:
+                            p = 0
+                            q = 0
+                            r = 0
+                            for i in range(large_depth):
+                                # data from .hex file
+                                bits = self.binary_data[i] 
+                                if ((i % 2) == 0): # for writing two lines data in 1 BRAM
+                                    q = q +1
+                                if ((i % 4) == 0): # for writing four lines data in 1 BRAM
+                                    r = r+1
+                                if (i % int(((m)*36)/smaller_width) == 0): # reset BRAM number
+                                    p = 0
+                                    q = 0
+                                    r = 0
+                                for x in range(math.ceil(smaller_width/36)-1, -1, -1): # BRAM ratio loop
+                                    if smaller_width == 9: # in 1 BRAM 
+                                        sram[f"data_{r}"].append(bits[1:9])  
+                                        sram[f"parity_{r}"].append(bits[0]) 
+                                    elif smaller_width == 18: # in 1 BRAM
+                                        sram[f"data_{q}"].append(bits[1:9]+bits[10:18]) 
+                                        sram[f"parity_{q}"].append(bits[0]+bits[9])
+                                    elif smaller_width >= 36:
+                                        sram[f"data_{p}"].append(bits[(x*36)+1:(x*36)+9]+bits[(x*36)+10:(x*36)+18]+bits[(x*36)+19:(x*36)+27]+bits[(x*36)+28:(x*36)+36])  
+                                        sram[f"parity_{p}"].append(bits[(x*36)+0]+bits[(x*36)+9]+bits[(x*36)+18]+bits[(x*36)+27])
+                                        p = p + 1 # incrementing BRAM number
+
+                    elif (self.write_depth_A == 2048):
+                        p = 0
+                        r = 0
+                        for i in range(large_depth):
+                            bits = self.binary_data[i]
+                            if ((i % 2) == 0):
+                                r = r + 1
+                            if (i % math.ceil((m*18)/smaller_width) == 0):
+                                p = 0
+                                r = 0
+                            for x in range(math.ceil(smaller_width/18)-1, -1, -1):
+                                if smaller_width == 9:
+                                    sram[f"data_{r}"].append(bits[1:9])  
+                                    sram[f"parity_{r}"].append(bits[0]) 
+                                elif smaller_width >= 18:
+                                    sram[f"data_{p}"].append(bits[(x*18)+1:(x*18)+9]+bits[(x*18)+10:(x*18)+18])  
+                                    sram[f"parity_{p}"].append(bits[(x*18)+0]+bits[(x*18)+9])
+                                    p = p + 1
+
+                    elif (self.write_depth_A == 4096):
+                        p = 0
+                        for i in range(large_depth):
+                            bits = self.binary_data[i]
+                            if (i % int((m*9)/smaller_width) == 0):
+                                p = 0
+                            for x in range(math.ceil(smaller_width/9)-1, -1, -1):
+                                if smaller_width >= 9:
+                                    sram[f"data_{p}"].append(bits[(x*9)+1:(x*9)+9])  
+                                    sram[f"parity_{p}"].append(bits[(x*9)+0])
+                                    p = p + 1
+
+                    elif (self.write_depth_A in [8192, 16384, 32768]):
+                        for j in range(n):
+                            for i in range(int(large_depth/n)):
+                                
+                                bits = self.binary_data[i+(j*int(large_depth/n))]
+
+                                p = (i % m) + (j*m)
+                                
+                                q = int(smaller_width/9)
+
+                                for x in range(q-1, -1, -1):
+                                    if smaller_width == 9:
+                                        sram[f"data_{p}"].append(bits[(x*9)+1:(x*9)+9])  
+                                        sram[f"parity_{p}"].append(bits[(x*9)+0])
+                                    elif smaller_width >= 18:
+                                        c = (i % int(self.write_width_A/self.read_width_B))*q + (j*m) + x
+                                        sram[f"data_{c}"].append(bits[((q-x-1)*9)+1:((q-x-1)*9)+9])  
+                                        sram[f"parity_{c}"].append(bits[((q-x-1)*9)+0])
+
+                ################################################################################################
+                # Read Wider for SP
+                elif (self.write_width_A < self.read_width_A):
+                    if self.read_depth_A <= 1024:
+                        if self.write_width_A >= 36:
+                            width = 36
+                        elif self.write_width_A == 18:
+                            width = 18
+                        elif self.write_width_A == 9:
+                            width = 9
+                    elif self.read_depth_A == 2048:
+                        if self.write_width_A >= 18:
+                            width = 18
+                        elif self.write_width_A == 9:
+                            width = 9
+                    elif self.read_depth_A in [4096, 8192, 16384, 32768]:
+                        width = 9
+
+                    for i in range(large_depth):
+                        bits = self.binary_data[i]
+                        j = math.ceil(smaller_width/width)
+                        for x in range(math.ceil(smaller_width/width)):
+                            j = j - 1
+                            if self.read_depth_A <= 1024:
+                                if self.write_width_A >= 36:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*36)+1:(x*36)+9]+bits[(x*36)+10:(x*36)+18]+bits[(x*36)+19:(x*36)+27]+bits[(x*36)+28:(x*36)+36])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*36)+0]+bits[(x*36)+9]+bits[(x*36)+18]+bits[(x*36)+27])
+                                elif self.write_width_A == 18:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*18)+1:(x*18)+9]+bits[(x*18)+10:(x*18)+18])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*18)+0]+bits[(x*18)+9])
+                                elif self.write_width_A == 9:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*9)+1:(x*9)+9])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*9)+0])
+                            elif self.read_depth_A == 2048:
+                                if self.write_width_A >= 18:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*18)+1:(x*18)+9]+bits[(x*18)+10:(x*18)+18])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*18)+0]+bits[(x*18)+9])
+                                elif self.write_width_A == 9:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*9)+1:(x*9)+9])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*9)+0])
+                            elif self.read_depth_A in [4096, 8192, 16384, 32768]:
+                                if self.write_width_A >= 9:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*9)+1:(x*9)+9])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*9)+0])
+                
+                
+            ################################################################################################
+            elif (memory_type == "Simple_Dual_Port"):
+                if (self.write_width_A > self.read_width_B): # Write Wider
+                    if (self.write_depth_A == 1024):
+                        # write width less than or equal to 18
+                        if self.write_width_A <= 18:
+                            for i in range(large_depth):
+                                # data from .hex file
+                                bits = self.binary_data[i] 
+                                c = i % m # Toggling between BRAMs
+                                if smaller_width == 9:
+                                    bits = self.binary_data[i]  
+                                    sram[f"data_{c}"].append(bits[1:9])  
+                                    sram[f"parity_{c}"].append(bits[0])              
+                                elif smaller_width == 18:
+                                    bits = self.binary_data[i]
+                                    sram[f"data_{c}"].append(bits[1:9]+bits[10:18]) 
+                                    sram[f"parity_{c}"].append(bits[0]+bits[9])
+                                else:
+                                    bits = self.binary_data[i]
+                                    sram[f"data_{c}"].append(bits[1:9]+bits[10:18]+bits[19:27]+bits[28:36])  
+                                    sram[f"parity_{c}"].append(bits[0]+bits[9]+bits[18]+bits[27])
+                        # write width greater than or equal to 36
+                        else:
+                            p = 0
+                            q = 0
+                            r = 0
+                            for i in range(large_depth):
+                                # data from .hex file
+                                bits = self.binary_data[i] 
+                                if ((i % 2) == 0): # for writing two lines data in 1 BRAM
+                                    q = q +1
+                                if ((i % 4) == 0): # for writing four lines data in 1 BRAM
+                                    r = r+1
+                                if (i % int(((m)*36)/smaller_width) == 0): # reset BRAM number
+                                    p = 0
+                                    q = 0
+                                    r = 0
+                                for x in range(math.ceil(smaller_width/36)-1, -1, -1): # BRAM ratio loop
+                                    if smaller_width == 9: # in 1 BRAM 
+                                        sram[f"data_{r}"].append(bits[1:9])  
+                                        sram[f"parity_{r}"].append(bits[0]) 
+                                    elif smaller_width == 18: # in 1 BRAM
+                                        sram[f"data_{q}"].append(bits[1:9]+bits[10:18]) 
+                                        sram[f"parity_{q}"].append(bits[0]+bits[9])
+                                    elif smaller_width >= 36:
+                                        sram[f"data_{p}"].append(bits[(x*36)+1:(x*36)+9]+bits[(x*36)+10:(x*36)+18]+bits[(x*36)+19:(x*36)+27]+bits[(x*36)+28:(x*36)+36])  
+                                        sram[f"parity_{p}"].append(bits[(x*36)+0]+bits[(x*36)+9]+bits[(x*36)+18]+bits[(x*36)+27])
+                                        p = p + 1 # incrementing BRAM number
+                    
+                    elif (self.write_depth_A == 2048):
+                        p = 0
+                        r = 0
+                        for i in range(large_depth):
+                            bits = self.binary_data[i]
+                            if ((i % 2) == 0):
+                                r = r + 1
+                            if (i % math.ceil((m*18)/smaller_width) == 0):
+                                p = 0
+                                r = 0
+                            for x in range(math.ceil(smaller_width/18)-1, -1, -1):
+                                if smaller_width == 9:
+                                    sram[f"data_{r}"].append(bits[1:9])  
+                                    sram[f"parity_{r}"].append(bits[0]) 
+                                elif smaller_width >= 18:
+                                    sram[f"data_{p}"].append(bits[(x*18)+1:(x*18)+9]+bits[(x*18)+10:(x*18)+18])  
+                                    sram[f"parity_{p}"].append(bits[(x*18)+0]+bits[(x*18)+9])
+                                    p = p + 1
+                                    
+                    elif (self.write_depth_A == 4096):
+                        p = 0
+                        for i in range(large_depth):
+                            bits = self.binary_data[i]
+                            if (i % int((m*9)/smaller_width) == 0):
+                                p = 0
+                            for x in range(math.ceil(smaller_width/9)-1, -1, -1):
+                                if smaller_width >= 9:
+                                    sram[f"data_{p}"].append(bits[(x*9)+1:(x*9)+9])  
+                                    sram[f"parity_{p}"].append(bits[(x*9)+0])
+                                    p = p + 1
+                                    
+                    elif (self.write_depth_A in [8192, 16384, 32768]):
+                        for j in range(n):
+                            for i in range(int(large_depth/n)):
+                                
+                                bits = self.binary_data[i+(j*int(large_depth/n))]
+
+                                p = (i % m) + (j*m)
+                                
+                                q = int(smaller_width/9)
+
+                                for x in range(q-1, -1, -1):
+                                    if smaller_width == 9:
+                                        sram[f"data_{p}"].append(bits[(x*9)+1:(x*9)+9])  
+                                        sram[f"parity_{p}"].append(bits[(x*9)+0])
+                                    elif smaller_width >= 18:
+                                        c = (i % int(self.write_width_A/self.read_width_B))*q + (j*m) + x
+                                        sram[f"data_{c}"].append(bits[((q-x-1)*9)+1:((q-x-1)*9)+9])  
+                                        sram[f"parity_{c}"].append(bits[((q-x-1)*9)+0])
+
+                elif (self.write_width_A < self.read_width_B): # Read Wider      
+                    if self.read_depth_B <= 1024:
+                        if self.write_width_A >= 36:
+                            width = 36
+                        elif self.write_width_A == 18:
+                            width = 18
+                        elif self.write_width_A == 9:
+                            width = 9
+                    elif self.read_depth_B == 2048:
+                        if self.write_width_A >= 18:
+                            width = 18
+                        elif self.write_width_A == 9:
+                            width = 9
+                    elif self.read_depth_B in [4096, 8192, 16384, 32768]:
+                        width = 9
+                        
+                    for i in range(large_depth):
+                        bits = self.binary_data[i]
+                        j = math.ceil(smaller_width/width)
+                        for x in range(math.ceil(smaller_width/width)):
+                            j = j - 1
+                            if self.read_depth_B <= 1024:
+                                if self.write_width_A >= 36:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*36)+1:(x*36)+9]+bits[(x*36)+10:(x*36)+18]+bits[(x*36)+19:(x*36)+27]+bits[(x*36)+28:(x*36)+36])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*36)+0]+bits[(x*36)+9]+bits[(x*36)+18]+bits[(x*36)+27])
+                                elif self.write_width_A == 18:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*18)+1:(x*18)+9]+bits[(x*18)+10:(x*18)+18])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*18)+0]+bits[(x*18)+9])
+                                elif self.write_width_A == 9:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*9)+1:(x*9)+9])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*9)+0])
+                            elif self.read_depth_B == 2048:
+                                if self.write_width_A >= 18:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*18)+1:(x*18)+9]+bits[(x*18)+10:(x*18)+18])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*18)+0]+bits[(x*18)+9])
+                                elif self.write_width_A == 9:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*9)+1:(x*9)+9])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*9)+0])
+                            elif self.read_depth_B in [4096, 8192, 16384, 32768]:
+                                if self.write_width_A >= 9:
+                                    sram[f"data_{j*m+(i%m)}"].append(bits[(x*9)+1:(x*9)+9])  
+                                    sram[f"parity_{j*m+(i%m)}"].append(bits[(x*9)+0])
+                                    
+            elif (memory_type == "True_Dual_Port"):
+                r = 0
+                q = 0
+                y = math.ceil(large_depth/n)
+                for a in range(n):
+                    for i in range(y):
+                        bits = self.binary_data[i + (y * a)]
+                        if ((i % 2) == 0): # for writing two lines data in 1 BRAM
+                            q = q +1
+                        if ((i % 4) == 0): # for writing four lines data in 1 BRAM
+                            r = r+1
+                        if (i % int(((m)*36)/smaller_width) == 0): # reset BRAM number
+                            q = 0
+                            r = 0
+                        d = math.ceil(smaller_width/36)
+                        for x in range(d-1, -1, -1):
+                            if smaller_width == 9: # in 1 BRAM 
+                                e = r + a * m
+                                sram[f"data_{e}"].append(bits[1:9])  
+                                sram[f"parity_{e}"].append(bits[0]) 
+                            elif smaller_width == 18: # in 1 BRAM
+                                g = q + a * m
+                                sram[f"data_{g}"].append(bits[1:9]+bits[10:18]) 
+                                sram[f"parity_{g}"].append(bits[0]+bits[9])
+                            elif smaller_width >= 36:
+                                c = ((i%int(large_width/smaller_width))*d + (x+a*m))
+                                sram[f"data_{c}"].append(bits[(x*36)+1:(x*36)+9]+bits[(x*36)+10:(x*36)+18]+bits[(x*36)+19:(x*36)+27]+bits[(x*36)+28:(x*36)+36])  
+                                sram[f"parity_{c}"].append(bits[(x*36)+0]+bits[(x*36)+9]+bits[(x*36)+18]+bits[(x*36)+27])
+
+            ##############################################################################################
+            # Data allocation to corresponding BRAM
+            f = 0
+            for i in range(n):
+                for j in range(m): # appending distributed data into corresponding BRAM
+                    sram[f"init_{f}"]           = "".join(sram[f"data_{f}"][::-1]) # inverting indexing of list
+                    sram[f"init_parity_{f}"]    = "".join(sram[f"parity_{f}"][::-1]) # inverting indexing of list
+                    INIT.append(sram[f"init_{f}"])
+                    INIT_PARITY.append(sram[f"init_parity_{f}"])
+                    f = f+1
+                    
+            logging.info("Memory Initialized Successfully !!!")
+            self.logger.info(f"===================================================")
+            return INIT, INIT_PARITY
+    
+    def __init__(self, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension):
+
         self.write_depth_A  = write_depth_A
         self.write_width_A  = write_width_A
         self.read_depth_A   = read_depth_A
@@ -44,37 +442,42 @@ class OCM_ASYM(Module):
         
         self.logger.info(f"MEMORY_TYPE      : {memory_type}")
         
-        self.logger.info(f"DATA_WIDTH       : {write_width_A}")
+        if memory_type == "Single_Port":
+            self.logger.info(f"WRITE_WIDTH_A    : {write_width_A}")
+            self.logger.info(f"READ_WIDTH_A     : {read_width_A}")
+            self.logger.info(f"WRITE_DEPTH_A    : {write_depth_A}")
+            self.logger.info(f"READ_DEPTH_A     : {read_depth_A}")
         
-        self.logger.info(f"WRITE_DEPTH      : {write_depth_A}")
+        elif memory_type == "Simple_Dual_Port":
+            self.logger.info(f"WRITE_WIDTH_A    : {write_width_A}")
+            self.logger.info(f"READ_WIDTH_B     : {read_width_B}")
+            self.logger.info(f"WRITE_DEPTH_A    : {write_depth_A}")
+            self.logger.info(f"READ_DEPTH_B     : {read_depth_B}")
+            
+        if memory_type == "True_Dual_Port":
+            self.logger.info(f"WRITE_WIDTH_A    : {write_width_A}")
+            self.logger.info(f"READ_WIDTH_A     : {read_width_A}")
+            self.logger.info(f"WRITE_WIDTH_B    : {write_width_B}")
+            self.logger.info(f"READ_WIDTH_B     : {read_width_B}")
+            self.logger.info(f"WRITE_DEPTH_A    : {write_depth_A}")
+            self.logger.info(f"READ_DEPTH_A     : {read_depth_A}")
+            self.logger.info(f"WRITE_DEPTH_B    : {write_depth_B}")
+            self.logger.info(f"READ_DEPTH_B     : {read_depth_B}")
         
-        self.logger.info(f"COMMON_CLK       : {common_clk}")
+        if memory_type != "Single_Port":
+            self.logger.info(f"COMMON_CLK       : {common_clk}")
         
         self.logger.info(f"MEMORY_MAPPING   : {memory_mapping}")
         
         if (memory_type == "Single_Port"):
-            # widths for generating m,n
-            write_width = write_width_A
-            read_width  = read_width_B
-            read_depth  = read_depth_A
-            # depth for m,n
-            if (write_depth_A > read_depth_A):
-                write_depthA = write_depth_A
-            else:
-                write_depthA = read_depth_A
-            
-            # Addressing
+            write_depthA = max(write_depth_A, read_depth_A)
             self.addr_A     = Signal(math.ceil(math.log2(write_depthA)))
+            msb_write       = math.ceil(math.log2(write_depth_A))
             msb_SP          = math.ceil(math.log2(write_depthA))
             self.address    = Signal(15)
             msb_read        = math.ceil(math.log2(write_depthA))
             
         elif (memory_type == "Simple_Dual_Port"):
-            # widths for generating m,n
-            write_width = write_width_A
-            read_width  = read_width_B
-            read_depth  = read_depth_A
-            # Addressing
             self.addr_A    = Signal(math.ceil(math.log2(write_depth_A)))
             self.addr_B    = Signal(math.ceil(math.log2(read_depth_B)))
             msb_read       = math.ceil(math.log2(read_depth_B))
@@ -82,25 +485,8 @@ class OCM_ASYM(Module):
         elif (memory_type == "True_Dual_Port"):
             self.address_A    = Signal(15)
             self.address_B    = Signal(15)
-            
-            if (write_width_A > write_width_B):
-                write_width = write_width_A
-                read_width  = read_width_A
-            else:
-                write_width = write_width_B
-                read_width  = read_width_B
-            
-            # depth for m,n
-            if (write_depth_A > read_depth_A):
-                depth_A = write_depth_A
-            else:
-                depth_A = read_depth_A
-            if (write_depth_B > read_depth_B):
-                depth_B = write_depth_B
-            else:
-                depth_B = read_depth_B
-                
-            # Addressing
+            depth_A = max(write_depth_A, read_depth_A)
+            depth_B = max(write_depth_B, read_depth_B)
             self.addr_A    = Signal(math.ceil(math.log2(depth_A)))
             self.addr_B    = Signal(math.ceil(math.log2(depth_B)))
 
@@ -122,8 +508,10 @@ class OCM_ASYM(Module):
         self.ren_B        = Signal(1)
         
         if (memory_type == "Single_Port"):
-            write_width = write_width_A
-            read_width  = read_width_A
+            large_width   = max(write_width_A, read_width_A)
+            smaller_width = min(write_width_A, read_width_A)
+            large_depth   = max(write_depth_A, read_depth_A)
+
             if (write_width_A >= read_width_A):
                 memory_width = write_width_A
                 memory_depth = write_depth_A
@@ -132,6 +520,10 @@ class OCM_ASYM(Module):
                 memory_depth = read_depth_A
                 
         elif (memory_type == "Simple_Dual_Port"):
+            large_width   = max(write_width_A, read_width_B)
+            smaller_width = min(write_width_A, read_width_B)
+            large_depth   = max(write_depth_A, read_depth_B)
+            
             if (write_width_A >= read_width_B):
                 memory_width = write_width_A
                 memory_depth = write_depth_A
@@ -140,97 +532,11 @@ class OCM_ASYM(Module):
                 memory_depth = read_depth_A
 
         elif (memory_type == "True_Dual_Port"):
-            if (read_width_A > read_width_B):
-                large_read_width = read_width_A
-            else:
-                large_read_width = read_width_B
-                
-            if (write_width_A > write_width_B):
-                large_write_width = write_width_A
-                if (write_width_A > read_width_A and write_width_A > read_width_B): # Write wider
-                    memory_width = write_width_A
-                    memory_depth = write_depth_A
-                elif (write_width_A < read_width_A or write_width_A < read_width_B):
-                    if (read_width_A > read_width_B):
-                        large_read_width = read_width_A
-                        memory_width = read_width_A
-                        memory_depth = read_depth_A
-                    elif (read_width_A < read_width_B):
-                        large_read_width = read_width_B
-                        memory_width = read_width_B
-                        memory_depth = read_depth_B
-                elif (write_width_A == read_width_A or write_width_A == read_width_B):
-                    memory_width = write_width_A
-                    memory_depth = write_depth_A
-                    if (read_width_A > read_width_B):
-                        large_read_width = read_width_A
-                    elif (read_width_A < read_width_B):
-                        large_read_width = read_width_B
-                    elif (read_width_A == read_width_B):
-                        large_read_width = read_width_A
-                        
-            elif (write_width_A < write_width_B):
-                large_write_width = write_width_B
-                if (write_width_B > read_width_A and write_width_B > read_width_B):
-                    memory_width = write_width_B
-                    memory_depth = write_depth_A
-                    if (read_width_A > read_width_B):
-                        large_read_width = read_width_A
-                    elif (read_width_A < read_width_B):
-                        large_read_width = read_width_B
-                    elif (read_width_A == read_width_B):
-                        large_read_width = read_width_A
-                
-                elif (write_width_B < read_width_A or write_width_B < read_width_B):
-                    if (read_width_A >= read_width_B):
-                        large_read_width = read_width_A
-                        memory_width = read_width_A
-                        memory_depth = read_depth_A
-                    elif (read_width_A < read_width_B):
-                        large_read_width = read_width_B
-                        memory_width = read_width_B
-                        memory_depth = read_depth_B
-                elif (write_width_B == read_width_A or write_width_B == read_width_B):
-                    memory_width = write_width_B
-                    memory_depth = write_depth_A
-                    if (read_width_A > read_width_B):
-                        large_read_width = read_width_A
-                    elif (read_width_A < read_width_B):
-                        large_read_width = read_width_B
-                    elif (read_width_A == read_width_B):
-                        large_read_width = read_width_A
-                        
-            elif (write_width_A == write_width_B):
-                large_write_width = write_width_A
-                if (write_width_A > read_width_A and write_width_A > read_width_B):
-                    memory_width = write_width_A
-                    memory_depth = write_depth_A
-                    if (read_width_A > read_width_B):
-                        large_read_width = read_width_A
-                    elif (read_width_A < read_width_B):
-                        large_read_width = read_width_B
-                    elif (read_width_A == read_width_B):
-                        large_read_width = read_width_A
-                
-                elif (write_width_A < read_width_A or write_width_A < read_width_B):
-                    if (read_width_A >= read_width_B):
-                        large_read_width = read_width_A
-                        memory_width = read_width_A
-                        memory_depth = read_depth_A
-                    elif (read_width_A < read_width_B):
-                        large_read_width = read_width_B
-                        memory_width = read_width_B
-                        memory_depth = read_depth_B
-                elif (write_width_A == read_width_A or write_width_A == read_width_B):
-                    memory_width = write_width_A
-                    memory_depth = write_depth_A
-                    if (read_width_A > read_width_B):
-                        large_read_width = read_width_A
-                    elif (read_width_A < read_width_B):
-                        large_read_width = read_width_B
-                    elif (read_width_A == read_width_B):
-                        large_read_width = read_width_A
-        
+            large_width   = max(write_width_A, read_width_A, write_width_B, read_width_B)
+            smaller_width = min(write_width_A, read_width_A, write_width_B, read_width_B)
+            large_depth   = max(write_depth_A, read_depth_A, write_depth_B, read_depth_B)
+            
+            
         MEMORY_SIZE = 36*1024
         
         if (memory_type == "Single_Port"):
@@ -238,7 +544,7 @@ class OCM_ASYM(Module):
                 if read_depth_A in [1024, 2048, 4096]:
                     m = math.ceil(read_width_A/write_width_A)
                     n = math.ceil((((write_depth_A*write_width_A)/36)/(1024*m)))
-                elif read_depth_B in [8192, 16384, 32768]:
+                elif read_depth_A in [8192, 16384, 32768]:
                     n = math.ceil(write_width_A/9)
                     m = math.ceil((((write_depth_A*write_width_A)/9)/(4096*n)))
                 else:
@@ -306,8 +612,8 @@ class OCM_ASYM(Module):
                         m = math.ceil(memory_width/9)
                         n = 1
                     elif write_depth_A in [8192, 16384, 32768]:
-                        n = math.ceil(write_width_A/36)
-                        m = math.ceil(write_depth_A/1024)
+                        m = math.ceil(write_width_A/9)
+                        n = math.ceil(write_depth_A/4096)
                     else:
                         if (memory_depth > 1024):
                             m = memory_depth / 1024
@@ -403,8 +709,8 @@ class OCM_ASYM(Module):
                         m = math.ceil(memory_width/9)
                         n = 1
                     elif write_depth_A in [8192, 16384, 32768]:
-                        n = math.ceil(write_width_A/9)
-                        m = math.ceil(write_depth_A/4096)
+                        m = math.ceil(write_width_A/9)
+                        n = math.ceil(write_depth_A/4096)
                     else:
                         if (memory_depth > 1024):
                             m = memory_depth / 1024
@@ -428,12 +734,12 @@ class OCM_ASYM(Module):
                             n = math.ceil(n)
             
         elif (memory_type == "True_Dual_Port"):
-            if (large_read_width >= large_write_width):# write Wider
-                m = math.ceil(large_read_width/36)
-                n = math.ceil(write_depth_A/1024)
-            elif (large_read_width < large_write_width):# read Wider
-                m = math.ceil(large_write_width/36)
-                n = math.ceil(write_depth_A/1024)
+            m = math.ceil(large_width/36)
+            n = math.ceil(write_depth_A/1024)
+        
+        if file_path != "":
+            k = 0
+            init, init_parity = self.memory_init(file_path, file_extension, m, n, smaller_width, large_depth, memory_type, large_width)
                 
         self.m = m # vertical memory
         self.n = n # horizontal memory
@@ -468,7 +774,7 @@ class OCM_ASYM(Module):
         wen_mux = {}
         
         # Synchronous/ Asynchronous Clock
-        if (common_clk == 1):
+        if ((common_clk == 1) and (memory_type != "Single_Port")):
             clock1 = ClockSignal("sys")
             clock2 = ClockSignal("sys")
         else:
@@ -514,11 +820,12 @@ class OCM_ASYM(Module):
                         read_loop = math.ceil(read_width_A / 18)
                         if (read_width_A <= 18):
                             ratio = int(math.ceil(math.log2(18/read_width_A)))
+                            
                     elif write_depth_A == 4096:
                         read_loop = math.ceil(read_width_A / 9)
                         if (read_width_A <= 9):
                             ratio = int(math.ceil(math.log2(9/read_width_A)))
-                    
+                            
                     # Output Logic for 1K, 2K, 4K
                     k = 0
                     for i in range(int(m/read_loop)):
@@ -542,34 +849,18 @@ class OCM_ASYM(Module):
                                     self.comb += self.dout_A[(j*9):(j*9)+9].eq(Cat(self.bram_out_A[k+j][0:8], self.rparity_A[k+j][0]))
                         k = k + read_loop
                     
-                    # Output Logic for 8K, 16K, 32K
                     if (write_depth_A in [8192, 16384, 32768]):
-                        p = 0
                         for i in range(n):
                             for j in range(m):
-                                if read_width_A >= 72:
-                                    y = int(read_width_A/36)
-                                    k = j * int(n/2) + int(i//y)
-                                    width = 36
-                                    x = p 
-                                    self.comb += If((self.addr_reg_A == k), self.dout_A[(x*width):(x*width)+width].eq(Cat(self.bram_out_A[j][(i*32):(i*32)+8], self.rparity_A[j][(i*4)], self.bram_out_A[j][(i*32)+8:(i*32)+16], self.rparity_A[j][(i*4)+1],
-                                                    self.bram_out_A[j][(i*32)+16:(i*32)+24], self.rparity_A[j][(i*4)+2], self.bram_out_A[j][(i*32)+24:(i*32)+32], self.rparity_A[j][(i*4)+3])))
-                                elif read_width_A == 36:
-                                    k = j * n + i
-                                    width = 36
-                                    x = int(i//n)
-                                    self.comb += If((self.addr_reg_A == k), self.dout_A[(x*width):(x*width)+width].eq(Cat(self.bram_out_A[j][(i*32):(i*32)+8], self.rparity_A[j][(i*4)], self.bram_out_A[j][(i*32)+8:(i*32)+16], self.rparity_A[j][(i*4)+1],
-                                                self.bram_out_A[j][(i*32)+16:(i*32)+24], self.rparity_A[j][(i*4)+2], self.bram_out_A[j][(i*32)+24:(i*32)+32], self.rparity_A[j][(i*4)+3])))
-                                elif read_width_A == 18:
-                                    k = j * n + i
-                                    width = 18
-                                    self.comb += If((self.addr_reg_A == k), self.dout_A[(0*width):(0*width)+width].eq(Cat(self.bram_out_A[j][(i*32):(i*32)+8], self.rparity_A[j][(i*4)], self.bram_out_A[j][(i*32)+8:(i*32)+16], self.rparity_A[j][(i*4)+1])))
+                                if read_width_A >= 18:
+                                    x = j % int(read_width_A/9)
+                                    k =  j // int(read_width_A/9) + (i*int(m/int(read_width_A/9)))
+                                    width = 9
+                                    self.comb += If((self.addr_reg_A == k), self.dout_A[( x *width):( x *width)+width].eq(Cat(self.bram_out_A[j][(i*32):(i*32)+8], self.rparity_A[j][(i*4)])))
                                 elif read_width_A == 9:
-                                    k = j * n + i
+                                    k =  i * m + j
                                     width = 9
                                     self.comb += If((self.addr_reg_A == k), self.dout_A[(0*width):(0*width)+width].eq(Cat(self.bram_out_A[j][(i*32):(i*32)+8], self.rparity_A[j][(i*4)])))
-                            
-                            p = 0 if (p == int(read_width_A/36) -1 ) else (p + 1) # data out bits
 
                     # Read Enable, Write Enable and Read Registered Address Mux Generation
                     m_mux = math.ceil(math.log2(m*n))
@@ -589,11 +880,13 @@ class OCM_ASYM(Module):
                             ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                             addr_reg_mux[i] = self.addr_reg_A.eq(i)
                     elif (write_depth_A in [8192, 16384, 32768]):
-                        for i in range(m * int(write_width_A/36)):
-                            ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
-                            addr_reg_mux[i] = self.addr_reg_A.eq(i)
+                        if (read_width_A >= 9):
+                            for i in range(n * int(write_width_A/read_width_A)):
+                                ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
+                                addr_reg_mux[i] = self.addr_reg_A.eq(i)
+                                        
                         if (m > 1 or n > 1):
-                            for j in range(m):
+                            for j in range(n):
                                 wen_mux[j] = self.wen_A1.eq(Cat(Replicate(0,j), self.wen_A))
                     else:
                         if (write_width_A > read_width_A):
@@ -617,20 +910,11 @@ class OCM_ASYM(Module):
                             self.comb += Case(self.addr_A[ratio:m_mux+ratio], ren_mux)
                         elif (write_depth_A in [8192, 16384, 32768]):
                             read_depth = int(read_depth_A / (m*n))
-                            if (n == 1):
-                                self.sync.A += Case(Cat(self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                self.comb += Case(Cat(self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
-                            elif (read_width_A <= 18):
-                                self.sync.A += Case(Cat(self.addr_A[ratio: math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                self.comb += Case(Cat(self.addr_A[ratio: math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
-                            elif (read_width_A == 36):
-                                self.sync.A += Case(Cat(self.addr_A[0:math.ceil(math.log2(n))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                self.comb += Case(Cat(self.addr_A[0:math.ceil(math.log2(n))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
-                            else:
-                                self.sync.A += Case(Cat(self.addr_A[0:math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                self.comb += Case(Cat(self.addr_A[0:math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
+                            if (read_width_A >= 9):
+                                self.comb += Case(Cat(self.addr_A[0:math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(n)):msb_read]), ren_mux)
+                                self.sync.A += Case(Cat(self.addr_A[0:math.ceil(math.log2(write_width_A/read_width_A))], self.addr_A[msb_read-math.ceil(math.log2(n)):msb_read]), addr_reg_mux)
                             self.comb += Case(self.addr_reg_A, dout_mux)
-                            self.comb += Case(self.addr_A[10:msb_A], wen_mux)
+                            self.comb += Case(self.addr_A[12:msb_A], wen_mux)
                         else:
                             self.sync.A += Case(self.addr_A[0:ratio], addr_reg_mux)
                             self.comb += Case(self.addr_reg_A, dout_mux)
@@ -701,6 +985,7 @@ class OCM_ASYM(Module):
                         self.comb += Case(self.addr_A[msb_read-(math.ceil(math.log2(n_temp))):msb_read], ren_mux)
                         self.sync.A += Case(self.addr_A[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
                 
+                f = 0
                 for i in range(n):  # horizontal memory
                     
                     if (write_width_A == read_width_A):
@@ -737,7 +1022,7 @@ class OCM_ASYM(Module):
                         else: # memory size 36x1024 for other configurations
                             address_A = Cat(Replicate(0,5), self.addr_A[0:10])
                             address_B = Cat(Replicate(0,5), self.addr_A[0:10])
-                    
+                                
                     # Address and Modes Selection
                     elif (write_width_A > read_width_A):
                         read_depth = int(read_depth_A / (m*n))
@@ -745,31 +1030,50 @@ class OCM_ASYM(Module):
                             param_write_width_A = 36
                             param_read_width_A  = 36
                             address_A = Cat(Replicate(0,5), self.addr_A[0:10])
-                            if (read_depth == 1024):
-                                address_B = Cat(Replicate(0,5), self.addr_A[ratio+m_mux:msb_SP])
-                                param_read_width_A  = 36
-                            elif (read_depth == 2048):
-                                address_B = Cat(Replicate(0,4), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
-                                param_read_width_A = 18
-                            elif (read_depth == 4096):
-                                address_B = Cat(Replicate(0,3), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
-                                param_read_width_A = 9
-                            elif (read_depth == 8192):
-                                address_B = Cat(Replicate(0,3), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
-                            elif (read_depth == 16384):
-                                address_B = Cat(Replicate(0,2), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
-                            elif (read_depth == 32768):
-                                address_B = Cat(Replicate(0,1), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
-                            else: 
-                                address_B = Cat(Replicate(0,5), self.addr_A[ratio:msb_SP])
-                                param_read_width_A = 36
+                            
+                            if m == 1:
+                                if write_width_A == 36:
+                                    address_A = Cat(Replicate(0,5), self.addr_A[0:10])
+                                    param_write_width_A  = 36
+                                elif write_width_A == 18:
+                                    address_A = Cat(Replicate(0,4), self.addr_A[0:11])
+                                    param_write_width_A  = 18
+                                elif write_width_A == 9:
+                                    address_A = Cat(Replicate(0,3), self.addr_A[0:12])
+                                    param_write_width_A  = 9
+                                
+                                if read_width_A == 18:
+                                    address_B = Cat(Replicate(0,4), self.addr_A[0:11])
+                                    param_read_width_A  = 18
+                                elif read_width_A == 9:
+                                    address_B = Cat(Replicate(0,3), self.addr_A[0:12])
+                                    param_read_width_A  = 9
+                            else:
+                                if (read_depth == 1024):
+                                    address_B = Cat(Replicate(0,5), self.addr_A[ratio+m_mux:msb_SP])
+                                    param_read_width_A  = 36
+                                elif (read_depth == 2048):
+                                    address_B = Cat(Replicate(0,4), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
+                                    param_read_width_A = 18
+                                elif (read_depth == 4096):
+                                    address_B = Cat(Replicate(0,3), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
+                                    param_read_width_A = 9
+                                elif (read_depth == 8192):
+                                    address_B = Cat(Replicate(0,3), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
+                                elif (read_depth == 16384):
+                                    address_B = Cat(Replicate(0,2), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
+                                elif (read_depth == 32768):
+                                    address_B = Cat(Replicate(0,1), self.addr_A[0:ratio], self.addr_A[ratio+m_mux:msb_SP])
+                                else: 
+                                    address_B = Cat(Replicate(0,5), self.addr_A[ratio:msb_SP])
+                                    param_read_width_A = 36
 
                         elif (write_depth_A == 2048):
                             param_write_width_A = 18
                             param_read_width_A  = 18
                             address_A = Cat(Replicate(0,4), self.addr_A[0:11])
                             if (read_depth == 1024):
-                                address_B = Cat(Replicate(0,5), self.addr_A[ratio+m_mux:msb_SP])
+                                address_B = Cat(Replicate(0,4), self.addr_A[ratio:msb_SP])
                             elif (read_depth == 2048):
                                 address_B = Cat(Replicate(0,4), self.addr_A[ratio+m_mux:msb_SP])
                                 param_read_width_A = 18
@@ -809,21 +1113,10 @@ class OCM_ASYM(Module):
                                 param_read_width_A = 9
                         
                         elif (write_depth_A in [8192, 16384, 32768]):
-                            param_write_width_A = 36
-                            param_read_width_A  = 36
-                            address_A = Cat(Replicate(0,5), self.addr_A[0:10])
-                            if (read_depth == 1024):
-                                address_B = Cat(Replicate(0,5), self.addr_A[math.ceil(math.log2(write_width_A/read_width_A)):msb_SP-math.ceil(math.log2(m))])
-                                param_read_width_A  = 36
-                            elif (read_depth == 2048):
-                                address_B = Cat(Replicate(0,4), self.addr_A[0:ratio], self.addr_A[math.ceil(math.log2(write_width_A/read_width_A)):msb_SP-math.ceil(math.log2(m))])
-                                param_read_width_A = 18
-                            elif (read_depth == 4096):
-                                address_B = Cat(Replicate(0,3), self.addr_A[0:ratio], self.addr_A[math.ceil(math.log2(write_width_A/read_width_A)):msb_SP-math.ceil(math.log2(m))])
-                                param_read_width_A = 9
-                            else: 
-                                address_B = Cat(Replicate(0,5), self.addr_A[math.ceil(math.log2(write_width_A/read_width_A)):msb_SP-math.ceil(math.log2(m))])
-                                param_read_width_A = 36
+                            param_write_width_A = 9
+                            param_read_width_A  = 9
+                            address_A = Cat(Replicate(0,3), self.addr_A[0:12])
+                            address_B = Cat(Replicate(0,3), self.addr_A[math.ceil(math.log2(write_width_A/read_width_A)):msb_read-math.ceil(math.log2(n))])
                     
                     elif (read_width_A > write_width_A): 
                         
@@ -864,8 +1157,17 @@ class OCM_ASYM(Module):
                                 address_B = Cat(Replicate(0,3), self.addr_A[0:12])
                                 address_A = Cat(Replicate(0,3), self.addr_A[ratio:msb_A-diff_depth])
                     
-                    k = 0
+                    
                     for j in range(m): # vertical memory
+                        
+                        if (file_path == "") or (self.line_count == 0):
+                            data    = '0'
+                            parity  = '0'
+                        else:
+                            data        = hex(int(init[f], 2))[2:]          # hex conversion and removal of 0x from start of converted data
+                            parity      = hex(int(init_parity[f], 2))[2:]   # hex conversion and removal of 0x from start of converted data
+                            f = f + 1
+                        
                         # read enable logic
                         if (write_width_A == read_width_A):
                             if read_depth_A in [1024, 2048, 4096, 8192, 16384, 32768]:
@@ -879,13 +1181,13 @@ class OCM_ASYM(Module):
                                 else:
                                     ren = self.ren_A
                             else:
-                                if (read_width_A > 36):
-                                    y = int(read_width_A/36)
-                                    k = j * int(n/2) + int(i//y)
+                                if (read_width_A >= 18):
+                                    k =  j // int(read_width_A/9) + (i*int(m/int(read_width_A/9)))
                                     ren = self.ren_A1[k]
                                 else:
-                                    b = n * j + i
-                                    ren = self.ren_A1[b]
+                                    k = i * m + j
+                                    ren = self.ren_A1[k]
+                                    
                         elif (read_width_A >  write_width_A): # read wider
                             if read_depth_A in [8192]:
                                 k = 0 if (j * n + i) < (int((m*n)/2)) else 1
@@ -906,7 +1208,8 @@ class OCM_ASYM(Module):
                             if write_depth_A in [1024, 2048, 4096]:
                                 wen = self.wen_A
                             else: # depth = 8K, 16K, 32K
-                                wen = self.wen_A1[j]
+                                k = i
+                                wen = self.wen_A1[k]
                         elif (read_width_A > write_width_A): # read wider
                             wen = self.wen_A1[j]
                             
@@ -978,16 +1281,9 @@ class OCM_ASYM(Module):
                                     write_data_A   = Cat(self.din_A[(j*9):((j*9)+8)])
                                     w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
                             
-                            elif (write_depth_A in [8192, 16384, 32768]):
-                                if (write_width_A >= 36):
-                                    write_data_A   = Cat(self.din_A[(i*36):((i*36)+8)], self.din_A[(i*36)+9:((i*36)+17)], self.din_A[(i*36)+18:((i*36)+26)], self.din_A[(i*36)+27:((i*36)+35)])
-                                    w_parity_A     = Cat(self.din_A[((i*36)+8)], self.din_A[((i*36)+17)], self.din_A[((i*36)+26)], self.din_A[((i*36)+35)])
-                                elif (write_width_A == 18):
-                                    write_data_A   = Cat(self.din_A[(i*18):((i*18)+8)], self.din_A[(i*18)+9:((i*18)+17)])
-                                    w_parity_A     = Cat(self.din_A[((i*18)+8)], self.din_A[((i*18)+17)], Replicate(0,2))
-                                elif (write_width_A == 9):
-                                    write_data_A   = Cat(self.din_A[(i*9):((i*9)+8)])
-                                    w_parity_A     = Cat(self.din_A[((i*9)+8)], Replicate(0,3))
+                            elif write_depth_A in [8192, 16384, 32768]:
+                                write_data_A   = Cat(self.din_A[(j*9):((j*9)+8)])
+                                w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
                         
                         # Read Wider
                         elif (read_width_A > write_width_A):
@@ -1061,8 +1357,8 @@ class OCM_ASYM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "SP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("{4096{1'b0}}"),
+                        p_INIT              = Instance.PreformattedParam("32768'h{}".format(data)),
+                        p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_A      = param_read_width_A,
                         p_WRITE_WIDTH_B     = 36,
@@ -1209,35 +1505,20 @@ class OCM_ASYM(Module):
                                         else:
                                             self.comb += self.dout_B[(j*9):(j*9)+9].eq(Cat(self.bram_out_B[k+j][0:8], self.rparity_B[k+j][0]))
                                 k = k + read_loop
-                            
+
                             if (write_depth_A in [8192, 16384, 32768]):
-                                p = 0
                                 for i in range(n):
                                     for j in range(m):
-                                        if read_width_B >= 72:
-                                            y = int(read_width_B/36)
-                                            k = j * int(n/2) + int(i//y)
-                                            width = 36
-                                            x = p 
-                                            self.comb += If((self.addr_reg_B == k), self.dout_B[(x*width):(x*width)+width].eq(Cat(self.bram_out_B[j][(i*32):(i*32)+8], self.rparity_B[j][(i*4)], self.bram_out_B[j][(i*32)+8:(i*32)+16], self.rparity_B[j][(i*4)+1],
-                                                            self.bram_out_B[j][(i*32)+16:(i*32)+24], self.rparity_B[j][(i*4)+2], self.bram_out_B[j][(i*32)+24:(i*32)+32], self.rparity_B[j][(i*4)+3])))
-                                        elif read_width_B == 36:
-                                            k = j * n + i
-                                            width = 36
-                                            x = int(i//n)
-                                            self.comb += If((self.addr_reg_B == k), self.dout_B[(x*width):(x*width)+width].eq(Cat(self.bram_out_B[j][(i*32):(i*32)+8], self.rparity_B[j][(i*4)], self.bram_out_B[j][(i*32)+8:(i*32)+16], self.rparity_B[j][(i*4)+1],
-                                                        self.bram_out_B[j][(i*32)+16:(i*32)+24], self.rparity_B[j][(i*4)+2], self.bram_out_B[j][(i*32)+24:(i*32)+32], self.rparity_B[j][(i*4)+3])))
-                                        elif read_width_B == 18:
-                                            k = j * n + i
-                                            width = 18
-                                            self.comb += If((self.addr_reg_B == k), self.dout_B[(0*width):(0*width)+width].eq(Cat(self.bram_out_B[j][(i*32):(i*32)+8], self.rparity_B[j][(i*4)], self.bram_out_B[j][(i*32)+8:(i*32)+16], self.rparity_B[j][(i*4)+1])))
+                                        if read_width_B >= 18:
+                                            x = j % int(read_width_B/9)
+                                            k =  j // int(read_width_B/9) + (i*int(m/int(read_width_B/9)))
+                                            width = 9
+                                            self.comb += If((self.addr_reg_B == k), self.dout_B[( x *width):( x *width)+width].eq(Cat(self.bram_out_B[j][(i*32):(i*32)+8], self.rparity_B[j][(i*4)])))
                                         elif read_width_B == 9:
-                                            k = j * n + i
+                                            k =  i * m + j
                                             width = 9
                                             self.comb += If((self.addr_reg_B == k), self.dout_B[(0*width):(0*width)+width].eq(Cat(self.bram_out_B[j][(i*32):(i*32)+8], self.rparity_B[j][(i*4)])))
-                                    
-                                    p = 0 if (p == int(read_width_B/36) -1 ) else (p + 1) # data out bits
-
+                            
                             m_mux = math.ceil(math.log2(m*n))
                             dout_mux        = {}
                             ren_mux         = {}
@@ -1258,72 +1539,57 @@ class OCM_ASYM(Module):
                                     addr_reg_mux[i] = self.addr_reg_B.eq(i)
 
                             elif (write_depth_A in [8192, 16384, 32768]):
-                                if (read_width_B < 36):
-                                    for i in range(m*n):
-                                        ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
-                                        addr_reg_mux[i] = self.addr_reg_B.eq(i)
-                                else:
-                                    for i in range(m * int(write_width_A/read_width_B)):
+                                if (read_width_B >= 9):
+                                    for i in range(n * int(write_width_A/read_width_B)):
                                         ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                                         addr_reg_mux[i] = self.addr_reg_B.eq(i)
 
                                 if (m > 1 or n > 1):
-                                    for j in range(m):
+                                    for j in range(n):
                                         wen_mux[j] = self.wen_A1.eq(Cat(Replicate(0,j), self.wen_A))
 
                             else:
                                 if (write_width_A > read_width_B):
-                                    for i in range(int(write_width_A/read_width_B)):
+                                    for i in range(math.ceil(write_width_A/read_width_B)):
                                         ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                                         addr_reg_mux[i] = self.addr_reg_B.eq(i)
                                         
                             if (m > 1):
                                 if (write_depth_A == 1024 and read_width_B <= 36):
-                                    self.sync += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
                                     self.comb += Case(self.addr_reg_B, dout_mux)
                                     self.comb += Case(self.addr_B[ratio:m_mux+ratio], ren_mux)
+                                    if common_clk == 1:
+                                        self.sync += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
+                                    else:
+                                        self.sync.B += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
 
                                 elif (write_depth_A == 2048 and read_width_B <= 18):
-                                    self.sync += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
                                     self.comb += Case(self.addr_reg_B, dout_mux)
                                     self.comb += Case(self.addr_B[ratio:m_mux+ratio], ren_mux)
+                                    if common_clk == 1:
+                                        self.sync += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
+                                    else:
+                                        self.sync.B += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
 
                                 elif (write_depth_A == 4096 and read_width_B <= 9):
-                                    self.sync += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
                                     self.comb += Case(self.addr_reg_B, dout_mux)
                                     self.comb += Case(self.addr_B[ratio:m_mux+ratio], ren_mux)
+                                    if common_clk == 1:
+                                        self.sync += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
+                                    else:
+                                        self.sync.B += Case(self.addr_B[ratio:m_mux+ratio], addr_reg_mux)
 
                                 elif (write_depth_A in [8192, 16384, 32768]):
                                     read_depth = int(read_depth_B / (m*n))
-                                    if (n == 1):
-                                        self.comb += Case(Cat(self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
+                                    
+                                    if (read_width_B >= 9):
+                                        self.comb += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(n)):msb_read]), ren_mux)
                                         if common_clk == 1:
-                                            self.sync += Case(Cat(self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
+                                            self.sync += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(n)):msb_read]), addr_reg_mux)
                                         else:
-                                            self.sync.B += Case(Cat(self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                            
-                                    elif (read_width_B <= 18):
-                                        self.comb += Case(Cat(self.addr_B[ratio: math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
-                                        if common_clk == 1:
-                                            self.sync += Case(Cat(self.addr_B[ratio: math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                        else:
-                                            self.sync.B += Case(Cat(self.addr_B[ratio: math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                            
-                                    elif (read_width_B == 36):
-                                        self.comb += Case(Cat(self.addr_B[0:math.ceil(math.log2(n))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
-                                        if common_clk == 1:
-                                            self.sync += Case(Cat(self.addr_B[0:math.ceil(math.log2(n))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                        else:
-                                            self.sync.B += Case(Cat(self.addr_B[0:math.ceil(math.log2(n))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                    else:
-                                        self.comb += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), ren_mux)
-                                        if common_clk == 1:
-                                            self.sync += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-                                        else:
-                                            self.sync.B += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(m)):msb_read]), addr_reg_mux)
-
+                                            self.sync.B += Case(Cat(self.addr_B[0:math.ceil(math.log2(write_width_A/read_width_B))], self.addr_B[msb_read-math.ceil(math.log2(n)):msb_read]), addr_reg_mux)
                                     self.comb += Case(self.addr_reg_B, dout_mux)
-                                    self.comb += Case(self.addr_A[10:msb_A], wen_mux)
+                                    self.comb += Case(self.addr_A[12:msb_A], wen_mux)
                                 else:
                                     self.comb += Case(self.addr_reg_B, dout_mux)
                                     self.comb += Case(self.addr_B[0:ratio], ren_mux)
@@ -1390,6 +1656,7 @@ class OCM_ASYM(Module):
                                     self.sync.B += Case(self.addr_B[msb_read-(math.ceil(math.log2(n_temp))):msb_read], dout_mux)
                 b = 0
                 out_data = 0
+                f = 0
                 for i in range(n):  # horizontal memory
                     z = write_width_A - 36*(n-1)
                     if (n == (i+1)): # for last bram input data calculations
@@ -1487,7 +1754,7 @@ class OCM_ASYM(Module):
                             param_read_width_B  = 18
                             address_A = Cat(Replicate(0,4), self.addr_A[0:11])
                             if (read_depth == 1024):
-                                address_B = Cat(Replicate(0,5), self.addr_B[ratio+m_mux:msb_read])
+                                address_B = Cat(Replicate(0,4), self.addr_B[ratio:msb_read])
                             elif (read_depth == 2048):
                                 address_B = Cat(Replicate(0,4), self.addr_B[ratio+m_mux:msb_read])
                                 param_read_width_B = 18
@@ -1527,22 +1794,10 @@ class OCM_ASYM(Module):
                                 param_read_width_B = 9
                             
                         elif (write_depth_A in [8192, 16384, 32768]):
-                            param_write_width_A = 36
-                            param_read_width_B  = 36
-                            address_A = Cat(Replicate(0,5), self.addr_A[0:10])
-                            address_B = Cat(Replicate(0,5), self.addr_B[math.ceil(math.log2(write_width_A/read_width_B)):msb_read-math.ceil(math.log2(write_width_A/read_width_B))])
-                            if (read_depth == 1024):
-                                address_B = Cat(Replicate(0,5), self.addr_B[math.ceil(math.log2(n)):msb_read-math.ceil(math.log2(m))])
-                                param_read_width_B = 36
-                            elif (read_depth == 2048):
-                                address_B = Cat(Replicate(0,4), self.addr_B[0:ratio], self.addr_B[math.ceil(math.log2(write_width_A/read_width_B)):msb_read-math.ceil(math.log2(m))])
-                                param_read_width_B = 18
-                            elif (read_depth == 4096):
-                                address_B = Cat(Replicate(0,3), self.addr_B[0:ratio], self.addr_B[math.ceil(math.log2(write_width_A/read_width_B)):msb_read-math.ceil(math.log2(m))])
-                                param_read_width_B = 9
-                            else: 
-                                address_B = Cat(Replicate(0,5), self.addr_B[math.ceil(math.log2(write_width_A/read_width_B)):msb_read-math.ceil(math.log2(m))])
-                                param_read_width_B = 36
+                            param_write_width_A = 9
+                            param_read_width_B  = 9
+                            address_A = Cat(Replicate(0,3), self.addr_A[0:12])
+                            address_B = Cat(Replicate(0,3), self.addr_B[math.ceil(math.log2(write_width_A/read_width_B)):msb_read-math.ceil(math.log2(n))])
                     
                     elif (read_width_B > write_width_A):
                         
@@ -1588,6 +1843,15 @@ class OCM_ASYM(Module):
                     
                     k = 0
                     for j in range(m): # vertical memory
+                        
+                        if (file_path == "") or (self.line_count == 0):
+                            data    = '0'
+                            parity  = '0'
+                        else:
+                            data        = hex(int(init[f], 2))[2:]             # hex conversion and removal of 0x from start of converted data
+                            parity      = hex(int(init_parity[f], 2))[2:]      # hex conversion and removal of 0x from start of converted data
+                            f = f + 1 # incrementing BRAM
+                        
                         # read enable logic
                         if (write_width_A == read_width_B):
                             if read_depth_B in [1024, 2048, 4096, 8192, 16384, 32768]:
@@ -1601,13 +1865,13 @@ class OCM_ASYM(Module):
                                 else:
                                     ren = self.ren_B
                             else:
-                                if (read_width_B > 36):
-                                    y = int(read_width_B/36)
-                                    k = j * int(n/2) + int(i//y)
+                                if (read_width_B >= 18):
+                                    k =  j // int(read_width_B/9) + (i*int(m/int(read_width_B/9)))
                                     ren = self.ren_B1[k]
                                 else:
-                                    b = n * j + i
-                                    ren = self.ren_B1[b]
+                                    k = i * m + j
+                                    ren = self.ren_B1[k]
+                                    
                         elif (read_width_B >  write_width_A): # read wider
                             if read_depth_B in [8192]:
                                 k = 0 if (j * n + i) < (int((m*n)/2)) else 1
@@ -1628,7 +1892,8 @@ class OCM_ASYM(Module):
                             if write_depth_A in [1024, 2048, 4096]:
                                 wen = self.wen_A
                             else: # depth = 8K, 16K, 32K
-                                wen = self.wen_A1[j]
+                                k = i
+                                wen = self.wen_A1[k]
                         elif (read_width_B > write_width_A): # read wider
                             if (read_depth_B in [8192, 16384, 32768]):
                                 wen = self.wen_A1[j]
@@ -1704,8 +1969,8 @@ class OCM_ASYM(Module):
                                     w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
                             
                             elif write_depth_A in [8192, 16384, 32768]:
-                                write_data_A   = Cat(self.din_A[(i*9):((i*9)+8)])
-                                w_parity_A     = Cat(self.din_A[((i*9)+8)], Replicate(0,3))
+                                write_data_A   = Cat(self.din_A[(j*9):((j*9)+8)])
+                                w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
                                     
                         # Read Wider
                         elif (read_width_B > write_width_A):
@@ -1822,8 +2087,8 @@ class OCM_ASYM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "SDP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("{4096{1'b0}}"),
+                        p_INIT              = Instance.PreformattedParam("32768'h{}".format(data)),
+                        p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_WRITE_WIDTH_B     = 36,
                         p_READ_WIDTH_A      = 36,
@@ -1860,11 +2125,7 @@ class OCM_ASYM(Module):
             #################################################################################################
             #################################################################################################
             elif (memory_type == "True_Dual_Port"):
-                if large_write_width >= large_read_width:
-                    large_width = large_write_width
-                else:
-                    large_width = large_read_width
-                    
+                
                 write_ratio_A   = math.ceil(math.log2(large_width / write_width_A))
                 write_ratio_B   = math.ceil(math.log2(large_width / write_width_B))
                 read_ratio_A    = math.ceil(math.log2(large_width / read_width_A))
@@ -1916,23 +2177,31 @@ class OCM_ASYM(Module):
                 #############################################################################################
                 read_temp_A = math.ceil(read_width_A/36)
                 if (read_ratio_A > 0):
-                    # Output Logic
-                    for j in range(n): 
-                        for i in range(m):
-                            if m > read_temp_A:
-                                k = (i // read_temp_A) + (j * (m // read_temp_A))
-                                x = (i % read_temp_A)
-                            else:
-                                k = 0
-                                x = 0
-                            
-                            if read_width_A == 9:
-                                self.comb += If((self.addr_reg_A == k), self.dout_A[(x*9):(x*9)+9].eq(Cat(self.bram_out_A[i][(j*32)+0:(j*32)+8], self.rparity_A[i][(j*4)+0])))
-                            elif read_width_A == 18:
-                                self.comb += If((self.addr_reg_A == k), self.dout_A[(x*18):(x*18)+18].eq(Cat(self.bram_out_A[i][(j*32)+0:(j*32)+8], self.rparity_A[i][(j*4)+0], self.bram_out_A[i][(j*32)+8:(j*32)+16], self.rparity_A[i][(j*4)+1])))
-                            elif read_width_A >= 36:
-                                self.comb += If((self.addr_reg_A == k), self.dout_A[(x*36):(x*36)+36].eq(Cat(self.bram_out_A[i][(j*32)+0:(j*32)+8], self.rparity_A[i][(j*4)+0], self.bram_out_A[i][(j*32)+8:(j*32)+16], self.rparity_A[i][(j*4)+1],
-                                                self.bram_out_A[i][(j*32)+16:(j*32)+24], self.rparity_A[i][(j*4)+2], self.bram_out_A[i][(j*32)+24:(j*32)+32], self.rparity_A[i][(j*4)+3])))
+                    if (m == 1 and n == 1):
+                        if (read_width_A == 36):
+                            self.comb += self.dout_A[0:36].eq(Cat(self.bram_out_A[0][0:8], self.rparity_A[0][0], self.bram_out_A[0][8:16], self.rparity_A[0][1],
+                                                self.bram_out_A[0][16:24], self.rparity_A[0][2], self.bram_out_A[0][24:32], self.rparity_A[0][3]))
+                        elif (read_width_A == 18):
+                            self.comb += self.dout_A[0:18].eq(Cat(self.bram_out_A[0][0:8], self.rparity_A[0][0], self.bram_out_A[0][8:16], self.rparity_A[0][1]))
+                        elif (read_width_A == 9):
+                            self.comb += self.dout_A[0:9].eq(Cat(self.bram_out_A[0][0:8], self.rparity_A[0][0]))
+                    else:
+                        # Output Logic
+                        for j in range(n): 
+                            for i in range(m):
+                                if m > read_temp_A:
+                                    k = (i // read_temp_A) + (j * (m // read_temp_A))
+                                    x = (i % read_temp_A)
+                                else:
+                                    k = 0
+                                    x = 0
+                                if read_width_A == 9:
+                                    self.comb += If((self.addr_reg_A == k), self.dout_A[(x*9):(x*9)+9].eq(Cat(self.bram_out_A[i][(j*32)+0:(j*32)+8], self.rparity_A[i][(j*4)+0])))
+                                elif read_width_A == 18:
+                                    self.comb += If((self.addr_reg_A == k), self.dout_A[(x*18):(x*18)+18].eq(Cat(self.bram_out_A[i][(j*32)+0:(j*32)+8], self.rparity_A[i][(j*4)+0], self.bram_out_A[i][(j*32)+8:(j*32)+16], self.rparity_A[i][(j*4)+1])))
+                                elif read_width_A >= 36:
+                                    self.comb += If((self.addr_reg_A == k), self.dout_A[(x*36):(x*36)+36].eq(Cat(self.bram_out_A[i][(j*32)+0:(j*32)+8], self.rparity_A[i][(j*4)+0], self.bram_out_A[i][(j*32)+8:(j*32)+16], self.rparity_A[i][(j*4)+1],
+                                                    self.bram_out_A[i][(j*32)+16:(j*32)+24], self.rparity_A[i][(j*4)+2], self.bram_out_A[i][(j*32)+24:(j*32)+32], self.rparity_A[i][(j*4)+3])))
                 
                 else:
                     if n == 1:
@@ -1948,14 +2217,8 @@ class OCM_ASYM(Module):
                     else:
                         for j in range(n): 
                             for i in range(m):
-                                # if m > read_temp_A:
-                                #     k = (i // read_temp_A) + (j * (m // read_temp_A))
                                 k = j
                                 x = (i % read_temp_A)
-                                # else:
-                                    # k = 0
-                                    # x = 0
-
                                 if read_width_A == 9:
                                     self.comb += If((self.addr_reg_A == k), self.dout_A[(x*9):(x*9)+9].eq(Cat(self.bram_out_A[i][(j*32)+0:(j*32)+8], self.rparity_A[i][(j*4)+0])))
                                 elif read_width_A == 18:
@@ -1969,22 +2232,30 @@ class OCM_ASYM(Module):
                 #############################################################################################
                 read_temp_B = math.ceil(read_width_B/36)
                 if (read_ratio_B > 0):
-                    for j in range(n):
-                        for i in range(m):
-                            if m > read_temp_B:
-                                k = (i // read_temp_B) + (j * (m // read_temp_B))
-                                x = (i % read_temp_B)
-                            else:
-                                k = 0
-                                x = 0
-                            
-                            if read_width_B == 9:
-                                self.comb += If((self.addr_reg_B == k), self.dout_B[(x*9):(x*9)+9].eq(Cat(self.bram_out_B[i][(j*32)+0:(j*32)+8], self.rparity_B[i][(j*4)+0])))
-                            elif read_width_B == 18:
-                                self.comb += If((self.addr_reg_B == k), self.dout_B[(x*18):(x*18)+18].eq(Cat(self.bram_out_B[i][(j*32)+0:(j*32)+8], self.rparity_B[i][(j*4)+0], self.bram_out_B[i][(j*32)+8:(j*32)+16], self.rparity_B[i][(j*4)+1])))
-                            elif read_width_B >= 36:
-                                self.comb += If((self.addr_reg_B == k), self.dout_B[(x*36):(x*36)+36].eq(Cat(self.bram_out_B[i][(j*32)+0:(j*32)+8], self.rparity_B[i][(j*4)+0], self.bram_out_B[i][(j*32)+8:(j*32)+16], self.rparity_B[i][(j*4)+1],
-                                                self.bram_out_B[i][(j*32)+16:(j*32)+24], self.rparity_B[i][(j*4)+2], self.bram_out_B[i][(j*32)+24:(j*32)+32], self.rparity_B[i][(j*4)+3])))
+                    if (m == 1 and n == 1):
+                        if (read_width_B == 36):
+                            self.comb += self.dout_B[0:36].eq(Cat(self.bram_out_B[0][0:8], self.rparity_B[0][0], self.bram_out_B[0][8:16], self.rparity_B[0][1],
+                                                self.bram_out_B[0][16:24], self.rparity_B[0][2], self.bram_out_B[0][24:32], self.rparity_B[0][3]))
+                        elif (read_width_B == 18):
+                            self.comb += self.dout_B[0:18].eq(Cat(self.bram_out_B[0][0:8], self.rparity_B[0][0], self.bram_out_B[0][8:16], self.rparity_B[0][1]))
+                        elif (read_width_B == 9):
+                            self.comb += self.dout_B[0:9].eq(Cat(self.bram_out_B[0][0:8], self.rparity_B[0][0]))
+                    else:
+                        for j in range(n):
+                            for i in range(m):
+                                if m > read_temp_B:
+                                    k = (i // read_temp_B) + (j * (m // read_temp_B))
+                                    x = (i % read_temp_B)
+                                else:
+                                    k = 0
+                                    x = 0
+                                if read_width_B == 9:
+                                    self.comb += If((self.addr_reg_B == k), self.dout_B[(x*9):(x*9)+9].eq(Cat(self.bram_out_B[i][(j*32)+0:(j*32)+8], self.rparity_B[i][(j*4)+0])))
+                                elif read_width_B == 18:
+                                    self.comb += If((self.addr_reg_B == k), self.dout_B[(x*18):(x*18)+18].eq(Cat(self.bram_out_B[i][(j*32)+0:(j*32)+8], self.rparity_B[i][(j*4)+0], self.bram_out_B[i][(j*32)+8:(j*32)+16], self.rparity_B[i][(j*4)+1])))
+                                elif read_width_B >= 36:
+                                    self.comb += If((self.addr_reg_B == k), self.dout_B[(x*36):(x*36)+36].eq(Cat(self.bram_out_B[i][(j*32)+0:(j*32)+8], self.rparity_B[i][(j*4)+0], self.bram_out_B[i][(j*32)+8:(j*32)+16], self.rparity_B[i][(j*4)+1],
+                                                    self.bram_out_B[i][(j*32)+16:(j*32)+24], self.rparity_B[i][(j*4)+2], self.bram_out_B[i][(j*32)+24:(j*32)+32], self.rparity_B[i][(j*4)+3])))
                 else:
                     if n == 1: # depth is 1K
                         for j in range(n):
@@ -1999,13 +2270,8 @@ class OCM_ASYM(Module):
                     else: # depth greater than 1K
                         for j in range(n):
                             for i in range(m):
-                                # if m > read_temp_B:
-                                #     k = (i // read_temp_B) + (j * (m // read_temp_B))
                                 k = j
                                 x = (i % read_temp_B)
-                                # else:
-                                    # k = 0
-                                    # x = 0
                                 if read_width_B == 9:
                                     self.comb += If((self.addr_reg_B == k), self.dout_B[(x*9):(x*9)+9].eq(Cat(self.bram_out_B[i][(j*32)+0:(j*32)+8], self.rparity_B[i][(j*4)+0])))
                                 elif read_width_B == 18:
@@ -2021,28 +2287,30 @@ class OCM_ASYM(Module):
                     for j in range(n):
                         for i in range(write_loop_A):
                             wen_mux_A[i] = self.wen_A1.eq(Cat(Replicate(0,i), self.wen_A))
-                    if (n == 1): # When write depth is 1024
+                    if (n == 1 and m > 1): # When write depth is 1024
                         if write_width_A >= 36:
                             self.comb += Case(self.addr_A[0:write_ratio_A], wen_mux_A)
                         elif write_width_A == 18:
                             self.comb += Case(self.addr_A[1:write_ratio_A], wen_mux_A)
                         elif write_width_A == 9:
                             self.comb += Case(self.addr_A[2:write_ratio_A], wen_mux_A)
-                    else:
-                        if (m == 1): # when write width is 36
-                            if write_width_A >= 36:
-                                self.comb += Case(Cat(self.addr_A[0], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
-                            elif write_width_A == 18:
-                                self.comb += Case(Cat(self.addr_A[1], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
-                            elif write_width_A == 9:
-                                self.comb += Case(Cat(self.addr_A[2], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
-                        else: # when write width is greater than 36
-                            if write_width_A >= 36:
-                                self.comb += Case(Cat(self.addr_A[0:write_ratio_A], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
-                            elif write_width_A == 18:
-                                self.comb += Case(Cat(self.addr_A[1:write_ratio_A], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
-                            elif write_width_A == 9:
-                                self.comb += Case(Cat(self.addr_A[2:write_ratio_A], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
+                            
+                    elif (n > 1 and m > 1):
+                        if write_width_A >= 36:
+                            self.comb += Case(Cat(self.addr_A[0:write_ratio_A], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
+                        elif write_width_A == 18:
+                            self.comb += Case(Cat(self.addr_A[1:write_ratio_A], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
+                        elif write_width_A == 9:
+                            self.comb += Case(Cat(self.addr_A[2:write_ratio_A], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
+                        
+                    elif (n > 1 and m == 1):
+                        if write_width_A >= 36:
+                            self.comb += Case(Cat(self.addr_A[0], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
+                        elif write_width_A == 18:
+                            self.comb += Case(Cat(self.addr_A[1], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
+                        elif write_width_A == 9:
+                            self.comb += Case(Cat(self.addr_A[2], self.addr_A[msb_write_A-n_log:msb_write_A]), wen_mux_A)
+                            
                 else:
                     for j in range(n):
                         for i in range(write_loop_A):
@@ -2062,28 +2330,30 @@ class OCM_ASYM(Module):
                     for j in range(n):
                         for i in range(write_loop_B):
                             wen_mux_B[i] = self.wen_B1.eq(Cat(Replicate(0,i), self.wen_B))
-                    if (n == 1): # when depth is 1024
+                    if (n == 1 and m > 1): # when depth is 1024
                         if write_width_B >= 36:
                             self.comb += Case(self.addr_B[0:write_ratio_B], wen_mux_B)
                         elif write_width_B == 18:
                             self.comb += Case(self.addr_B[1:write_ratio_B], wen_mux_B)
                         elif write_width_B == 9:
                             self.comb += Case(self.addr_B[2:write_ratio_B], wen_mux_B)
-                    else:
-                        if (m == 1): # when write width is 36 or less
-                            if write_width_B >= 36:
-                                self.comb += Case(Cat(self.addr_B[0], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
-                            elif write_width_B == 18:
-                                self.comb += Case(Cat(self.addr_B[1], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
-                            elif write_width_B == 9:
-                                self.comb += Case(Cat(self.addr_B[2], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
-                        else: # when write width is greater than 36
-                            if write_width_B >= 36:
-                                self.comb += Case(Cat(self.addr_B[0:write_ratio_B], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
-                            elif write_width_B == 18:
-                                self.comb += Case(Cat(self.addr_B[1:write_ratio_B], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
-                            elif write_width_B == 9:
-                                self.comb += Case(Cat(self.addr_B[2:write_ratio_B], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
+                            
+                    elif (n > 1 and m > 1):
+                        if write_width_B >= 36:
+                            self.comb += Case(Cat(self.addr_B[0:write_ratio_B], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
+                        elif write_width_B == 18:
+                            self.comb += Case(Cat(self.addr_B[1:write_ratio_B], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
+                        elif write_width_B == 9:
+                            self.comb += Case(Cat(self.addr_B[2:write_ratio_B], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
+                            
+                    elif (n > 1 and m == 1):
+                        if write_width_B >= 36:
+                            self.comb += Case(Cat(self.addr_B[0], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
+                        elif write_width_B == 18:
+                            self.comb += Case(Cat(self.addr_B[1], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
+                        elif write_width_B == 9:
+                            self.comb += Case(Cat(self.addr_B[2], self.addr_B[msb_write_B-n_log:msb_write_B]), wen_mux_B)
+
                 else:
                     for j in range(n):
                         for i in range(write_loop_B):
@@ -2104,7 +2374,7 @@ class OCM_ASYM(Module):
                         for i in range(read_loop_A):
                             addr_reg_mux_A[i] = self.addr_reg_A.eq(i)
                             ren_mux_A[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A)) 
-                    if (n == 1): # when write depth is 1024
+                    if (m > 1 and n == 1): # when write depth is 1024 and width greater than 36
                         if read_width_A == 9:
                             self.comb += Case(self.addr_A[2:read_ratio_A+n_log], ren_mux_A)
                             if common_clk == 1:
@@ -2123,46 +2393,47 @@ class OCM_ASYM(Module):
                                 self.sync += Case(self.addr_A[0:read_ratio_A+n_log], addr_reg_mux_A)
                             else:
                                 self.sync.A += Case(self.addr_A[0:read_ratio_A+n_log], addr_reg_mux_A)
-                    else:
-                        if (m == 1): # when write width is 36 or less
-                            if read_width_A == 9:
-                                self.comb += Case(Cat(self.addr_A[2], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_A[2], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                                else:
-                                    self.sync.A += Case(Cat(self.addr_A[2], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                            elif read_width_A == 18:
-                                self.comb += Case(Cat(self.addr_A[1], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_A[1], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                                else:
-                                    self.sync.A += Case(Cat(self.addr_A[1], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                            elif read_width_A >= 36:
-                                self.comb += Case(Cat(self.addr_A[0], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_A[0], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                                else:
-                                    self.sync.A += Case(Cat(self.addr_A[0], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                        else: # when write width is greater than 36
-                            if read_width_A == 9:
-                                self.comb += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                                else:
-                                    self.sync.A += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                                    
-                            elif read_width_A == 18:
-                                self.comb += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                                else:
-                                    self.sync.A += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                            elif read_width_A >= 36:
-                                self.comb += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
-                                else: 
-                                    self.sync.A += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                
+                    elif (m > 1 and n > 1): # when write depth greater than 1024 and width greater than 36
+                        if read_width_A == 9:
+                            self.comb += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(Cat(self.addr_A[2:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                                
+                        elif read_width_A == 18:
+                            self.comb += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(Cat(self.addr_A[1:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                        elif read_width_A >= 36:
+                            self.comb += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                            else: 
+                                self.sync.A += Case(Cat(self.addr_A[0:read_ratio_A], self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                
+                    elif (m == 1 and n > 1): # when write depth greater than 1024 and width equal or less than 36
+                        if read_width_A == 9:
+                            self.comb += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                        elif read_width_A == 18:
+                            self.comb += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                        elif read_width_A >= 36:
+                            self.comb += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), ren_mux_A)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
+                            else:
+                                self.sync.A += Case(Cat(self.addr_A[msb_read_A-n_log:msb_read_A]), addr_reg_mux_A)
                 else:
                     if n > 1:
                         for j in range(n):
@@ -2196,7 +2467,7 @@ class OCM_ASYM(Module):
                         for i in range(read_loop_B):
                             addr_reg_mux_B[i] = self.addr_reg_B.eq(i)
                             ren_mux_B[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
-                    if (n == 1): # when write depth is 1024
+                    if (n == 1 and m > 1): # when write depth is 1024 and width greater than 36
                         if read_width_B == 9:
                             self.comb += Case(self.addr_B[2:read_ratio_B+n_log], ren_mux_B)
                             if common_clk == 1:
@@ -2215,45 +2486,46 @@ class OCM_ASYM(Module):
                                 self.sync += Case(self.addr_B[0:read_ratio_B+n_log], addr_reg_mux_B)
                             else:
                                 self.sync.B += Case(self.addr_B[0:read_ratio_B+n_log], addr_reg_mux_B)
-                    else:
-                        if (m == 1): # when write width is 36 or less
-                            if read_width_B == 9:
-                                self.comb += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                                else:
-                                    self.sync.B += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                            elif read_width_B == 18:
-                                self.comb += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                                else:
-                                    self.sync.B += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                            elif read_width_B >= 36:
-                                self.comb += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                                else:
-                                    self.sync.B += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                        else: # when write width is greater than 36
-                            if read_width_B == 9:
-                                self.comb += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                                else:
-                                    self.sync.B += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                            elif read_width_B == 18:
-                                self.comb += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                                else:
-                                    self.sync.B += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                            elif read_width_B >= 36:
-                                self.comb += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
-                                if common_clk == 1:
-                                    self.sync += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
-                                else:
-                                    self.sync.B += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                                
+                    elif (n > 1 and m > 1): # when write depth greater than 1024 and width greater than 36
+                        if read_width_B == 9:
+                            self.comb += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(Cat(self.addr_B[2:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                        elif read_width_B == 18:
+                            self.comb += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(Cat(self.addr_B[1:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                        elif read_width_B >= 36:
+                            self.comb += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(Cat(self.addr_B[0:read_ratio_B], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                
+                    elif (m == 1 and n > 1): # when write depth greater than 1024 and width equal or less than 36
+                        if read_width_B == 9:
+                            self.comb += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(Cat(self.addr_B[2], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                        elif read_width_B == 18:
+                            self.comb += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(Cat(self.addr_B[1], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                        elif read_width_B >= 36:
+                            self.comb += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), ren_mux_B)
+                            if common_clk == 1:
+                                self.sync += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
+                            else:
+                                self.sync.B += Case(Cat(self.addr_B[0], self.addr_B[msb_read_B-n_log:msb_read_B]), addr_reg_mux_B)
                 else:
                     if n > 1:
                         for j in range(n):
@@ -2281,6 +2553,7 @@ class OCM_ASYM(Module):
                     
                 l = 0 # din_A variable
                 p = 0 # din_B variable
+                f = 0 # mem. init variable
                 
                 for i in range(n):  # horizontal memory
                     
@@ -2345,6 +2618,17 @@ class OCM_ASYM(Module):
                         param_read_width_B = 36
                     
                     for j in range(m): # vertical memory
+                        
+                        #############################################################################################
+                        # Memory Initialization 
+                        #############################################################################################
+                        if (file_path == "") or (self.line_count == 0):
+                            data    = '0'
+                            parity  = '0'
+                        else:
+                            data        = hex(int(init[f], 2))[2:]          # hex conversion and removal of 0x from start of converted data
+                            parity      = hex(int(init_parity[f], 2))[2:]   # hex conversion and removal of 0x from start of converted data
+                            f = f + 1
                         
                         #############################################################################################
                         # Write din A 
@@ -2451,8 +2735,8 @@ class OCM_ASYM(Module):
                         self.specials += Instance("TDP_RAM36K", name= "TDP_MEM",
                         # Parameters.
                         # -----------
-                        p_INIT              = Instance.PreformattedParam("{32768{1'b0}}"),
-                        p_INIT_PARITY       = Instance.PreformattedParam("{4096{1'b0}}"),
+                        p_INIT              = Instance.PreformattedParam("32768'h{}".format(data)),
+                        p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_A      = param_read_width_A,
                         p_WRITE_WIDTH_B     = param_write_width_B,

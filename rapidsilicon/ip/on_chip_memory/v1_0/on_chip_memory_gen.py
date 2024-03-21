@@ -102,6 +102,9 @@ class OCMWrapper(Module):
         else:
             self.submodules.sp = ram = OCM_SYM(data_width, memory_type, common_clk, write_depth, memory_mapping, file_path, file_extension)
             
+        self.M = ram.m
+        self.N = ram.n    
+        
         # Single Port RAM
         if (memory_type == "Single_Port"):
             self.comb += ram.addr_A.eq(platform.request("addr_A"))
@@ -174,7 +177,7 @@ def main():
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Ports Common Clock")
+    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Read/Write Synchronization")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
@@ -192,7 +195,7 @@ def main():
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--file_path",    type=str,    default="",       help="File Path for memory initialization file (.bin/.hex)")
+    core_file_path_group.add_argument("--file_path",    type=str,    default="",       help="Path to memory initialization file (.bin/.hex)")
 
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -226,7 +229,7 @@ def main():
             option_strings_to_remove = ['--write_width_A', '--write_width_B', '--read_width_A', '--read_width_B', '--write_depth_A']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         else:
-            option_strings_to_remove = ['--data_width','--write_depth', '--file_path']
+            option_strings_to_remove = ['--data_width','--write_depth']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         if (args.memory_type in ["Single_Port"]):
@@ -248,7 +251,6 @@ def main():
             if (args.write_width_A != args.read_width_A or args.write_width_A != args.write_width_B or args.write_width_B != args.read_width_B):
                 parser._actions[3].choices = ["Block_RAM"]
 
-                
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
     file_extension  = os.path.splitext(args.file_path)[1]
@@ -265,12 +267,7 @@ def main():
         write_depth_B   = int((args.write_depth_A * args.write_width_A) / args.write_width_B)
         read_depth_A    = int((args.write_depth_A * args.write_width_A) / args.read_width_A)
         read_depth_B    = int((write_depth_B * args.write_width_B) / args.read_width_B)
-    
-    if args.port_type == "Asymmetric":
-        ram = OCM_ASYM(args.write_width_A, args.write_width_B, args.read_width_A, args.read_width_B, args.memory_type, args.common_clk, args.write_depth_A, read_depth_A, write_depth_B, read_depth_B, args.memory_mapping, args.file_path, file_extension)
-    else:
-        ram = OCM_SYM(args.data_width, args.memory_type, args.common_clk, args.write_depth, args.memory_mapping, args.file_path, file_extension)
-    
+        
     if (args.memory_type == "Single_Port"):
         memory = "Single Port RAM"
     elif (args.memory_type == "Simple_Dual_Port"):
@@ -287,9 +284,6 @@ def main():
     "Type of Memory": memory,
     "Mapping": memory_mapping,
     }
-    
-    if (args.memory_mapping == "Block_RAM"):
-        summary["Number of BRAMs"] = ram.m * ram.n
     
     if args.port_type == "Asymmetric":
         if (args.memory_type == "Single_Port"):
@@ -317,10 +311,6 @@ def main():
         else:
             summary["Synchronization"] = "False"
     
-    # Export JSON Template (Optional) --------------------------------------------------------------
-    if args.json_template:
-        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
-        
     module   = OCMWrapper(platform,
         memory_type     = args.memory_type,
         data_width      = args.data_width,
@@ -339,6 +329,13 @@ def main():
         file_path       = args.file_path,
         file_extension  = file_extension
     )
+    
+    if (args.memory_mapping == "Block_RAM"):
+        summary["Number of BRAMs"] = module.M * module.N
+    
+    # Export JSON Template (Optional) --------------------------------------------------------------
+    if args.json_template:
+        rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:
