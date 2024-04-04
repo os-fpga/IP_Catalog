@@ -160,6 +160,7 @@ class IO_CONFIG(Module):
             o_O                 = self.o
         )
     
+    ####### CLK_BUF #######
     def CLK_BUF(self, config):
         self.i      = Signal(1)
         self.i_1    = Signal(1)
@@ -186,6 +187,7 @@ class IO_CONFIG(Module):
             o_O     = self.o
         )
     
+    ####### I_SERDES #######
     def I_SERDES(self, data_rate, width, dpa_mode):
         self.d              = Signal(1)
         self.rx_rst         = Signal(1)
@@ -222,7 +224,42 @@ class IO_CONFIG(Module):
             i_PLL_LOCK        = self.pll_lock,
             i_PLL_CLK         = self.pll_clk
         )
-        
+    
+    ####### O_SERDES #######
+    def O_SERDES(self, data_rate, width):
+        self.d                      = Signal(width)
+        self.rst                    = Signal(1)
+        self.load_word              = Signal(1)
+        self.clk_in                 = Signal(1)
+        self.oe_in                  = Signal(1)
+        self.oe_out                 = Signal(1)
+        self.q                      = Signal(1)
+        self.channel_bond_sync_in   = Signal(1)
+        self.channel_bond_sync_out  = Signal(1)
+        self.pll_lock               = Signal(1)
+        self.pll_clk                = Signal(1)
+        # Module instance.
+        # ----------------
+        self.specials += Instance("O_SERDES",
+            # Parameters.
+            # -----------
+            p_DATA_RATE     = data_rate,
+            p_WIDTH         = width,
+            # Ports
+            #------
+            i_D                     = self.d,   
+            i_RST                   = self.rst,   
+            i_LOAD_WORD             = self.load_word,         
+            i_CLK_IN                = self.clk_in,    
+            i_OE_IN                 = self.oe_in,
+            o_OE_OUT                = self.oe_out,     
+            o_Q                     = self.q,
+            i_CHANNEL_BOND_SYNC_IN  = self.channel_bond_sync_in,        
+            o_CHANNEL_BOND_SYNC_OUT = self.channel_bond_sync_out,
+            i_PLL_LOCK              = self.pll_lock,
+            i_PLL_CLK               = self.pll_clk
+            
+        )
     
     def __init__(self, platform, io_model, io_type, config, delay, data_rate, dpa_mode, width):
         # Get/Check Parameters.
@@ -256,3 +293,6 @@ class IO_CONFIG(Module):
             
         elif (io_model == "I_SERDES"):
             self.I_SERDES(data_rate, width, dpa_mode)
+        
+        elif (io_model == "O_SERDES"):
+            self.O_SERDES(data_rate, width)

@@ -72,6 +72,21 @@ def get_iserdes_ios(width):
         ("PLL_CLK",     0, Pins(1))
     ]
 
+def get_oserdes_ios(width):
+    return [
+        ("D",                       0, Pins(width)),
+        ("RST",                     0, Pins(1)),
+        ("LOAD_WORD",               0, Pins(1)),
+        ("CLK_IN",                  0, Pins(1)),
+        ("OE_IN",                   0, Pins(1)),
+        ("OE_OUT",                  0, Pins(1)),
+        ("Q",                       0, Pins(1)),
+        ("CHANNEL_BOND_SYNC_IN",    0, Pins(1)),
+        ("CHANNEL_BOND_SYNC_OUT",   0, Pins(1)),
+        ("PLL_LOCK",                0, Pins(1)),
+        ("PLL_CLK",                 0, Pins(1))
+    ]
+
 # IO Configurator Wrapper ----------------------------------------------------------------------------------
 class IO_CONFIG_Wrapper(Module):
     def __init__(self, platform, io_model, io_type, config, voltage_standard, delay, data_rate, dpa_mode, width):
@@ -155,6 +170,23 @@ class IO_CONFIG_Wrapper(Module):
             self.comb += platform.request("DATA_VALID").eq(io_config.data_valid)
             self.comb += platform.request("DPA_LOCK").eq(io_config.dpa_lock)
             self.comb += platform.request("DPA_ERROR").eq(io_config.dpa_error)
+        
+        #################################################################################
+        # O_SERDES
+        #################################################################################
+        elif (io_model == "O_SERDES"):
+            platform.add_extension(get_oserdes_ios(width))
+            self.comb += io_config.d.eq(platform.request("D"))
+            self.comb += io_config.rst.eq(platform.request("RST"))
+            self.comb += io_config.load_word.eq(platform.request("LOAD_WORD"))
+            self.comb += io_config.clk_in.eq(platform.request("CLK_IN"))
+            self.comb += io_config.oe_in.eq(platform.request("OE_IN"))
+            self.comb += io_config.channel_bond_sync_in.eq(platform.request("CHANNEL_BOND_SYNC_IN"))
+            self.comb += io_config.pll_lock.eq(platform.request("PLL_LOCK"))
+            self.comb += io_config.pll_clk.eq(platform.request("PLL_CLK"))
+            self.comb += platform.request("OE_OUT").eq(io_config.oe_out)
+            self.comb += platform.request("Q").eq(io_config.q)
+            self.comb += platform.request("CHANNEL_BOND_SYNC_OUT").eq(io_config.channel_bond_sync_out)
             
 
 # Build --------------------------------------------------------------------------------------------
@@ -180,17 +212,17 @@ def main():
     
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--io_model",          type=str,   default="I_BUF",        choices=["I_BUF", "O_BUF", "CLK_BUF", "I_DELAY", "I_SERDES"],                       help="Type of Model")
+    core_string_param_group.add_argument("--io_model",          type=str,   default="I_BUF",        choices=["I_BUF", "O_BUF", "CLK_BUF", "I_DELAY", "I_SERDES", "O_SERDES"],           help="Type of Model")
     core_string_param_group.add_argument("--io_type",           type=str,   default="Single_Ended", choices=["Single_Ended", "Differential", "Tri-State", "Differential-Tri-State"],    help="Type of IO")
     core_string_param_group.add_argument("--config",            type=str,   default="NONE",         choices=["NONE", "PULLUP", "PULLDOWN"],                                             help="Configuration of Resistor")
     core_string_param_group.add_argument("--voltage_standard",  type=str,   default="LVCMOS",       choices=["LVCMOS", "LVTTL"],                                                        help="IO Voltage Standards")
-    core_string_param_group.add_argument("--data_rate",         type=str,   default="SDR",          choices=["SDR", "DDR"],                                                             help="Single or double data rate (SDR/DDR)")
+    core_string_param_group.add_argument("--data_rate",         type=str,   default="SDR",          choices=["SDR", "DDR"],                                                             help="Single or Double Data Rate (SDR/DDR)")
     core_string_param_group.add_argument("--dpa_mode",          type=str,   default="NONE",         choices=["NONE", "DPA", "CDR"],                                                     help="Dynamic Phase Alignment or Clock Data Recovery")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--delay",    type=int,   default=0,         choices=range(0,64),         help="Tap Delay Value")
-    core_range_param_group.add_argument("--width",    type=int,   default=4,         choices=range(3,11),         help="Width of Deserialization")
+    core_range_param_group.add_argument("--width",    type=int,   default=4,         choices=range(3,11),         help="Width of Serialization/Deserialization")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
