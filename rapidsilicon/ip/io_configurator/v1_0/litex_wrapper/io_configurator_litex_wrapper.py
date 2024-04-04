@@ -261,6 +261,27 @@ class IO_CONFIG(Module):
             
         )
     
+    ####### I_DDR #######
+    def I_DDR(self, config):
+        self.d      = Signal(1)
+        self.r      = Signal(1)
+        self.e      = Signal(1)
+        self.q      = Signal(2)
+        self.CLK_BUF(config)
+        
+        # Module instance.
+        # ----------------
+        self.specials += Instance("I_DDR",
+            # Ports
+            #------
+            i_D = self.d,
+            i_R = self.r,
+            i_E = self.e,
+            i_C = self.o,
+            o_Q = self.q
+        )
+        
+        
     def __init__(self, platform, io_model, io_type, config, delay, data_rate, dpa_mode, width):
         # Get/Check Parameters.
         # ---------------------
@@ -293,6 +314,9 @@ class IO_CONFIG(Module):
             
         elif (io_model == "I_SERDES"):
             self.I_SERDES(data_rate, width, dpa_mode)
+        
+        elif (io_model == "I_DDR"):
+            self.I_DDR(config)
         
         elif (io_model == "O_SERDES"):
             self.O_SERDES(data_rate, width)

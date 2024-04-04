@@ -86,6 +86,15 @@ def get_oserdes_ios(width):
         ("PLL_LOCK",                0, Pins(1)),
         ("PLL_CLK",                 0, Pins(1))
     ]
+    
+def get_iddr_ios():
+    return [
+        ("D",     0, Pins(1)),
+        ("R",     0, Pins(1)),
+        ("E",     0, Pins(1)),
+        ("C",     0, Pins(1)),
+        ("Q",     0, Pins(2)),
+    ]
 
 # IO Configurator Wrapper ----------------------------------------------------------------------------------
 class IO_CONFIG_Wrapper(Module):
@@ -187,7 +196,17 @@ class IO_CONFIG_Wrapper(Module):
             self.comb += platform.request("OE_OUT").eq(io_config.oe_out)
             self.comb += platform.request("Q").eq(io_config.q)
             self.comb += platform.request("CHANNEL_BOND_SYNC_OUT").eq(io_config.channel_bond_sync_out)
-            
+        
+        #################################################################################
+        # I_DDR
+        #################################################################################
+        elif (io_model == "I_DDR"):
+            platform.add_extension(get_iddr_ios())
+            self.comb += io_config.d.eq(platform.request("D"))
+            self.comb += io_config.r.eq(platform.request("R"))
+            self.comb += io_config.e.eq(platform.request("E"))
+            self.comb += io_config.i.eq(platform.request("C"))
+            self.comb += platform.request("Q").eq(io_config.q)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -212,7 +231,7 @@ def main():
     
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--io_model",          type=str,   default="I_BUF",        choices=["I_BUF", "O_BUF", "CLK_BUF", "I_DELAY", "I_SERDES", "O_SERDES"],           help="Type of Model")
+    core_string_param_group.add_argument("--io_model",          type=str,   default="I_BUF",        choices=["I_BUF", "O_BUF", "CLK_BUF", "I_DELAY", "I_SERDES", "I_DDR", "O_SERDES"],  help="Type of Model")
     core_string_param_group.add_argument("--io_type",           type=str,   default="Single_Ended", choices=["Single_Ended", "Differential", "Tri-State", "Differential-Tri-State"],    help="Type of IO")
     core_string_param_group.add_argument("--config",            type=str,   default="NONE",         choices=["NONE", "PULLUP", "PULLDOWN"],                                             help="Configuration of Resistor")
     core_string_param_group.add_argument("--voltage_standard",  type=str,   default="LVCMOS",       choices=["LVCMOS", "LVTTL"],                                                        help="IO Voltage Standards")
