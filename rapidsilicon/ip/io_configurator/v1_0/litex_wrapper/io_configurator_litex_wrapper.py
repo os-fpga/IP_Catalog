@@ -17,7 +17,10 @@ logging.info(f'Log started at {timestamp}')
 
 # IO_CONFIGURATOR ------------------------------------------------------------------------------------------
 class IO_CONFIG(Module):
-    ####### I_BUF #######
+    
+    #################################################################################
+    # I_BUF
+    #################################################################################
     def I_BUF(self, io_type, config):
         if (io_type == "Single_Ended"):
             self.i      = Signal(1)
@@ -55,7 +58,9 @@ class IO_CONFIG(Module):
                 o_O     = self.o
             )
     
-    ####### O_BUF #######
+    #################################################################################
+    # O_BUF
+    #################################################################################
     def O_BUF(self, io_type, config):
         if (io_type == "Single_Ended"):
             self.i      = Signal(1)
@@ -119,7 +124,9 @@ class IO_CONFIG(Module):
                 o_O_N       = self.o_n
             )
     
-    ####### I_DELAY #######
+    #################################################################################
+    # I_DELAY
+    #################################################################################
     def I_DELAY(self, config, delay):
         self.i              = Signal(1)
         self.i_1            = Signal(1)
@@ -160,7 +167,9 @@ class IO_CONFIG(Module):
             o_O                 = self.o
         )
     
-    ####### CLK_BUF #######
+    #################################################################################
+    # CLK_BUF
+    #################################################################################
     def CLK_BUF(self, config):
         self.i      = Signal(1)
         self.i_1    = Signal(1)
@@ -187,7 +196,9 @@ class IO_CONFIG(Module):
             o_O     = self.o
         )
     
-    ####### I_SERDES #######
+    #################################################################################
+    # I_SERDES
+    #################################################################################
     def I_SERDES(self, data_rate, width, dpa_mode):
         self.d              = Signal(1)
         self.rx_rst         = Signal(1)
@@ -225,7 +236,9 @@ class IO_CONFIG(Module):
             i_PLL_CLK         = self.pll_clk
         )
     
-    ####### O_SERDES #######
+    #################################################################################
+    # O_SERDES
+    #################################################################################
     def O_SERDES(self, data_rate, width):
         self.d                      = Signal(width)
         self.rst                    = Signal(1)
@@ -261,7 +274,9 @@ class IO_CONFIG(Module):
             
         )
     
-    ####### I_DDR #######
+    #################################################################################
+    # I_DDR
+    #################################################################################
     def I_DDR(self, config):
         self.d      = Signal(1)
         self.r      = Signal(1)
@@ -280,7 +295,44 @@ class IO_CONFIG(Module):
             i_C = self.o,
             o_Q = self.q
         )
+    
+    #################################################################################
+    # I_DELAY
+    #################################################################################
+    def O_DELAY(self, delay):
+        self.i              = Signal(1)
+        self.i_1            = Signal(1)
+        self.dly_load       = Signal(1)
+        self.dly_adj        = Signal(1)
+        self.dly_incdec     = Signal(1)
+        self.dly_tap_value  = Signal(6)
+        self.clk_in         = Signal(1)
+        self.o              = Signal(1)
         
+        # Module instance.
+        # ----------------
+        self.specials += Instance("O_DELAY",
+            # Parameters.
+            # -----------
+            p_DELAY             = delay,
+            # Ports
+            #------
+            i_I                 = self.i,
+            i_DLY_LOAD          = self.dly_load,
+            i_DLY_ADJ           = self.dly_adj,
+            i_DLY_INCDEC        = self.dly_incdec,
+            i_CLK_IN            = self.clk_in,
+            o_DLY_TAP_VALUE     = self.dly_tap_value,
+            o_O                 = self.i_1
+        )
+        # Module instance.
+        # ----------------
+        self.specials += Instance("O_BUF",
+            # Ports
+            #------
+            i_I     = self.i_1,
+            o_O     = self.o
+        )
         
     def __init__(self, platform, io_model, io_type, config, delay, data_rate, dpa_mode, width):
         # Get/Check Parameters.
@@ -320,3 +372,6 @@ class IO_CONFIG(Module):
         
         elif (io_model == "O_SERDES"):
             self.O_SERDES(data_rate, width)
+        
+        elif (io_model == "O_DELAY"):
+            self.O_DELAY(delay)
