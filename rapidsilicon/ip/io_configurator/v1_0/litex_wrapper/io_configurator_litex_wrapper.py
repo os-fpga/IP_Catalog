@@ -333,6 +333,29 @@ class IO_CONFIG(Module):
             i_I     = self.i_1,
             o_O     = self.o
         )
+    
+    #################################################################################
+    # O_DDR
+    #################################################################################
+    def O_DDR(self):
+        self.d      = Signal(2)
+        self.r      = Signal(1)
+        self.e      = Signal(1)
+        self.c      = Signal(1)
+        self.q      = Signal(1)
+        # self.CLK_BUF(config)
+        
+        # Module instance.
+        # ----------------
+        self.specials += Instance("O_DDR",
+            # Ports
+            #------
+            i_D = self.d,
+            i_R = self.r,
+            i_E = self.e,
+            i_C = self.c,
+            o_Q = self.q
+        )
         
     def __init__(self, platform, io_model, io_type, config, delay, data_rate, dpa_mode, width):
         # Get/Check Parameters.
@@ -375,3 +398,6 @@ class IO_CONFIG(Module):
         
         elif (io_model == "O_DELAY"):
             self.O_DELAY(delay)
+        
+        elif (io_model == "O_DDR"):
+            self.O_DDR()

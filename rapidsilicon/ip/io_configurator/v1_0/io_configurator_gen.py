@@ -107,6 +107,15 @@ def get_odelay_ios():
         ("O",               0, Pins(1)),
     ]
 
+def get_oddr_ios():
+    return [
+        ("D",     0, Pins(2)),
+        ("R",     0, Pins(1)),
+        ("E",     0, Pins(1)),
+        ("C",     0, Pins(1)),
+        ("Q",     0, Pins(1)),
+    ]
+
 # IO Configurator Wrapper ----------------------------------------------------------------------------------
 class IO_CONFIG_Wrapper(Module):
     def __init__(self, platform, io_model, io_type, config, voltage_standard, delay, data_rate, dpa_mode, width):
@@ -231,6 +240,17 @@ class IO_CONFIG_Wrapper(Module):
             self.comb += io_config.clk_in.eq(platform.request("CLK_IN"))
             self.comb += platform.request("DLY_TAP_VALUE").eq(io_config.dly_tap_value)
             self.comb += platform.request("O").eq(io_config.o)
+        
+        #################################################################################
+        # O_DDR
+        #################################################################################
+        elif (io_model == "O_DDR"):
+            platform.add_extension(get_oddr_ios())
+            self.comb += io_config.d.eq(platform.request("D"))
+            self.comb += io_config.r.eq(platform.request("R"))
+            self.comb += io_config.e.eq(platform.request("E"))
+            self.comb += io_config.c.eq(platform.request("C"))
+            self.comb += platform.request("Q").eq(io_config.q)
 
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -255,12 +275,12 @@ def main():
     
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--io_model",          type=str,   default="I_BUF",        choices=["I_BUF", "O_BUF", "CLK_BUF", "I_DELAY", "I_SERDES", "I_DDR", "O_SERDES", "O_DELAY"],   help="Type of Model")
-    core_string_param_group.add_argument("--io_type",           type=str,   default="Single_Ended", choices=["Single_Ended", "Differential", "Tri-State", "Differential-Tri-State"],                help="Type of IO")
-    core_string_param_group.add_argument("--config",            type=str,   default="NONE",         choices=["NONE", "PULLUP", "PULLDOWN"],                                                         help="Configuration of Resistor")
-    core_string_param_group.add_argument("--voltage_standard",  type=str,   default="LVCMOS",       choices=["LVCMOS", "LVTTL"],                                                                    help="IO Voltage Standards")
-    core_string_param_group.add_argument("--data_rate",         type=str,   default="SDR",          choices=["SDR", "DDR"],                                                                         help="Single or Double Data Rate (SDR/DDR)")
-    core_string_param_group.add_argument("--dpa_mode",          type=str,   default="NONE",         choices=["NONE", "DPA", "CDR"],                                                                 help="Dynamic Phase Alignment or Clock Data Recovery")
+    core_string_param_group.add_argument("--io_model",          type=str,   default="I_BUF",        choices=["I_BUF", "O_BUF", "CLK_BUF", "I_DELAY", "I_SERDES", "I_DDR", "O_SERDES", "O_DELAY", "O_DDR"],   help="Type of Model")
+    core_string_param_group.add_argument("--io_type",           type=str,   default="Single_Ended", choices=["Single_Ended", "Differential", "Tri-State", "Differential-Tri-State"],                         help="Type of IO")
+    core_string_param_group.add_argument("--config",            type=str,   default="NONE",         choices=["NONE", "PULLUP", "PULLDOWN"],                                                                  help="Configuration of Resistor")
+    core_string_param_group.add_argument("--voltage_standard",  type=str,   default="LVCMOS",       choices=["LVCMOS", "LVTTL"],                                                                             help="IO Voltage Standards")
+    core_string_param_group.add_argument("--data_rate",         type=str,   default="SDR",          choices=["SDR", "DDR"],                                                                                  help="Single or Double Data Rate (SDR/DDR)")
+    core_string_param_group.add_argument("--dpa_mode",          type=str,   default="NONE",         choices=["NONE", "DPA", "CDR"],                                                                          help="Dynamic Phase Alignment or Clock Data Recovery")
     
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
