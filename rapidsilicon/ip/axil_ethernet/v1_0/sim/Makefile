@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 all:
-	./test_axil_ethernet.py
+	python3 test_axil_ethernet.py
 
 clear:
 	@rm -rf build firmware/crt0.d firmware/crt0.o
