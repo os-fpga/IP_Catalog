@@ -169,7 +169,7 @@ class SimSoC(SoCCore):
             i_mii_eth_col       = 0,
             i_mii_eth_crs       = 0,
         )
-        platform.add_source("../src/axil_ethernet.v")
+        platform.add_source("../src/*.v")
         self.bus.add_slave("axil_ethernet", axil_ethernet, region=SoCRegion(origin=0x3000_0000, size=0x1000_0000))
 
         # Clk Generation.
