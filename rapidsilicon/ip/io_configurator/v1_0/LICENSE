@@ -22,6 +22,5 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 FILES:
 rapidsilicon/ip/io_configurator/v1_0/io_configurator_gen.py
-rapidsilicon/ip/io_configurator/v1_0/litex_wrapper/io_configurator_litex_wrapper.py
 
 ---------------------------------------------------------------------------------------
