@@ -127,7 +127,7 @@ def get_oddr_ios():
 
 def freq_calc(self, out_clk_freq, ref_clk_freq, clocking_source):
     if clocking_source == "LOCAL_OSCILLATOR":
-        b = 50
+        b = 40
     else:
         b = ref_clk_freq
         
