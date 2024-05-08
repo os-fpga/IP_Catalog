@@ -1,1 +1,0 @@
-The directory contains lattice dimond proejct files and also IPexress files.
