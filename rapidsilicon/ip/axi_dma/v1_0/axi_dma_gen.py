@@ -203,7 +203,7 @@ def main():
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--axis_last_enable",    type=bool,      default=True,       help="DMA AXI stream tlast.")
-    core_bool_param_group.add_argument("--axis_id_enable",      type=bool,      default=False,      help="DMA AXI stream tid.")
+    core_bool_param_group.add_argument("--axis_id_enable",      type=bool,      default=True,      help="DMA AXI stream tid.")
     core_bool_param_group.add_argument("--axis_dest_enable",    type=bool,      default=False,      help="DMA AXI stream tdest.")
     core_bool_param_group.add_argument("--axis_user_enable",    type=bool,      default=True,       help="DMA AXI stream tuser.")
     core_bool_param_group.add_argument("--enable_sg",           type=bool,      default=False,      help="Support for scatter/gather DMA.")
