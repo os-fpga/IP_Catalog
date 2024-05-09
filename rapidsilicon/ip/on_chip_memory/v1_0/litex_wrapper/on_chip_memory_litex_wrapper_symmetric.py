@@ -211,9 +211,9 @@ class OCM_SYM(Module):
                         
                     sram[data1] = "".join(sram[sram1][::-1]) 
                     sram[data2] = "".join(sram[sram2][::-1])
-
-                INIT.append(sram[data1])
-                INIT_PARITY.append(sram[data2])
+                    
+                    INIT.append(sram[data1])
+                    INIT_PARITY.append(sram[data2])
                 
                 logging.info("Memory Initialized Successfully !!!")
                 self.logger.info(f"===================================================")
@@ -1041,8 +1041,8 @@ class OCM_SYM(Module):
                         p_INIT              = Instance.PreformattedParam("32768'h{}".format(data)),
                         p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
-                        p_WRITE_WIDTH_B     = 36,
-                        p_READ_WIDTH_A      = 36,
+                        p_WRITE_WIDTH_B     = param_write_width_A,
+                        p_READ_WIDTH_A      = param_read_width_B,
                         p_READ_WIDTH_B      = param_read_width_B,
                         # Ports.
                         # -----------
