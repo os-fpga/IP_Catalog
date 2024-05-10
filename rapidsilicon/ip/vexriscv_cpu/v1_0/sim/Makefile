@@ -354,7 +354,7 @@ run: compile rename_back
 	-@mv linux.debugTrace $(OUT_DIR)
 
 verilate: ${VEXRISCV_FILE}
-	verilator -cc  ${VEXRISCV_FILE} -I../src/ -O3 -CFLAGS -std=c++11 -LDFLAGS -pthread  ${ADDCFLAGS} --gdbbt ${VERILATOR_ARGS} -Wno-UNOPTFLAT -Wno-WIDTH --x-assign unique --exe main.cpp
+	verilator -cc  ${VEXRISCV_FILE} -I../src/ -O3 -CFLAGS -std=c++14 -LDFLAGS -pthread  ${ADDCFLAGS} --gdbbt ${VERILATOR_ARGS} -Wno-UNOPTFLAT -Wno-WIDTH --x-assign unique --exe main.cpp
 
 compile: verilate
 	make  -j${THREAD_COUNT} -C obj_dir/ -f V$(MODULE_NAME).mk V$(MODULE_NAME)
@@ -365,4 +365,3 @@ rename_back:
 clear:
 	@rm -rf obj_dir ../litex_wrapper/__pycache__
 	@rm -rf linux.debugTrace linux.logTrace
-	@mv ../src/$(MODULE_NAME).v ../src/$(MODULE_NAME)_v1_0.v
