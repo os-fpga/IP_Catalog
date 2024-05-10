@@ -128,6 +128,7 @@ jobs:
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_async_fifo/v1_0/axi_async_fifo_gen.py --data_width=32 --fifo_depth=64 --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_async_fifo/v1_0/axis_async_fifo_gen.py --data_width=32 --depth=64 --build
         ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/on_chip_memory/v1_0/on_chip_memory_gen.py --data_width=36 --write_depth=1024 --build
+        ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/io_configurator/v1_0/io_configurator_gen.py --build
 
 #--------------------------CentOS------------------------------------
   centos7-gcc:
@@ -229,3 +230,4 @@ jobs:
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/ocla/v1_0/ocla_gen.py --build-name=ocla_wrapper --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axi_async_fifo/v1_0/axi_async_fifo_gen.py --data_width=32 --fifo_depth=64 --build
            ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/axis_async_fifo/v1_0/axis_async_fifo_gen.py --data_width=32 --depth=64 --build
+           ./python3 $GITHUB_WORKSPACE/rapidsilicon/ip/io_configurator/v1_0/io_configurator_gen.py --build
