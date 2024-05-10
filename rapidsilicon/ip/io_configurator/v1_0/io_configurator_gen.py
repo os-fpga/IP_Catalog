@@ -1806,7 +1806,7 @@ def main():
     'Name'          : 'IO_CONFIGURATOR',
     'Version'       : 'V1_0',
     'Interface'     : 'Native',
-    'Description'   : 'IO_Configurator is a native interface IP. It allows user to generate IO blocks and necessary logic with configurable parameters.'}
+    'Description'   : 'IO_Configurator is a native interface IP. It allows user to generate IO Primitives with configurable parameters.'}
     }
     
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -1906,6 +1906,29 @@ def main():
     "IO_MODEL": args.io_model
     }
     
+    # IO_TYPE: NONE/PULLUP/PULLDOWN
+    if (args.io_model != "O_BUF"):
+        if (args.io_mode == "NONE"):
+            summary["IO_MODE"] = "No internal pull-up or pull-down resistor enabled"
+        elif (args.io_mode == "PULLUP"):
+            summary["IO_MODE"] = "Logic high in the absence of an external connection"
+        elif (args.io_mode == "PULLDOWN"):
+            summary["IO_MODE"] = "Logic low in the absence of an external connection"
+    
+    if (args.io_model in ["I_SERDES", "O_SERDES", "I_DDR", "O_DDR", "I_DELAY", "O_DELAY"]):
+    # CLOCK
+        if (args.clocking == "RX_CLOCK"):
+            summary["CLOCK"] = "IOPAD provides the clock signal"
+        elif (args.clocking == "PLL"):
+            if (args.clocking_source == "LOCAL_OSCILLATOR"):
+                summary["LOCAL_OSCILLATOR"] = "40 MHz"
+                summary["OUTPUT_CLOCK_FREQUENCY"] = str(args.out_clk_freq) + " MHz"
+                summary["CLOCK"] = "Local Oscillator clock feeds into a PLL"
+            elif (args.clocking_source == "RX_IO_CLOCK"):
+                summary["INPUT_CLOCK_FREQUENCY"] = str(args.ref_clk_freq) + " MHz"
+                summary["OUTPUT_CLOCK_FREQUENCY"] = str(args.out_clk_freq) + " Mhz"
+                summary["CLOCK"] = "User-defined IOPAD clock feeds a PLL"
+    
     if (args.io_model in ["I_BUF", "O_BUF"]):
         if (args.io_type == "SINGLE_ENDED"):
             summary["IO_TYPE"] = "Unidirectional data flow"
@@ -1916,17 +1939,8 @@ def main():
         elif (args.io_type == "DIFF_TRI_STATE"):
             summary["IO_TYPE"] = "Differential signaling and extended control for high-impedance state"
     
-    # IO_TYPE: NONE/PULLUP/PULLDOWN
-    if (args.io_model != "O_BUF"):
-        if (args.io_mode == "NONE"):
-            summary["IO_MODE"] = "No internal pull-up or pull-down resistor enabled"
-        elif (args.io_mode == "PULLUP"):
-            summary["IO_MODE"] = "Logic high in the absence of an external connection"
-        elif (args.io_mode == "PULLDOWN"):
-            summary["IO_MODE"] = "Logic low in the absence of an external connection"
-    
-    if (args.io_model in ["I_BUF", "O_BUF"]):
-        summary["VOLTAGE_STANDARD"] = args.voltage_standard
+    # if (args.io_model in ["I_BUF", "O_BUF"]):
+    #    summary["VOLTAGE_STANDARD"] = args.voltage_standard
     
     elif (args.io_model in ["I_SERDES", "O_SERDES"]):
         # DATA_RATE
@@ -1942,19 +1956,6 @@ def main():
             summary["OPERATION"] = "Clock Data Recovery"
         elif (args.op_mode == "MIPI"):
             summary["OPERATION"] = "Mobile Industry Processor Interface"
-        
-        # CLOCK
-        if (args.clocking == "RX_CLOCK"):
-            summary["CLOCK"] = "IOPAD provides the clock signal"
-        elif (args.clocking == "PLL"):
-            if (args.clocking_source == "LOCAL_OSCILLATOR"):
-                summary["INPUT_CLOCK_FREQUENCY"] = "50 MHz"
-                summary["OUTPUT_CLOCK_FREQUENCY"] = str(args.out_clk_freq) + " MHz"
-                summary["CLOCK"] = "Local Oscillator clock feeds into a PLL"
-            elif (args.clocking_source == "RX_IO_CLOCK"):
-                summary["INPUT_CLOCK_FREQUENCY"] = str(args.ref_clk_freq) + " MHz"
-                summary["OUTPUT_CLOCK_FREQUENCY"] = str(args.out_clk_freq) + " Mhz"
-                summary["CLOCK"] = "User-defined IOPAD clock feeds a PLL"
         
         # CLOCK_FORWARDING
         if (args.io_model == "O_SERDES"):
