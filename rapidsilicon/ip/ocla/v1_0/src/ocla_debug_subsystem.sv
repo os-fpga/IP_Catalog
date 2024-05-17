@@ -1,5 +1,6 @@
+`define single_sample_clock
 
-////////////////////////////////////////////////
+///////////////////
 `default_nettype	wire
 
 
@@ -207,7 +208,7 @@ module ocla_debug_subsystem #(
       start_index = 240'd0;
       PROBE_SIZE  = 16'd0;
       Probes_No_Reg = 16'd0;
-      Start_Index_Reg = 16'd0; 
+      Start_Index_Reg = 16'd0;
       for (i = 0; i < 15; i = i + 1)
       begin
         if(i==0)
@@ -271,6 +272,21 @@ module ocla_debug_subsystem #(
   // clock signals
   wire [OCLA_COUNT-1:0] core_sampling_clk;
 
+
+
+  wire                  out_cross_trig1;
+  wire                  out_cross_trig2;
+  wire                  out_cross_trig3;
+  wire                  out_cross_trig4;
+  wire                  in_cross_trig1;
+  wire                  in_cross_trig2;
+  wire                  in_cross_trig3;
+  wire                  in_cross_trig4;
+
+  wire      [7  : 0]    self_trigger_status;
+  wire      [7  : 0]    cross_trigger_status;
+  wire                  self_start_core;
+  wire                  cross_start_core;
   // JTAG_AXI Signals
   wire                  r_m_axi_awvalid;
   wire                  r_m_axi_awready;
@@ -404,7 +420,47 @@ module ocla_debug_subsystem #(
   wire                           ma_axil_rready;
 
 
+  wire   [31 : 0]                wa_axil_awaddr;
+  wire   [2  : 0]                wa_axil_awprot;
+  wire                           wa_axil_awvalid;
+  wire                           wa_axil_awready;
+  wire   [31 : 0]                wa_axil_wdata;
+  wire   [3  : 0]                wa_axil_wstrb;
+  wire                           wa_axil_wvalid;
+  wire                           wa_axil_wready;
+  wire   [1  : 0]                wa_axil_bresp;
+  wire                           wa_axil_bvalid;
+  wire                           wa_axil_bready;
+  wire   [31 : 0]                wa_axil_araddr;
+  wire   [2  : 0]                wa_axil_arprot;
+  wire                           wa_axil_arvalid;
+  wire                           wa_axil_arready;
+  wire   [31 : 0]                wa_axil_rdata;
+  wire   [1  : 0]                wa_axil_rresp;
+  wire                           wa_axil_rvalid;
+  wire                           wa_axil_rready;
+
+
   assign core_sampling_clk = (Sampling_Clk == "SINGLE") ? {OCLA_COUNT{native_sampling_clk}} : native_sampling_clk;
+  assign wa_axil_arready =   (Mode == "NATIVE") ? 1'b0 :   ma_axil_arready;
+  assign wa_axil_awready =   (Mode == "NATIVE") ? 1'b0 :   ma_axil_awready;
+  assign wa_axil_bresp   =   (Mode == "NATIVE") ? 2'b00 :  ma_axil_bresp;
+  assign wa_axil_bvalid  =   (Mode == "NATIVE") ? 1'b1 :   ma_axil_bvalid;
+  assign wa_axil_rdata   =   (Mode == "NATIVE") ? 32'd0 :  ma_axil_rdata;
+  assign wa_axil_rresp   =   (Mode == "NATIVE") ? 2'b00 :  ma_axil_rresp;
+  assign wa_axil_rvalid  =   (Mode == "NATIVE") ? 1'b1 :   ma_axil_rvalid;
+  assign wa_axil_araddr  =     ma_axil_araddr;
+  assign wa_axil_arprot  =     ma_axil_arprot;
+  assign wa_axil_arvalid =     ma_axil_arvalid;
+  assign wa_axil_awaddr  =     ma_axil_awaddr;
+  assign wa_axil_awprot  =     ma_axil_awprot;
+  assign wa_axil_awvalid =     ma_axil_awvalid;
+  assign wa_axil_bready  =     ma_axil_bready;
+  assign wa_axil_rready  =     ma_axil_rready;
+  assign wa_axil_wdata   =     ma_axil_wdata;
+  assign wa_axil_wready  =    (Mode == "NATIVE") ? 1'b1 :  ma_axil_wready;
+  assign wa_axil_wstrb   =    (Mode == "NATIVE") ? 0 :     ma_axil_wstrb;
+  assign wa_axil_wvalid  =    (Mode == "NATIVE") ? 0 :     ma_axil_wvalid;
 
   //------------------------------------------------------------------------------
   // JTAG_AXI
@@ -555,13 +611,13 @@ module ocla_debug_subsystem #(
                       .M_BASE_ADDR(InterconnectBaseAddress)
                     ) axil_interconnect (
                       .clk(ACLK),
-                      .m_axil_arready({m_axil_arready,ma_axil_arready,S_AXI_ARREADY}),
-                      .m_axil_awready({m_axil_awready,ma_axil_awready,S_AXI_AWREADY}),
-                      .m_axil_bresp  ({m_axil_bresp  ,ma_axil_bresp,S_AXI_BRESP}),
-                      .m_axil_bvalid ({m_axil_bvalid ,ma_axil_bvalid,S_AXI_BVALID}),
-                      .m_axil_rdata  ({m_axil_rdata  ,ma_axil_rdata,S_AXI_RDATA}),
-                      .m_axil_rresp  ({m_axil_rresp  ,ma_axil_rresp,S_AXI_RRESP}),
-                      .m_axil_rvalid ({m_axil_rvalid ,ma_axil_rvalid,S_AXI_RVALID}),
+                      .m_axil_arready({m_axil_arready,wa_axil_arready,S_AXI_ARREADY}),
+                      .m_axil_awready({m_axil_awready,wa_axil_awready,S_AXI_AWREADY}),
+                      .m_axil_bresp  ({m_axil_bresp  ,wa_axil_bresp,S_AXI_BRESP}),
+                      .m_axil_bvalid ({m_axil_bvalid ,wa_axil_bvalid,S_AXI_BVALID}),
+                      .m_axil_rdata  ({m_axil_rdata  ,wa_axil_rdata,S_AXI_RDATA}),
+                      .m_axil_rresp  ({m_axil_rresp  ,wa_axil_rresp,S_AXI_RRESP}),
+                      .m_axil_rvalid ({m_axil_rvalid ,wa_axil_rvalid,S_AXI_RVALID}),
                       .rst(!RESETn),
                       .s_axil_araddr(m_axi_araddr),
                       .s_axil_arprot(m_axi_arprot),
@@ -574,18 +630,18 @@ module ocla_debug_subsystem #(
                       .s_axil_wdata(m_axi_wdata),
                       .s_axil_wstrb(m_axi_wstrb),
                       .s_axil_wvalid(m_axi_wvalid),
-                      .m_axil_araddr ({m_axil_araddr ,ma_axil_araddr,S_AXI_ARADDR}),
-                      .m_axil_arprot ({m_axil_arprot ,ma_axil_arprot,S_AXI_ARPROT}),
-                      .m_axil_arvalid({m_axil_arvalid,ma_axil_arvalid,S_AXI_ARVALID}),
-                      .m_axil_awaddr ({m_axil_awaddr ,ma_axil_awaddr,S_AXI_AWADDR}),
-                      .m_axil_awprot ({m_axil_awprot ,ma_axil_awprot,S_AXI_AWPROT}),
-                      .m_axil_awvalid({m_axil_awvalid,ma_axil_awvalid,S_AXI_AWVALID}),
-                      .m_axil_bready ({m_axil_bready ,ma_axil_bready,S_AXI_BREADY}),
-                      .m_axil_rready ({m_axil_rready ,ma_axil_rready,S_AXI_RREADY}),
-                      .m_axil_wdata  ({m_axil_wdata  ,ma_axil_wdata,S_AXI_WDATA}),
-                      .m_axil_wready ({m_axil_wready ,ma_axil_wready,S_AXI_WREADY}),
-                      .m_axil_wstrb  ({m_axil_wstrb  ,ma_axil_wstrb,S_AXI_WSTRB}),
-                      .m_axil_wvalid ({m_axil_wvalid ,ma_axil_wvalid,S_AXI_WVALID}),
+                      .m_axil_araddr ({m_axil_araddr ,wa_axil_araddr,S_AXI_ARADDR}),
+                      .m_axil_arprot ({m_axil_arprot ,wa_axil_arprot,S_AXI_ARPROT}),
+                      .m_axil_arvalid({m_axil_arvalid,wa_axil_arvalid,S_AXI_ARVALID}),
+                      .m_axil_awaddr ({m_axil_awaddr ,wa_axil_awaddr,S_AXI_AWADDR}),
+                      .m_axil_awprot ({m_axil_awprot ,wa_axil_awprot,S_AXI_AWPROT}),
+                      .m_axil_awvalid({m_axil_awvalid,wa_axil_awvalid,S_AXI_AWVALID}),
+                      .m_axil_bready ({m_axil_bready ,wa_axil_bready,S_AXI_BREADY}),
+                      .m_axil_rready ({m_axil_rready ,wa_axil_rready,S_AXI_RREADY}),
+                      .m_axil_wdata  ({m_axil_wdata  ,wa_axil_wdata,S_AXI_WDATA}),
+                      .m_axil_wready ({m_axil_wready ,wa_axil_wready,S_AXI_WREADY}),
+                      .m_axil_wstrb  ({m_axil_wstrb  ,wa_axil_wstrb,S_AXI_WSTRB}),
+                      .m_axil_wvalid ({m_axil_wvalid ,wa_axil_wvalid,S_AXI_WVALID}),
                       .s_axil_arready(m_axi_arready ),
                       .s_axil_awready(m_axi_awready ),
                       .s_axil_bresp(m_axi_bresp),
@@ -601,211 +657,177 @@ module ocla_debug_subsystem #(
 
   generate
     begin
-      if (Mode == "NATIVE")
-      begin: OCLA_GEN_NATIVE
+      if(Sampling_Clk == "SINGLE")
+      begin
+        if (Mode == "NATIVE")
+        begin: OCLA_GEN_NATIVE
+          if (OCLA_COUNT == 1)
+          begin
 
-        genvar i;
-        for (i = 0; i < OCLA_COUNT; i = i + 1)
-          ocla # (
-                 .IP_TYPE(IP_TYPE),
-                 .IP_VERSION(IP_VERSION),
-                 .IP_ID(IP_ID),
-                 .NO_OF_PROBES(Probes_No[i*16 +:16]),
-                 .MEM_DEPTH(Mem_Depth),
-                 .AXI_DATA_WIDTH(Data_Width),
-                 .AXI_ADDR_WIDTH(Addr_Width),
-                 .INDEX(i)
-               )
-               ocla_inst (
-                 .sample_clk(core_sampling_clk[i]),
-                 .rstn(RESETn),
-                 .S_AXI_ACLK(ACLK),
-                 .S_AXI_ARESETN(RESETn),
-                 .S_AXI_AWADDR(m_axil_awaddr[i*32 +:32]),
-                 .S_AXI_AWPROT(m_axil_awprot[i*3 +:3]),
-                 .S_AXI_AWVALID(m_axil_awvalid[i]),
-                 .S_AXI_AWREADY(m_axil_awready[i]),
-                 .S_AXI_WDATA(m_axil_wdata[i*32 +:32]),
-                 .S_AXI_WSTRB(m_axil_wstrb[i*4 +:4]),
-                 .S_AXI_WVALID(m_axil_wvalid[i]),
-                 .S_AXI_WREADY(m_axil_wready[i]),
-                 .S_AXI_BRESP(m_axil_bresp[i*2 +:2]),
-                 .S_AXI_BVALID(m_axil_bvalid[i]),
-                 .S_AXI_BREADY(m_axil_bready[i]),
-                 .S_AXI_ARADDR(m_axil_araddr[i*32 +:32]),
-                 .S_AXI_ARPROT(m_axil_arprot[i*3 +:3]),
-                 .S_AXI_ARVALID(m_axil_arvalid[i]),
-                 .S_AXI_ARREADY(m_axil_arready[i]),
-                 .S_AXI_RDATA(m_axil_rdata[i*32 +:32]),
-                 .S_AXI_RRESP(m_axil_rresp[i*2 +: 2]),
-                 .S_AXI_RVALID(m_axil_rvalid[i]),
-                 .S_AXI_RREADY(m_axil_rready[i]),
-                 .probes(probes[probe_start_index[i*16 +:16] +: probe_end_index[i*16 +:16]])
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(Probes_No[0*16 +:16]),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(0)
+                 )
+                 ocla_core1 (
+                   .sample_clk(core_sampling_clk[0]),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(m_axil_awaddr[0*32 +:32]),
+                   .S_AXI_AWPROT(m_axil_awprot[0*3 +:3]),
+                   .S_AXI_AWVALID(m_axil_awvalid[0]),
+                   .S_AXI_AWREADY(m_axil_awready[0]),
+                   .S_AXI_WDATA(m_axil_wdata[0*32 +:32]),
+                   .S_AXI_WSTRB(m_axil_wstrb[0*4 +:4]),
+                   .S_AXI_WVALID(m_axil_wvalid[0]),
+                   .S_AXI_WREADY(m_axil_wready[0]),
+                   .S_AXI_BRESP(m_axil_bresp[0*2 +:2]),
+                   .S_AXI_BVALID(m_axil_bvalid[0]),
+                   .S_AXI_BREADY(m_axil_bready[0]),
+                   .S_AXI_ARADDR(m_axil_araddr[0*32 +:32]),
+                   .S_AXI_ARPROT(m_axil_arprot[0*3 +:3]),
+                   .S_AXI_ARVALID(m_axil_arvalid[0]),
+                   .S_AXI_ARREADY(m_axil_arready[0]),
+                   .S_AXI_RDATA(m_axil_rdata[0*32 +:32]),
+                   .S_AXI_RRESP(m_axil_rresp[0*2 +: 2]),
+                   .S_AXI_RVALID(m_axil_rvalid[0]),
+                   .S_AXI_RREADY(m_axil_rready[0]),
+                   .probes(probes[probe_start_index[0*16 +:16] +: probe_end_index[0*16 +:16]]),
+                   .in_cross_trig1(1'b0),
+                   .in_cross_trig2(1'b0),
+                   .in_cross_trig3(1'b0),
+                   .in_cross_trig4(1'b0),
+                   .out_cross_trig1(),
+                   .out_cross_trig2(),
+                   .out_cross_trig3(),
+                   .out_cross_trig4(),
+                   .self_trigger_status(),
+                   .cross_trigger_status(8'd0),
+                   .self_start_core(),
+                   .cross_start_core(1'b0)
+                   // .probes(probes[11:4])
 
-               );
-      end
-      else if(Mode == "AXI" &&  Axi_Type  == "AXI4" )
-      begin: OCLA_GEN_AXI4
-        ocla # (
-               .IP_TYPE(IP_TYPE),
-               .IP_VERSION(IP_VERSION),
-               .IP_ID(IP_ID),
-               .NO_OF_PROBES(AXI_TOATAL_PROBES),
-               .MEM_DEPTH(Mem_Depth),
-               .AXI_DATA_WIDTH(Data_Width),
-               .AXI_ADDR_WIDTH(Addr_Width),
-               .INDEX(0)
-             )
-             ocla_inst (
-               .sample_clk(axi_sampling_clk),
-               .rstn(RESETn),
-               .S_AXI_ACLK(ACLK),
-               .S_AXI_ARESETN(RESETn),
-               .S_AXI_AWADDR(ma_axil_awaddr),
-               .S_AXI_AWPROT(ma_axil_awprot),
-               .S_AXI_AWVALID(ma_axil_awvalid),
-               .S_AXI_AWREADY(ma_axil_awready),
-               .S_AXI_WDATA(ma_axil_wdata),
-               .S_AXI_WSTRB(ma_axil_wstrb),
-               .S_AXI_WVALID(ma_axil_wvalid),
-               .S_AXI_WREADY(ma_axil_wready),
-               .S_AXI_BRESP(ma_axil_bresp),
-               .S_AXI_BVALID(ma_axil_bvalid),
-               .S_AXI_BREADY(ma_axil_bready),
-               .S_AXI_ARADDR(ma_axil_araddr),
-               .S_AXI_ARPROT(ma_axil_arprot),
-               .S_AXI_ARVALID(ma_axil_arvalid),
-               .S_AXI_ARREADY(ma_axil_arready),
-               .S_AXI_RDATA(ma_axil_rdata),
-               .S_AXI_RRESP(ma_axil_rresp),
-               .S_AXI_RVALID(ma_axil_rvalid),
-               .S_AXI_RREADY(ma_axil_rready),
-               .probes      (axi4_probes)
-             );
-      end
-      else if(Mode == "AXI" &&  Axi_Type  == "AXILite" )
-      begin: OCLA_GEN_AXILite
-        ocla # (
-               .IP_TYPE(IP_TYPE),
-               .IP_VERSION(IP_VERSION),
-               .IP_ID(IP_ID),
-               .NO_OF_PROBES(AXI_TOATAL_PROBES),
-               .MEM_DEPTH(Mem_Depth),
-               .AXI_DATA_WIDTH(Data_Width),
-               .AXI_ADDR_WIDTH(Addr_Width),
-               .INDEX(0)
-             )
-             ocla_inst (
-               .sample_clk(axi_sampling_clk),
-               .rstn(RESETn),
-               .S_AXI_ACLK(ACLK),
-               .S_AXI_ARESETN(RESETn),
-               .S_AXI_AWADDR  (ma_axil_awaddr),
-               .S_AXI_AWPROT  (ma_axil_awprot),
-               .S_AXI_AWVALID (ma_axil_awvalid),
-               .S_AXI_AWREADY (ma_axil_awready),
-               .S_AXI_WDATA   (ma_axil_wdata),
-               .S_AXI_WSTRB   (ma_axil_wstrb),
-               .S_AXI_WVALID  (ma_axil_wvalid),
-               .S_AXI_WREADY  (ma_axil_wready),
-               .S_AXI_BRESP   (ma_axil_bresp),
-               .S_AXI_BVALID  (ma_axil_bvalid),
-               .S_AXI_BREADY  (ma_axil_bready),
-               .S_AXI_ARADDR  (ma_axil_araddr),
-               .S_AXI_ARPROT  (ma_axil_arprot),
-               .S_AXI_ARVALID (ma_axil_arvalid),
-               .S_AXI_ARREADY (ma_axil_arready),
-               .S_AXI_RDATA   (ma_axil_rdata),
-               .S_AXI_RRESP   (ma_axil_rresp),
-               .S_AXI_RVALID  (ma_axil_rvalid),
-               .S_AXI_RREADY  (ma_axil_rready),
-               .probes        (axiLite_probes)
-             );
-      end
-      else
-      begin : OCLA_GEN_NATIVE_AXI
+                 );
 
-        genvar i;
-        for (i = 0; i < OCLA_COUNT; i = i + 1)
-          ocla # (
-                 .IP_TYPE(IP_TYPE),
-                 .IP_VERSION(IP_VERSION),
-                 .IP_ID(IP_ID),
-                 .NO_OF_PROBES(Probes_No[i*16 +:16]),
-                 .MEM_DEPTH(Mem_Depth),
-                 .AXI_DATA_WIDTH(Data_Width),
-                 .AXI_ADDR_WIDTH(Addr_Width),
-                 .INDEX(i)
-               )
-               ocla_inst (
-                 .sample_clk(core_sampling_clk[i]),
-                 .rstn(RESETn),
-                 .S_AXI_ACLK(ACLK),
-                 .S_AXI_ARESETN(RESETn),
-                 .S_AXI_AWADDR(m_axil_awaddr[i*32 +:32]),
-                 .S_AXI_AWPROT(m_axil_awprot[i*3 +:3]),
-                 .S_AXI_AWVALID(m_axil_awvalid[i]),
-                 .S_AXI_AWREADY(m_axil_awready[i]),
-                 .S_AXI_WDATA(m_axil_wdata[i*32 +:32]),
-                 .S_AXI_WSTRB(m_axil_wstrb[i*4 +:4]),
-                 .S_AXI_WVALID(m_axil_wvalid[i]),
-                 .S_AXI_WREADY(m_axil_wready[i]),
-                 .S_AXI_BRESP(m_axil_bresp[i*2 +:2]),
-                 .S_AXI_BVALID(m_axil_bvalid[i]),
-                 .S_AXI_BREADY(m_axil_bready[i]),
-                 .S_AXI_ARADDR(m_axil_araddr[i*32 +:32]),
-                 .S_AXI_ARPROT(m_axil_arprot[i*3 +:3]),
-                 .S_AXI_ARVALID(m_axil_arvalid[i]),
-                 .S_AXI_ARREADY(m_axil_arready[i]),
-                 .S_AXI_RDATA(m_axil_rdata[i*32 +:32]),
-                 .S_AXI_RRESP(m_axil_rresp[i*2 +: 2]),
-                 .S_AXI_RVALID(m_axil_rvalid[i]),
-                 .S_AXI_RREADY(m_axil_rready[i]),
-                 .probes(probes[probe_start_index[i*16 +:16] +: probe_end_index[i*16 +:16]])
+          end
+          else if (OCLA_COUNT > 1)
+          begin
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(Probes_No[0*16 +:16]),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(0)
+                 )
+                 ocla_core1 (
+                   .sample_clk(core_sampling_clk[0]),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(m_axil_awaddr[0*32 +:32]),
+                   .S_AXI_AWPROT(m_axil_awprot[0*3 +:3]),
+                   .S_AXI_AWVALID(m_axil_awvalid[0]),
+                   .S_AXI_AWREADY(m_axil_awready[0]),
+                   .S_AXI_WDATA(m_axil_wdata[0*32 +:32]),
+                   .S_AXI_WSTRB(m_axil_wstrb[0*4 +:4]),
+                   .S_AXI_WVALID(m_axil_wvalid[0]),
+                   .S_AXI_WREADY(m_axil_wready[0]),
+                   .S_AXI_BRESP(m_axil_bresp[0*2 +:2]),
+                   .S_AXI_BVALID(m_axil_bvalid[0]),
+                   .S_AXI_BREADY(m_axil_bready[0]),
+                   .S_AXI_ARADDR(m_axil_araddr[0*32 +:32]),
+                   .S_AXI_ARPROT(m_axil_arprot[0*3 +:3]),
+                   .S_AXI_ARVALID(m_axil_arvalid[0]),
+                   .S_AXI_ARREADY(m_axil_arready[0]),
+                   .S_AXI_RDATA(m_axil_rdata[0*32 +:32]),
+                   .S_AXI_RRESP(m_axil_rresp[0*2 +: 2]),
+                   .S_AXI_RVALID(m_axil_rvalid[0]),
+                   .S_AXI_RREADY(m_axil_rready[0]),
+                   .probes(probes[probe_start_index[0*16 +:16] +: probe_end_index[0*16 +:16]]),
+                   .in_cross_trig1(in_cross_trig1),
+                   .in_cross_trig2(in_cross_trig2),
+                   .in_cross_trig3(in_cross_trig3),
+                   .in_cross_trig4(in_cross_trig4),
+                   .out_cross_trig1(out_cross_trig1),
+                   .out_cross_trig2(out_cross_trig2),
+                   .out_cross_trig3(out_cross_trig3),
+                   .out_cross_trig4(out_cross_trig4),
+                   .self_trigger_status(self_trigger_status),
+                   .cross_trigger_status(cross_trigger_status),
+                   .self_start_core(self_start_core),
+                   .cross_start_core(cross_start_core)
+                   // .probes(probes[11:4])
 
-               );
+                 );
 
-        if(Axi_Type  == "AXILite" )
-        begin: OCLA_GEN__NATIVE_AXILite
-          ocla # (
-                 .IP_TYPE(IP_TYPE),
-                 .IP_VERSION(IP_VERSION),
-                 .IP_ID(IP_ID),
-                 .NO_OF_PROBES(AXI_TOATAL_PROBES),
-                 .MEM_DEPTH(Mem_Depth),
-                 .AXI_DATA_WIDTH(Data_Width),
-                 .AXI_ADDR_WIDTH(Addr_Width),
-                 .INDEX(OCLA_COUNT)
-               )
-               ocla_inst_Lite (
-                 .sample_clk(axi_sampling_clk),
-                 .rstn(RESETn),
-                 .S_AXI_ACLK(ACLK),
-                 .S_AXI_ARESETN(RESETn),
-                 .S_AXI_AWADDR  (ma_axil_awaddr),
-                 .S_AXI_AWPROT  (ma_axil_awprot),
-                 .S_AXI_AWVALID (ma_axil_awvalid),
-                 .S_AXI_AWREADY (ma_axil_awready),
-                 .S_AXI_WDATA   (ma_axil_wdata),
-                 .S_AXI_WSTRB   (ma_axil_wstrb),
-                 .S_AXI_WVALID  (ma_axil_wvalid),
-                 .S_AXI_WREADY  (ma_axil_wready),
-                 .S_AXI_BRESP   (ma_axil_bresp),
-                 .S_AXI_BVALID  (ma_axil_bvalid),
-                 .S_AXI_BREADY  (ma_axil_bready),
-                 .S_AXI_ARADDR  (ma_axil_araddr),
-                 .S_AXI_ARPROT  (ma_axil_arprot),
-                 .S_AXI_ARVALID (ma_axil_arvalid),
-                 .S_AXI_ARREADY (ma_axil_arready),
-                 .S_AXI_RDATA   (ma_axil_rdata),
-                 .S_AXI_RRESP   (ma_axil_rresp),
-                 .S_AXI_RVALID  (ma_axil_rvalid),
-                 .S_AXI_RREADY  (ma_axil_rready),
-                 .probes(axiLite_probes)
-               );
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(Probes_No[1*16 +:16]),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(1)
+                 )
+                 ocla_core2 (
+                   .sample_clk(core_sampling_clk[1]),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(m_axil_awaddr[1*32 +:32]),
+                   .S_AXI_AWPROT(m_axil_awprot[1*3 +:3]),
+                   .S_AXI_AWVALID(m_axil_awvalid[1]),
+                   .S_AXI_AWREADY(m_axil_awready[1]),
+                   .S_AXI_WDATA(m_axil_wdata[1*32 +:32]),
+                   .S_AXI_WSTRB(m_axil_wstrb[1*4 +:4]),
+                   .S_AXI_WVALID(m_axil_wvalid[1]),
+                   .S_AXI_WREADY(m_axil_wready[1]),
+                   .S_AXI_BRESP(m_axil_bresp[1*2 +:2]),
+                   .S_AXI_BVALID(m_axil_bvalid[1]),
+                   .S_AXI_BREADY(m_axil_bready[1]),
+                   .S_AXI_ARADDR(m_axil_araddr[1*32 +:32]),
+                   .S_AXI_ARPROT(m_axil_arprot[1*3 +:3]),
+                   .S_AXI_ARVALID(m_axil_arvalid[1]),
+                   .S_AXI_ARREADY(m_axil_arready[1]),
+                   .S_AXI_RDATA(m_axil_rdata[1*32 +:32]),
+                   .S_AXI_RRESP(m_axil_rresp[1*2 +: 2]),
+                   .S_AXI_RVALID(m_axil_rvalid[1]),
+                   .S_AXI_RREADY(m_axil_rready[1]),
+                   .probes(probes[probe_start_index[1*16 +:16] +: probe_end_index[1*16 +:16]]),
+                   .in_cross_trig1( out_cross_trig1),
+                   .in_cross_trig2( out_cross_trig2),
+                   .in_cross_trig3( out_cross_trig3),
+                   .in_cross_trig4( out_cross_trig4),
+                   .out_cross_trig1(in_cross_trig1),
+                   .out_cross_trig2(in_cross_trig2),
+                   .out_cross_trig3(in_cross_trig3),
+                   .out_cross_trig4(in_cross_trig4),
+                   .self_trigger_status(cross_trigger_status),
+                   .cross_trigger_status(self_trigger_status),
+                   .self_start_core(cross_start_core),
+                   .cross_start_core(self_start_core)
+                   // .probes(probes[11:4])
+
+                 );
+
+
+          end
+
+
+
         end
-        else
-        begin: OCLA_GEN__NATIVE_AXI4
+        else if(Mode == "AXI" &&  Axi_Type  == "AXI4" )
+        begin: OCLA_GEN_AXI4
           ocla # (
                  .IP_TYPE(IP_TYPE),
                  .IP_VERSION(IP_VERSION),
@@ -814,9 +836,9 @@ module ocla_debug_subsystem #(
                  .MEM_DEPTH(Mem_Depth),
                  .AXI_DATA_WIDTH(Data_Width),
                  .AXI_ADDR_WIDTH(Addr_Width),
-                 .INDEX(OCLA_COUNT)
+                 .INDEX(0)
                )
-               ocla_inst_full (
+               ocla_inst (
                  .sample_clk(axi_sampling_clk),
                  .rstn(RESETn),
                  .S_AXI_ACLK(ACLK),
@@ -840,8 +862,659 @@ module ocla_debug_subsystem #(
                  .S_AXI_RRESP(ma_axil_rresp),
                  .S_AXI_RVALID(ma_axil_rvalid),
                  .S_AXI_RREADY(ma_axil_rready),
-                 .probes(axi4_probes)
+                 .probes      (axi4_probes),
+                 .in_cross_trig1(1'b0),
+                 .in_cross_trig2(1'b0),
+                 .in_cross_trig3(1'b0),
+                 .in_cross_trig4(1'b0),
+                 .out_cross_trig1(),
+                 .out_cross_trig2(),
+                 .out_cross_trig3(),
+                 .out_cross_trig4(),
+                 .self_trigger_status(),
+                 .cross_trigger_status(8'd0),
+                 .self_start_core(),
+                 .cross_start_core(1'b0)
                );
+        end
+        else if(Mode == "AXI" &&  Axi_Type  == "AXILite" )
+        begin: OCLA_GEN_AXILite
+          ocla # (
+                 .IP_TYPE(IP_TYPE),
+                 .IP_VERSION(IP_VERSION),
+                 .IP_ID(IP_ID),
+                 .NO_OF_PROBES(AXI_TOATAL_PROBES),
+                 .MEM_DEPTH(Mem_Depth),
+                 .AXI_DATA_WIDTH(Data_Width),
+                 .AXI_ADDR_WIDTH(Addr_Width),
+                 .INDEX(0)
+               )
+               ocla_inst (
+                 .sample_clk(axi_sampling_clk),
+                 .rstn(RESETn),
+                 .S_AXI_ACLK(ACLK),
+                 .S_AXI_ARESETN(RESETn),
+                 .S_AXI_AWADDR  (ma_axil_awaddr),
+                 .S_AXI_AWPROT  (ma_axil_awprot),
+                 .S_AXI_AWVALID (ma_axil_awvalid),
+                 .S_AXI_AWREADY (ma_axil_awready),
+                 .S_AXI_WDATA   (ma_axil_wdata),
+                 .S_AXI_WSTRB   (ma_axil_wstrb),
+                 .S_AXI_WVALID  (ma_axil_wvalid),
+                 .S_AXI_WREADY  (ma_axil_wready),
+                 .S_AXI_BRESP   (ma_axil_bresp),
+                 .S_AXI_BVALID  (ma_axil_bvalid),
+                 .S_AXI_BREADY  (ma_axil_bready),
+                 .S_AXI_ARADDR  (ma_axil_araddr),
+                 .S_AXI_ARPROT  (ma_axil_arprot),
+                 .S_AXI_ARVALID (ma_axil_arvalid),
+                 .S_AXI_ARREADY (ma_axil_arready),
+                 .S_AXI_RDATA   (ma_axil_rdata),
+                 .S_AXI_RRESP   (ma_axil_rresp),
+                 .S_AXI_RVALID  (ma_axil_rvalid),
+                 .S_AXI_RREADY  (ma_axil_rready),
+                 .probes        (axiLite_probes),
+                 .in_cross_trig1(1'b0),
+                 .in_cross_trig2(1'b0),
+                 .in_cross_trig3(1'b0),
+                 .in_cross_trig4(1'b0),
+                 .out_cross_trig1(),
+                 .out_cross_trig2(),
+                 .out_cross_trig3(),
+                 .out_cross_trig4(),
+                 .self_trigger_status(),
+                 .cross_trigger_status(8'd0),
+                 .self_start_core(),
+                 .cross_start_core(1'b0)
+               );
+        end
+        else
+        begin : OCLA_GEN_NATIVE_AXI
+
+          if (OCLA_COUNT == 1)
+          begin
+
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(Probes_No[0*16 +:16]),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(0)
+                 )
+                 ocla_core1 (
+                   .sample_clk(core_sampling_clk[0]),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(m_axil_awaddr[0*32 +:32]),
+                   .S_AXI_AWPROT(m_axil_awprot[0*3 +:3]),
+                   .S_AXI_AWVALID(m_axil_awvalid[0]),
+                   .S_AXI_AWREADY(m_axil_awready[0]),
+                   .S_AXI_WDATA(m_axil_wdata[0*32 +:32]),
+                   .S_AXI_WSTRB(m_axil_wstrb[0*4 +:4]),
+                   .S_AXI_WVALID(m_axil_wvalid[0]),
+                   .S_AXI_WREADY(m_axil_wready[0]),
+                   .S_AXI_BRESP(m_axil_bresp[0*2 +:2]),
+                   .S_AXI_BVALID(m_axil_bvalid[0]),
+                   .S_AXI_BREADY(m_axil_bready[0]),
+                   .S_AXI_ARADDR(m_axil_araddr[0*32 +:32]),
+                   .S_AXI_ARPROT(m_axil_arprot[0*3 +:3]),
+                   .S_AXI_ARVALID(m_axil_arvalid[0]),
+                   .S_AXI_ARREADY(m_axil_arready[0]),
+                   .S_AXI_RDATA(m_axil_rdata[0*32 +:32]),
+                   .S_AXI_RRESP(m_axil_rresp[0*2 +: 2]),
+                   .S_AXI_RVALID(m_axil_rvalid[0]),
+                   .S_AXI_RREADY(m_axil_rready[0]),
+                   .probes(probes[probe_start_index[0*16 +:16] +: probe_end_index[0*16 +:16]]),
+                   .in_cross_trig1(1'b0),
+                   .in_cross_trig2(1'b0),
+                   .in_cross_trig3(1'b0),
+                   .in_cross_trig4(1'b0),
+                   .out_cross_trig1(),
+                   .out_cross_trig2(),
+                   .out_cross_trig3(),
+                   .out_cross_trig4(),
+                   .self_trigger_status(),
+                   .cross_trigger_status(8'd0),
+                   .self_start_core(),
+                   .cross_start_core(1'b0)
+                   // .probes(probes[11:4])
+
+                 );
+
+          end
+          else if (OCLA_COUNT > 1)
+          begin
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(Probes_No[0*16 +:16]),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(0)
+                 )
+                 ocla_core1 (
+                   .sample_clk(core_sampling_clk[0]),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(m_axil_awaddr[0*32 +:32]),
+                   .S_AXI_AWPROT(m_axil_awprot[0*3 +:3]),
+                   .S_AXI_AWVALID(m_axil_awvalid[0]),
+                   .S_AXI_AWREADY(m_axil_awready[0]),
+                   .S_AXI_WDATA(m_axil_wdata[0*32 +:32]),
+                   .S_AXI_WSTRB(m_axil_wstrb[0*4 +:4]),
+                   .S_AXI_WVALID(m_axil_wvalid[0]),
+                   .S_AXI_WREADY(m_axil_wready[0]),
+                   .S_AXI_BRESP(m_axil_bresp[0*2 +:2]),
+                   .S_AXI_BVALID(m_axil_bvalid[0]),
+                   .S_AXI_BREADY(m_axil_bready[0]),
+                   .S_AXI_ARADDR(m_axil_araddr[0*32 +:32]),
+                   .S_AXI_ARPROT(m_axil_arprot[0*3 +:3]),
+                   .S_AXI_ARVALID(m_axil_arvalid[0]),
+                   .S_AXI_ARREADY(m_axil_arready[0]),
+                   .S_AXI_RDATA(m_axil_rdata[0*32 +:32]),
+                   .S_AXI_RRESP(m_axil_rresp[0*2 +: 2]),
+                   .S_AXI_RVALID(m_axil_rvalid[0]),
+                   .S_AXI_RREADY(m_axil_rready[0]),
+                   .probes(probes[probe_start_index[0*16 +:16] +: probe_end_index[0*16 +:16]]),
+                   .in_cross_trig1(in_cross_trig1),
+                   .in_cross_trig2(in_cross_trig2),
+                   .in_cross_trig3(in_cross_trig3),
+                   .in_cross_trig4(in_cross_trig4),
+                   .out_cross_trig1(out_cross_trig1),
+                   .out_cross_trig2(out_cross_trig2),
+                   .out_cross_trig3(out_cross_trig3),
+                   .out_cross_trig4(out_cross_trig4),
+                   .self_trigger_status(self_trigger_status),
+                   .cross_trigger_status(cross_trigger_status),
+                   .self_start_core(self_start_core),
+                   .cross_start_core(cross_start_core)
+                   // .probes(probes[11:4])
+
+                 );
+
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(Probes_No[1*16 +:16]),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(1)
+                 )
+                 ocla_core2 (
+                   .sample_clk(core_sampling_clk[1]),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(m_axil_awaddr[1*32 +:32]),
+                   .S_AXI_AWPROT(m_axil_awprot[1*3 +:3]),
+                   .S_AXI_AWVALID(m_axil_awvalid[1]),
+                   .S_AXI_AWREADY(m_axil_awready[1]),
+                   .S_AXI_WDATA(m_axil_wdata[1*32 +:32]),
+                   .S_AXI_WSTRB(m_axil_wstrb[1*4 +:4]),
+                   .S_AXI_WVALID(m_axil_wvalid[1]),
+                   .S_AXI_WREADY(m_axil_wready[1]),
+                   .S_AXI_BRESP(m_axil_bresp[1*2 +:2]),
+                   .S_AXI_BVALID(m_axil_bvalid[1]),
+                   .S_AXI_BREADY(m_axil_bready[1]),
+                   .S_AXI_ARADDR(m_axil_araddr[1*32 +:32]),
+                   .S_AXI_ARPROT(m_axil_arprot[1*3 +:3]),
+                   .S_AXI_ARVALID(m_axil_arvalid[1]),
+                   .S_AXI_ARREADY(m_axil_arready[1]),
+                   .S_AXI_RDATA(m_axil_rdata[1*32 +:32]),
+                   .S_AXI_RRESP(m_axil_rresp[1*2 +: 2]),
+                   .S_AXI_RVALID(m_axil_rvalid[1]),
+                   .S_AXI_RREADY(m_axil_rready[1]),
+                   .probes(probes[probe_start_index[1*16 +:16] +: probe_end_index[1*16 +:16]]),
+                   .in_cross_trig1( out_cross_trig1),
+                   .in_cross_trig2( out_cross_trig2),
+                   .in_cross_trig3( out_cross_trig3),
+                   .in_cross_trig4( out_cross_trig4),
+                   .out_cross_trig1(in_cross_trig1),
+                   .out_cross_trig2(in_cross_trig2),
+                   .out_cross_trig3(in_cross_trig3),
+                   .out_cross_trig4(in_cross_trig4),
+                   .self_trigger_status(cross_trigger_status),
+                   .cross_trigger_status(self_trigger_status),
+                   .self_start_core(cross_start_core),
+                   .cross_start_core(self_start_core)
+                   // .probes(probes[11:4])
+
+                 );
+
+
+          end
+
+          if(Axi_Type  == "AXILite" )
+          begin: OCLA_GEN__NATIVE_AXILite
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(AXI_TOATAL_PROBES),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(OCLA_COUNT)
+                 )
+                 ocla_inst_Lite (
+                   .sample_clk(axi_sampling_clk),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR  (ma_axil_awaddr),
+                   .S_AXI_AWPROT  (ma_axil_awprot),
+                   .S_AXI_AWVALID (ma_axil_awvalid),
+                   .S_AXI_AWREADY (ma_axil_awready),
+                   .S_AXI_WDATA   (ma_axil_wdata),
+                   .S_AXI_WSTRB   (ma_axil_wstrb),
+                   .S_AXI_WVALID  (ma_axil_wvalid),
+                   .S_AXI_WREADY  (ma_axil_wready),
+                   .S_AXI_BRESP   (ma_axil_bresp),
+                   .S_AXI_BVALID  (ma_axil_bvalid),
+                   .S_AXI_BREADY  (ma_axil_bready),
+                   .S_AXI_ARADDR  (ma_axil_araddr),
+                   .S_AXI_ARPROT  (ma_axil_arprot),
+                   .S_AXI_ARVALID (ma_axil_arvalid),
+                   .S_AXI_ARREADY (ma_axil_arready),
+                   .S_AXI_RDATA   (ma_axil_rdata),
+                   .S_AXI_RRESP   (ma_axil_rresp),
+                   .S_AXI_RVALID  (ma_axil_rvalid),
+                   .S_AXI_RREADY  (ma_axil_rready),
+                   .probes(axiLite_probes),
+                   .in_cross_trig1(1'b0),
+                   .in_cross_trig2(1'b0),
+                   .in_cross_trig3(1'b0),
+                   .in_cross_trig4(1'b0),
+                   .out_cross_trig1(),
+                   .out_cross_trig2(),
+                   .out_cross_trig3(),
+                   .out_cross_trig4(),
+                   .self_trigger_status(),
+                   .cross_trigger_status(8'd0),
+                   .self_start_core(),
+                   .cross_start_core(1'b0)
+                 );
+          end
+          else
+          begin: OCLA_GEN__NATIVE_AXI4
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(AXI_TOATAL_PROBES),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(OCLA_COUNT)
+                 )
+                 ocla_inst_full (
+                   .sample_clk(axi_sampling_clk),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(ma_axil_awaddr),
+                   .S_AXI_AWPROT(ma_axil_awprot),
+                   .S_AXI_AWVALID(ma_axil_awvalid),
+                   .S_AXI_AWREADY(ma_axil_awready),
+                   .S_AXI_WDATA(ma_axil_wdata),
+                   .S_AXI_WSTRB(ma_axil_wstrb),
+                   .S_AXI_WVALID(ma_axil_wvalid),
+                   .S_AXI_WREADY(ma_axil_wready),
+                   .S_AXI_BRESP(ma_axil_bresp),
+                   .S_AXI_BVALID(ma_axil_bvalid),
+                   .S_AXI_BREADY(ma_axil_bready),
+                   .S_AXI_ARADDR(ma_axil_araddr),
+                   .S_AXI_ARPROT(ma_axil_arprot),
+                   .S_AXI_ARVALID(ma_axil_arvalid),
+                   .S_AXI_ARREADY(ma_axil_arready),
+                   .S_AXI_RDATA(ma_axil_rdata),
+                   .S_AXI_RRESP(ma_axil_rresp),
+                   .S_AXI_RVALID(ma_axil_rvalid),
+                   .S_AXI_RREADY(ma_axil_rready),
+                   .probes(axi4_probes),
+                   .in_cross_trig1(1'b0),
+                   .in_cross_trig2(1'b0),
+                   .in_cross_trig3(1'b0),
+                   .in_cross_trig4(1'b0),
+                   .out_cross_trig1(),
+                   .out_cross_trig2(),
+                   .out_cross_trig3(),
+                   .out_cross_trig4(),
+                   .self_trigger_status(),
+                   .cross_trigger_status(8'd0),
+                   .self_start_core(),
+                   .cross_start_core(1'b0)
+                 );
+          end
+
+        end
+      end
+      else
+      begin
+        if (Mode == "NATIVE")
+        begin: OCLA_GEN_NATIVE
+
+          genvar i;
+          for (i = 0; i < OCLA_COUNT; i = i + 1)
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(Probes_No[i*16 +:16]),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(i)
+                 )
+                 ocla_inst (
+                   .sample_clk(core_sampling_clk[i]),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(m_axil_awaddr[i*32 +:32]),
+                   .S_AXI_AWPROT(m_axil_awprot[i*3 +:3]),
+                   .S_AXI_AWVALID(m_axil_awvalid[i]),
+                   .S_AXI_AWREADY(m_axil_awready[i]),
+                   .S_AXI_WDATA(m_axil_wdata[i*32 +:32]),
+                   .S_AXI_WSTRB(m_axil_wstrb[i*4 +:4]),
+                   .S_AXI_WVALID(m_axil_wvalid[i]),
+                   .S_AXI_WREADY(m_axil_wready[i]),
+                   .S_AXI_BRESP(m_axil_bresp[i*2 +:2]),
+                   .S_AXI_BVALID(m_axil_bvalid[i]),
+                   .S_AXI_BREADY(m_axil_bready[i]),
+                   .S_AXI_ARADDR(m_axil_araddr[i*32 +:32]),
+                   .S_AXI_ARPROT(m_axil_arprot[i*3 +:3]),
+                   .S_AXI_ARVALID(m_axil_arvalid[i]),
+                   .S_AXI_ARREADY(m_axil_arready[i]),
+                   .S_AXI_RDATA(m_axil_rdata[i*32 +:32]),
+                   .S_AXI_RRESP(m_axil_rresp[i*2 +: 2]),
+                   .S_AXI_RVALID(m_axil_rvalid[i]),
+                   .S_AXI_RREADY(m_axil_rready[i]),
+                   .probes(probes[probe_start_index[i*16 +:16] +: probe_end_index[i*16 +:16]]),
+                   .in_cross_trig1(1'b0),
+                   .in_cross_trig2(1'b0),
+                   .in_cross_trig3(1'b0),
+                   .in_cross_trig4(1'b0),
+                   .out_cross_trig1(),
+                   .out_cross_trig2(),
+                   .out_cross_trig3(),
+                   .out_cross_trig4(),
+                   .self_trigger_status(),
+                   .cross_trigger_status(8'd0),
+                   .self_start_core(),
+                   .cross_start_core(1'b0)
+
+                 );
+        end
+        else if(Mode == "AXI" &&  Axi_Type  == "AXI4" )
+        begin: OCLA_GEN_AXI4
+          ocla # (
+                 .IP_TYPE(IP_TYPE),
+                 .IP_VERSION(IP_VERSION),
+                 .IP_ID(IP_ID),
+                 .NO_OF_PROBES(AXI_TOATAL_PROBES),
+                 .MEM_DEPTH(Mem_Depth),
+                 .AXI_DATA_WIDTH(Data_Width),
+                 .AXI_ADDR_WIDTH(Addr_Width),
+                 .INDEX(0)
+               )
+               ocla_inst (
+                 .sample_clk(axi_sampling_clk),
+                 .rstn(RESETn),
+                 .S_AXI_ACLK(ACLK),
+                 .S_AXI_ARESETN(RESETn),
+                 .S_AXI_AWADDR(ma_axil_awaddr),
+                 .S_AXI_AWPROT(ma_axil_awprot),
+                 .S_AXI_AWVALID(ma_axil_awvalid),
+                 .S_AXI_AWREADY(ma_axil_awready),
+                 .S_AXI_WDATA(ma_axil_wdata),
+                 .S_AXI_WSTRB(ma_axil_wstrb),
+                 .S_AXI_WVALID(ma_axil_wvalid),
+                 .S_AXI_WREADY(ma_axil_wready),
+                 .S_AXI_BRESP(ma_axil_bresp),
+                 .S_AXI_BVALID(ma_axil_bvalid),
+                 .S_AXI_BREADY(ma_axil_bready),
+                 .S_AXI_ARADDR(ma_axil_araddr),
+                 .S_AXI_ARPROT(ma_axil_arprot),
+                 .S_AXI_ARVALID(ma_axil_arvalid),
+                 .S_AXI_ARREADY(ma_axil_arready),
+                 .S_AXI_RDATA(ma_axil_rdata),
+                 .S_AXI_RRESP(ma_axil_rresp),
+                 .S_AXI_RVALID(ma_axil_rvalid),
+                 .S_AXI_RREADY(ma_axil_rready),
+                 .probes      (axi4_probes),
+                 .in_cross_trig1(1'b0),
+                 .in_cross_trig2(1'b0),
+                 .in_cross_trig3(1'b0),
+                 .in_cross_trig4(1'b0),
+                 .out_cross_trig1(),
+                 .out_cross_trig2(),
+                 .out_cross_trig3(),
+                 .out_cross_trig4(),
+                 .self_trigger_status(),
+                 .cross_trigger_status(8'd0),
+                 .self_start_core(),
+                 .cross_start_core(1'b0)
+               );
+        end
+        else if(Mode == "AXI" &&  Axi_Type  == "AXILite" )
+        begin: OCLA_GEN_AXILite
+          ocla # (
+                 .IP_TYPE(IP_TYPE),
+                 .IP_VERSION(IP_VERSION),
+                 .IP_ID(IP_ID),
+                 .NO_OF_PROBES(AXI_TOATAL_PROBES),
+                 .MEM_DEPTH(Mem_Depth),
+                 .AXI_DATA_WIDTH(Data_Width),
+                 .AXI_ADDR_WIDTH(Addr_Width),
+                 .INDEX(0)
+               )
+               ocla_inst (
+                 .sample_clk(axi_sampling_clk),
+                 .rstn(RESETn),
+                 .S_AXI_ACLK(ACLK),
+                 .S_AXI_ARESETN(RESETn),
+                 .S_AXI_AWADDR  (ma_axil_awaddr),
+                 .S_AXI_AWPROT  (ma_axil_awprot),
+                 .S_AXI_AWVALID (ma_axil_awvalid),
+                 .S_AXI_AWREADY (ma_axil_awready),
+                 .S_AXI_WDATA   (ma_axil_wdata),
+                 .S_AXI_WSTRB   (ma_axil_wstrb),
+                 .S_AXI_WVALID  (ma_axil_wvalid),
+                 .S_AXI_WREADY  (ma_axil_wready),
+                 .S_AXI_BRESP   (ma_axil_bresp),
+                 .S_AXI_BVALID  (ma_axil_bvalid),
+                 .S_AXI_BREADY  (ma_axil_bready),
+                 .S_AXI_ARADDR  (ma_axil_araddr),
+                 .S_AXI_ARPROT  (ma_axil_arprot),
+                 .S_AXI_ARVALID (ma_axil_arvalid),
+                 .S_AXI_ARREADY (ma_axil_arready),
+                 .S_AXI_RDATA   (ma_axil_rdata),
+                 .S_AXI_RRESP   (ma_axil_rresp),
+                 .S_AXI_RVALID  (ma_axil_rvalid),
+                 .S_AXI_RREADY  (ma_axil_rready),
+                 .probes        (axiLite_probes),
+                 .in_cross_trig1(1'b0),
+                 .in_cross_trig2(1'b0),
+                 .in_cross_trig3(1'b0),
+                 .in_cross_trig4(1'b0),
+                 .out_cross_trig1(),
+                 .out_cross_trig2(),
+                 .out_cross_trig3(),
+                 .out_cross_trig4(),
+                 .self_trigger_status(),
+                 .cross_trigger_status(8'd0),
+                 .self_start_core(),
+                 .cross_start_core(1'b0)
+               );
+        end
+        else
+        begin : OCLA_GEN_NATIVE_AXI
+
+          genvar i;
+          for (i = 0; i < OCLA_COUNT; i = i + 1)
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(Probes_No[i*16 +:16]),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(i)
+                 )
+                 ocla_inst (
+                   .sample_clk(core_sampling_clk[i]),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(m_axil_awaddr[i*32 +:32]),
+                   .S_AXI_AWPROT(m_axil_awprot[i*3 +:3]),
+                   .S_AXI_AWVALID(m_axil_awvalid[i]),
+                   .S_AXI_AWREADY(m_axil_awready[i]),
+                   .S_AXI_WDATA(m_axil_wdata[i*32 +:32]),
+                   .S_AXI_WSTRB(m_axil_wstrb[i*4 +:4]),
+                   .S_AXI_WVALID(m_axil_wvalid[i]),
+                   .S_AXI_WREADY(m_axil_wready[i]),
+                   .S_AXI_BRESP(m_axil_bresp[i*2 +:2]),
+                   .S_AXI_BVALID(m_axil_bvalid[i]),
+                   .S_AXI_BREADY(m_axil_bready[i]),
+                   .S_AXI_ARADDR(m_axil_araddr[i*32 +:32]),
+                   .S_AXI_ARPROT(m_axil_arprot[i*3 +:3]),
+                   .S_AXI_ARVALID(m_axil_arvalid[i]),
+                   .S_AXI_ARREADY(m_axil_arready[i]),
+                   .S_AXI_RDATA(m_axil_rdata[i*32 +:32]),
+                   .S_AXI_RRESP(m_axil_rresp[i*2 +: 2]),
+                   .S_AXI_RVALID(m_axil_rvalid[i]),
+                   .S_AXI_RREADY(m_axil_rready[i]),
+                   .probes(probes[probe_start_index[i*16 +:16] +: probe_end_index[i*16 +:16]]),
+                   .in_cross_trig1(1'b0),
+                   .in_cross_trig2(1'b0),
+                   .in_cross_trig3(1'b0),
+                   .in_cross_trig4(1'b0),
+                   .out_cross_trig1(),
+                   .out_cross_trig2(),
+                   .out_cross_trig3(),
+                   .out_cross_trig4(),
+                   .self_trigger_status(),
+                   .cross_trigger_status(8'd0),
+                   .self_start_core(),
+                   .cross_start_core(1'b0)
+
+                 );
+
+          if(Axi_Type  == "AXILite" )
+          begin: OCLA_GEN__NATIVE_AXILite
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(AXI_TOATAL_PROBES),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(OCLA_COUNT)
+                 )
+                 ocla_inst_Lite (
+                   .sample_clk(axi_sampling_clk),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR  (ma_axil_awaddr),
+                   .S_AXI_AWPROT  (ma_axil_awprot),
+                   .S_AXI_AWVALID (ma_axil_awvalid),
+                   .S_AXI_AWREADY (ma_axil_awready),
+                   .S_AXI_WDATA   (ma_axil_wdata),
+                   .S_AXI_WSTRB   (ma_axil_wstrb),
+                   .S_AXI_WVALID  (ma_axil_wvalid),
+                   .S_AXI_WREADY  (ma_axil_wready),
+                   .S_AXI_BRESP   (ma_axil_bresp),
+                   .S_AXI_BVALID  (ma_axil_bvalid),
+                   .S_AXI_BREADY  (ma_axil_bready),
+                   .S_AXI_ARADDR  (ma_axil_araddr),
+                   .S_AXI_ARPROT  (ma_axil_arprot),
+                   .S_AXI_ARVALID (ma_axil_arvalid),
+                   .S_AXI_ARREADY (ma_axil_arready),
+                   .S_AXI_RDATA   (ma_axil_rdata),
+                   .S_AXI_RRESP   (ma_axil_rresp),
+                   .S_AXI_RVALID  (ma_axil_rvalid),
+                   .S_AXI_RREADY  (ma_axil_rready),
+                   .probes(axiLite_probes),
+                   .in_cross_trig1(1'b0),
+                   .in_cross_trig2(1'b0),
+                   .in_cross_trig3(1'b0),
+                   .in_cross_trig4(1'b0),
+                   .out_cross_trig1(),
+                   .out_cross_trig2(),
+                   .out_cross_trig3(),
+                   .out_cross_trig4(),
+                   .self_trigger_status(),
+                   .cross_trigger_status(8'd0),
+                   .self_start_core(),
+                   .cross_start_core(1'b0)
+                 );
+          end
+          else
+          begin: OCLA_GEN__NATIVE_AXI4
+            ocla # (
+                   .IP_TYPE(IP_TYPE),
+                   .IP_VERSION(IP_VERSION),
+                   .IP_ID(IP_ID),
+                   .NO_OF_PROBES(AXI_TOATAL_PROBES),
+                   .MEM_DEPTH(Mem_Depth),
+                   .AXI_DATA_WIDTH(Data_Width),
+                   .AXI_ADDR_WIDTH(Addr_Width),
+                   .INDEX(OCLA_COUNT)
+                 )
+                 ocla_inst_full (
+                   .sample_clk(axi_sampling_clk),
+                   .rstn(RESETn),
+                   .S_AXI_ACLK(ACLK),
+                   .S_AXI_ARESETN(RESETn),
+                   .S_AXI_AWADDR(ma_axil_awaddr),
+                   .S_AXI_AWPROT(ma_axil_awprot),
+                   .S_AXI_AWVALID(ma_axil_awvalid),
+                   .S_AXI_AWREADY(ma_axil_awready),
+                   .S_AXI_WDATA(ma_axil_wdata),
+                   .S_AXI_WSTRB(ma_axil_wstrb),
+                   .S_AXI_WVALID(ma_axil_wvalid),
+                   .S_AXI_WREADY(ma_axil_wready),
+                   .S_AXI_BRESP(ma_axil_bresp),
+                   .S_AXI_BVALID(ma_axil_bvalid),
+                   .S_AXI_BREADY(ma_axil_bready),
+                   .S_AXI_ARADDR(ma_axil_araddr),
+                   .S_AXI_ARPROT(ma_axil_arprot),
+                   .S_AXI_ARVALID(ma_axil_arvalid),
+                   .S_AXI_ARREADY(ma_axil_arready),
+                   .S_AXI_RDATA(ma_axil_rdata),
+                   .S_AXI_RRESP(ma_axil_rresp),
+                   .S_AXI_RVALID(ma_axil_rvalid),
+                   .S_AXI_RREADY(ma_axil_rready),
+                   .probes(axi4_probes),
+                   .in_cross_trig1(1'b0),
+                   .in_cross_trig2(1'b0),
+                   .in_cross_trig3(1'b0),
+                   .in_cross_trig4(1'b0),
+                   .out_cross_trig1(),
+                   .out_cross_trig2(),
+                   .out_cross_trig3(),
+                   .out_cross_trig4(),
+                   .self_trigger_status(),
+                   .cross_trigger_status(8'd0),
+                   .self_start_core(),
+                   .cross_start_core(1'b0)
+                 );
+          end
+
         end
 
       end
