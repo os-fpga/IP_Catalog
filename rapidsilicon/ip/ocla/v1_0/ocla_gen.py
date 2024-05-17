@@ -758,10 +758,13 @@ def main():
 
     else:
             summary["EIO Feature Enabled"] = "NO"
-            
-    # Export JSON Template (Optional) --------------------------------------------------------------
+    
+
+
+    
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+        rs_builder.copy_images(img_path=(os.path.dirname(os.path.realpath(__file__))))    # Export JSON Template (Optional) --------------------------------------------------------------
         
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
@@ -771,15 +774,15 @@ def main():
         address_width2     = args.axi2_addr_width,
         data_width2        = args.axi2_data_width,
         No_AXI_Bus         = args.No_AXI_Bus,
-        nprobes           = args.no_of_probes, 
-        mem_depth         = args.mem_depth,
-        probesize         = probe_size,
-        mode              = args.mode,
-        axi_type          = args.axi_type,
-        Sampling_Clock    = args.Sampling_Clock,
-        EIO_Enable        = args.EIO_Enable,
-        Input_Probe_Width = args.Input_Probe_Width,
-        Ouput_Probe_width = args.Ouput_Probe_width
+        nprobes            = args.no_of_probes, 
+        mem_depth          = args.mem_depth,
+        probesize          = probe_size,
+        mode               = args.mode,
+        axi_type           = args.axi_type,
+        Sampling_Clock     = args.Sampling_Clock,
+        EIO_Enable         = args.EIO_Enable,
+        Input_Probe_Width  = args.Input_Probe_Width,
+        Ouput_Probe_width  = args.Ouput_Probe_width
         
     )
      

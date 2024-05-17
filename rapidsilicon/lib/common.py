@@ -17,7 +17,7 @@ class IP_Builder:
         self.ip_name  = ip_name
         self.language = language
         self.prepared = False
-
+        self.image_name = None
     @staticmethod
     def add_wrapper_text(filename, text, line):
         # Read Verilog content and add text.
@@ -257,6 +257,45 @@ class IP_Builder:
                     shutil.copy(full_file_path, self.sim_path)
                 elif os.path.isdir(full_file_path):
                     shutil.copytree(simulate_path, self.sim_path, ignore=shutil.ignore_patterns('rapidsilicon'), dirs_exist_ok=True)
+
+
+
+    def copy_images(self, img_path):
+        self.img_final_path          = os.path.join(self.build_path, "docs")
+        os.makedirs(self.img_final_path,          exist_ok=True)
+        img_src_path =  os.path.join(img_path, "docs")
+        if os.path.exists(img_src_path):
+            img_files = os.listdir(img_src_path)
+            for file_name in img_files:
+                if file_name.endswith(".png"):
+                    full_file_path = os.path.join(img_src_path, file_name)
+                    if os.path.isfile(full_file_path):
+                        shutil.copy(full_file_path, self.img_final_path)
+                
+        print("doc_path", full_file_path, "-----------------", self.img_final_path)
+    
+    
+    def img_name(self, io_model, img_path):
+        print("io_model",io_model,  "   img_path", img_path )
+        self.img_final_path          = os.path.join(self.build_path, "docs")
+        os.makedirs(self.img_final_path,          exist_ok=True)
+        img_src_path =  os.path.join(img_path, "docs")
+        if os.path.exists(img_src_path):
+            img_files = os.listdir(img_src_path)
+            for file_name in img_files:
+                if file_name.startswith(io_model):
+                    full_file_path = os.path.join(img_src_path, file_name)
+                    new_dst = os.path.join(self.img_final_path, "io_config.png")
+                    if os.path.isfile(full_file_path):
+                        shutil.copy(full_file_path, new_dst)
+                
+        print("doc_path", full_file_path, "-----------------", self.img_final_path)
+    
+
+#        self.image_name = io_model
+#        if self.ip_name == "io_configurator":
+#            copy_images(self, img_path)
+
 
     def generate_tcl(self,version):
         assert self.prepared
