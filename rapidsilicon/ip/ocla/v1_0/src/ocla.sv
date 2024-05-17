@@ -73,7 +73,21 @@ module ocla #(
     output  logic [1 : 0] S_AXI_RRESP,
     output  logic S_AXI_RVALID,
     input   logic S_AXI_RREADY,
-    input   logic [NO_OF_PROBES-1:0] probes
+    input   logic [NO_OF_PROBES-1:0] probes,
+
+    input logic   in_cross_trig1,
+    input logic   in_cross_trig2,
+    input logic   in_cross_trig3,
+    input logic   in_cross_trig4,
+    output logic  out_cross_trig1,
+    output logic  out_cross_trig2,
+    output logic  out_cross_trig3,
+    output logic  out_cross_trig4,
+    output logic [7:0] self_trigger_status,
+
+    input logic [7:0] cross_trigger_status,
+    output logic self_start_core,
+    input logic cross_start_core
   );
 
 
@@ -86,11 +100,11 @@ module ocla #(
   // in case number of probe is not a multiple of 32
   localparam WORD_CHUNKS = NO_OF_PROBES > 32 ? (NO_OF_PROBES / 32) +((NO_OF_PROBES - $floor(NO_OF_PROBES / 32) * 32 )== 0 ? 0:1):1;
   // number of 32 bit words in which probes can be divided
-  //localparam PROBE_BITS = 32 - int'(REM_BITS);
-  localparam [31:0] PROBE_BITS = 32 - REM_BITS;
-  //localparam WORD_CHUNK_CNTR_WIDTH = WORD_CHUNKS> 1? int'($clog2(WORD_CHUNKS)):1;
+  localparam PROBE_BITS = 32 - int'(REM_BITS);
+  //localparam [31:0] PROBE_BITS = 32 - REM_BITS;
+  localparam WORD_CHUNK_CNTR_WIDTH = WORD_CHUNKS> 1? int'($clog2(WORD_CHUNKS)):1;
 
-  localparam WORD_CHUNK_CNTR_WIDTH = WORD_CHUNKS> 1? ($clog2(WORD_CHUNKS)):1;
+  //localparam WORD_CHUNK_CNTR_WIDTH = WORD_CHUNKS> 1? ($clog2(WORD_CHUNKS)):1;
 
   // ---------------------------------------------------------------
   // Dual Synchronizer flop
@@ -177,7 +191,9 @@ module ocla #(
 
   logic sampling_done_ff;
   logic done_sampling_ff_sync;
+  logic intrn_rst_force;
 
+  assign self_start_core = OCCR_OUT[0];
   // ---------------------------------------------------------------//
   // Synchronizer flop instance for                                 //
   // for sampling done signal from sampling clock domain            //
@@ -238,7 +254,7 @@ module ocla #(
             ) TMTR_REG_bits_sync (
               .clk(sample_clk),
               .rstn(rstn),
-              .D(OCCR_OUT[0]),
+              .D(OCCR_OUT[0] | cross_start_core),
               .Q(TMTR_REG_port_strt_bit_sync)
             );
 
@@ -254,7 +270,7 @@ module ocla #(
                     .MEM_DPTH_HALF(MEMORY_DEPTH_HALF)
                   ) ocla_controller_inst (
                     .sample_clk(sample_clk),
-                    .rstn(rstn),
+                    .rstn(rstn ),
                     .trigger_event(trigger_event),
                     .trigger_mode(TMTR_OUT[1:0]),
                     .mem_full(wr_full),
@@ -274,6 +290,7 @@ module ocla #(
   //                                                                //
   // ---------------------------------------------------------------//
   logic start_cap;
+  assign self_trigger_status = {TCUR3_OUT[1:0],TCUR2_OUT[1:0],TCUR1_OUT[1:0],TCUR0_OUT[1:0]};
   trigger_control_unit #(
                          .NPROBES(NO_OF_PROBES),
                          .SELECT_MUX_WIDTH(SELECT_MUX_WIDTH),
@@ -297,8 +314,17 @@ module ocla #(
                          .mask1(MASK1_OUT),
                          .mask2(MASK2_OUT),
                          .mask3(MASK3_OUT),
-                         .start_cap(OCCR_OUT[0]),
-                         .trigger_event(trigger_event)
+                         .start_cap(OCCR_OUT[0] | cross_start_core),
+                         .trigger_event(trigger_event),
+                         .in_cross_trig1(in_cross_trig1),
+                         .in_cross_trig2(in_cross_trig2),
+                         .in_cross_trig3(in_cross_trig3),
+                         .in_cross_trig4(in_cross_trig4),
+                         .out_cross_trig1(out_cross_trig1),
+                         .out_cross_trig2(out_cross_trig2),
+                         .out_cross_trig3(out_cross_trig3),
+                         .out_cross_trig4(out_cross_trig4),
+                         .trigger_status({cross_trigger_status,self_trigger_status})
                        );
 
   // ---------------------------------------------------------------//
@@ -410,7 +436,7 @@ module ocla #(
                  .MASK3_OUT(MASK3_OUT),
                  .reset_fifo_wr_pntr(reset_fifo_pntr),
                  .S_AXI_ACLK(S_AXI_ACLK),
-                 .S_AXI_ARESETN(S_AXI_ARESETN),
+                 .S_AXI_ARESETN(S_AXI_ARESETN ),
                  .S_AXI_AWADDR(S_AXI_AWADDR),
                  .S_AXI_AWPROT(S_AXI_AWPROT),
                  .S_AXI_AWVALID(S_AXI_AWVALID),
@@ -429,7 +455,8 @@ module ocla #(
                  .S_AXI_RDATA(S_AXI_RDATA),
                  .S_AXI_RRESP(S_AXI_RRESP),
                  .S_AXI_RVALID(S_AXI_RVALID),
-                 .S_AXI_RREADY(S_AXI_RREADY)
+                 .S_AXI_RREADY(S_AXI_RREADY),
+                 .intrn_rst_force(intrn_rst_force)
                );
 
 
@@ -523,9 +550,25 @@ module trigger_control_unit #(
       input logic [32-1:0] mask3,
 
       input logic start_cap,
-      output logic trigger_event
+      output logic trigger_event,
+      input logic in_cross_trig1,
+      input logic in_cross_trig2,
+      input logic in_cross_trig3,
+      input logic in_cross_trig4,
+
+      output logic out_cross_trig1,
+      output logic out_cross_trig2,
+      output logic out_cross_trig3,
+      output logic out_cross_trig4,
+
+      input logic [15:0] trigger_status
 
     );
+
+  assign out_cross_trig1 = out_trig1;
+  assign out_cross_trig2 = out_trig2;
+  assign out_cross_trig3 = out_trig3;
+  assign out_cross_trig4 = out_trig4;
 
   logic out_trig1;
 
@@ -972,7 +1015,12 @@ module trigger_control_unit #(
                        .in_sig4(out_trig4),
                        //.config_bits(config_bits_ff[16:15]),
                        .config_bits(boolean_operator),
-                       .trigger_event(out_trig_bool)
+                       .trigger_status(trigger_status),
+                       .trigger_event(out_trig_bool),
+                       .in_cross_trig1(in_cross_trig1),
+                       .in_cross_trig2(in_cross_trig2),
+                       .in_cross_trig3(in_cross_trig3),
+                       .in_cross_trig4(in_cross_trig4)
                      );
 
   assign trigger_event = out_trig_bool;
@@ -995,12 +1043,77 @@ module boolean_comparator (
 
     //input logic [1:0] config_bits,
     input logic [1:0] config_bits,
-    output logic trigger_event
+    input logic [15:0] trigger_status,   // tirgger status for each trigger unit. 2 bits represent one trigger unit
+    output logic trigger_event,
+    input logic in_cross_trig1,
+    input logic in_cross_trig2,
+    input logic in_cross_trig3,
+    input logic in_cross_trig4
   );
+
+  logic [3:0] self_trigger_bits;
+  logic [3:0] cross_trigger_bits;
 
   logic in_sig_ff;
   logic out_sig;
+  logic self_out_sig;
+  logic cross_out_sig;
 
+
+  assign self_trigger_bits[0] = trigger_status[0] | trigger_status[1];
+  assign self_trigger_bits[1] = trigger_status[2] | trigger_status[3];
+  assign self_trigger_bits[2] = trigger_status[4] | trigger_status[5];
+  assign self_trigger_bits[3] = trigger_status[6] | trigger_status[7];
+  assign cross_trigger_bits[0] = trigger_status[8] | trigger_status[9];
+  assign cross_trigger_bits[1] = trigger_status[10] | trigger_status[11];
+  assign cross_trigger_bits[2] = trigger_status[12] | trigger_status[13];
+  assign cross_trigger_bits[3] = trigger_status[14] | trigger_status[15];
+
+
+  always @(*)
+  begin
+    case (self_trigger_bits)
+      4'd0: self_out_sig = 0;
+      4'd1: self_out_sig = in_sig1;
+      4'd2: self_out_sig = in_sig2;
+      4'd3: self_out_sig = in_sig1 & in_sig2;
+      4'd4: self_out_sig = in_sig3;
+      4'd5: self_out_sig = in_sig1 & in_sig3;
+      4'd6: self_out_sig = in_sig2 & in_sig3;
+      4'd7: self_out_sig = in_sig1 & in_sig2 & in_sig3;
+      4'd8: self_out_sig = in_sig4;
+      4'd9: self_out_sig = in_sig1 & in_sig4;
+      4'd10: self_out_sig = in_sig2 & in_sig4;
+      4'd11: self_out_sig = in_sig1 & in_sig2 & in_sig4;
+      4'd12: self_out_sig = in_sig3 & in_sig4;
+      4'd13: self_out_sig = in_sig1 & in_sig3 & in_sig4;
+      4'd14: self_out_sig = in_sig2 & in_sig3 & in_sig4;
+      4'd15: self_out_sig = in_sig1 & in_sig2 & in_sig3 & in_sig4; 
+      endcase
+  end
+
+
+  always @(*)
+  begin
+    case (cross_trigger_bits)
+      4'd0: cross_out_sig = 0;
+      4'd1: cross_out_sig = in_cross_trig1;
+      4'd2: cross_out_sig = in_cross_trig2;
+      4'd3: cross_out_sig = in_cross_trig1 & in_cross_trig2;
+      4'd4: cross_out_sig = in_cross_trig3;
+      4'd5: cross_out_sig = in_cross_trig1 & in_cross_trig3;
+      4'd6: cross_out_sig = in_cross_trig2 & in_cross_trig3;
+      4'd7: cross_out_sig = in_cross_trig1 & in_cross_trig2 & in_cross_trig3;
+      4'd8: cross_out_sig = in_cross_trig4;
+      4'd9: cross_out_sig = in_cross_trig1 & in_cross_trig4;
+      4'd10: cross_out_sig = in_cross_trig2 & in_cross_trig4;
+      4'd11: cross_out_sig = in_cross_trig1 & in_cross_trig2 & in_cross_trig4;
+      4'd12: cross_out_sig = in_cross_trig3 & in_cross_trig4;
+      4'd13: cross_out_sig = in_cross_trig1 & in_cross_trig3 & in_cross_trig4;
+      4'd14: cross_out_sig = in_cross_trig2 & in_cross_trig3 & in_cross_trig4;
+      4'd15: cross_out_sig = in_cross_trig1 & in_cross_trig2 & in_cross_trig3 & in_cross_trig4; 
+      endcase
+  end
   assign trigger_event = out_sig;
 
   //always_comb begin
@@ -1008,11 +1121,25 @@ module boolean_comparator (
   begin
     case (config_bits)
       2'b00:
-        out_sig = in_sig1 || in_sig2 || in_sig3 || in_sig4;  // Global OR
+        out_sig = in_sig1 || in_sig2 || in_sig3 || in_sig4 || in_cross_trig1 || in_cross_trig2 || in_cross_trig3 || in_cross_trig4 ;  // Global OR
       2'b01:
-        out_sig = (in_sig1 & in_sig2 & in_sig3 & in_sig4) || (in_sig1 & in_sig2) || (in_sig1 & in_sig3) || (in_sig1 & in_sig4) || (in_sig2 & in_sig3) || (in_sig2 & in_sig4) || (in_sig3 & in_sig4);     // Global AND
+      begin
+
+        if(trigger_status[7:0] == 0  && trigger_status[15:8] == 0)
+          out_sig = 0;
+        else if (trigger_status[7:0] != 0  && trigger_status[15:8] == 0)
+          out_sig =self_out_sig;
+
+        else if (trigger_status[7:0] == 0  && trigger_status[15:8] != 0)
+
+          out_sig = cross_out_sig;
+        else
+          out_sig = self_out_sig & cross_out_sig;
+      end
+
+
       2'b10:
-        out_sig = in_sig1 || in_sig2 || in_sig3 || in_sig4;  // Global OR
+        out_sig = in_sig1 || in_sig2 || in_sig3 || in_sig4 || in_cross_trig1 || in_cross_trig2 || in_cross_trig3 || in_cross_trig4 ;  // Global OR
       2'b11:
         out_sig = in_sig1 ^ in_sig2 ^ in_sig3 ^ in_sig4;     // Global XOR
       default:
@@ -1177,220 +1304,720 @@ module value_compare  (
     if (en)
     begin
       case (config_bits)
-      2'b00: begin // no trigger
-        out_sig0 = 1'b0; out_sig1 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-  
-      2'b01:    // equal to detect
-      case(bits_size)
-        5'd0:begin
-          out_sig1 = reg_value[0] == in_sig[0];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd1:begin
-          out_sig1 = reg_value[0+:2] == in_sig[0+:2];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd2:begin
-          out_sig1 = reg_value[0+:3] == in_sig[0+:3];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd3:begin
-          out_sig1 = reg_value[0+:4] == in_sig[0+:4];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd4:begin
-          out_sig1 = reg_value[0+:5] == in_sig[0+:5];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd5:begin
-          out_sig1 = reg_value[0+:6] == in_sig[0+:6];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd6:begin
-          out_sig1 = reg_value[0+:7] == in_sig[0+:7];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd7:begin
-          out_sig1 = reg_value[0+:8] == in_sig[0+:8];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd8:begin
-          out_sig1 = reg_value[0+:9] == in_sig[0+:9];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd9:begin
-          out_sig1 = reg_value[0+:10] == in_sig[0+:10];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd10:begin
-          out_sig1 = reg_value[0+:11] == in_sig[0+:11];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd11:begin
-          out_sig1 = reg_value[0+:12] == in_sig[0+:12];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd12:begin
-          out_sig1 = reg_value[0+:13] == in_sig[0+:13];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd13:begin
-          out_sig1 = reg_value[0+:14] == in_sig[0+:14];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd14:begin
-          out_sig1 = reg_value[0+:15] == in_sig[0+:15];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd15:begin
-          out_sig1 = reg_value[0+:16] == in_sig[0+:16];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd16:begin
-          out_sig1 = reg_value[0+:17] == in_sig[0+:17];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd17:begin
-          out_sig1 = reg_value[0+:18] == in_sig[0+:18];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd18:begin
-          out_sig1 = reg_value[0+:19] == in_sig[0+:19];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd19:begin
-          out_sig1 = reg_value[0+:20] == in_sig[0+:20];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd20:begin
-          out_sig1 = reg_value[0+:21] == in_sig[0+:21];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd21:begin
-          out_sig1 = reg_value[0+:22] == in_sig[0+:22];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd22:begin
-          out_sig1 = reg_value[0+:23] == in_sig[0+:23];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd23:begin
-          out_sig1 = reg_value[0+:24] == in_sig[0+:24];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd24:begin
-          out_sig1 = reg_value[0+:25] == in_sig[0+:25];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd25:begin
-          out_sig1 = reg_value[0+:26] == in_sig[0+:26];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd26:begin
-          out_sig1 = reg_value[0+:27] == in_sig[0+:27];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd27:begin
-          out_sig1 = reg_value[0+:28] == in_sig[0+:28];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd28:begin
-          out_sig1 = reg_value[0+:29] == in_sig[0+:29];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd29:begin
-          out_sig1 = reg_value[0+:30] == in_sig[0+:30];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd30:begin
-          out_sig1 = reg_value[0+:31] == in_sig[0+:31];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        5'd31:begin
-          out_sig1 = reg_value[0+:32] == in_sig[0+:32];out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0;end
-        default:begin
-          out_sig1 = 1'b0; out_sig0 = 1'b0;out_sig2 = 1'b0;out_sig3 = 1'b0; end // default
-  
-      endcase
-  
-      2'b10:     // less than detect
-      case(bits_size)
-        5'd0: begin
-          out_sig2 = reg_value[0] > in_sig[0]; out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0; end
-        5'd1:begin
-          out_sig2 = reg_value[0+:2] > in_sig[0+:2];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd2:begin
-          out_sig2 = reg_value[0+:3] > in_sig[0+:3];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd3:begin
-          out_sig2 = reg_value[0+:4] > in_sig[0+:4];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd4:begin
-          out_sig2 = reg_value[0+:5] > in_sig[0+:5];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd5:begin
-          out_sig2 = reg_value[0+:6] > in_sig[0+:6];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd6:begin
-          out_sig2 = reg_value[0+:7] > in_sig[0+:7];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd7:begin
-          out_sig2 = reg_value[0+:8] > in_sig[0+:8];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd8:begin
-          out_sig2 = reg_value[0+:9] > in_sig[0+:9];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd9:begin
-          out_sig2 = reg_value[0+:10] > in_sig[0+:10];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd10:begin
-          out_sig2 = reg_value[0+:11] > in_sig[0+:11];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd11:begin
-          out_sig2 = reg_value[0+:12] > in_sig[0+:12];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd12:begin
-          out_sig2 = reg_value[0+:13] > in_sig[0+:13];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd13:begin
-          out_sig2 = reg_value[0+:14] > in_sig[0+:14];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd14:begin
-          out_sig2 = reg_value[0+:15] > in_sig[0+:15];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd15:begin
-          out_sig2 = reg_value[0+:16] > in_sig[0+:16];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd16:begin
-          out_sig2 = reg_value[0+:17] > in_sig[0+:17];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd17:begin
-          out_sig2 = reg_value[0+:18] > in_sig[0+:18];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd18:begin
-          out_sig2 = reg_value[0+:19] > in_sig[0+:19];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd19:begin
-          out_sig2 = reg_value[0+:20] > in_sig[0+:20];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd20:begin
-          out_sig2 = reg_value[0+:21] > in_sig[0+:21];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd21:begin
-          out_sig2 = reg_value[0+:22] > in_sig[0+:22];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd22:begin
-          out_sig2 = reg_value[0+:23] > in_sig[0+:23];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd23:begin
-          out_sig2 = reg_value[0+:24] > in_sig[0+:24];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd24:begin
-          out_sig2 = reg_value[0+:25] > in_sig[0+:25];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd25:begin
-          out_sig2 = reg_value[0+:26] > in_sig[0+:26];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd26:begin
-          out_sig2 = reg_value[0+:27] > in_sig[0+:27];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd27:begin
-          out_sig2 = reg_value[0+:28] > in_sig[0+:28];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd28:begin
-          out_sig2 = reg_value[0+:29] > in_sig[0+:29];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd29:begin
-          out_sig2 = reg_value[0+:30] > in_sig[0+:30];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd30:begin
-          out_sig2 = reg_value[0+:31] > in_sig[0+:31];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        5'd31:begin
-          out_sig2 = reg_value[0+:32] > in_sig[0+:32];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0;end
-        default:begin
-          out_sig2 = 1'b0; out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig3 = 1'b0; end// default
-      endcase
-  
-      2'b11: // greater than detect
-  
-      case(bits_size)
-        5'd0: begin
-          out_sig3 = reg_value[0] < in_sig[0]; out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0; end
-        5'd1:begin
-          out_sig3 = reg_value[0+:2] < in_sig[0+:2];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd2:begin
-          out_sig3 = reg_value[0+:3] < in_sig[0+:3];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd3:begin
-          out_sig3 = reg_value[0+:4] < in_sig[0+:4];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd4:begin
-          out_sig3 = reg_value[0+:5] < in_sig[0+:5];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd5:begin
-          out_sig3 = reg_value[0+:6] < in_sig[0+:6];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd6:begin
-          out_sig3 = reg_value[0+:7] < in_sig[0+:7];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd7:begin
-          out_sig3 = reg_value[0+:8] < in_sig[0+:8];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd8:begin
-          out_sig3 = reg_value[0+:9] < in_sig[0+:9];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd9:begin
-          out_sig3 = reg_value[0+:10] < in_sig[0+:10];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd10:begin
-          out_sig3 = reg_value[0+:11] < in_sig[0+:11];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd11:begin
-          out_sig3 = reg_value[0+:12] < in_sig[0+:12];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd12:begin
-          out_sig3 = reg_value[0+:13] < in_sig[0+:13];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd13:begin
-          out_sig3 = reg_value[0+:14] < in_sig[0+:14];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd14:begin
-          out_sig3 = reg_value[0+:15] < in_sig[0+:15];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd15:begin
-          out_sig3 = reg_value[0+:16] < in_sig[0+:16];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd16:begin
-          out_sig3 = reg_value[0+:17] < in_sig[0+:17];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd17:begin
-          out_sig3 = reg_value[0+:18] < in_sig[0+:18];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd18:begin
-          out_sig3 = reg_value[0+:19] < in_sig[0+:19];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd19:begin
-          out_sig3 = reg_value[0+:20] < in_sig[0+:20];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd20:begin
-          out_sig3 = reg_value[0+:21] < in_sig[0+:21];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd21:begin
-          out_sig3 = reg_value[0+:22] < in_sig[0+:22];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd22:begin
-          out_sig3 = reg_value[0+:23] < in_sig[0+:23];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd23:begin
-          out_sig3 = reg_value[0+:24] < in_sig[0+:24];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd24:begin
-          out_sig3 = reg_value[0+:25] < in_sig[0+:25];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd25:begin
-          out_sig3 = reg_value[0+:26] < in_sig[0+:26];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd26:begin
-          out_sig3 = reg_value[0+:27] < in_sig[0+:27];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd27:begin
-          out_sig3 = reg_value[0+:28] < in_sig[0+:28];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd28:begin
-          out_sig3 = reg_value[0+:29] < in_sig[0+:29];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd29:begin
-          out_sig3 = reg_value[0+:30] < in_sig[0+:30];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd30:begin
-          out_sig3 = reg_value[0+:31] < in_sig[0+:31];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        5'd31:begin
-          out_sig3 = reg_value[0+:32] < in_sig[0+:32];out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0;end
-        default:begin
-          out_sig3 = 1'b0; out_sig0 = 1'b0;out_sig1 = 1'b0;out_sig2 = 1'b0; end// default
-      endcase
+        2'b00:
+        begin // no trigger
+          out_sig0 = 1'b0;
+          out_sig1 = 1'b0;
+          out_sig2 = 1'b0;
+          out_sig3 = 1'b0;
+        end
+
+        2'b01:    // equal to detect
+        case(bits_size)
+          5'd0:
+          begin
+            out_sig1 = reg_value[0] == in_sig[0];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd1:
+          begin
+            out_sig1 = reg_value[0+:2] == in_sig[0+:2];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd2:
+          begin
+            out_sig1 = reg_value[0+:3] == in_sig[0+:3];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd3:
+          begin
+            out_sig1 = reg_value[0+:4] == in_sig[0+:4];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd4:
+          begin
+            out_sig1 = reg_value[0+:5] == in_sig[0+:5];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd5:
+          begin
+            out_sig1 = reg_value[0+:6] == in_sig[0+:6];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd6:
+          begin
+            out_sig1 = reg_value[0+:7] == in_sig[0+:7];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd7:
+          begin
+            out_sig1 = reg_value[0+:8] == in_sig[0+:8];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd8:
+          begin
+            out_sig1 = reg_value[0+:9] == in_sig[0+:9];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd9:
+          begin
+            out_sig1 = reg_value[0+:10] == in_sig[0+:10];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd10:
+          begin
+            out_sig1 = reg_value[0+:11] == in_sig[0+:11];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd11:
+          begin
+            out_sig1 = reg_value[0+:12] == in_sig[0+:12];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd12:
+          begin
+            out_sig1 = reg_value[0+:13] == in_sig[0+:13];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd13:
+          begin
+            out_sig1 = reg_value[0+:14] == in_sig[0+:14];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd14:
+          begin
+            out_sig1 = reg_value[0+:15] == in_sig[0+:15];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd15:
+          begin
+            out_sig1 = reg_value[0+:16] == in_sig[0+:16];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd16:
+          begin
+            out_sig1 = reg_value[0+:17] == in_sig[0+:17];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd17:
+          begin
+            out_sig1 = reg_value[0+:18] == in_sig[0+:18];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd18:
+          begin
+            out_sig1 = reg_value[0+:19] == in_sig[0+:19];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd19:
+          begin
+            out_sig1 = reg_value[0+:20] == in_sig[0+:20];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd20:
+          begin
+            out_sig1 = reg_value[0+:21] == in_sig[0+:21];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd21:
+          begin
+            out_sig1 = reg_value[0+:22] == in_sig[0+:22];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd22:
+          begin
+            out_sig1 = reg_value[0+:23] == in_sig[0+:23];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd23:
+          begin
+            out_sig1 = reg_value[0+:24] == in_sig[0+:24];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd24:
+          begin
+            out_sig1 = reg_value[0+:25] == in_sig[0+:25];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd25:
+          begin
+            out_sig1 = reg_value[0+:26] == in_sig[0+:26];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd26:
+          begin
+            out_sig1 = reg_value[0+:27] == in_sig[0+:27];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd27:
+          begin
+            out_sig1 = reg_value[0+:28] == in_sig[0+:28];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd28:
+          begin
+            out_sig1 = reg_value[0+:29] == in_sig[0+:29];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd29:
+          begin
+            out_sig1 = reg_value[0+:30] == in_sig[0+:30];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd30:
+          begin
+            out_sig1 = reg_value[0+:31] == in_sig[0+:31];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd31:
+          begin
+            out_sig1 = reg_value[0+:32] == in_sig[0+:32];
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          default:
+          begin
+            out_sig1 = 1'b0;
+            out_sig0 = 1'b0;
+            out_sig2 = 1'b0;
+            out_sig3 = 1'b0;
+          end // default
+
+        endcase
+
+        2'b10:     // less than detect
+        case(bits_size)
+          5'd0:
+          begin
+            out_sig2 = reg_value[0] > in_sig[0];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd1:
+          begin
+            out_sig2 = reg_value[0+:2] > in_sig[0+:2];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd2:
+          begin
+            out_sig2 = reg_value[0+:3] > in_sig[0+:3];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd3:
+          begin
+            out_sig2 = reg_value[0+:4] > in_sig[0+:4];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd4:
+          begin
+            out_sig2 = reg_value[0+:5] > in_sig[0+:5];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd5:
+          begin
+            out_sig2 = reg_value[0+:6] > in_sig[0+:6];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd6:
+          begin
+            out_sig2 = reg_value[0+:7] > in_sig[0+:7];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd7:
+          begin
+            out_sig2 = reg_value[0+:8] > in_sig[0+:8];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd8:
+          begin
+            out_sig2 = reg_value[0+:9] > in_sig[0+:9];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd9:
+          begin
+            out_sig2 = reg_value[0+:10] > in_sig[0+:10];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd10:
+          begin
+            out_sig2 = reg_value[0+:11] > in_sig[0+:11];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd11:
+          begin
+            out_sig2 = reg_value[0+:12] > in_sig[0+:12];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd12:
+          begin
+            out_sig2 = reg_value[0+:13] > in_sig[0+:13];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd13:
+          begin
+            out_sig2 = reg_value[0+:14] > in_sig[0+:14];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd14:
+          begin
+            out_sig2 = reg_value[0+:15] > in_sig[0+:15];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd15:
+          begin
+            out_sig2 = reg_value[0+:16] > in_sig[0+:16];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd16:
+          begin
+            out_sig2 = reg_value[0+:17] > in_sig[0+:17];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd17:
+          begin
+            out_sig2 = reg_value[0+:18] > in_sig[0+:18];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd18:
+          begin
+            out_sig2 = reg_value[0+:19] > in_sig[0+:19];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd19:
+          begin
+            out_sig2 = reg_value[0+:20] > in_sig[0+:20];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd20:
+          begin
+            out_sig2 = reg_value[0+:21] > in_sig[0+:21];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd21:
+          begin
+            out_sig2 = reg_value[0+:22] > in_sig[0+:22];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd22:
+          begin
+            out_sig2 = reg_value[0+:23] > in_sig[0+:23];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd23:
+          begin
+            out_sig2 = reg_value[0+:24] > in_sig[0+:24];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd24:
+          begin
+            out_sig2 = reg_value[0+:25] > in_sig[0+:25];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd25:
+          begin
+            out_sig2 = reg_value[0+:26] > in_sig[0+:26];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd26:
+          begin
+            out_sig2 = reg_value[0+:27] > in_sig[0+:27];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd27:
+          begin
+            out_sig2 = reg_value[0+:28] > in_sig[0+:28];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd28:
+          begin
+            out_sig2 = reg_value[0+:29] > in_sig[0+:29];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd29:
+          begin
+            out_sig2 = reg_value[0+:30] > in_sig[0+:30];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd30:
+          begin
+            out_sig2 = reg_value[0+:31] > in_sig[0+:31];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          5'd31:
+          begin
+            out_sig2 = reg_value[0+:32] > in_sig[0+:32];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end
+          default:
+          begin
+            out_sig2 = 1'b0;
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig3 = 1'b0;
+          end// default
+        endcase
+
+        2'b11: // greater than detect
+
+        case(bits_size)
+          5'd0:
+          begin
+            out_sig3 = reg_value[0] < in_sig[0];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd1:
+          begin
+            out_sig3 = reg_value[0+:2] < in_sig[0+:2];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd2:
+          begin
+            out_sig3 = reg_value[0+:3] < in_sig[0+:3];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd3:
+          begin
+            out_sig3 = reg_value[0+:4] < in_sig[0+:4];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd4:
+          begin
+            out_sig3 = reg_value[0+:5] < in_sig[0+:5];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd5:
+          begin
+            out_sig3 = reg_value[0+:6] < in_sig[0+:6];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd6:
+          begin
+            out_sig3 = reg_value[0+:7] < in_sig[0+:7];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd7:
+          begin
+            out_sig3 = reg_value[0+:8] < in_sig[0+:8];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd8:
+          begin
+            out_sig3 = reg_value[0+:9] < in_sig[0+:9];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd9:
+          begin
+            out_sig3 = reg_value[0+:10] < in_sig[0+:10];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd10:
+          begin
+            out_sig3 = reg_value[0+:11] < in_sig[0+:11];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd11:
+          begin
+            out_sig3 = reg_value[0+:12] < in_sig[0+:12];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd12:
+          begin
+            out_sig3 = reg_value[0+:13] < in_sig[0+:13];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd13:
+          begin
+            out_sig3 = reg_value[0+:14] < in_sig[0+:14];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd14:
+          begin
+            out_sig3 = reg_value[0+:15] < in_sig[0+:15];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd15:
+          begin
+            out_sig3 = reg_value[0+:16] < in_sig[0+:16];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd16:
+          begin
+            out_sig3 = reg_value[0+:17] < in_sig[0+:17];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd17:
+          begin
+            out_sig3 = reg_value[0+:18] < in_sig[0+:18];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd18:
+          begin
+            out_sig3 = reg_value[0+:19] < in_sig[0+:19];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd19:
+          begin
+            out_sig3 = reg_value[0+:20] < in_sig[0+:20];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd20:
+          begin
+            out_sig3 = reg_value[0+:21] < in_sig[0+:21];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd21:
+          begin
+            out_sig3 = reg_value[0+:22] < in_sig[0+:22];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd22:
+          begin
+            out_sig3 = reg_value[0+:23] < in_sig[0+:23];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd23:
+          begin
+            out_sig3 = reg_value[0+:24] < in_sig[0+:24];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd24:
+          begin
+            out_sig3 = reg_value[0+:25] < in_sig[0+:25];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd25:
+          begin
+            out_sig3 = reg_value[0+:26] < in_sig[0+:26];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd26:
+          begin
+            out_sig3 = reg_value[0+:27] < in_sig[0+:27];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd27:
+          begin
+            out_sig3 = reg_value[0+:28] < in_sig[0+:28];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd28:
+          begin
+            out_sig3 = reg_value[0+:29] < in_sig[0+:29];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd29:
+          begin
+            out_sig3 = reg_value[0+:30] < in_sig[0+:30];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd30:
+          begin
+            out_sig3 = reg_value[0+:31] < in_sig[0+:31];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          5'd31:
+          begin
+            out_sig3 = reg_value[0+:32] < in_sig[0+:32];
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end
+          default:
+          begin
+            out_sig3 = 1'b0;
+            out_sig0 = 1'b0;
+            out_sig1 = 1'b0;
+            out_sig2 = 1'b0;
+          end// default
+        endcase
         default:
         begin
           out_sig3 = 1'b0;
@@ -1646,7 +2273,11 @@ module axi_slv_lite #(
     output wire S_AXI_RVALID,
     // Read ready. This signal indicates that the master can
     // accept the read data and response information.
-    input wire S_AXI_RREADY
+    input wire S_AXI_RREADY,
+
+    // force reset through command
+
+    output intrn_rst_force
   );
 
   typedef enum    logic [5:0]  {IP_TYPE_REG_ADDR, IP_VERSION_REG_ADDR, IP_ID_REG_ADDR, RESERVED0,RESERVED1,
@@ -1763,6 +2394,7 @@ module axi_slv_lite #(
   assign MASK3_OUT = MASK3_REG;
 
   assign reset_fifo_wr_pntr = axi_bvalid;
+  assign intrn_rst_force = OCCR_REG[1];
 
   initial
   begin
@@ -2075,6 +2707,8 @@ module axi_slv_lite #(
       else
       begin
         OCCR_REG[0] <=  !OCSR_REG[0]? OCCR_REG[0]:1'b0;
+        OCCR_REG[1] <=  !OCSR_REG[1]? OCCR_REG[1]:1'b0;
+
       end
       //////////////////////
       // ADD LOGIC HERE
