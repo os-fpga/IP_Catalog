@@ -246,7 +246,10 @@ begin
         2'h2    :   AXI_DAT_IN <= ip_version; 
         2'h3    :   AXI_DAT_IN <= ip_id; 
         default :  begin
-         AXI_DAT_IN <= input_probe_reg_o[((S_AXI_ARADDR - 32'h00000010) >> ADDR_LSB)];     
+          if (CONTROL_REG[0] == 1)
+            AXI_DAT_IN <= output_probe_reg[((S_AXI_ARADDR - 32'h00000010) >> ADDR_LSB)];    
+         else
+            AXI_DAT_IN <= input_probe_reg_o[((S_AXI_ARADDR - 32'h00000010) >> ADDR_LSB)];    
         end
     endcase
 end
