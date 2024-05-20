@@ -272,11 +272,11 @@ class IP_Builder:
                     if os.path.isfile(full_file_path):
                         shutil.copy(full_file_path, self.img_final_path)
                 
-        print("doc_path", full_file_path, "-----------------", self.img_final_path)
+#        print("doc_path", full_file_path, "-----------------", self.img_final_path)
     
     
     def img_name(self, io_model, img_path):
-        print("io_model",io_model,  "   img_path", img_path )
+#        print("io_model",io_model,  "   img_path", img_path )
         self.img_final_path          = os.path.join(self.build_path, "docs")
         os.makedirs(self.img_final_path,          exist_ok=True)
         img_src_path =  os.path.join(img_path, "docs")
@@ -289,7 +289,7 @@ class IP_Builder:
                     if os.path.isfile(full_file_path):
                         shutil.copy(full_file_path, new_dst)
                 
-        print("doc_path", full_file_path, "-----------------", self.img_final_path)
+#        print("doc_path", full_file_path, "-----------------", self.img_final_path)
     
 
 #        self.image_name = io_model

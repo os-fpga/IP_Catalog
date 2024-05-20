@@ -1968,9 +1968,9 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         file_path = os.path.dirname(os.path.realpath(__file__))
-        print("type of file_path", type(file_path),len(file_path), "     " , file_path)
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
-        rs_builder.img_name(args.io_model, file_path)    # Export JSON Template (Optional) --------------------------------------------------------------
+        rs_builder.img_name(args.io_model, file_path)   
+        
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

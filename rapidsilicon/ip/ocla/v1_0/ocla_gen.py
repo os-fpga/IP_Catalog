@@ -763,8 +763,10 @@ def main():
 
     
     if args.json_template:
+        file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
-        rs_builder.copy_images(img_path=(os.path.dirname(os.path.realpath(__file__))))    # Export JSON Template (Optional) --------------------------------------------------------------
+        rs_builder.copy_images(file_path)
+        
         
     # Create LiteX Core ----------------------------------------------------------------------------
     platform   = OSFPGAPlatform( io=[], device="gemini", toolchain="raptor")
