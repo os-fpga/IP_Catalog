@@ -1903,8 +1903,10 @@ def main():
             if (args.clocking_source == "LOCAL_OSCILLATOR"):
                 option_strings_to_remove = ["--ref_clk_freq"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            
-    summary =  { 
+
+
+        
+    summary =  {  
     "IO_MODEL": args.io_model
     }
     

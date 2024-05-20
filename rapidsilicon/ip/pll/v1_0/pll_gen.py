@@ -147,7 +147,10 @@ def main():
 #        })        
 #
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "Fast clock frequency selected": args.fast_clk_freq,
     "Input reference clock frequency": args.ref_clk_freq,
   }

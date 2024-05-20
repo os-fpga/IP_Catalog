@@ -156,7 +156,10 @@ def main():
     'Description' : 'Central DMA (CDMA) is a type of Direct Memory Access (DMA) that provides high-bandwidth Direct Memory Access (DMA) between a memory-mapped source address and a memory-mapped destination address using the AXI4 protocol'}
     }
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     # "DATA WIDTH": args.data_width,
     "DATA WIDTH":args.data_width,
     "ADDR WIDTH": args.addr_width,

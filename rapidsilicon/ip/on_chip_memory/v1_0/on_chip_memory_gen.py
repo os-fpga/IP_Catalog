@@ -280,7 +280,10 @@ def main():
     else:
         memory_mapping = "Distributed RAM(LUTs)"
     
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "Type of Memory": memory,
     "Mapping": memory_mapping,
     }

@@ -126,7 +126,10 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     # "DATA WIDTH": args.data_width,
     "MASTER COUNT":args.m_count,
     "SLAVE COUNT": args.s_count,

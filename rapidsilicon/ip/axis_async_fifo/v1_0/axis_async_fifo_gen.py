@@ -226,7 +226,10 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
 
     #IP Summary generation
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI STreaming FIFO Depth programmed": args.depth,
     "AXI Streaming Data width programmed": args.data_width,
     "AXI Streaming ID width programmed": args.id_width,

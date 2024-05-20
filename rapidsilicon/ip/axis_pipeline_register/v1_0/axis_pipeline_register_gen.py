@@ -176,7 +176,10 @@ def main():
                 'user_width' :   'False',
             })        
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI-Stream Data Width": args.data_width,
     "Register Type in Pipelining": args.reg_type,
     "Number of Registers in Pipelining": args.length

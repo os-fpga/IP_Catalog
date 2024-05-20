@@ -134,7 +134,10 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version    = "v1_0")
 
     #IP Summary generation
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI FIFO Depth selected": args.fifo_depth,
     "AXI Data width programmed": args.data_width,
     "AXI Address width programmed": args.address_width,

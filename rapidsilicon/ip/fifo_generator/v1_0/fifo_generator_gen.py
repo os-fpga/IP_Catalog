@@ -383,7 +383,10 @@ def main():
             if(args.data_width_read > args.data_width_write):
                 depth = args.write_depth
 
-    summary =  {}
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  { }
     if (args.asymmetric):
         summary["Write Depth"] = depth
         summary["Data Width Write"] = args.data_width_write

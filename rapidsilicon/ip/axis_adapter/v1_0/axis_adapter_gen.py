@@ -162,7 +162,10 @@ def main():
                 'user_width' :   'False',
             })        
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI-Stream Master Data Width": args.m_data_width,
     "AXI-Stream Slave Data Width": args.s_data_width
     }

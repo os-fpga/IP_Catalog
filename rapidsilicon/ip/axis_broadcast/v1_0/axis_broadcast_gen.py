@@ -166,7 +166,10 @@ def main():
 
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI-Stream Data Width": args.data_width,
     "Count of Masters": args.m_count,
     "AXI-Stream Destination Widht": args.dest_width

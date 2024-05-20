@@ -738,7 +738,10 @@ def main():
 #                arg_help = "probe_clock " + str(i)
 #                core_range_param_group.add_argument(arg_name, type=int, default=50, choices=range(1, 251), help="Probe Clock")
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "Buffer size": args.mem_depth,
     "Debug Mode": args.mode,
     "Sampling Clock": args.Sampling_Clock,

@@ -195,7 +195,10 @@ def main():
 
 
     #IP Summary generation
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI stream FIFO Depth selected": args.depth,
     "AXI stream Data width programmed": args.data_width,
     "AXI stream ID width programmed": args.id_width,
