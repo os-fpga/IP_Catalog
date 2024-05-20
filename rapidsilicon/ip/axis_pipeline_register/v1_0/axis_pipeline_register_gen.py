@@ -184,9 +184,8 @@ def main():
     
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
-        file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
-        rs_builder.copy_images(file_path)
+
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
