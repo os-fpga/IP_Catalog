@@ -272,7 +272,10 @@ def main():
 
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
     
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI Data Width" : args.axi_data_width,
     "AXI Address Width" : args.axi_addr_width,
     "Descriptor Interface" : "AXI-Stream",
@@ -282,6 +285,7 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

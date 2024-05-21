@@ -162,7 +162,10 @@ def main():
                 'user_width' :   'False',
             })        
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI-Stream Master Data Width": args.m_data_width,
     "AXI-Stream Slave Data Width": args.s_data_width
     }
@@ -170,6 +173,7 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

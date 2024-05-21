@@ -147,13 +147,17 @@ def main():
 #        })        
 #
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "Fast clock frequency selected": args.fast_clk_freq,
     "Input reference clock frequency": args.ref_clk_freq,
   }
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+
 
 
     # Create Wrapper -------------------------------------------------------------------------------

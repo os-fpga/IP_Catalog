@@ -203,7 +203,10 @@ def main():
 
 
     #IP Summary generation
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "AXI FIFO Write Depth selected": args.write_fifo_depth,
     "AXI FIFO Read Depth selected": args.read_fifo_depth,
     "AXI FIFO Data width selected": args.data_width,
@@ -215,6 +218,7 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+
         
 
     # Create Wrapper -------------------------------------------------------------------------------

@@ -280,7 +280,10 @@ def main():
     else:
         memory_mapping = "Distributed RAM(LUTs)"
     
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "Type of Memory": memory,
     "Mapping": memory_mapping,
     }
@@ -336,6 +339,7 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:

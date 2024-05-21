@@ -270,7 +270,10 @@ def main():
                 parser._actions[18].choices = range(1, math.floor(31/args.s_count) + 1)
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-    summary =  { 
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+    summary =  {  
     "Master Data Width" : args.m_data_width,
     "Slave Data Width" : args.s_data_width,
     "FIFO Depth" : args.fifo_depth,
@@ -285,6 +288,7 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
+
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
