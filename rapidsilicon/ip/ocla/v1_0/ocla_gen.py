@@ -639,10 +639,8 @@ def main():
     core_fix_param_group.add_argument("--axi1_addr_width",      type=int,      default=32,     choices=[8, 16, 32],                         help="OCLA Address Width1.")
     core_fix_param_group.add_argument("--axi1_data_width",      type=int,      default=32,     choices=[8,16,32],                           help="OCLA Data Width1.")
     core_fix_param_group.add_argument("--axi2_addr_width",      type=int,      default=32,     choices=[8, 16, 32],                         help="OCLA Address Width2.")
-    core_fix_param_group.add_argument("--axi2_data_width",      type=int,      default=32,     choices=[8,16,32],                           help="OCLA Data Width2.")
-
-
-    core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1,       choices=range(1,16),          help="Number of Probes.")
+    core_fix_param_group.add_argument("--axi2_data_width",      type=int,      default=32,     choices=[8,16,32],                           help="OCLA Data Width2.")     
+    core_range_param_group.add_argument("--no_of_probes",           type=int,  default=1,       choices=range(1,3),          help="Number of Probes.")
     core_bool_param_group.add_argument("--EIO_Enable",              type=bool, default=False,                                 help="To enable EIO")
     core_range_param_group.add_argument("--Input_Probe_Width",      type=int,  default=1,       choices=range(1,513),         help="EIO Probe In Width.")
     core_range_param_group.add_argument("--Ouput_Probe_width",      type=int,  default=1,       choices=range(1,513),         help="EIO Probe Out Width.")
@@ -707,6 +705,9 @@ def main():
                 'no_of_probes'      :   'True',
                 'probe1_Width'      :   'True'
             })
+            
+        if (args.Sampling_Clock == "MULTIPLE"):
+            parser._actions[10].choices = range(1, 16)
 
         n= args.no_of_probes
         for i in range(1, n+1):
@@ -714,7 +715,8 @@ def main():
             arg_help = "probe " + str(i)
             core_range_param_group.add_argument(arg_name, type=int, default=1, choices=range(1, 1025), help="Size of Probe")
             
-       # if (args.Sampling_Clock == "MULTIPLE"):
+      
+
 #
        #     n= args.no_of_probes
        #     for i in range(n):

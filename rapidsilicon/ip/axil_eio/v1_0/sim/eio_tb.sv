@@ -96,10 +96,12 @@ module eio_tb;
     RESET;
     #100;
     addr_axi = 32'h00000010;
-
+    axi_write_transaction(32'h00000000, 32'h00000001);
     for (integer i=0 ; i<7 ; i++)
     begin
-        data_axi = data_axi + {`AXI_DATA_WIDTH'h1111111111111111};
+       // data_axi = data_axi + {`AXI_DATA_WIDTH'h1111111111111111};
+         data_axi = 32'h00000077 ;
+
         //addr_axi = addr_axi + `AXI_DATA_WIDTH/8; 
         #40  axi_write_transaction(addr_axi, data_axi);
     end
