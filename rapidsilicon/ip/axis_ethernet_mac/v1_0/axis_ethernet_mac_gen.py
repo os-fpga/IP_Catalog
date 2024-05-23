@@ -21,19 +21,22 @@ from litex.build.osfpga import OSFPGAPlatform
 # IOs/Interfaces -----------------------------------------------------------------------------------
 def Clocking():
     return [
-        # GMII/ GMII_FIFO
+        # GMII/ GMII_FIFO/ RGMII
         ("gtx_clk",         0, Pins(1)),
         ("gtx_rst",         0, Pins(1)),
         
-        # GMII
+        # GMII/ RGMII
         ("rx_clk",          0, Pins(1)),
         ("rx_rst",          0, Pins(1)),
         ("tx_clk",          0, Pins(1)),
         ("tx_rst",          0, Pins(1)),
         
-        # GMII_FIFO
+        # GMII_FIFO/ RGMII_FIFO
         ("logic_clk",       0, Pins(1)),
         ("logic_rst",       0, Pins(1)),
+        
+        # RGMII/ RGMII_FIFO
+        ("gtx_clk90",       0, Pins(1)),
     ]
 
 def AXI_Stream():
@@ -69,15 +72,26 @@ def GMII_Interface():
         ("gmii_tx_er",              0, Pins(1))
     ]
     
+def RGMII_Interface():
+    return [
+        # RGMII/ RGMII_FIFO
+        ("rgmii_rx_clk",             0, Pins(1)),
+        ("rgmii_rxd",                0, Pins(4)),
+        ("rgmii_rx_ctl",             0, Pins(1)),
+        ("rgmii_tx_clk",             0, Pins(1)),
+        ("rgmii_txd",                0, Pins(4)),
+        ("rgmii_tx_ctl",             0, Pins(1))
+    ]
+    
 def Status():
     return [
-        # GMII/ GMII_FIFO
+        # GMII/ GMII_FIFO/ RGMII/ RGMII_FIFO
         ("tx_error_underflow",      0, Pins(1)),
         ("rx_error_bad_frame",      0, Pins(1)),
         ("rx_error_bad_fcs",        0, Pins(1)),
         ("speed",                   0, Pins(2)),
         
-        # GMII_FIFO
+        # GMII_FIFO/ RGMII_FIFO
         ("tx_fifo_overflow",        0, Pins(1)),
         ("tx_fifo_bad_frame",       0, Pins(1)),
         ("tx_fifo_good_frame",      0, Pins(1)),
@@ -88,7 +102,7 @@ def Status():
     
 def Configuration():
     return [
-        # GMII/ GMII_FIFO
+        # GMII/ GMII_FIFO/ RGMII
         ("cfg_ifg",                 0, Pins(8)),
         ("cfg_tx_enable",           0, Pins(1)),
         ("cfg_rx_enable",           0, Pins(1))
@@ -103,7 +117,6 @@ def _1G_GMII_FIFO(self, platform):
     platform.add_extension(AXI_Stream())
     platform.add_extension(Configuration())
     platform.add_extension(Status())
-    # tx_axis, rx_axis = AXI_Stream(self, platform, data_width = 8)
     
     self.specials += Instance("eth_mac_1g_gmii_fifo", 
                         name= "eth_mac_1g_gmii_fifo_inst",
@@ -169,7 +182,6 @@ def _1G_GMII(self, platform):
     platform.add_extension(AXI_Stream())
     platform.add_extension(Configuration())
     platform.add_extension(Status())
-    # tx_axis, rx_axis = AXI_Stream(self, platform, data_width = 8)
     
     self.specials += Instance("eth_mac_1g_gmii", 
                         name= "eth_mac_1g_gmii_inst",
@@ -219,6 +231,123 @@ def _1G_GMII(self, platform):
         i_cfg_rx_enable         = platform.request("cfg_rx_enable")
     )
 
+#################################################################################
+# 1G_RGMII_FIFO
+#################################################################################
+def _1G_RGMII_FIFO(self, platform):
+    platform.add_extension(Clocking())
+    platform.add_extension(RGMII_Interface())
+    platform.add_extension(AXI_Stream())
+    platform.add_extension(Configuration())
+    platform.add_extension(Status())
+    self.specials += Instance("eth_mac_1g_rgmii_fifo", 
+                        name= "eth_mac_1g_rgmii_fifo_inst",
+        # Ports
+        # -----
+        # Clocking
+        i_gtx_clk                   = platform.request("gtx_clk"),
+        i_gtx_clk90                 = platform.request("gtx_clk90"),
+        i_gtx_rst                   = platform.request("gtx_rst"),
+        i_logic_clk                 = platform.request("logic_clk"),
+        i_logic_rst                 = platform.request("logic_rst"),
+        
+        # AXI input
+        i_tx_axis_tdata             = platform.request("tx_axis_tdata"),
+        i_tx_axis_tkeep             = platform.request("tx_axis_tkeep"),
+        i_tx_axis_tvalid            = platform.request("tx_axis_tvalid"),    
+        o_tx_axis_tready            = platform.request("tx_axis_tready"),    
+        i_tx_axis_tlast             = platform.request("tx_axis_tlast"),
+        i_tx_axis_tuser             = platform.request("tx_axis_tuser"),
+        
+        # AXI output
+        o_rx_axis_tdata             = platform.request("rx_axis_tdata"),
+        o_rx_axis_tkeep             = platform.request("rx_axis_tkeep"),
+        o_rx_axis_tvalid            = platform.request("rx_axis_tvalid"),    
+        i_rx_axis_tready            = platform.request("rx_axis_tready"),    
+        o_rx_axis_tlast             = platform.request("rx_axis_tlast"),
+        o_rx_axis_tuser             = platform.request("rx_axis_tuser"),
+        
+        # RGMII Interface
+        i_rgmii_rx_clk              = platform.request("rgmii_rx_clk"),
+        i_rgmii_rxd                 = platform.request("rgmii_rxd"),
+        i_rgmii_rx_ctl              = platform.request("rgmii_rx_ctl"),
+        o_rgmii_tx_clk              = platform.request("rgmii_tx_clk"),
+        o_rgmii_txd                 = platform.request("rgmii_txd"),
+        o_rgmii_tx_ctl              = platform.request("rgmii_tx_ctl"),
+        
+        # Status
+        o_tx_error_underflow        = platform.request("tx_error_underflow"),                 
+        o_tx_fifo_overflow          = platform.request("tx_fifo_overflow"),             
+        o_tx_fifo_bad_frame         = platform.request("tx_fifo_bad_frame"),             
+        o_tx_fifo_good_frame        = platform.request("tx_fifo_good_frame"),                 
+        o_rx_error_bad_frame        = platform.request("rx_error_bad_frame"),                 
+        o_rx_error_bad_fcs          = platform.request("rx_error_bad_fcs"),             
+        o_rx_fifo_overflow          = platform.request("rx_fifo_overflow"),             
+        o_rx_fifo_bad_frame         = platform.request("rx_fifo_bad_frame"),             
+        o_rx_fifo_good_frame        = platform.request("rx_fifo_good_frame"),                 
+        o_speed                     = platform.request("speed"), 
+        
+        # Configuration
+        i_cfg_ifg               = platform.request("cfg_ifg"),
+        i_cfg_tx_enable         = platform.request("cfg_tx_enable"),
+        i_cfg_rx_enable         = platform.request("cfg_rx_enable")
+    )
+
+#################################################################################
+# 1G_RGMII
+#################################################################################
+def _1G_RGMII(self, platform):
+    platform.add_extension(Clocking())
+    platform.add_extension(RGMII_Interface())
+    platform.add_extension(AXI_Stream())
+    platform.add_extension(Configuration())
+    platform.add_extension(Status())
+    self.specials += Instance("eth_mac_1g_rgmii", 
+                        name= "eth_mac_1g_rgmii_inst",
+        # Ports
+        # -----
+        # Clocking
+        i_gtx_clk               = platform.request("gtx_clk"),
+        i_gtx_clk90             = platform.request("gtx_clk90"),
+        i_gtx_rst               = platform.request("gtx_rst"),
+        o_rx_clk                = platform.request("rx_clk"),
+        o_rx_rst                = platform.request("rx_rst"),
+        o_tx_clk                = platform.request("tx_clk"),
+        o_tx_rst                = platform.request("tx_rst"),
+        
+        # AXI Input
+        i_tx_axis_tdata         = platform.request("tx_axis_tdata"), 
+        i_tx_axis_tvalid        = platform.request("tx_axis_tvalid"),     
+        o_tx_axis_tready        = platform.request("tx_axis_tready"),     
+        i_tx_axis_tlast         = platform.request("tx_axis_tlast"), 
+        i_tx_axis_tuser         = platform.request("tx_axis_tuser"), 
+        
+        # AXI Output
+        o_rx_axis_tdata         = platform.request("rx_axis_tdata"),
+        o_rx_axis_tvalid        = platform.request("rx_axis_tvalid"),
+        o_rx_axis_tlast         = platform.request("rx_axis_tlast"),
+        o_rx_axis_tuser         = platform.request("rx_axis_tuser"),
+        
+        # RGMII Interface
+        i_rgmii_rx_clk          = platform.request("rgmii_rx_clk"),
+        i_rgmii_rxd             = platform.request("rgmii_rxd"),
+        i_rgmii_rx_ctl          = platform.request("rgmii_rx_ctl"),
+        o_rgmii_tx_clk          = platform.request("rgmii_tx_clk"),
+        o_rgmii_txd             = platform.request("rgmii_txd"),
+        o_rgmii_tx_ctl          = platform.request("rgmii_tx_ctl"),
+        
+        # Status
+        o_tx_error_underflow    = platform.request("tx_error_underflow"),
+        o_rx_error_bad_frame    = platform.request("rx_error_bad_frame"),
+        o_rx_error_bad_fcs      = platform.request("rx_error_bad_fcs"),
+        o_speed                 = platform.request("speed"),
+        
+        # Configuration
+        i_cfg_ifg               = platform.request("cfg_ifg"),
+        i_cfg_tx_enable         = platform.request("cfg_tx_enable"),
+        i_cfg_rx_enable         = platform.request("cfg_rx_enable")
+    )
+
 # Ethernet_MAC ----------------------------------------------------------------------------------
 class Ethernet_MAC(Module):
     def __init__(self, platform, interface, data_rate, fifo):
@@ -229,14 +358,15 @@ class Ethernet_MAC(Module):
         if (interface == "GMII" and data_rate == "1G"):
             if (fifo == True):
                 _1G_GMII_FIFO(self, platform)
-                print("TRUE", fifo)
             elif (fifo == False):
                 _1G_GMII(self, platform)
-                print("FALSE", fifo)
         
         # 1G RGMII ---------------------------------------------------------------------------------
-        # elif (interface == "RGMII" and data_rate == "1G"):
-        #     AXI_Stream(self, platform, data_width = 4)
+        elif (interface == "RGMII" and data_rate == "1G"):
+            if (fifo == True):
+                _1G_RGMII_FIFO(self, platform)
+            elif (fifo == False):
+                _1G_RGMII(self, platform)
             
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -269,14 +399,6 @@ def main():
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--fifo",        type=bool,     default=False,      help="Ethernet Mac with/without FIFO")
     
-    # Core fix value parameters.
-    # core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    # core_fix_param_group.add_argument("--drive_strength",    type=int,   default=2,         choices=[2, 4, 6, 8, 12, 16],         help="Drive strength in mA for LVCMOS standards")
-    
-    # # Core range value parameters.
-    # core_range_param_group = parser.add_argument_group(title="Core range parameters")
-    # core_range_param_group.add_argument("--delay",                      type=int,   default=0,         choices=range(0,64),         help="Tap Delay Value")
-    
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",       help="Build Core")
@@ -302,8 +424,6 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         
-        
-            
     summary =  { 
     "Physical Interface": args.interface
     }
