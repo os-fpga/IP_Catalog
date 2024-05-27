@@ -288,9 +288,9 @@ def _1G_RGMII_FIFO(self, platform):
         o_speed                     = platform.request("speed"), 
         
         # Configuration
-        i_cfg_ifg               = platform.request("cfg_ifg"),
-        i_cfg_tx_enable         = platform.request("cfg_tx_enable"),
-        i_cfg_rx_enable         = platform.request("cfg_rx_enable")
+        i_cfg_ifg                   = platform.request("cfg_ifg"),
+        i_cfg_tx_enable             = platform.request("cfg_tx_enable"),
+        i_cfg_rx_enable             = platform.request("cfg_rx_enable")
     )
 
 #################################################################################
@@ -361,6 +361,13 @@ class Ethernet_MAC(Module):
             elif (fifo == False):
                 _1G_GMII(self, platform)
         
+        # 10G GMII ---------------------------------------------------------------------------------
+        # elif (interface == "GMII" and data_rate == "10G"):
+        #     if (fifo == True):
+        #         _10G_GMII_FIFO(self, platform)
+        #     elif (fifo == False):
+        #         _10G_GMII(self, platform)
+        
         # 1G RGMII ---------------------------------------------------------------------------------
         elif (interface == "RGMII" and data_rate == "1G"):
             if (fifo == True):
@@ -370,7 +377,7 @@ class Ethernet_MAC(Module):
             
 # Build --------------------------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="AXIS_ETHERNET_MAC")
+    parser = argparse.ArgumentParser(description="ETHERNET_MAC")
 
     # Import Common Modules.
     common_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "lib")
@@ -383,7 +390,7 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    rs_builder = IP_Builder(device="virgo", ip_name="axis_ethernet_mac", language="verilog")
+    rs_builder = IP_Builder(device="virgo", ip_name="ethernet_mac", language="verilog")
 
     logging.info("===================================================")
     logging.info("IP    : %s", rs_builder.ip_name.upper())
@@ -391,7 +398,7 @@ def main():
     
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--interface",     type=str,   default="GMII",      choices=["GMII", "RGMII", "SGMII"],  help="Physical Interface of Ethernet Mac")
+    core_string_param_group.add_argument("--interface",     type=str,   default="GMII",      choices=["GMII", "RGMII"],           help="Physical Interface of Ethernet Mac")
     core_string_param_group.add_argument("--data_rate",     type=str,   default="1G",        choices=["1G", "10G"],               help="Data Rate of Ethernet")
     # core_string_param_group.add_argument("--fifo",          type=str,   default="FALSE",     choices=["TRUE", "FALSE"],           help="Ethernet Mac with/without FIFO")
     
@@ -475,7 +482,7 @@ def main():
         ip_version = "00000000_00000000_0000000000000001"
         ip_version = ("32'h{}").format(hex(int(ip_version, 2))[2:])
         
-        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "axis_ethernet_mac", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
+        wrapper = os.path.join(args.build_dir, "rapidsilicon", "ip", "ethernet_mac", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
         new_lines = []
         with open (wrapper, "r") as file:
             lines = file.readlines()
