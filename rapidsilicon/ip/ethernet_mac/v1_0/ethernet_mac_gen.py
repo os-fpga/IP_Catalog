@@ -31,10 +31,6 @@ def Clocking():
         ("tx_clk",          0, Pins(1)),
         ("tx_rst",          0, Pins(1)),
         
-        # GMII_FIFO/ RGMII_FIFO
-        ("logic_clk",       0, Pins(1)),
-        ("logic_rst",       0, Pins(1)),
-        
         # RGMII/ RGMII_FIFO
         ("gtx_clk90",       0, Pins(1)),
     ]
@@ -118,15 +114,20 @@ def _1G_GMII_FIFO(self, platform):
     platform.add_extension(Configuration())
     platform.add_extension(Status())
     
+    self.gtx_clk = Signal(1)
+    self.gtx_rst = Signal(1)
+    self.comb += self.gtx_clk.eq(platform.request("gtx_clk"))
+    self.comb += self.gtx_rst.eq(platform.request("gtx_rst"))
+    
     self.specials += Instance("eth_mac_1g_gmii_fifo", 
                         name= "eth_mac_1g_gmii_fifo_inst",
         # Ports
         # -----
         # Clocking
-        i_gtx_clk                   = platform.request("gtx_clk"),
-        i_gtx_rst                   = platform.request("gtx_rst"),
-        i_logic_clk                 = platform.request("logic_clk"),
-        i_logic_rst                 = platform.request("logic_rst"),
+        i_gtx_clk                   = self.gtx_clk,
+        i_gtx_rst                   = self.gtx_rst,
+        i_logic_clk                 = self.gtx_clk,
+        i_logic_rst                 = self.gtx_rst,
         
         # AXI input
         i_tx_axis_tdata             = platform.request("tx_axis_tdata"),
@@ -240,16 +241,22 @@ def _1G_RGMII_FIFO(self, platform):
     platform.add_extension(AXI_Stream())
     platform.add_extension(Configuration())
     platform.add_extension(Status())
+    
+    self.gtx_clk = Signal(1)
+    self.gtx_rst = Signal(1)
+    self.comb += self.gtx_clk.eq(platform.request("gtx_clk"))
+    self.comb += self.gtx_rst.eq(platform.request("gtx_rst"))
+    
     self.specials += Instance("eth_mac_1g_rgmii_fifo", 
                         name= "eth_mac_1g_rgmii_fifo_inst",
         # Ports
         # -----
         # Clocking
-        i_gtx_clk                   = platform.request("gtx_clk"),
+        i_gtx_clk                   = self.gtx_clk,
         i_gtx_clk90                 = platform.request("gtx_clk90"),
-        i_gtx_rst                   = platform.request("gtx_rst"),
-        i_logic_clk                 = platform.request("logic_clk"),
-        i_logic_rst                 = platform.request("logic_rst"),
+        i_gtx_rst                   = self.gtx_rst,
+        i_logic_clk                 = self.gtx_clk,
+        i_logic_rst                 = self.gtx_rst,
         
         # AXI input
         i_tx_axis_tdata             = platform.request("tx_axis_tdata"),
@@ -360,13 +367,6 @@ class Ethernet_MAC(Module):
                 _1G_GMII_FIFO(self, platform)
             elif (fifo == False):
                 _1G_GMII(self, platform)
-        
-        # 10G GMII ---------------------------------------------------------------------------------
-        # elif (interface == "GMII" and data_rate == "10G"):
-        #     if (fifo == True):
-        #         _10G_GMII_FIFO(self, platform)
-        #     elif (fifo == False):
-        #         _10G_GMII(self, platform)
         
         # 1G RGMII ---------------------------------------------------------------------------------
         elif (interface == "RGMII" and data_rate == "1G"):
