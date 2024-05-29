@@ -22,7 +22,9 @@ from litex.build.osfpga import OSFPGAPlatform
 def Clocking():
     return [
         # GMII/ GMII_FIFO/ RGMII
-        ("gtx_clk",         0, Pins(1)),
+        ("gtx_clk_1_25MHz", 0, Pins(1)),
+        ("gtx_clk_12_5MHz", 0, Pins(1)),
+        ("gtx_clk_125MHz",  0, Pins(1)),
         ("gtx_rst",         0, Pins(1)),
         
         # GMII/ RGMII
@@ -107,20 +109,34 @@ def Configuration():
 #################################################################################
 # 1G_GMII_FIFO
 #################################################################################
-def _1G_GMII_FIFO(self, platform):
+def _1G_GMII_FIFO(self, platform, data_rate, fifo_depth):
     platform.add_extension(Clocking())
     platform.add_extension(GMII_Interface())
     platform.add_extension(AXI_Stream())
     platform.add_extension(Configuration())
     platform.add_extension(Status())
     
+    # clock renaming
+    if (data_rate == "10Mbps"):
+        data_clk = "gtx_clk_1_25MHz"
+    elif (data_rate == "100Mbps"):
+        data_clk = "gtx_clk_12_5MHz"
+    elif (data_rate == "1000Mbps"):
+        data_clk = "gtx_clk_125MHz"
+    
+    # assigning same clock to gtx_clk and logic_clk
     self.gtx_clk = Signal(1)
     self.gtx_rst = Signal(1)
-    self.comb += self.gtx_clk.eq(platform.request("gtx_clk"))
+    self.comb += self.gtx_clk.eq(platform.request(data_clk))
     self.comb += self.gtx_rst.eq(platform.request("gtx_rst"))
     
     self.specials += Instance("eth_mac_1g_gmii_fifo", 
                         name= "eth_mac_1g_gmii_fifo_inst",
+        
+        # Parameters
+        # ----------
+        p_TX_FIFO_DEPTH             = fifo_depth,
+        p_RX_FIFO_DEPTH             = fifo_depth,
         # Ports
         # -----
         # Clocking
@@ -177,19 +193,27 @@ def _1G_GMII_FIFO(self, platform):
 #################################################################################
 # 1G_GMII
 #################################################################################
-def _1G_GMII(self, platform):
+def _1G_GMII(self, platform, data_rate):
     platform.add_extension(Clocking())
     platform.add_extension(GMII_Interface())
     platform.add_extension(AXI_Stream())
     platform.add_extension(Configuration())
     platform.add_extension(Status())
     
+    # clock renaming
+    if (data_rate == "10Mbps"):
+        data_clk = "gtx_clk_1_25MHz"
+    elif (data_rate == "100Mbps"):
+        data_clk = "gtx_clk_12_5MHz"
+    elif (data_rate == "1000Mbps"):
+        data_clk = "gtx_clk_125MHz"
+    
     self.specials += Instance("eth_mac_1g_gmii", 
                         name= "eth_mac_1g_gmii_inst",
         # Ports
         # -----
         # Clocking
-        i_gtx_clk               = platform.request("gtx_clk"),
+        i_gtx_clk               = platform.request(data_clk),
         i_gtx_rst               = platform.request("gtx_rst"),
         o_rx_clk                = platform.request("rx_clk"),
         o_rx_rst                = platform.request("rx_rst"),
@@ -235,20 +259,33 @@ def _1G_GMII(self, platform):
 #################################################################################
 # 1G_RGMII_FIFO
 #################################################################################
-def _1G_RGMII_FIFO(self, platform):
+def _1G_RGMII_FIFO(self, platform, data_rate, fifo_depth):
     platform.add_extension(Clocking())
     platform.add_extension(RGMII_Interface())
     platform.add_extension(AXI_Stream())
     platform.add_extension(Configuration())
     platform.add_extension(Status())
     
+    # clock renaming
+    if (data_rate == "10Mbps"):
+        data_clk = "gtx_clk_1_25MHz"
+    elif (data_rate == "100Mbps"):
+        data_clk = "gtx_clk_12_5MHz"
+    elif (data_rate == "1000Mbps"):
+        data_clk = "gtx_clk_125MHz"
+    
+    # assigning same clock to gtx_clk and logic_clk
     self.gtx_clk = Signal(1)
     self.gtx_rst = Signal(1)
-    self.comb += self.gtx_clk.eq(platform.request("gtx_clk"))
+    self.comb += self.gtx_clk.eq(platform.request(data_clk))
     self.comb += self.gtx_rst.eq(platform.request("gtx_rst"))
     
     self.specials += Instance("eth_mac_1g_rgmii_fifo", 
                         name= "eth_mac_1g_rgmii_fifo_inst",
+        # Parameters
+        # ----------
+        p_TX_FIFO_DEPTH             = fifo_depth,
+        p_RX_FIFO_DEPTH             = fifo_depth,
         # Ports
         # -----
         # Clocking
@@ -303,18 +340,27 @@ def _1G_RGMII_FIFO(self, platform):
 #################################################################################
 # 1G_RGMII
 #################################################################################
-def _1G_RGMII(self, platform):
+def _1G_RGMII(self, platform, data_rate):
     platform.add_extension(Clocking())
     platform.add_extension(RGMII_Interface())
     platform.add_extension(AXI_Stream())
     platform.add_extension(Configuration())
     platform.add_extension(Status())
+    
+    # clock renaming
+    if (data_rate == "10Mbps"):
+        data_clk = "gtx_clk_1_25MHz"
+    elif (data_rate == "100Mbps"):
+        data_clk = "gtx_clk_12_5MHz"
+    elif (data_rate == "1000Mbps"):
+        data_clk = "gtx_clk_125MHz"
+    
     self.specials += Instance("eth_mac_1g_rgmii", 
                         name= "eth_mac_1g_rgmii_inst",
         # Ports
         # -----
         # Clocking
-        i_gtx_clk               = platform.request("gtx_clk"),
+        i_gtx_clk               = platform.request(data_clk),
         i_gtx_clk90             = platform.request("gtx_clk90"),
         i_gtx_rst               = platform.request("gtx_rst"),
         o_rx_clk                = platform.request("rx_clk"),
@@ -357,23 +403,23 @@ def _1G_RGMII(self, platform):
 
 # Ethernet_MAC ----------------------------------------------------------------------------------
 class Ethernet_MAC(Module):
-    def __init__(self, platform, interface, data_rate, fifo):
+    def __init__(self, platform, interface, data_rate, fifo, fifo_depth):
         # Clocking ---------------------------------------------------------------------------------
         self.clock_domains.cd_sys  = ClockDomain()
         
         # 1G GMII ---------------------------------------------------------------------------------
-        if (interface == "GMII" and data_rate == "1G"):
+        if (interface == "GMII"):
             if (fifo == True):
-                _1G_GMII_FIFO(self, platform)
+                _1G_GMII_FIFO(self, platform, data_rate, fifo_depth)
             elif (fifo == False):
-                _1G_GMII(self, platform)
+                _1G_GMII(self, platform, data_rate)
         
         # 1G RGMII ---------------------------------------------------------------------------------
-        elif (interface == "RGMII" and data_rate == "1G"):
+        elif (interface == "RGMII"):
             if (fifo == True):
-                _1G_RGMII_FIFO(self, platform)
+                _1G_RGMII_FIFO(self, platform, data_rate, fifo_depth)
             elif (fifo == False):
-                _1G_RGMII(self, platform)
+                _1G_RGMII(self, platform, data_rate)
             
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -398,13 +444,17 @@ def main():
     
     # Core string value parameters.
     core_string_param_group = parser.add_argument_group(title="Core string parameters")
-    core_string_param_group.add_argument("--interface",     type=str,   default="GMII",      choices=["GMII", "RGMII"],           help="Physical Interface of Ethernet Mac")
-    core_string_param_group.add_argument("--data_rate",     type=str,   default="1G",        choices=["1G", "10G"],               help="Data Rate of Ethernet")
-    # core_string_param_group.add_argument("--fifo",          type=str,   default="FALSE",     choices=["TRUE", "FALSE"],           help="Ethernet Mac with/without FIFO")
+    core_string_param_group.add_argument("--interface",     type=str,   default="GMII",      choices=["GMII", "RGMII"],                         help="Physical Interface of Ethernet Mac")
+    core_string_param_group.add_argument("--data_rate",     type=str,   default="10Mbps",    choices=["10Mbps", "100Mbps", "1000Mbps"],         help="Data Rate of Ethernet")
+    # core_string_param_group.add_argument("--fifo",          type=str,   default="False",     choices=["True", "False"],                         help="Ethernet MAC with/without FIFO")
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
     core_bool_param_group.add_argument("--fifo",        type=bool,     default=False,      help="Ethernet Mac with/without FIFO")
+    
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--fifo_depth",       type=int,       default=4096,     choices=[64, 128, 256, 512, 1024, 2048, 4096],         help="FIFO Depth for data synchronization")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -420,16 +470,20 @@ def main():
     args = parser.parse_args()
 
     details =  {   "IP details": {
-    'Name'          : 'ETHERNET_MAC',
+    'Name'          : 'Ethernet_MAC',
     'Version'       : 'V1_0',
     'Interface'     : 'AXI-Stream',
-    'Description'   : 'ETHERNET_MAC.'}
+    'Description'   : 'Ethernet_MAC'}
     }
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+        
+        if (args.fifo == False):
+            option_strings_to_remove = ['--fifo_depth']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
     summary =  { 
     "Physical Interface": args.interface
@@ -438,13 +492,14 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
-
+        
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="virgo")
     module   = Ethernet_MAC(platform,
         interface       = args.interface,
         data_rate       = args.data_rate,
-        fifo            = args.fifo
+        fifo            = args.fifo,
+        fifo_depth      = args.fifo_depth
     )
 
     # Build Project --------------------------------------------------------------------------------
