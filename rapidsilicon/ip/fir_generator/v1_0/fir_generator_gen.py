@@ -367,10 +367,10 @@ end
             text = text.replace(".data_out(dout)", ".data_out(dout), \n\t.fast_clk(accelerated_clk)")
             file.write_text(text)
             if (not args.coefficients_file):
-                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(((1/input_maximum)/2) * 1000 / max(len(extract_numbers(args.coefficients, args.coefficients_file)), 1)))
+                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(round(((1/input_maximum)/2) * 1000 / max(len(extract_numbers(args.coefficients, args.coefficients_file)), 1), 3)))
                 file.write_text(text)
             else:
-                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(((1/input_maximum)/2) * 1000 / max(args.number_of_coefficients, 1)))
+                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(round(((1/input_maximum)/2) * 1000 / max(args.number_of_coefficients, 1), 3)))
                 file.write_text(text)
         text = text.replace("18", "%s" % args.input_width)
         file.write_text(text)
