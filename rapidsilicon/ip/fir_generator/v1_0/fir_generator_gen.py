@@ -401,7 +401,7 @@ end
         with open(file, 'r') as files:
             lines = files.readlines()
         for i, value in enumerate(extract_numbers(args.coefficients, args.coefficients_file)):
-            insert_line = f"\tassign coeff[{i}] = {value};\n"
+            insert_line = f"\tassign coeff[{i}] = {decimal_to_fixed_point(value, args.coefficient_width - args.coefficient_fractional_bits, args.coefficient_fractional_bits, args.signed)};\n"
             lines.insert(19 - 1 + i, insert_line)
 
         with open(file, 'w') as files:
