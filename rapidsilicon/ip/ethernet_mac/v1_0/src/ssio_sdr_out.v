@@ -46,7 +46,7 @@ module ssio_sdr_out #
 );
 
 oddr #(
-    .WIDTH(1)
+    .WIDTH(WIDTH)
 )
 clk_oddr_inst (
     .clk(clk),

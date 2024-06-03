@@ -59,14 +59,18 @@ Provides a consistent output DDR flip flop across multiple FPGA families
 
 */
 
-O_DDR  
-O_DDR_inst (
-    .D({d2, d1}),
-    .R(1'b1),
-    .E(1'b1),
-    .C(clk),
-    .Q(q)
-);
+genvar i;
+generate
+    for (i = 0; i < WIDTH; i = i + 1) begin
+        O_DDR O_DDR_inst (
+            .D({d2[i], d1[i]}),
+            .R(1'b1),
+            .E(1'b1),
+            .C(clk),
+            .Q(q[i])
+        );
+    end
+endgenerate
 
 endmodule
 
