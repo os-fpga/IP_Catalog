@@ -45,6 +45,19 @@ jobs:
     - name: Sanity Check
       shell: bash
       run: |
+
+
+        function check_png_file() {
+          local primary_path="$1"
+          local variable_name="$2"
+          local file_to_find="${primary_path}/${variable_name}.png"
+
+          if [[ -f "$file_to_find" ]]; then
+            echo "Success: Found file $file_to_find"
+          else
+            echo "Fail: File $file_to_find not found"
+          fi}
+
         gen_list=`find $GITHUB_WORKSPACE/rapidsilicon/ip -type f -iname "*_gen.py"`
         
         cd Raptor_Tools/python_tools/build/share/envs/litex/bin
@@ -57,11 +70,14 @@ jobs:
             ./python3 $n --build --json-template
             ip_name=$(basename "${n%_gen.py}")
             echo $ip_name
-
             #file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -name $ip_name"_wrapper.v")
 
             file_path=$(find /home/runner/work/IP_Catalog/IP_Catalog/Raptor_Tools/python_tools/build/share/envs/litex/bin -type f -iname "${ip_name}_wrapper_v1_0.v" -o -iname "${ip_name}_wrapper_v2_0.v" -o -iname "${ip_name}_wrapper_v1_0.sv" -o -iname "${ip_name}_wrapper_v2_0.sv" -o -iname "${ip_name}_v1_0.v" -o -iname "${ip_name}_v2_0.v" | head -n 1)
             # Check if the IP name is in the excluded_ips array
+            echo $file_path
+            echo "-------"
+            echo $n
+            check_png_file "$file_path" "$n"
 
             if [[ " ${simulation_list[@]} " =~ " $ip_name " ]]; then
                   dir_path=`dirname $file_path`
