@@ -29,48 +29,48 @@ THE SOFTWARE.
 `default_nettype none
 
 /*
- * Generic ODDR module
+ * Generic source synchronous DDR input
  */
-module oddr #
+module ssio_ddr_in #
 (
     // Width of register in bits
     parameter WIDTH = 1
 )
 (
-    input  wire             clk,
+    input  wire             input_clk,
 
-    input  wire [WIDTH-1:0] d1,
-    input  wire [WIDTH-1:0] d2,
+    input  wire [WIDTH-1:0] input_d,
 
-    output reg [WIDTH-1:0] q
+    output wire             output_clk,
+
+    output wire [WIDTH-1:0] output_q1,
+    output wire [WIDTH-1:0] output_q2
 );
 
-/*
+wire clk_int;
+wire clk_io;
 
-Provides a consistent output DDR flip flop across multiple FPGA families
-              _____       _____       _____       _____
-    clk  ____/     \_____/     \_____/     \_____/     \_____
-         _ ___________ ___________ ___________ ___________ __
-    d1   _X____D0_____X____D2_____X____D4_____X____D6_____X__
-         _ ___________ ___________ ___________ ___________ __
-    d2   _X____D1_____X____D3_____X____D5_____X____D7_____X__
-         _____ _____ _____ _____ _____ _____ _____ _____ ____
-    d    _____X_D0__X_D1__X_D2__X_D3__X_D4__X_D5__X_D6__X_D7_
+CLK_BUF 
+CLK_BUF_inst(
+    .I(input_clk),
+    .O(output_clk)
+);
 
-*/
+CLK_BUF 
+CLK_BUF_inst_1(
+    .I(input_clk),
+    .O(clk_io)
+);
 
-genvar i;
-generate
-    for (i = 0; i < WIDTH; i = i + 1) begin
-        O_DDR O_DDR_inst(
-            .D({d2[i], d1[i]}),
-            .R(1'b1),
-            .E(1'b1),
-            .C(clk),
-            .Q(q[i])
-        );
-    end
-endgenerate
+iddr #(
+    .WIDTH(WIDTH)
+)
+data_iddr_inst (
+    .clk(clk_io),
+    .d(input_d),
+    .q1(output_q1),
+    .q2(output_q2)
+);
 
 endmodule
 

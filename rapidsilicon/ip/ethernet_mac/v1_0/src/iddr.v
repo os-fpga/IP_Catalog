@@ -29,9 +29,9 @@ THE SOFTWARE.
 `default_nettype none
 
 /*
- * Generic ODDR module
+ * Generic IDDR module
  */
-module oddr #
+module iddr #
 (
     // Width of register in bits
     parameter WIDTH = 1
@@ -39,35 +39,35 @@ module oddr #
 (
     input  wire             clk,
 
-    input  wire [WIDTH-1:0] d1,
-    input  wire [WIDTH-1:0] d2,
+    input  wire [WIDTH-1:0] d,
 
-    output reg [WIDTH-1:0] q
+    output wire [WIDTH-1:0] q1,
+    output wire [WIDTH-1:0] q2
 );
 
 /*
 
-Provides a consistent output DDR flip flop across multiple FPGA families
-              _____       _____       _____       _____
-    clk  ____/     \_____/     \_____/     \_____/     \_____
-         _ ___________ ___________ ___________ ___________ __
-    d1   _X____D0_____X____D2_____X____D4_____X____D6_____X__
-         _ ___________ ___________ ___________ ___________ __
-    d2   _X____D1_____X____D3_____X____D5_____X____D7_____X__
-         _____ _____ _____ _____ _____ _____ _____ _____ ____
-    d    _____X_D0__X_D1__X_D2__X_D3__X_D4__X_D5__X_D6__X_D7_
+Provides a consistent input DDR flip flop across multiple FPGA families
+              _____       _____       _____       _____       ____
+    clk  ____/     \_____/     \_____/     \_____/     \_____/
+         _ _____ _____ _____ _____ _____ _____ _____ _____ _____ _
+    d    _X_D0__X_D1__X_D2__X_D3__X_D4__X_D5__X_D6__X_D7__X_D8__X_
+         _______ ___________ ___________ ___________ ___________ _
+    q1   _______X___________X____D0_____X____D2_____X____D4_____X_
+         _______ ___________ ___________ ___________ ___________ _
+    q2   _______X___________X____D1_____X____D3_____X____D5_____X_
 
 */
 
 genvar i;
 generate
-    for (i = 0; i < WIDTH; i = i + 1) begin
-        O_DDR O_DDR_inst(
-            .D({d2[i], d1[i]}),
+    for (i = 0; i <= WIDTH-1; i = i+1) begin
+        I_DDR  I_DDR_inst (
+            .D(d[i]),
             .R(1'b1),
             .E(1'b1),
             .C(clk),
-            .Q(q[i])
+            .Q({q2[i], q1[i]})
         );
     end
 endgenerate
