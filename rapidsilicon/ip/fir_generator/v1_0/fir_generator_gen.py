@@ -61,7 +61,7 @@ class FIRGenerator(Module):
         
         if(optimization == "Area"):
             self.clock_domains.cd_sys  = ClockDomain(reset_less=True)
-            self.clock_domains.cd_accelerated	= ClockDomain()
+            self.clock_domains.cd_accelerated	= ClockDomain(reset_less=True)
         else:
             self.clock_domains.cd_sys  = ClockDomain()
 	
@@ -71,13 +71,14 @@ class FIRGenerator(Module):
         if (optimization == "Area"):
             self.sync += platform.request("data_out").eq(fir.data_out)
             self.sync += fir.rst.eq(platform.request("rst"))  
-            self.comb += self.cd_accelerated.rst.eq(fir.rst)  
+            self.comb += platform.request("ready").eq(~fir.rst)
             self.comb += self.cd_accelerated.clk.eq(platform.request("fast_clk"))
         else:
+            self.comb += platform.request("ready").eq(fir.ready)
             self.comb += platform.request("data_out").eq(fir.data_out)
             self.comb += self.cd_sys.rst.eq(platform.request("rst"))   
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        self.comb += platform.request("ready").eq(fir.ready)
+        
          
             
 # Build --------------------------------------------------------------------------------------------

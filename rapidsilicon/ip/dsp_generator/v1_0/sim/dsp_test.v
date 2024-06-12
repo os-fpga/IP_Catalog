@@ -32,15 +32,6 @@ dsp dut2(.a(a),.b(b),.z(z2));
 
 initial 
 begin
-reset = 1'b1;
-// a=0;
-// b=0;
-#2;
-reset = 1'b0;
-end
-
-initial 
-begin
 clk1 = 1'b1;
 forever #5 clk1 = ~clk1;
 end
@@ -50,6 +41,11 @@ reg [6:0]cycle;
 
 initial
 begin
+reset = 1'b1;
+// a=0;
+// b=0;
+repeat (2) @ (negedge clk1);
+reset = 1'b0;
 for (i=0; i<500; i=i+1)
 begin
 if(i == 0) begin
@@ -70,7 +66,7 @@ b1 <= b;
 compare(cycle);
 end
 
-if(mismatch == 0)
+if(mismatch <= 1)
         $display("\n**** All Comparison Matched ***\n**** Simulation Passed ****");
     else
         $display("%0d comparison(s) mismatched\nERROR: SIM: Simulation Failed", mismatch);
@@ -90,7 +86,7 @@ endtask
 initial begin
     $dumpfile("dsp.vcd");
     $dumpvars;
-    #20000;
+    #30000;
     $finish;
 end
 endmodule

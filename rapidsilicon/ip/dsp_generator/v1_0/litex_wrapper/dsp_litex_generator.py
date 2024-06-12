@@ -3261,6 +3261,7 @@ class RS_DSP_MULT20_pipeline(Module):
         self.b = Signal(bits_sign=(b_width,True))
         self.sum = Signal(3, reset=2)
         self.fb = Signal(3)
+        self.reset = Signal()
         
         self.comb += self.fb.eq(Mux(self.sum != 2, 0b001, 0b000))
 
@@ -3324,14 +3325,19 @@ class RS_DSP_MULT20_pipeline(Module):
         self.comb += self.z.eq(Mux(self.sum == 3, (self.z3 << k) + self.z1 + (self.z2 << 2*k), self.z_2))
         sum_reg = Signal(3, reset=1)
         self.sync += [
-            sum_reg.eq(sum_reg + 1),
-            If(sum_reg == 3,
-                sum_reg.eq(2)
+            If(self.reset, 
+                sum_reg.eq(1),
+                self.z_2.eq(0)
+            ).Else (
+                sum_reg.eq(sum_reg + 1),
+                If(sum_reg == 3,
+                    sum_reg.eq(2)
+                ),
+                self.z_2.eq(self.z)
             )
         ]
         self.comb += [
             self.sum.eq(sum_reg),
-            self.z_2.eq(self.z)
         ]
          # Module instance.
         # ----------------
@@ -3344,7 +3350,7 @@ class RS_DSP_MULT20_pipeline(Module):
             p_INPUT_REG_EN  = "TRUE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET         = self.reset,
             # IOs
             i_A             = self.a0,
             i_B             = self.b0,
@@ -3362,7 +3368,7 @@ class RS_DSP_MULT20_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a3,
             i_B             = self.b3,
@@ -3387,7 +3393,7 @@ class RS_DSP_MULT20_pipeline(Module):
             p_INPUT_REG_EN  = "TRUE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a1,
             i_B             = self.b1,
@@ -3430,6 +3436,7 @@ class RS_DSP_MULT36_pipeline(Module):
         self.b2 = Signal(k)
         self.a3 = Signal(k)
         self.b3 = Signal(k)
+        self.reset = Signal()
 
         self.sum = Signal(3, reset=2)
         self.fb = Signal(3, reset = 1)
@@ -3583,14 +3590,19 @@ class RS_DSP_MULT36_pipeline(Module):
                                                 + (self.z2 << k) + self.z1, self.z_2))
         sum_reg = Signal(3, reset=1)
         self.sync += [
-            sum_reg.eq(sum_reg + 1),
-            If(sum_reg == 4,
-                sum_reg.eq(2)
-            )
+            If(self.reset,
+               sum_reg.eq(1),
+               self.z_2.eq(0)
+               ).Else(
+                sum_reg.eq(sum_reg + 1),
+                If(sum_reg == 4,
+                    sum_reg.eq(2)
+                ),
+                self.z_2.eq(self.z)
+               )
         ]
         self.comb += [
             self.sum.eq(sum_reg),
-            self.z_2.eq(self.z)
         ]
 
         # Module instance.
@@ -3604,7 +3616,7 @@ class RS_DSP_MULT36_pipeline(Module):
             p_INPUT_REG_EN  = "TRUE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a1,
             i_B             = self.b1,
@@ -3622,7 +3634,7 @@ class RS_DSP_MULT36_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a_2,
             i_B             = self.b_2,
@@ -3645,7 +3657,7 @@ class RS_DSP_MULT36_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a_3,
             i_B             = self.b_3,
@@ -3668,7 +3680,7 @@ class RS_DSP_MULT36_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a_4,
             i_B             = self.b_4,
@@ -3691,7 +3703,7 @@ class RS_DSP_MULT36_pipeline(Module):
             p_INPUT_REG_EN  = "TRUE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a3,
             i_B             = self.b3,
@@ -3753,6 +3765,8 @@ class RS_DSP_MULT54_pipeline(Module):
         self.b1 = Signal(18)
         self.b2 = Signal(18)
         self.b3 = Signal(18)
+
+        self.reset = Signal()
         
         if(a_width > k*3 and a_width <= k*4):
             if (unsigned):
@@ -3962,14 +3976,19 @@ class RS_DSP_MULT54_pipeline(Module):
                     (self.z4 << 3*k) + (self.z3 << 2*k) + (self.z2 << k) + self.z1, self.z_2))
         sum_reg = Signal(3, reset=1)
         self.sync += [
-            sum_reg.eq(sum_reg + 1),
-            If(sum_reg == 5,
-                sum_reg.eq(2)
-            )
+            If(self.reset,
+               sum_reg.eq(1),
+               self.z_2.eq(0)
+               ).Else(
+                sum_reg.eq(sum_reg + 1),
+                If(sum_reg == 5,
+                    sum_reg.eq(2)
+                ),
+                self.z_2.eq(self.z)
+               )
         ]
         self.comb += [
-            self.sum.eq(sum_reg),
-            self.z_2.eq(self.z)
+            self.sum.eq(sum_reg)
         ]
         # Module instance.
         # ----------------
@@ -3982,7 +4001,7 @@ class RS_DSP_MULT54_pipeline(Module):
             p_INPUT_REG_EN  = "TRUE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a0,
             i_B             = self.b0,
@@ -4000,7 +4019,7 @@ class RS_DSP_MULT54_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a_2,
             i_B             = self.b_2,
@@ -4023,7 +4042,7 @@ class RS_DSP_MULT54_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a_3,
             i_B             = self.b_3,
@@ -4046,7 +4065,7 @@ class RS_DSP_MULT54_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a_4,
             i_B             = self.b_4,
@@ -4069,7 +4088,7 @@ class RS_DSP_MULT54_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a_5,
             i_B             = self.b_5,
@@ -4092,7 +4111,7 @@ class RS_DSP_MULT54_pipeline(Module):
             p_INPUT_REG_EN  = "FALSE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a_6,
             i_B             = self.b_6,
@@ -4115,7 +4134,7 @@ class RS_DSP_MULT54_pipeline(Module):
             p_INPUT_REG_EN  = "TRUE",
             # Reset
             i_CLK           = ClockSignal(),
-            i_RESET        = ResetSignal(),
+            i_RESET        = self.reset,
             # IOs
             i_A             = self.a3,
             i_B             = self.b3,
