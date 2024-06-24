@@ -63,10 +63,11 @@ end
 repeat (1) @ (posedge clk1);
 a1 <= a;
 b1 <= b;
+#1;
 compare(cycle);
 end
 
-if(mismatch <= 1)
+if(mismatch == 0)
         $display("\n**** All Comparison Matched ***\n**** Simulation Passed ****");
     else
         $display("%0d comparison(s) mismatched\nERROR: SIM: Simulation Failed", mismatch);
