@@ -3542,11 +3542,16 @@ class RS_DSP_MULT36_pipeline(Module):
         self.a_3 = Signal(bits_sign=(k+1,True))
         self.b_3 = Signal(bits_sign=(k+1,True))
 
-        
-        self.unsigneda_3 = Signal(1, reset = 1)
-        self.unsignedb_3 = Signal(1, reset = 1)
-        self.unsigneda_4 = Signal(1, reset = 1)
-        self.unsignedb_4 = Signal(1, reset = 1)
+        if (unsigned):
+            self.unsigneda_3 = Signal(1, reset = 1)
+            self.unsignedb_3 = Signal(1, reset = 1)
+            self.unsigneda_4 = Signal(1, reset = 1)
+            self.unsignedb_4 = Signal(1, reset = 1)
+        else:
+            self.unsigneda_3 = Signal(1, reset = 0)
+            self.unsignedb_3 = Signal(1, reset = 0)
+            self.unsigneda_4 = Signal(1, reset = 0)
+            self.unsignedb_4 = Signal(1, reset = 0)
         self.comb += self.unsigneda_4.eq(Mux(self.sum == 3, a1_sign, a2_sign))
         self.comb += self.unsignedb_4.eq(Mux(self.sum == 3, b2_sign, b1_sign))
         self.comb += [
@@ -3882,11 +3887,18 @@ class RS_DSP_MULT54_pipeline(Module):
         self.a_6 = Signal(bits_sign=(k+1,True))
         self.comb += self.a_6.eq(Mux(self.sum < 4, self.a2, self.a3))
         self.b_6 = Signal(bits_sign=(k+1,True))
-        self.unsigned_a4 = Signal(1, reset = 1)
-        self.unsigned_a5 = Signal(1, reset = 1)
-        self.unsigned_b4 = Signal(1, reset = 1)
-        self.unsigned_b5 = Signal(1, reset = 1)
-        self.unsigned_a6 = Signal(1, reset = 1)
+        if (unsigned):
+            self.unsigned_a4 = Signal(1, reset = 1)
+            self.unsigned_a5 = Signal(1, reset = 1)
+            self.unsigned_b4 = Signal(1, reset = 1)
+            self.unsigned_b5 = Signal(1, reset = 1)
+            self.unsigned_a6 = Signal(1, reset = 1)
+        else:
+            self.unsigned_a4 = Signal(1, reset = 0)
+            self.unsigned_a5 = Signal(1, reset = 0)
+            self.unsigned_b4 = Signal(1, reset = 0)
+            self.unsigned_b5 = Signal(1, reset = 0)
+            self.unsigned_a6 = Signal(1, reset = 0)
         self.comb += self.unsigned_a6.eq(Mux(self.sum < 4, a2_sign, a3_sign))
         self.unsigned_b6 = Signal(1, reset = 1)
         self.comb += self.unsigned_b6.eq(Mux(self.sum < 4, b3_sign, b2_sign))
@@ -3897,8 +3909,12 @@ class RS_DSP_MULT54_pipeline(Module):
         self.b_4 = Signal(bits_sign=(k+1,True))
         self.a_5 = Signal(bits_sign=(k+1,True))
         self.b_5 = Signal(bits_sign=(k+1,True))
-        self.a_3_sign = Signal(1, reset = 1)
-        self.b_3_sign = Signal(1, reset = 1)
+        if (unsigned):
+            self.a_3_sign = Signal(1, reset = 1)
+            self.b_3_sign = Signal(1, reset = 1)
+        else:
+            self.a_3_sign = Signal(1, reset = 0)
+            self.b_3_sign = Signal(1, reset = 0)
         self.comb += [
             If(self.sum == 5,
                 self.fb.eq(1)
