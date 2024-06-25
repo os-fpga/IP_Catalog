@@ -89,7 +89,7 @@ eth_mac_1g_gmii eth_mac_1g_gmii_inst(
 	.gmii_rx_dv(gmii_rx_dv),
 	.gmii_rx_er(gmii_rx_er),
 	.gmii_rxd(gmii_rxd),
-	.gtx_clk(gtx_clk),
+	.gtx_clk(gtx_clk_125MHz),
 	.gtx_rst(gtx_rst),
 	.mii_tx_clk(mii_tx_clk),
 	.tx_axis_tdata(tx_axis_tdata),
