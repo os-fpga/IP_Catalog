@@ -61,7 +61,7 @@ class FIRGenerator(Module):
         
         if(optimization == "Area"):
             self.clock_domains.cd_sys  = ClockDomain(reset_less=True)
-            self.clock_domains.cd_accelerated	= ClockDomain()
+            self.clock_domains.cd_accelerated	= ClockDomain(reset_less=True)
         else:
             self.clock_domains.cd_sys  = ClockDomain()
 	
@@ -71,13 +71,14 @@ class FIRGenerator(Module):
         if (optimization == "Area"):
             self.sync += platform.request("data_out").eq(fir.data_out)
             self.sync += fir.rst.eq(platform.request("rst"))  
-            self.comb += self.cd_accelerated.rst.eq(fir.rst)  
+            self.comb += platform.request("ready").eq(~fir.rst)
             self.comb += self.cd_accelerated.clk.eq(platform.request("fast_clk"))
         else:
+            self.comb += platform.request("ready").eq(fir.ready)
             self.comb += platform.request("data_out").eq(fir.data_out)
             self.comb += self.cd_sys.rst.eq(platform.request("rst"))   
         self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-        self.comb += platform.request("ready").eq(fir.ready)
+        
          
             
 # Build --------------------------------------------------------------------------------------------
@@ -152,8 +153,7 @@ def main():
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.copy_images(file_path)
-
-
+        
         if (args.optimization == "Area"):
             if (not args.coefficients_file):
                 option_strings_to_remove = ['--number_of_coefficients']
@@ -257,7 +257,6 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
-
 
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -369,10 +368,10 @@ end
             text = text.replace(".data_out(dout)", ".data_out(dout), \n\t.fast_clk(accelerated_clk)")
             file.write_text(text)
             if (not args.coefficients_file):
-                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(((1/input_maximum)/2) * 1000 / max(len(extract_numbers(args.coefficients, args.coefficients_file)), 1)))
+                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(round(((1/input_maximum)/2) * 1000 / max(len(extract_numbers(args.coefficients, args.coefficients_file)), 1), 3)))
                 file.write_text(text)
             else:
-                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(((1/input_maximum)/2) * 1000 / max(args.number_of_coefficients, 1)))
+                text = text.replace("#5 accelerated_clk", "#%s accelerated_clk" % str(round(((1/input_maximum)/2) * 1000 / max(args.number_of_coefficients, 1), 3)))
                 file.write_text(text)
         text = text.replace("18", "%s" % args.input_width)
         file.write_text(text)
@@ -401,11 +400,18 @@ end
         with open(file, 'r') as files:
             lines = files.readlines()
         for i, value in enumerate(extract_numbers(args.coefficients, args.coefficients_file)):
-            insert_line = f"\tassign coeff[{i}] = {value};\n"
-            lines.insert(19 - 1 + i, insert_line)
+            insert_line = f"\tassign coeff[{i}] = {decimal_to_fixed_point(value, args.coefficient_width - args.coefficient_fractional_bits, args.coefficient_fractional_bits, args.signed)};\n"
+            lines.insert(21 - 1 + i, insert_line)
 
         with open(file, 'w') as files:
             files.writelines(lines)
+
+        if (not args.signed):
+            with open(file, 'r') as files:
+                content = files.read()
+            modified_content = content.replace('signed', '')
+            with open(file, 'w') as files:
+                files.write(modified_content)
 
 if __name__ == "__main__":
     main()

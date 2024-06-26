@@ -459,8 +459,8 @@ module ocla_debug_subsystem #(
   assign wa_axil_rready  =     ma_axil_rready;
   assign wa_axil_wdata   =     ma_axil_wdata;
   assign wa_axil_wready  =    (Mode == "NATIVE") ? 1'b1 :  ma_axil_wready;
-  assign wa_axil_wstrb   =    (Mode == "NATIVE") ? 0 :     ma_axil_wstrb;
-  assign wa_axil_wvalid  =    (Mode == "NATIVE") ? 0 :     ma_axil_wvalid;
+  assign wa_axil_wstrb   =     ma_axil_wstrb;
+  assign wa_axil_wvalid  =     ma_axil_wvalid;
 
   //------------------------------------------------------------------------------
   // JTAG_AXI

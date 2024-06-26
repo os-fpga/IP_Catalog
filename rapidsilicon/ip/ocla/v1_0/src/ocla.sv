@@ -100,11 +100,11 @@ module ocla #(
   // in case number of probe is not a multiple of 32
   localparam WORD_CHUNKS = NO_OF_PROBES > 32 ? (NO_OF_PROBES / 32) +((NO_OF_PROBES - $floor(NO_OF_PROBES / 32) * 32 )== 0 ? 0:1):1;
   // number of 32 bit words in which probes can be divided
-  localparam PROBE_BITS = 32 - int'(REM_BITS);
-  //localparam [31:0] PROBE_BITS = 32 - REM_BITS;
-  localparam WORD_CHUNK_CNTR_WIDTH = WORD_CHUNKS> 1? int'($clog2(WORD_CHUNKS)):1;
+  //localparam PROBE_BITS = 32 - int'(REM_BITS);
+  localparam [31:0] PROBE_BITS = 32 - REM_BITS;
+  //localparam WORD_CHUNK_CNTR_WIDTH = WORD_CHUNKS> 1? int'($clog2(WORD_CHUNKS)):1;
 
-  //localparam WORD_CHUNK_CNTR_WIDTH = WORD_CHUNKS> 1? ($clog2(WORD_CHUNKS)):1;
+  localparam WORD_CHUNK_CNTR_WIDTH = WORD_CHUNKS> 1? ($clog2(WORD_CHUNKS)):1;
 
   // ---------------------------------------------------------------
   // Dual Synchronizer flop
