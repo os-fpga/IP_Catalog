@@ -433,11 +433,15 @@ class OCM_SYM(Module):
         self.addr_A    = Signal(math.ceil(math.log2(write_depth)))
         self.addr_B    = Signal(math.ceil(math.log2(write_depth)))
         
-        self.din_A     = Signal(data_width)
-        self.dout_A    = Signal(data_width)
+        self.din_A      = Signal(data_width)
+        self.dout_A     = Signal(data_width)
+        self.dout_A_    = Signal(data_width)
+        self.dout_A_reg = Signal(data_width)
         
-        self.din_B     = Signal(data_width)
-        self.dout_B    = Signal(data_width)
+        self.din_B      = Signal(data_width)
+        self.dout_B     = Signal(data_width)
+        self.dout_B_    = Signal(data_width)
+        self.dout_B_reg = Signal(data_width)
         
         # OCM Instances.
         # if (write_depth % 1024 ==0):
@@ -505,8 +509,10 @@ class OCM_SYM(Module):
         # External write/read enables
         self.wen_A        = Signal(1)
         self.ren_A        = Signal(1)
+        self.ren_A_reg    = Signal(1)
         self.wen_B        = Signal(1)
         self.ren_B        = Signal(1)
+        self.ren_B_reg    = Signal(1)
         
         # read port signals
         self.bram_out_A = [Signal(32*n) for i in range(m)]
@@ -531,6 +537,9 @@ class OCM_SYM(Module):
             if (write_depth in [1024, 2048, 4096, 8192, 16384, 32768]):
                 # Single Port RAM
                 if (memory_type == "Single_Port"):
+                    self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                    self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                    self.sync.A += self.ren_A_reg.eq(self.ren_A)
                     for j in range(n):
                         for i in range(m):
                             if (write_depth <= 1024):
@@ -549,6 +558,13 @@ class OCM_SYM(Module):
                             
                 # Simple Dual Port RAM
                 elif (memory_type == "Simple_Dual_Port"):
+                    self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                    if (common_clk == 1):
+                        self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync += self.ren_B_reg.eq(self.ren_B)
+                    else:
+                        self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync.B += self.ren_B_reg.eq(self.ren_B)
                     for j in range(n):
                         for i in range(m):
                             if (write_depth <= 1024):
@@ -567,6 +583,18 @@ class OCM_SYM(Module):
                 
                 # True Dual Port RAM
                 elif (memory_type == "True_Dual_Port"):
+                    self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                    self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                    if (common_clk == 1):
+                        self.sync += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                        self.sync += self.ren_A_reg.eq(self.ren_A)
+                        self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync += self.ren_B_reg.eq(self.ren_B)
+                    else:
+                        self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                        self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                        self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync.B += self.ren_B_reg.eq(self.ren_B)
                     for i in range(m):
                         if (write_depth <= 1024):
                             self.comb += self.dout_A[(i*36):((i*36)+36)].eq(Cat(self.bram_out_A[i][0:8], self.rparity_A[i][0], self.bram_out_A[i][8:16], self.rparity_A[i][1],
@@ -840,8 +868,8 @@ class OCM_SYM(Module):
                         p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_A      = param_read_width_A,
-                        p_WRITE_WIDTH_B     = 36,
-                        p_READ_WIDTH_B      = 36,
+                        p_WRITE_WIDTH_B     = param_write_width_A,
+                        p_READ_WIDTH_B      = param_read_width_A,
                         # Ports.
                         # -----------
                         i_CLK_A     = clock1,

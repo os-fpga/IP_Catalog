@@ -93,9 +93,9 @@ class OCMWrapper(Module):
     def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, write_depth, data_width, common_clk, port_type, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(port_type, data_width, write_depth, memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B))
-        self.clock_domains.cd_sys   = ClockDomain()
-        self.clock_domains.A  = ClockDomain()
-        self.clock_domains.B  = ClockDomain()
+        self.clock_domains.cd_sys   = ClockDomain(reset_less = True)
+        self.clock_domains.A        = ClockDomain(reset_less = True)
+        self.clock_domains.B        = ClockDomain(reset_less = True)
         
         if port_type == "Asymmetric":
             self.submodules.sp = ram = OCM_ASYM(write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension)
@@ -109,10 +109,13 @@ class OCMWrapper(Module):
         if (memory_type == "Single_Port"):
             self.comb += ram.addr_A.eq(platform.request("addr_A"))
             self.comb += ram.din_A.eq(platform.request("din_A"))
-            self.comb += platform.request("dout_A").eq(ram.dout_A)
             self.comb += self.A.clk.eq(platform.request("clk_A"))
             self.comb += ram.wen_A.eq(platform.request("wen_A"))
             self.comb += ram.ren_A.eq(platform.request("ren_A"))
+            if (memory_mapping == "Distributed_RAM"):
+                self.comb += platform.request("dout_A").eq(ram.dout_A)
+            else:
+                self.comb += platform.request("dout_A").eq(ram.dout_A_)
         
         # Simple Dual Port RAM
         elif (memory_type == "Simple_Dual_Port"):
@@ -121,7 +124,10 @@ class OCMWrapper(Module):
             self.comb += ram.addr_B.eq(platform.request("addr_B"))
             self.comb += ram.wen_A.eq(platform.request("wen_A"))
             self.comb += ram.ren_B.eq(platform.request("ren_B"))
-            self.comb += platform.request("dout_B").eq(ram.dout_B)
+            if (memory_mapping == "Distributed_RAM"):
+                self.comb += platform.request("dout_B").eq(ram.dout_B)
+            else:
+                self.comb += platform.request("dout_B").eq(ram.dout_B_)
             # Common Clock
             if (common_clk == 1):
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
@@ -139,8 +145,12 @@ class OCMWrapper(Module):
             self.comb += ram.ren_A.eq(platform.request("ren_A"))
             self.comb += ram.wen_B.eq(platform.request("wen_B"))
             self.comb += ram.ren_B.eq(platform.request("ren_B"))
-            self.comb += platform.request("dout_A").eq(ram.dout_A)
-            self.comb += platform.request("dout_B").eq(ram.dout_B)
+            if (memory_mapping == "Distributed_RAM"):
+                self.comb += platform.request("dout_A").eq(ram.dout_A)
+                self.comb += platform.request("dout_B").eq(ram.dout_B)
+            else:
+                self.comb += platform.request("dout_A").eq(ram.dout_A_)
+                self.comb += platform.request("dout_B").eq(ram.dout_B_)
             # Common Clock
             if (common_clk == 1):
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
@@ -222,6 +232,9 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
         if (args.write_width_A >= 288 or args.read_width_A >= 288 or args.write_width_B >= 288 or args.read_width_B >= 288):
                 parser._actions[11].choices = [1024, 2048, 4096, 8192]
 
@@ -279,9 +292,6 @@ def main():
         memory_mapping = "Block RAM"
     else:
         memory_mapping = "Distributed RAM(LUTs)"
-    
-        file_path = os.path.dirname(os.path.realpath(__file__))
-        rs_builder.copy_images(file_path)
         
     summary =  {  
     "Type of Memory": memory,

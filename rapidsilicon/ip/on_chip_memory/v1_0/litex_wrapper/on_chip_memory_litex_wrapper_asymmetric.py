@@ -454,7 +454,7 @@ class OCM_ASYM(Module):
             self.logger.info(f"WRITE_DEPTH_A    : {write_depth_A}")
             self.logger.info(f"READ_DEPTH_B     : {read_depth_B}")
             
-        if memory_type == "True_Dual_Port":
+        elif memory_type == "True_Dual_Port":
             self.logger.info(f"WRITE_WIDTH_A    : {write_width_A}")
             self.logger.info(f"READ_WIDTH_A     : {read_width_A}")
             self.logger.info(f"WRITE_WIDTH_B    : {write_width_B}")
@@ -494,18 +494,24 @@ class OCM_ASYM(Module):
         msb_B = math.ceil(math.log2(write_depth_B))
         
         # Port A din/dout
-        self.din_A     = Signal(write_width_A)
-        self.dout_A    = Signal(read_width_A)
+        self.din_A          = Signal(write_width_A)
+        self.dout_A         = Signal(read_width_A)
+        self.dout_A_        = Signal(read_width_A)
+        self.dout_A_reg     = Signal(read_width_A)
         
         # Port B din/dout
-        self.din_B     = Signal(write_width_B)
-        self.dout_B    = Signal(read_width_B)
+        self.din_B          = Signal(write_width_B)
+        self.dout_B         = Signal(read_width_B)
+        self.dout_B_        = Signal(read_width_B)
+        self.dout_B_reg     = Signal(read_width_B)
         
         # External write/read enables
         self.wen_A        = Signal(1)
         self.ren_A        = Signal(1)
+        self.ren_A_reg    = Signal(1)
         self.wen_B        = Signal(1)
         self.ren_B        = Signal(1)
+        self.ren_B_reg    = Signal(1)
         
         if (memory_type == "Single_Port"):
             large_width   = max(write_width_A, read_width_A)
@@ -787,6 +793,9 @@ class OCM_ASYM(Module):
             # --------------------------------------------------------------------------------------------
             # Single Port RAM
             if (memory_type == "Single_Port"):
+                self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                self.sync.A += self.ren_A_reg.eq(self.ren_A)
                 if (write_width_A == read_width_A): # Symmetric Memory
                     if (write_depth_A in [1024, 2048, 4096, 8192, 16384, 32768]):
                         if n > 1:
@@ -1361,8 +1370,8 @@ class OCM_ASYM(Module):
                         p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
                         p_READ_WIDTH_A      = param_read_width_A,
-                        p_WRITE_WIDTH_B     = 36,
-                        p_READ_WIDTH_B      = 36,
+                        p_WRITE_WIDTH_B     = param_write_width_A,
+                        p_READ_WIDTH_B      = param_read_width_A,
                         # Ports.
                         # -----------
                         i_CLK_A     = clock1,
@@ -1393,6 +1402,13 @@ class OCM_ASYM(Module):
             # --------------------------------------------------------------------------------------------
             # Simple Dual Port RAM
             elif (memory_type == "Simple_Dual_Port"):
+                self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                if (common_clk == 1):
+                    self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                    self.sync += self.ren_B_reg.eq(self.ren_B)
+                else:
+                    self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                    self.sync.B += self.ren_B_reg.eq(self.ren_B)
                 if (write_width_A == read_width_B): # Symmetric
                     read_loop = m
                     y = write_width_A - 36*(n-1)
@@ -2090,8 +2106,8 @@ class OCM_ASYM(Module):
                         p_INIT              = Instance.PreformattedParam("32768'h{}".format(data)),
                         p_INIT_PARITY       = Instance.PreformattedParam("4096'h{}".format(parity)),
                         p_WRITE_WIDTH_A     = param_write_width_A,
-                        p_WRITE_WIDTH_B     = 36,
-                        p_READ_WIDTH_A      = 36,
+                        p_WRITE_WIDTH_B     = param_write_width_A,
+                        p_READ_WIDTH_A      = param_read_width_B,
                         p_READ_WIDTH_B      = param_read_width_B,
                         # Ports.
                         # -----------
@@ -2125,6 +2141,19 @@ class OCM_ASYM(Module):
             #################################################################################################
             #################################################################################################
             elif (memory_type == "True_Dual_Port"):
+                
+                self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                if (common_clk == 1):
+                    self.sync += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                    self.sync += self.ren_A_reg.eq(self.ren_A)
+                    self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                    self.sync += self.ren_B_reg.eq(self.ren_B)
+                else:
+                    self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                    self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                    self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                    self.sync.B += self.ren_B_reg.eq(self.ren_B)
                 
                 write_ratio_A   = math.ceil(math.log2(large_width / write_width_A))
                 write_ratio_B   = math.ceil(math.log2(large_width / write_width_B))
