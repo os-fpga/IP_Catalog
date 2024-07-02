@@ -89,7 +89,7 @@ class OCM_ASYM(Module):
             ###################################################################################################
             # Write Wider for SP
             if memory_type == "Single_Port":
-                if (self.write_width_A > self.read_width_A):
+                if (self.write_width_A >= self.read_width_A):
                     if (self.write_depth_A == 1024):
                         # write width less than or equal to 18
                         if self.write_width_A <= 18:
@@ -236,7 +236,7 @@ class OCM_ASYM(Module):
                 
             ################################################################################################
             elif (memory_type == "Simple_Dual_Port"):
-                if (self.write_width_A > self.read_width_B): # Write Wider
+                if (self.write_width_A >= self.read_width_B): # Write Wider
                     if (self.write_depth_A == 1024):
                         # write width less than or equal to 18
                         if self.write_width_A <= 18:
