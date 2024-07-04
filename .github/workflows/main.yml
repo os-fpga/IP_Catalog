@@ -148,14 +148,13 @@ jobs:
 
       - name: Install latest Git
         run: |
-          yum install -y openssh-server openssh-clients
           yum remove -y git*
           yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
           yum install -y git
 
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
