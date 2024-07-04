@@ -143,6 +143,11 @@ jobs:
 
       - name: Install latest Git
         run: |
+          cd /opt && curl -L -o yumvault.tar.gz https://github.com/os-fpga/post_build_artifacts/releases/download/v0.2/yumvaultn.tar.gz && tar xvzf yumvault.tar.gz && ls -l && mv etc/yum.repos.d/Custom.repo /etc/yum.repos.d
+          yum-config-manager --disable base extras updates
+          yum update -y
+          rm -f /etc/yum.repos.d/Custom.repo
+          yum-config-manager --enable C7.9.2009-extras C7.9.2009-updates C7.9.2009-base
           yum remove -y git*
           yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
           yum install -y git
