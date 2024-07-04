@@ -148,6 +148,7 @@ jobs:
           yum update -y
           rm -f /etc/yum.repos.d/Custom.repo
           yum-config-manager --enable C7.9.2009-extras C7.9.2009-updates C7.9.2009-base
+          yum install -y openssh-server openssh-clients
           yum remove -y git*
           yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
           yum install -y git
