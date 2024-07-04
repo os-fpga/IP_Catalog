@@ -161,10 +161,11 @@ jobs:
               git remote add origin https://github.com/$GITHUB_REPOSITORY
               git remote -v
               git config --local gc.auto 0
-              git -c protocol.version=2 fetch --prune --progress --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +${{ github.sha }}:refs/remotes/pull/${{ github.event.pull_request.number }}/merge
               if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+                  git -c protocol.version=2 fetch --prune --progress --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +${{ github.sha }}:refs/remotes/pull/${{ github.event.pull_request.number }}/merge
                   git checkout --progress --force refs/remotes/pull/${{ github.event.pull_request.number }}/merge
               else
+                  git -c protocol.version=2 fetch --prune --progress --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
                   git checkout origin/$GITHUB_REF_NAME
               fi
               git log -1 --format='%H'
