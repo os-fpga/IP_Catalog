@@ -4,18 +4,17 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   IP_Catalog_Ubuntu:
     runs-on: ubuntu-20.04
     steps:
-
-    - name: Cancel previous
-      uses: styfle/cancel-workflow-action@0.9.1
-      with:
-        access_token: ${{ github.token }}
         
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
         
@@ -141,13 +140,14 @@ jobs:
         run:
           shell: bash
       steps:
-      - name: Cancel previous
-        uses: styfle/cancel-workflow-action@0.9.1
-        with:
-          access_token: ${{ github.token }}
 
       - name: Install latest Git
         run: |
+          cd /opt && curl -L -o yumvault.tar.gz https://github.com/os-fpga/post_build_artifacts/releases/download/v0.2/yumvaultn.tar.gz && tar xvzf yumvault.tar.gz && ls -l && mv etc/yum.repos.d/Custom.repo /etc/yum.repos.d
+          yum-config-manager --disable base extras updates
+          yum update -y
+          rm -f /etc/yum.repos.d/Custom.repo
+          yum-config-manager --enable C7.9.2009-extras C7.9.2009-updates C7.9.2009-base
           yum install -y openssh-server openssh-clients
           yum remove -y git*
           yum install -y https://packages.endpointdev.com/rhel/7/os/x86_64/endpoint-repo.x86_64.rpm
@@ -155,9 +155,20 @@ jobs:
 
 
       - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+        run: |
+              git config --global --add safe.directory $GITHUB_WORKSPACE
+              git init $GITHUB_WORKSPACE
+              git remote add origin https://github.com/$GITHUB_REPOSITORY
+              git remote -v
+              git config --local gc.auto 0
+              if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+                  git -c protocol.version=2 fetch --prune --progress --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +${{ github.sha }}:refs/remotes/pull/${{ github.event.pull_request.number }}/merge
+                  git checkout --progress --force refs/remotes/pull/${{ github.event.pull_request.number }}/merge
+              else
+                  git -c protocol.version=2 fetch --prune --progress --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+                  git checkout origin/$GITHUB_REF_NAME
+              fi
+              git log -1 --format='%H'
 
       - name: Clone Raptor_Tools
         run: |
