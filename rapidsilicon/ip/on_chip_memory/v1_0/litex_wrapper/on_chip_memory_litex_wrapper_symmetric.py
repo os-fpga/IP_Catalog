@@ -407,10 +407,11 @@ class OCM_SYM(Module):
             self.logger.info(f"===================================================")
             return INIT, INIT_PARITY
     
-    def __init__(self, data_width, memory_type, common_clk, write_depth, memory_mapping, file_path, file_extension):
+    def __init__(self, data_width, memory_type, common_clk, write_depth, memory_mapping, file_path_hex, file_extension, byte_write_enable):
         
         self.write_depth = write_depth
         self.data_width  = data_width
+        file_path = file_path_hex
         
         # Get/Check Parameters.
         # ---------------------
@@ -513,6 +514,9 @@ class OCM_SYM(Module):
         self.wen_B        = Signal(1)
         self.ren_B        = Signal(1)
         self.ren_B_reg    = Signal(1)
+        
+        self.be_A         = Signal(math.ceil(data_width/9))
+        self.be_B         = Signal(math.ceil(data_width/9))
         
         # read port signals
         self.bram_out_A = [Signal(32*n) for i in range(m)]
@@ -619,6 +623,10 @@ class OCM_SYM(Module):
             else:
                 # Single Port RAM
                 if (memory_type == "Single_Port"):
+                    self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                    self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                    self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                    
                     cases        = {}
                     addr_reg_mux = {}
                     for i in range(m):
@@ -640,6 +648,14 @@ class OCM_SYM(Module):
                 
                 # Simple Dual Port RAM
                 elif (memory_type == "Simple_Dual_Port"):
+                    self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                    if (common_clk == 1):
+                        self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync += self.ren_B_reg.eq(self.ren_B)
+                    else:
+                        self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                    
                     cases = {}
                     addr_reg_mux = {}
                     for i in range(m):
@@ -665,6 +681,19 @@ class OCM_SYM(Module):
                             
                 # True Dual Port RAM
                 elif (memory_type == "True_Dual_Port"):
+                    self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                    self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                    if (common_clk == 1):
+                        self.sync += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                        self.sync += self.ren_A_reg.eq(self.ren_A)
+                        self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync += self.ren_B_reg.eq(self.ren_B)
+                    else:
+                        self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                        self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                        self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                    
                     cases_A        = {}
                     addr_reg_mux_A = {}
                     cases_B        = {}
@@ -703,6 +732,11 @@ class OCM_SYM(Module):
             if (memory_type == "Single_Port"):
                 # Number of BRAMS
                 for i in range(n):
+                    if (byte_write_enable):
+                        be_A = self.be_A[(i*4):(i*4)+4]
+                    else:
+                        be_A = Replicate(1, 4)
+                        
                     if (n == (i+1)):
                         z = data_width - 36*(n-1)
                         if (z > 35):
@@ -775,8 +809,13 @@ class OCM_SYM(Module):
                                 k = j * n + i
                                 data        = hex(int(init[k], 2))[2:]             # hex conversion and removal of 0x from start of converted data
                                 parity      = hex(int(init_parity[k], 2))[2:]      # hex conversion and removal of 0x from start of converted data
-                            
+                        
                         if (write_depth == 1024):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*4):(j*4)+4]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             z = data_width - 36*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 35):
@@ -809,6 +848,11 @@ class OCM_SYM(Module):
                                     w_parity_A     = Cat(self.din_A[((j*36)+8)], self.din_A[((j*36)+17)], self.din_A[((j*36)+26)], self.din_A[((j*36)+35)])
 
                         elif (write_depth == 2048):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*2):(j*2)+2]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             z = data_width - 18*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 17):
@@ -829,6 +873,11 @@ class OCM_SYM(Module):
                                     w_parity_A     = Cat(self.din_A[((j*18)+8)], self.din_A[((j*18)+17)], Replicate(0,2))
                             
                         elif (write_depth == 4096):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*1):(j*1)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             z = data_width - 9*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 8):
@@ -843,14 +892,29 @@ class OCM_SYM(Module):
                                     w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
                             
                         elif (write_depth == 8192):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//2):(j//2)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*4):((j*4)+4)]
                             w_parity_A      = Replicate(0,4)
                         
                         elif (write_depth == 16384):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//4):(j//4)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*2):((j*2)+2)]
                             w_parity_A      = Replicate(0,4)
                             
                         elif (write_depth == 32768):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//8):(j//8)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*1):((j*1)+1)]
                             w_parity_A      = Replicate(0,4)
                             
@@ -878,7 +942,7 @@ class OCM_SYM(Module):
                         i_WEN_B     = 0,
                         i_REN_A     = self.ren_A,
                         i_REN_B     = 0,
-                        i_BE_A      = Replicate(1,4), # all ones
+                        i_BE_A      = be_A,
                         i_BE_B      = Replicate(0,4),
                         i_ADDR_A    = address_A,
                         i_ADDR_B    = Replicate(0,15),
@@ -896,6 +960,11 @@ class OCM_SYM(Module):
             elif (memory_type == "Simple_Dual_Port"):
                 y = data_width - 36*(n-1)
                 for i in range(n):
+                    if (byte_write_enable):
+                        be_A = self.be_A[(i*4):(i*4)+4]
+                    else:
+                        be_A = Replicate(1, 4)
+                        
                     if (n == (i+1)):
                         z = data_width - 36*(n-1)
                         if (z > 35):
@@ -978,6 +1047,11 @@ class OCM_SYM(Module):
                                 parity      = hex(int(init_parity[k], 2))[2:]      # hex conversion and removal of 0x from start of converted data
                         
                         if (write_depth == 1024):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*4):(j*4)+4]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             z = data_width - 36*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 35):
@@ -1010,6 +1084,11 @@ class OCM_SYM(Module):
                                     w_parity_A     = Cat(self.din_A[((j*36)+8)], self.din_A[((j*36)+17)], self.din_A[((j*36)+26)], self.din_A[((j*36)+35)])
 
                         elif (write_depth == 2048):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*2):(j*2)+2]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             z = data_width - 18*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 17):
@@ -1030,6 +1109,11 @@ class OCM_SYM(Module):
                                     w_parity_A     = Cat(self.din_A[((j*18)+8)], self.din_A[((j*18)+17)], Replicate(0,2))
                             
                         elif (write_depth == 4096):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*1):(j*1)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             z = data_width - 9*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 8):
@@ -1044,14 +1128,29 @@ class OCM_SYM(Module):
                                     w_parity_A     = Cat(self.din_A[((j*9)+8)], Replicate(0,3))
                             
                         elif (write_depth == 8192):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//2):(j//2)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*4):((j*4)+4)]
                             w_parity_A      = Replicate(0,4)
                         
                         elif (write_depth == 16384):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//4):(j//4)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*2):((j*2)+2)]
                             w_parity_A      = Replicate(0,4)
                             
                         elif (write_depth == 32768):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//8):(j//8)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*1):((j*1)+1)]
                             w_parity_A      = Replicate(0,4)
                             
@@ -1080,7 +1179,7 @@ class OCM_SYM(Module):
                         i_WEN_B     = 0,
                         i_REN_A     = 0,
                         i_REN_B     = self.ren_B,
-                        i_BE_A      = Replicate(1,4), # all ones
+                        i_BE_A      = be_A, 
                         i_BE_B      = Replicate(0,4),
                         i_ADDR_A    = address_A,
                         i_ADDR_B    = address_B,
@@ -1098,6 +1197,13 @@ class OCM_SYM(Module):
             elif (memory_type == "True_Dual_Port"):
                 y = data_width - 36*(n-1)
                 for i in range(n):
+                    if (byte_write_enable):
+                        be_A = self.be_A[(i*4):(i*4)+4]
+                        be_B = self.be_B[(i*4):(i*4)+4]
+                    else:
+                        be_A = Replicate(1, 4)
+                        be_B = Replicate(1, 4)
+                        
                     if (n == (i+1)):
                         z = data_width - 36*(n-1)
                         if (z > 35):
@@ -1212,6 +1318,13 @@ class OCM_SYM(Module):
                                 parity      = hex(int(init_parity[k], 2))[2:]      # hex conversion and removal of 0x from start of converted data
                         
                         if (write_depth == 1024):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*4):(j*4)+4]
+                                be_B = self.be_B[(j*4):(j*4)+4]
+                            else:
+                                be_A = Replicate(1, 4)
+                                be_B = Replicate(1, 4)
+                                
                             z = data_width - 36*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 35):
@@ -1262,6 +1375,13 @@ class OCM_SYM(Module):
                                     w_parity_B     = Cat(self.din_B[((j*36)+8)], self.din_B[((j*36)+17)], self.din_B[((j*36)+26)], self.din_B[((j*36)+35)])
 
                         elif (write_depth == 2048):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*2):(j*2)+2]
+                                be_B = self.be_B[(j*2):(j*2)+2]
+                            else:
+                                be_A = Replicate(1, 4)
+                                be_B = Replicate(1, 4)
+                                
                             z = data_width - 18*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 17):
@@ -1292,6 +1412,13 @@ class OCM_SYM(Module):
                                     w_parity_B     = Cat(self.din_B[((j*18)+8)], self.din_B[((j*18)+17)], Replicate(0,2))
                             
                         elif (write_depth == 4096):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j*1):(j*1)+1]
+                                be_B = self.be_B[(j*1):(j*1)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                be_B = Replicate(1, 4)
+                                
                             z = data_width - 9*(m-1)
                             if (m == (j+1)): # for last bram din calculations
                                 if (z > 8):
@@ -1312,18 +1439,39 @@ class OCM_SYM(Module):
                                     w_parity_B     = Cat(self.din_B[((j*9)+8)], Replicate(0,3))
                             
                         elif (write_depth == 8192):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//2):(j//2)+1]
+                                be_B = self.be_B[(j//2):(j//2)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                be_B = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*4):((j*4)+4)]
                             w_parity_A      = Replicate(0,4)
                             write_data_B    = self.din_B[(j*4):((j*4)+4)]
                             w_parity_B      = Replicate(0,4)
                         
                         elif (write_depth == 16384):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//4):(j//4)+1]
+                                be_B = self.be_B[(j//4):(j//4)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                be_B = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*2):((j*2)+2)]
                             w_parity_A      = Replicate(0,4)
                             write_data_B    = self.din_B[(j*2):((j*2)+2)]
                             w_parity_B      = Replicate(0,4)
                             
                         elif (write_depth == 32768):
+                            if (byte_write_enable):
+                                be_A = self.be_A[(j//8):(j//8)+1]
+                                be_B = self.be_B[(j//8):(j//8)+1]
+                            else:
+                                be_A = Replicate(1, 4)
+                                be_B = Replicate(1, 4)
+                                
                             write_data_A    = self.din_A[(j*1):((j*1)+1)]
                             w_parity_A      = Replicate(0,4)
                             write_data_B    = self.din_B[(j*1):((j*1)+1)]
@@ -1356,8 +1504,8 @@ class OCM_SYM(Module):
                         i_WEN_B     = wen_B,
                         i_REN_A     = self.ren_A,
                         i_REN_B     = self.ren_B,
-                        i_BE_A      = Replicate(1,4), # all ones
-                        i_BE_B      = Replicate(1,4), # all ones
+                        i_BE_A      = be_A, 
+                        i_BE_B      = be_B, 
                         i_ADDR_A    = address_A,
                         i_ADDR_B    = address_B,
                         i_WDATA_A   = write_data_A,
