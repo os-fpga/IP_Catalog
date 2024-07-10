@@ -93,7 +93,7 @@ def get_clkin_ios(port_type, data_width, write_depth, memory_type, write_width_A
 
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
-    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, write_depth, data_width, common_clk, port_type, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable):
+    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, write_depth, data_width, common_clk, port_type, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(port_type, data_width, write_depth, memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B))
         self.clock_domains.cd_sys   = ClockDomain(reset_less = True)
@@ -101,9 +101,9 @@ class OCMWrapper(Module):
         self.clock_domains.B        = ClockDomain(reset_less = True)
         
         if port_type == "Asymmetric":
-            self.submodules.sp = ram = OCM_ASYM(write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable)
+            self.submodules.sp = ram = OCM_ASYM(write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode)
         else:
-            self.submodules.sp = ram = OCM_SYM(data_width, memory_type, common_clk, write_depth, memory_mapping, file_path_hex, file_extension, byte_write_enable)
+            self.submodules.sp = ram = OCM_SYM(data_width, memory_type, common_clk, write_depth, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode)
             
         self.M = ram.m
         self.N = ram.n    
@@ -194,6 +194,7 @@ def main():
     core_string_param_group.add_argument("--memory_type",       type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
     core_string_param_group.add_argument("--port_type",         type=str,   default="Symmetric",     choices=["Symmetric", "Asymmetric"],                             help="Ports Type")
     core_string_param_group.add_argument("--memory_mapping",    type=str,   default="Block_RAM",     choices=["Block_RAM", "Distributed_RAM"],                        help="Memory mapping on Block RAM and Distributed RAM (LUTs)")
+    core_string_param_group.add_argument("--op_mode",           type=str,   default="Read_First",    choices=["No_Change", "Write_First", "Read_First"],              help="Operation Mode of Memory")
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
@@ -368,7 +369,8 @@ def main():
         port_type           = args.port_type,
         file_path_hex       = args.file_path,
         file_extension      = file_extension,
-        byte_write_enable   = args.byte_write_enable
+        byte_write_enable   = args.byte_write_enable,
+        op_mode             = args.op_mode
     )
     
     if (args.memory_mapping == "Block_RAM"):
