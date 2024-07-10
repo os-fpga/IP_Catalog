@@ -285,6 +285,8 @@ def main():
         elif (args.memory_type in ["True_Dual_Port"]):
             if (args.write_width_A != args.read_width_A or args.write_width_A != args.write_width_B or args.write_width_B != args.read_width_B):
                 parser._actions[3].choices = ["Block_RAM"]
+    #device_dict contains the number of BRAMs and DSP for the device used.
+    device_dic = rs_builder.parse_device(args.device_path,args.device)
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")

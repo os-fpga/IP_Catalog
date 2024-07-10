@@ -376,6 +376,9 @@ def main():
         
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
+
+        #device_dict contains the number of BRAMs and DSP for the device used.
+        device_dic = rs_builder.parse_device(args.device_path,args.device)
     if (args.builtin_fifo == False and args.synchronous == False):
         depth = args.DEPTH
     else:

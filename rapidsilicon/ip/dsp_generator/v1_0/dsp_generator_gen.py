@@ -268,7 +268,12 @@ def main():
     
         file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.copy_images(file_path)
-        
+
+
+        #device_dict contains the number of BRAMs and DSP for the device used.
+        device_dic = rs_builder.parse_device(args.device_path,args.device)
+
+
     summary =  {  
     "Multiplier" : args.equation
     }

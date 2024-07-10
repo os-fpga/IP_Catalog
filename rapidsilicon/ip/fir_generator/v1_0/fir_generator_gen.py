@@ -203,7 +203,10 @@ def main():
     else:
         abs_sum = sum(abs(coeff) for coeff in extract_numbers(coefficients, args.coefficients_file))
         bit_growth = math.ceil(math.log2(abs_sum))
-    
+
+        #device_dict contains the number of BRAMs and DSP for the device used.
+        device_dic = rs_builder.parse_device(args.device_path,args.device)
+
     summary = {}
     if (args.coefficients_file):
         if (args.optimization == "Area"):
