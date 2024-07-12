@@ -39,7 +39,7 @@ srcs.append("%s.v" % testbench)
 
 src = ' '.join(srcs)
 
-build_cmd = "iverilog -o %s.vvp %s" % (testbench, src)
+build_cmd = "iverilog -s %s -o %s.vvp %s" % (testbench, testbench, src)
 
 def bench():
 
