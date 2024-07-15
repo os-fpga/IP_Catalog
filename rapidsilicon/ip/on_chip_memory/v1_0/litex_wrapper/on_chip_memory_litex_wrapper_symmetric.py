@@ -407,7 +407,7 @@ class OCM_SYM(Module):
             self.logger.info(f"===================================================")
             return INIT, INIT_PARITY
     
-    def __init__(self, data_width, memory_type, common_clk, write_depth, memory_mapping, file_path_hex, file_extension, byte_write_enable):
+    def __init__(self, data_width, memory_type, common_clk, write_depth, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode):
         
         self.write_depth = write_depth
         self.data_width  = data_width
@@ -435,11 +435,13 @@ class OCM_SYM(Module):
         self.addr_B    = Signal(math.ceil(math.log2(write_depth)))
         
         self.din_A      = Signal(data_width)
+        self.din_A_reg  = Signal(data_width)
         self.dout_A     = Signal(data_width)
         self.dout_A_    = Signal(data_width)
         self.dout_A_reg = Signal(data_width)
         
         self.din_B      = Signal(data_width)
+        self.din_B_reg  = Signal(data_width)
         self.dout_B     = Signal(data_width)
         self.dout_B_    = Signal(data_width)
         self.dout_B_reg = Signal(data_width)
@@ -509,9 +511,11 @@ class OCM_SYM(Module):
         
         # External write/read enables
         self.wen_A        = Signal(1)
+        self.wen_A_reg    = Signal(1)
         self.ren_A        = Signal(1)
         self.ren_A_reg    = Signal(1)
         self.wen_B        = Signal(1)
+        self.wen_B_reg    = Signal(1)
         self.ren_B        = Signal(1)
         self.ren_B_reg    = Signal(1)
         
@@ -541,9 +545,14 @@ class OCM_SYM(Module):
             if (write_depth in [1024, 2048, 4096, 8192, 16384, 32768]):
                 # Single Port RAM
                 if (memory_type == "Single_Port"):
-                    self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
-                    self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
-                    self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                    if (op_mode in ["No_Change", "Read_First"]):
+                        self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                        self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                        self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                    else: # Write_First
+                        self.comb += If((self.wen_A_reg), self.dout_A_.eq(self.din_A_reg)).Else(self.dout_A_.eq(self.dout_A))
+                        self.sync.A += self.wen_A_reg.eq(self.wen_A)
+                        self.sync.A += self.din_A_reg.eq(self.din_A)
                     for j in range(n):
                         for i in range(m):
                             if (write_depth <= 1024):
@@ -562,13 +571,23 @@ class OCM_SYM(Module):
                             
                 # Simple Dual Port RAM
                 elif (memory_type == "Simple_Dual_Port"):
-                    self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
-                    if (common_clk == 1):
-                        self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
-                        self.sync += self.ren_B_reg.eq(self.ren_B)
-                    else:
-                        self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
-                        self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                    if (op_mode in ["No_Change", "Read_First"]):
+                        self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                        if (common_clk == 1):
+                            self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                            self.sync += self.ren_B_reg.eq(self.ren_B)
+                        else:
+                            self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                            self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                    else: # Write_First
+                        self.comb += If((self.wen_A_reg), self.dout_B_.eq(self.din_A_reg)).Else(self.dout_B_.eq(self.dout_B))
+                        if (common_clk == 1):
+                            self.sync += self.wen_A_reg.eq(self.wen_A)
+                            self.sync += self.din_A_reg.eq(self.din_A)
+                        else:
+                            self.sync.A += self.wen_A_reg.eq(self.wen_A)
+                            self.sync.A += self.din_A_reg.eq(self.din_A)
+                        
                     for j in range(n):
                         for i in range(m):
                             if (write_depth <= 1024):
@@ -587,18 +606,33 @@ class OCM_SYM(Module):
                 
                 # True Dual Port RAM
                 elif (memory_type == "True_Dual_Port"):
-                    self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
-                    self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
-                    if (common_clk == 1):
-                        self.sync += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
-                        self.sync += self.ren_A_reg.eq(self.ren_A)
-                        self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
-                        self.sync += self.ren_B_reg.eq(self.ren_B)
-                    else:
-                        self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
-                        self.sync.A += self.ren_A_reg.eq(self.ren_A)
-                        self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
-                        self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                    if (op_mode in ["No_Change", "Read_First"]):
+                        self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                        self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                        if (common_clk == 1):
+                            self.sync += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                            self.sync += self.ren_A_reg.eq(self.ren_A)
+                            self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                            self.sync += self.ren_B_reg.eq(self.ren_B)
+                        else:
+                            self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                            self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                            self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                            self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                    else: #Write_First
+                        self.comb += If((self.wen_A_reg), self.dout_A_.eq(self.din_A_reg)).Else(self.dout_A_.eq(self.dout_A))
+                        self.comb += If((self.wen_B_reg), self.dout_B_.eq(self.din_B_reg)).Else(self.dout_B_.eq(self.dout_B))
+                        if (common_clk == 1):
+                            self.sync += self.wen_A_reg.eq(self.wen_A)
+                            self.sync += self.din_A_reg.eq(self.din_A)
+                            self.sync += self.wen_B_reg.eq(self.wen_B)
+                            self.sync += self.din_B_reg.eq(self.din_B)
+                        else:
+                            self.sync.A += self.wen_A_reg.eq(self.wen_A)
+                            self.sync.A += self.din_A_reg.eq(self.din_A)
+                            self.sync.B += self.wen_B_reg.eq(self.wen_B)
+                            self.sync.B += self.din_B_reg.eq(self.din_B)
+                            
                     for i in range(m):
                         if (write_depth <= 1024):
                             self.comb += self.dout_A[(i*36):((i*36)+36)].eq(Cat(self.bram_out_A[i][0:8], self.rparity_A[i][0], self.bram_out_A[i][8:16], self.rparity_A[i][1],
@@ -923,6 +957,11 @@ class OCM_SYM(Module):
                         else:
                             wen = self.wen_A1[j]
                         
+                        if (op_mode == "Read_First"):
+                            ren = self.ren_A
+                        elif (op_mode == "No_Change" or op_mode == "Write_First"):
+                            ren = ~self.wen_A
+                        
                         # Module instance.
                         # ----------------
                         self.specials += Instance("TDP_RAM36K", name= "SP_MEM",
@@ -940,7 +979,7 @@ class OCM_SYM(Module):
                         i_CLK_B     = 0,
                         i_WEN_A     = wen,
                         i_WEN_B     = 0,
-                        i_REN_A     = self.ren_A,
+                        i_REN_A     = ren,
                         i_REN_B     = 0,
                         i_BE_A      = be_A,
                         i_BE_B      = Replicate(0,4),
@@ -1159,6 +1198,11 @@ class OCM_SYM(Module):
                             wen = self.wen_A
                         else:
                             wen = self.wen_A1[j]
+                        
+                        if (op_mode == "Read_First"):
+                            ren = self.ren_B
+                        elif (op_mode == "No_Change" or op_mode == "Write_First"):
+                            ren = ~self.wen_A
 
                         # Module instance.
                         # ----------------
@@ -1178,7 +1222,7 @@ class OCM_SYM(Module):
                         i_WEN_A     = wen,
                         i_WEN_B     = 0,
                         i_REN_A     = 0,
-                        i_REN_B     = self.ren_B,
+                        i_REN_B     = ren,
                         i_BE_A      = be_A, 
                         i_BE_B      = Replicate(0,4),
                         i_ADDR_A    = address_A,
@@ -1485,6 +1529,13 @@ class OCM_SYM(Module):
                             wen_A = self.wen_A1[j]
                             wen_B = self.wen_B1[j]
                         
+                        if (op_mode == "Read_First"):
+                            renA = self.ren_A
+                            renB = self.ren_B
+                        elif (op_mode == "No_Change" or op_mode == "Write_First"):
+                            renA = ~self.wen_A
+                            renB = ~self.wen_B
+                        
                         # Module instance.
                         # ----------------
                         self.specials += Instance("TDP_RAM36K", name= "TDP_MEM",
@@ -1502,8 +1553,8 @@ class OCM_SYM(Module):
                         i_CLK_B     = clock2,
                         i_WEN_A     = wen_A,
                         i_WEN_B     = wen_B,
-                        i_REN_A     = self.ren_A,
-                        i_REN_B     = self.ren_B,
+                        i_REN_A     = renA,
+                        i_REN_B     = renB,
                         i_BE_A      = be_A, 
                         i_BE_B      = be_B, 
                         i_ADDR_A    = address_A,
@@ -1520,9 +1571,16 @@ class OCM_SYM(Module):
         
         # Distributed RAM
         else:
+            # Operational modes of memory
+            operation_mode = {
+                "Read_First"    : 0,
+                "Write_First"   : 1,
+                "No_Change"     : 2
+            }[op_mode]
+            
             self.specials.memory = Memory(width=data_width, depth=write_depth)
             if (memory_type == "Single_Port"):
-                self.port = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="A")
+                self.port = self.memory.get_port(write_capable=True, async_read=False, mode=operation_mode, has_re=True, clock_domain="A")
                 self.specials += self.port
 
                 self.comb += [
@@ -1535,14 +1593,14 @@ class OCM_SYM(Module):
 
             elif (memory_type == "Simple_Dual_Port"):
                 if (common_clk == 1):
-                    self.port_A = self.memory.get_port(write_capable=True, async_read=True, mode=WRITE_FIRST, has_re=False, clock_domain="sys")
+                    self.port_A = self.memory.get_port(write_capable=True, async_read=True, mode=operation_mode, has_re=False, clock_domain="sys")
                     self.specials += self.port_A
-                    self.port_B = self.memory.get_port(write_capable=False, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="sys")
+                    self.port_B = self.memory.get_port(write_capable=False, async_read=False, mode=operation_mode, has_re=True, clock_domain="sys")
                     self.specials += self.port_B
                 else:
-                    self.port_A = self.memory.get_port(write_capable=True, async_read=True, mode=WRITE_FIRST, has_re=False, clock_domain="A")
+                    self.port_A = self.memory.get_port(write_capable=True, async_read=True, mode=operation_mode, has_re=False, clock_domain="A")
                     self.specials += self.port_A
-                    self.port_B = self.memory.get_port(write_capable=False, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="B")
+                    self.port_B = self.memory.get_port(write_capable=False, async_read=False, mode=operation_mode, has_re=True, clock_domain="B")
                     self.specials += self.port_B
                 
                 self.comb += [
@@ -1556,14 +1614,14 @@ class OCM_SYM(Module):
                 
             elif (memory_type == "True_Dual_Port"):
                 if (common_clk == 1):
-                    self.port_A = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="sys")
+                    self.port_A = self.memory.get_port(write_capable=True, async_read=False, mode=operation_mode, has_re=True, clock_domain="sys")
                     self.specials += self.port_A
-                    self.port_B = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="sys")
+                    self.port_B = self.memory.get_port(write_capable=True, async_read=False, mode=operation_mode, has_re=True, clock_domain="sys")
                     self.specials += self.port_B
                 else:
-                    self.port_A = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="A")
+                    self.port_A = self.memory.get_port(write_capable=True, async_read=False, mode=operation_mode, has_re=True, clock_domain="A")
                     self.specials += self.port_A
-                    self.port_B = self.memory.get_port(write_capable=True, async_read=False, mode=WRITE_FIRST, has_re=True, clock_domain="B")
+                    self.port_B = self.memory.get_port(write_capable=True, async_read=False, mode=operation_mode, has_re=True, clock_domain="B")
                     self.specials += self.port_B
 
                 self.comb += [
