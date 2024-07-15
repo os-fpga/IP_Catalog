@@ -20,7 +20,7 @@
 
 TOPLEVEL_LANG = verilog
 
-SIM ?= verilator
+SIM ?= icarus
 WAVES ?= 1
 
 OUT_DIR ?= $(PWD)
@@ -31,32 +31,21 @@ SIM_BUILD = $(OUT_DIR)
 COCOTB_HDL_TIMEUNIT = 1ns
 COCOTB_HDL_TIMEPRECISION = 1ps
 
-export PARAM_S_COUNT ?= 4
-export PARAM_M_COUNT ?= 4
-
-DUT      = axi_crossbar
+DUT      = axi_cdma
 MODULE_NAME ?= $(DUT)_wrapper
 TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 VERILOG_SOURCES += ../src/*.v
 
 # module parameters
-export PARAM_DATA_WIDTH ?= 32
-export PARAM_ADDR_WIDTH ?= 32
-export PARAM_STRB_WIDTH ?= $(shell expr $(PARAM_DATA_WIDTH) / 8 )
-export PARAM_S_ID_WIDTH ?= 8
-export PARAM_M_ID_WIDTH ?= $(shell expr $(PARAM_S_ID_WIDTH) + 2 )
-export PARAM_AWUSER_ENABLE ?= 0
-export PARAM_AWUSER_WIDTH ?= 1
-export PARAM_WUSER_ENABLE ?= 0
-export PARAM_WUSER_WIDTH ?= 1
-export PARAM_BUSER_ENABLE ?= 0
-export PARAM_BUSER_WIDTH ?= 1
-export PARAM_ARUSER_ENABLE ?= 0
-export PARAM_ARUSER_WIDTH ?= 1
-export PARAM_RUSER_ENABLE ?= 0
-export PARAM_RUSER_WIDTH ?= 1
-export PARAM_M_REGIONS ?= 1
+export PARAM_AXI_DATA_WIDTH = 32
+export PARAM_AXI_ADDR_WIDTH = 16
+export PARAM_AXI_STRB_WIDTH = $(shell expr $(PARAM_AXI_DATA_WIDTH) / 8 )
+export PARAM_AXI_ID_WIDTH = 8
+export PARAM_AXI_MAX_BURST_LEN = 16
+export PARAM_LEN_WIDTH = 20
+export PARAM_TAG_WIDTH = 8
+export PARAM_ENABLE_UNALIGNED = 0
 
 ifeq ($(SIM), icarus)
 	PLUSARGS += -fst
@@ -66,7 +55,7 @@ ifeq ($(SIM), icarus)
 		COMPILE_ARGS += -s iverilog_dump
 	endif
 else ifeq ($(SIM), verilator)
-	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-fatal --timing
+	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-CASEINCOMPLETE
 
 	ifeq ($(WAVES), 1)
 		COMPILE_ARGS += --trace-fst
@@ -74,9 +63,6 @@ else ifeq ($(SIM), verilator)
 endif
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
-
-$(TOPLEVEL)_wrapper.v: ../$(DUT)_gen.py
-	$< --s_count $(PARAM_S_COUNT) --m_count $(PARAM_M_COUNT) --build
 
 iverilog_dump.v:
 	echo 'module iverilog_dump();' > $@
@@ -89,4 +75,3 @@ iverilog_dump.v:
 clear::
 	@rm -rf iverilog_dump.v
 	@rm -rf dump.fst $(TOPLEVEL).fst
-	@rm -rf *_wrap_*.v
