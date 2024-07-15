@@ -28,7 +28,7 @@ def freq_calc(self, fast_clk_freq, ref_clk_freq, c_range, d_range):
     self.ready = Signal()
     a = fast_clk_freq
     b = ref_clk_freq
-    c_range = 1000
+    c_range = 640
     d_range = 63
     # Nested loop for iterating over c and d
     for c in range(c_range):
