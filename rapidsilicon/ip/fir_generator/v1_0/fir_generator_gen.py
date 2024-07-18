@@ -147,115 +147,133 @@ def main():
     'Description' : 'FIR Generator lets designers to efficiently design digital filters with customizable taps. Ideal for signal processing in FPGA applications.'}
     }
 
+    device_dic = {
+            'dsp' : 56,
+            'bram' : 56
+        }
+
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+
+        #device_dict contains the number of BRAMs and DSP for the device used.
+        device_dic = rs_builder.parse_device(args.device_path,args.device)
+
         file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.copy_images(file_path)
-        
-        if (args.optimization == "Area"):
-            if (not args.coefficients_file):
-                option_strings_to_remove = ['--number_of_coefficients']
+        if (device_dic['dsp'] > 0):
+            if (args.optimization == "Area"):
+                if (not args.coefficients_file):
+                    option_strings_to_remove = ['--number_of_coefficients']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                else:
+                    if (args.number_of_coefficients == 1):
+                        parser._actions[4].default = 2
+                    parser._actions[4].choices = range(2, 121)
+                    option_strings_to_remove = ['--coefficient_width']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            else:
+                if (not args.coefficients_file):
+                    option_strings_to_remove = ['--number_of_coefficients']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    parser._actions[4].choices = range(1, 20 - args.input_width + 1)
+                    parser._actions[5].choices = range(0, 20 - args.input_width + 1)
+                else:
+                    parser._actions[4].choices = range(1, device_dic['dsp'] + 1)
+                    parser._actions[5].choices = range(1, 20 - args.input_width + 1)
+                    parser._actions[6].choices = range(0, 20 - args.input_width + 1)
+            if (args.coefficients_file == False):
+                option_strings_to_remove = ['--file_path']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             else:
-                if (args.number_of_coefficients == 1):
-                    parser._actions[4].default = 2
-                parser._actions[4].choices = range(2, 121)
-                option_strings_to_remove = ['--coefficient_width']
+                option_strings_to_remove = ['--coefficients']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-        else:
-            if (not args.coefficients_file):
-                option_strings_to_remove = ['--number_of_coefficients']
+            if (not has_fractional_number(extract_numbers(args.coefficients, args.coefficients_file))):
+                dep_dict.update({
+                    'coefficient_fractional_bits' : 'True'
+                })
+            if (args.optimization == "Area" and args.coefficients_file):
+                option_strings_to_remove = ['--coefficient_fractional_bits']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                parser._actions[4].choices = range(1, 20 - args.input_width + 1)
-                parser._actions[5].choices = range(0, 20 - args.input_width + 1)
-            else:
-                parser._actions[5].choices = range(1, 20 - args.input_width + 1)
-                parser._actions[6].choices = range(0, 20 - args.input_width + 1)
-        if (args.coefficients_file == False):
-            option_strings_to_remove = ['--file_path']
-            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            if (not args.truncated_output):
+                dep_dict.update({
+                    'output_data_width' : 'True'
+                })
         else:
-            option_strings_to_remove = ['--coefficients']
-            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-        if (not has_fractional_number(extract_numbers(args.coefficients, args.coefficients_file))):
-            dep_dict.update({
-                'coefficient_fractional_bits' : 'True'
-            })
-        if (args.optimization == "Area" and args.coefficients_file):
-            option_strings_to_remove = ['--coefficient_fractional_bits']
-            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-        if (not args.truncated_output):
-            dep_dict.update({
-                'output_data_width' : 'True'
-            })
+            parser._actions = [action for action in parser._actions if not action.option_strings]
     if (not args.coefficients_file):
         coefficients = args.coefficients
     else:
         coefficients = args.file_path
 
-    if (args.optimization == "Area" and args.coefficients_file):
-        non_zero_elements = [element for element in extract_numbers(coefficients, args.coefficients_file) if element != 0]
-        bit_growth = int(args.coefficient_width + math.ceil(math.log2(len(non_zero_elements))) if len(non_zero_elements) > 0 else 0)
-    elif (args.coefficients == ""):
-        bit_growth = 0
+    if (device_dic['dsp'] > 0):
+        if (args.optimization == "Area" and args.coefficients_file):
+            non_zero_elements = [element for element in extract_numbers(coefficients, args.coefficients_file) if element != 0]
+            bit_growth = int(args.coefficient_width + math.ceil(math.log2(len(non_zero_elements))) if len(non_zero_elements) > 0 else 0)
+        elif (args.coefficients == ""):
+            bit_growth = 0
+        else:
+            abs_sum = sum(abs(coeff) for coeff in extract_numbers(coefficients, args.coefficients_file))
+            bit_growth = math.ceil(math.log2(abs_sum))
     else:
-        abs_sum = sum(abs(coeff) for coeff in extract_numbers(coefficients, args.coefficients_file))
-        bit_growth = math.ceil(math.log2(abs_sum))
-
-        #device_dict contains the number of BRAMs and DSP for the device used.
-        device_dic = rs_builder.parse_device(args.device_path,args.device)
+        bit_growth = 0
 
     summary = {}
-    if (args.coefficients_file):
-        if (args.optimization == "Area"):
-            input_minimum = round(max(800/args.number_of_coefficients, 8), 2)
-            input_maximum = round(min(3200/args.number_of_coefficients, 500), 2)
-            summary ["Reloadable Coefficient Filter"] = "The coefficients file can be modified after IP generation, but the count of coefficients must remain constant."
-            summary ["Coefficient Bit Width"] = "20"
-            summary ["Input Frequency"] = f"{input_minimum} MHz - {input_maximum} MHz"
-            summary ["Input File"] = "Only .hex file format is supported without any prefix for numbers."
-            summary ["Fast Clock Frequency"] = f"Fast clock must be {args.number_of_coefficients}x of the input master clock."
-            if (not args.truncated_output):
-                summary ["Output Width"] = f"{min(args.input_width + bit_growth, 38)} with worst case bit growth."
-            summary ["Number of DSPs"] = "1"
+    if (device_dic['dsp'] > 0):
+        if (args.coefficients_file):
+            if (args.optimization == "Area"):
+                input_minimum = round(max(800/args.number_of_coefficients, 8), 2)
+                input_maximum = round(min(3200/args.number_of_coefficients, 500), 2)
+                summary ["Reloadable Coefficient Filter"] = "The coefficients file can be modified after IP generation, but the count of coefficients must remain constant."
+                summary ["Coefficient Bit Width"] = "20"
+                summary ["Input Frequency"] = f"{input_minimum} MHz - {input_maximum} MHz"
+                summary ["Input File"] = "Only .hex file format is supported without any prefix for numbers."
+                summary ["Fast Clock Frequency"] = f"Fast clock must be {args.number_of_coefficients}x of the input master clock."
+                if (not args.truncated_output):
+                    summary ["Output Width"] = f"{min(args.input_width + bit_growth, 38)} with worst case bit growth."
+                summary ["Number of DSPs"] = "1"
+            else:
+                summary ["Fixed Coefficient Filter"] = "The coefficients cannot be changed after IP generation."
+                if (not args.truncated_output):
+                    summary ["Output Width"] = f"{min(args.input_width + bit_growth, 38)} with true maximum bit growth."
+                summary ["Number of DSPs"] = len(extract_numbers(coefficients, args.coefficients_file))
+                summary ["Input File"] = ".txt or .hex file formats are supported with the hex numbers starting with 0x while decimal numbers require no prefix."
+            if (args.file_path == ""):
+                summary ["Coefficients"] = "None"
+                summary ["File"] = "No file provided"
+            elif (is_valid_extension(coefficients) and len(extract_numbers(coefficients, args.coefficients_file)) > 0):
+                summary ["Coefficients"] = ', '.join(map(str, extract_numbers(coefficients, args.coefficients_file)))
+                summary ["Filter Taps"] = len(extract_numbers(coefficients, args.coefficients_file))
+            else:
+                summary ["Coefficients"] = "None"
+                summary["File Not Valid"] = "Only .txt and .hex file formats are supported with numbers having the correct prefix as specified."
         else:
             summary ["Fixed Coefficient Filter"] = "The coefficients cannot be changed after IP generation."
             if (not args.truncated_output):
                 summary ["Output Width"] = f"{min(args.input_width + bit_growth, 38)} with true maximum bit growth."
-            summary ["Number of DSPs"] = len(extract_numbers(coefficients, args.coefficients_file))
-            summary ["Input File"] = ".txt or .hex file formats are supported with the hex numbers starting with 0x while decimal numbers require no prefix."
-        if (args.file_path == ""):
-            summary ["Coefficients"] = "None"
-            summary ["File"] = "No file provided"
-        elif (is_valid_extension(coefficients) and len(extract_numbers(coefficients, args.coefficients_file)) > 0):
-            summary ["Coefficients"] = ', '.join(map(str, extract_numbers(coefficients, args.coefficients_file)))
             summary ["Filter Taps"] = len(extract_numbers(coefficients, args.coefficients_file))
+            if (args.optimization == "Area"):
+                input_minimum = round(max(800/len(extract_numbers(coefficients, args.coefficients_file)) if len(extract_numbers(coefficients, args.coefficients_file)) > 0 else 1, 8), 2)
+                input_maximum = round(min(3200/len(extract_numbers(coefficients, args.coefficients_file)) if len(extract_numbers(coefficients, args.coefficients_file)) > 0 else 500, 500), 2)
+                summary ["Input Frequency"] = f"{input_minimum} MHz - {input_maximum} MHz"
+                summary ["Optimization"] = "Area"
+                summary ["Number of DSPs"] = "1"
+                summary ["Fast Clock Frequency"] = f"Fast clock must be {len(extract_numbers(coefficients, args.coefficients_file))}x of the input master clock."
+            else:
+                summary ["Optimization"] = "Performance"
+                if (len(extract_numbers(coefficients, args.coefficients_file)) <= device_dic['dsp']):
+                    summary ["Number of DSPs"] = len(extract_numbers(coefficients, args.coefficients_file))
+                else:
+                    summary["WARNING"] = "Filter taps greater than number of DSPs in the selected device. Invalid design."
+        if (args.truncated_output):
+            summary ["Output Fractional Bits"] = f"{args.input_fractional_bits + args.coefficient_fractional_bits - max(0, (args.input_width + bit_growth) - args.output_data_width) if args.input_fractional_bits + args.coefficient_fractional_bits - max(0, (args.input_width + bit_growth) - args.output_data_width) > 0 else 0}"
+            summary ["Output Rounding"] = "Truncation Applied."
         else:
-            summary ["Coefficients"] = "None"
-            summary["File Not Valid"] = "Only .txt and .hex file formats are supported with numbers having the correct prefix as specified."
+            summary ["Output Fractional Bits"] = f"{args.input_fractional_bits + args.coefficient_fractional_bits}"
+            summary ["Output Rounding"] = "Full Precision with Saturation Applied when accumulated output becomes greater than 38 bits."
     else:
-        summary ["Fixed Coefficient Filter"] = "The coefficients cannot be changed after IP generation."
-        if (not args.truncated_output):
-            summary ["Output Width"] = f"{min(args.input_width + bit_growth, 38)} with true maximum bit growth."
-        summary ["Filter Taps"] = len(extract_numbers(coefficients, args.coefficients_file))
-        if (args.optimization == "Area"):
-            input_minimum = round(max(800/len(extract_numbers(coefficients, args.coefficients_file)) if len(extract_numbers(coefficients, args.coefficients_file)) > 0 else 1, 8), 2)
-            input_maximum = round(min(3200/len(extract_numbers(coefficients, args.coefficients_file)) if len(extract_numbers(coefficients, args.coefficients_file)) > 0 else 500, 500), 2)
-            summary ["Input Frequency"] = f"{input_minimum} MHz - {input_maximum} MHz"
-            summary ["Optimization"] = "Area"
-            summary ["Number of DSPs"] = "1"
-            summary ["Fast Clock Frequency"] = f"Fast clock must be {len(extract_numbers(coefficients, args.coefficients_file))}x of the input master clock."
-        else:
-            summary ["Optimization"] = "Performance"
-            summary ["Number of DSPs"] = len(extract_numbers(coefficients, args.coefficients_file))
-    if (args.truncated_output):
-        summary ["Output Fractional Bits"] = f"{args.input_fractional_bits + args.coefficient_fractional_bits - max(0, (args.input_width + bit_growth) - args.output_data_width) if args.input_fractional_bits + args.coefficient_fractional_bits - max(0, (args.input_width + bit_growth) - args.output_data_width) > 0 else 0}"
-        summary ["Output Rounding"] = "Truncation Applied."
-    else:
-        summary ["Output Fractional Bits"] = f"{args.input_fractional_bits + args.coefficient_fractional_bits}"
-        summary ["Output Rounding"] = "Full Precision with Saturation Applied when accumulated output becomes greater than 38 bits."
+        summary["WARNING"] = "No DSPs in selected device. Select a different device with DSPs."
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -263,19 +281,20 @@ def main():
 
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = FIRGenerator(platform,
-            input_width                   = args.input_width,
-            coefficients                  = coefficients,
-            coefficients_file             = args.coefficients_file,
-            coefficient_fractional_bits   = args.coefficient_fractional_bits,
-            signed                        = args.signed,
-            optimization                  = args.optimization,
-            number_of_coefficients        = args.number_of_coefficients,
-            coefficient_width             = args.coefficient_width,
-            input_fractional_bits         = args.input_fractional_bits,
-            truncated_output              = args.truncated_output,
-            output_data_width             = args.output_data_width
-    )
+    if (device_dic['dsp'] > 0):
+        module   = FIRGenerator(platform,
+                input_width                   = args.input_width,
+                coefficients                  = coefficients,
+                coefficients_file             = args.coefficients_file,
+                coefficient_fractional_bits   = args.coefficient_fractional_bits,
+                signed                        = args.signed,
+                optimization                  = args.optimization,
+                number_of_coefficients        = args.number_of_coefficients,
+                coefficient_width             = args.coefficient_width,
+                input_fractional_bits         = args.input_fractional_bits,
+                truncated_output              = args.truncated_output,
+                output_data_width             = args.output_data_width
+        )
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:

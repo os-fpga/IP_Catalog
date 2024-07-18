@@ -397,9 +397,9 @@ class IP_Builder:
                 for sub_dummy in dummy:
                     if sub_dummy.attrib.get('type') == 'bram':
                         fnum_bram = sub_dummy.attrib.get('num')
-                        device_dict[sub_dummy.attrib.get('type')] = (fnum_bram)
+                        device_dict[sub_dummy.attrib.get('type')] = (int(fnum_bram))
                     elif sub_dummy.attrib.get('type') == 'dsp':
                         fnum_dsp = sub_dummy.attrib.get('num')
-                        device_dict[sub_dummy.attrib.get('type')] = (fnum_dsp)
+                        device_dict[sub_dummy.attrib.get('type')] = (int(fnum_dsp))
 
         return device_dict
