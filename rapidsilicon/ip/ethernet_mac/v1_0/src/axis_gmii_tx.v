@@ -93,12 +93,14 @@ module axis_gmii_tx #
 parameter MIN_LEN_WIDTH = $clog2(MIN_FRAME_LENGTH-4-1+1);
 
 // bus width assertions
-initial begin
-    if (DATA_WIDTH != 8) begin
-        $error("Error: Interface width must be 8");
-        $finish;
+`ifndef SYNTHESIS
+    initial begin
+        if (DATA_WIDTH != 8) begin
+            $error("Error: Interface width must be 8");
+            $finish;
+        end
     end
-end
+`endif
 
 localparam [7:0]
     ETH_PRE = 8'h55,
