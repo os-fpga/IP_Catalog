@@ -90,12 +90,14 @@ module mac_pause_ctrl_rx #
 localparam QFB = 8;
 
 // check configuration
-initial begin
-    if (MCF_PARAMS_SIZE < (PFC_ENABLE ? 18 : 2)) begin
-        $error("Error: MCF_PARAMS_SIZE too small for requested configuration (instance %m)");
-        $finish;
+`ifndef SYNTHESIS
+    initial begin
+        if (MCF_PARAMS_SIZE < (PFC_ENABLE ? 18 : 2)) begin
+            $error("Error: MCF_PARAMS_SIZE too small for requested configuration (instance %m)");
+            $finish;
+        end
     end
-end
+`endif
 
 reg lfc_req_reg = 1'b0, lfc_req_next;
 reg [7:0] pfc_req_reg = 8'd0, pfc_req_next;
