@@ -8,13 +8,13 @@
 //
 
 module FIFO18KX2 #(
-  parameter DATA_WRITE_WIDTH1 = 18, // FIFO data write width, FIFO 1 (1-18)
-  parameter DATA_READ_WIDTH1 = 18, // FIFO data read width, FIFO 1 (1-18)
+  parameter DATA_WRITE_WIDTH1 = 18, // FIFO data write width, FIFO 1 (9, 18)
+  parameter DATA_READ_WIDTH1 = 18, // FIFO data read width, FIFO 1 (9, 18)
   parameter FIFO_TYPE1 = "SYNCHRONOUS", // Synchronous or Asynchronous data transfer, FIFO 1 (SYNCHRONOUS/ASYNCHRONOUS)
   parameter [10:0] PROG_EMPTY_THRESH1 = 11'h004, // 11-bit Programmable empty depth, FIFO 1
   parameter [10:0] PROG_FULL_THRESH1 = 11'h7fa, // 11-bit Programmable full depth, FIFO 1
-  parameter DATA_WRITE_WIDTH2 = 18, // FIFO data write width, FIFO 2 (1-18)
-  parameter DATA_READ_WIDTH2 = 18, // FIFO data read width, FIFO 2 (1-18)
+  parameter DATA_WRITE_WIDTH2 = 18, // FIFO data write width, FIFO 2 (9, 18)
+  parameter DATA_READ_WIDTH2 = 18, // FIFO data read width, FIFO 2 (9, 18)
   parameter FIFO_TYPE2 = "SYNCHRONOUS", // Synchronous or Asynchronous data transfer, FIFO 2 (SYNCHRONOUS/ASYNCHRONOUS)
   parameter [10:0] PROG_EMPTY_THRESH2 = 11'h004, // 11-bit Programmable empty depth, FIFO 2
   parameter [10:0] PROG_FULL_THRESH2 = 11'h7fa // 11-bit Programmable full depth, FIFO 2
@@ -333,40 +333,46 @@ tdp_ram18kx2_inst
   .RDATA_B2(ram_rd_data2), // Read data port B, RAM 2
   .RPARITY_B2(ram_rd_parity2) // Read parity port B, RAM 2
 ); initial begin
-
-    if ((DATA_WRITE_WIDTH1 < 1) || (DATA_WRITE_WIDTH1 > 18)) begin
-       $display("FIFO18KX2 instance %m DATA_WRITE_WIDTH1 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WRITE_WIDTH1);
-    #1 $stop;
-    end
-
-    if ((DATA_READ_WIDTH1 < 1) || (DATA_READ_WIDTH1 > 18)) begin
-       $display("FIFO18KX2 instance %m DATA_READ_WIDTH1 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_READ_WIDTH1);
-    #1 $stop;
-    end
+    case(DATA_WRITE_WIDTH1)
+      9 ,
+      18: begin end
+      default: begin
+        $fatal(1,"\nError: FIFO18KX2 instance %m has parameter DATA_WRITE_WIDTH1 set to %d.  Valid values are 9, 18\n", DATA_WRITE_WIDTH1);
+      end
+    endcase
+    case(DATA_READ_WIDTH1)
+      9 ,
+      18: begin end
+      default: begin
+        $fatal(1,"\nError: FIFO18KX2 instance %m has parameter DATA_READ_WIDTH1 set to %d.  Valid values are 9, 18\n", DATA_READ_WIDTH1);
+      end
+    endcase
     case(FIFO_TYPE1)
       "SYNCHRONOUS" ,
       "ASYNCHRONOUS": begin end
       default: begin
-        $display("\nError: FIFO18KX2 instance %m has parameter FIFO_TYPE1 set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE1);
-        #1 $stop ;
+        $fatal(1,"\nError: FIFO18KX2 instance %m has parameter FIFO_TYPE1 set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE1);
       end
     endcase
-
-    if ((DATA_WRITE_WIDTH2 < 1) || (DATA_WRITE_WIDTH2 > 18)) begin
-       $display("FIFO18KX2 instance %m DATA_WRITE_WIDTH2 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_WRITE_WIDTH2);
-    #1 $stop;
-    end
-
-    if ((DATA_READ_WIDTH2 < 1) || (DATA_READ_WIDTH2 > 18)) begin
-       $display("FIFO18KX2 instance %m DATA_READ_WIDTH2 set to incorrect value, %d.  Values must be between 1 and 18.", DATA_READ_WIDTH2);
-    #1 $stop;
-    end
+    case(DATA_WRITE_WIDTH2)
+      9 ,
+      18: begin end
+      default: begin
+        $fatal(1,"\nError: FIFO18KX2 instance %m has parameter DATA_WRITE_WIDTH2 set to %d.  Valid values are 9, 18\n", DATA_WRITE_WIDTH2);
+      end
+    endcase
+    case(DATA_READ_WIDTH2)
+      9 ,
+      18: begin end
+      default: begin
+        $fatal(1,"\nError: FIFO18KX2 instance %m has parameter DATA_READ_WIDTH2 set to %d.  Valid values are 9, 18\n", DATA_READ_WIDTH2);
+      end
+    endcase
     case(FIFO_TYPE2)
       "SYNCHRONOUS" ,
       "ASYNCHRONOUS": begin end
       default: begin
-        $display("\nError: FIFO18KX2 instance %m has parameter FIFO_TYPE2 set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE2);
-        #1 $stop ;
+        $fatal(1,"\nError: FIFO18KX2 instance %m has parameter FIFO_TYPE2 set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE2);
       end
     endcase
 
