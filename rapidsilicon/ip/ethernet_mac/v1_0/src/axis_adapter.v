@@ -98,24 +98,22 @@ localparam S_BYTE_SIZE = S_DATA_WIDTH / S_BYTE_LANES;
 localparam M_BYTE_SIZE = M_DATA_WIDTH / M_BYTE_LANES;
 
 // bus width assertions
-`ifndef SYNTHESIS
-    initial begin
-        if (S_BYTE_SIZE * S_BYTE_LANES != S_DATA_WIDTH) begin
-            $error("Error: input data width not evenly divisible (instance %m)");
-            $finish;
-        end
-    
-        if (M_BYTE_SIZE * M_BYTE_LANES != M_DATA_WIDTH) begin
-            $error("Error: output data width not evenly divisible (instance %m)");
-            $finish;
-        end
-    
-        if (S_BYTE_SIZE != M_BYTE_SIZE) begin
-            $error("Error: byte size mismatch (instance %m)");
-            $finish;
-        end
+initial begin
+    if (S_BYTE_SIZE * S_BYTE_LANES != S_DATA_WIDTH) begin
+        $error("Error: input data width not evenly divisible (instance %m)");
+        $finish;
     end
-`endif
+
+    if (M_BYTE_SIZE * M_BYTE_LANES != M_DATA_WIDTH) begin
+        $error("Error: output data width not evenly divisible (instance %m)");
+        $finish;
+    end
+
+    if (S_BYTE_SIZE != M_BYTE_SIZE) begin
+        $error("Error: byte size mismatch (instance %m)");
+        $finish;
+    end
+end
 
 generate
 

@@ -119,34 +119,32 @@ module axis_fifo #
 );
 
 // check configuration
-`ifndef SYNTHESIS
-    initial begin
-        if (PIPELINE_OUTPUT < 1) begin
-            $error("Error: PIPELINE_OUTPUT must be at least 1 (instance %m)");
-            $finish;
-        end
-    
-        if (FRAME_FIFO && !LAST_ENABLE) begin
-            $error("Error: FRAME_FIFO set requires LAST_ENABLE set (instance %m)");
-            $finish;
-        end
-    
-        if (DROP_BAD_FRAME && !FRAME_FIFO) begin
-            $error("Error: DROP_BAD_FRAME set requires FRAME_FIFO set (instance %m)");
-            $finish;
-        end
-    
-        if (DROP_WHEN_FULL && !FRAME_FIFO) begin
-            $error("Error: DROP_WHEN_FULL set requires FRAME_FIFO set (instance %m)");
-            $finish;
-        end
-    
-        if (DROP_BAD_FRAME && (USER_BAD_FRAME_MASK & {USER_WIDTH{1'b1}}) == 0) begin
-            $error("Error: Invalid USER_BAD_FRAME_MASK value (instance %m)");
-            $finish;
-        end
+initial begin
+    if (PIPELINE_OUTPUT < 1) begin
+        $error("Error: PIPELINE_OUTPUT must be at least 1 (instance %m)");
+        $finish;
     end
-`endif
+
+    if (FRAME_FIFO && !LAST_ENABLE) begin
+        $error("Error: FRAME_FIFO set requires LAST_ENABLE set (instance %m)");
+        $finish;
+    end
+
+    if (DROP_BAD_FRAME && !FRAME_FIFO) begin
+        $error("Error: DROP_BAD_FRAME set requires FRAME_FIFO set (instance %m)");
+        $finish;
+    end
+
+    if (DROP_WHEN_FULL && !FRAME_FIFO) begin
+        $error("Error: DROP_WHEN_FULL set requires FRAME_FIFO set (instance %m)");
+        $finish;
+    end
+
+    if (DROP_BAD_FRAME && (USER_BAD_FRAME_MASK & {USER_WIDTH{1'b1}}) == 0) begin
+        $error("Error: Invalid USER_BAD_FRAME_MASK value (instance %m)");
+        $finish;
+    end
+end
 
 localparam KEEP_OFFSET = DATA_WIDTH;
 localparam LAST_OFFSET = KEEP_OFFSET + (KEEP_ENABLE ? KEEP_WIDTH : 0);

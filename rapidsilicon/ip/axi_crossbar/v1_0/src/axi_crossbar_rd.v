@@ -153,21 +153,19 @@ parameter CL_M_COUNT_P1 = $clog2(M_COUNT_P1);
 integer i;
 
 // check configuration
-`ifndef SYNTHESIS
-    initial begin
-        if (M_ID_WIDTH < S_ID_WIDTH+$clog2(S_COUNT)) begin
-            $error("Error: M_ID_WIDTH must be at least $clog2(S_COUNT) larger than S_ID_WIDTH (instance %m)");
+initial begin
+    if (M_ID_WIDTH < S_ID_WIDTH+$clog2(S_COUNT)) begin
+        $error("Error: M_ID_WIDTH must be at least $clog2(S_COUNT) larger than S_ID_WIDTH (instance %m)");
+        $finish;
+    end
+
+    for (i = 0; i < M_COUNT*M_REGIONS; i = i + 1) begin
+        if (M_ADDR_WIDTH[i*32 +: 32] && (M_ADDR_WIDTH[i*32 +: 32] < 12 || M_ADDR_WIDTH[i*32 +: 32] > ADDR_WIDTH)) begin
+            $error("Error: value out of range (instance %m)");
             $finish;
         end
-    
-        for (i = 0; i < M_COUNT*M_REGIONS; i = i + 1) begin
-            if (M_ADDR_WIDTH[i*32 +: 32] && (M_ADDR_WIDTH[i*32 +: 32] < 12 || M_ADDR_WIDTH[i*32 +: 32] > ADDR_WIDTH)) begin
-                $error("Error: value out of range (instance %m)");
-                $finish;
-            end
-        end
     end
-`endif
+end
 
 wire [S_COUNT*S_ID_WIDTH-1:0]    int_s_axi_arid;
 wire [S_COUNT*ADDR_WIDTH-1:0]    int_s_axi_araddr;

@@ -63,7 +63,6 @@ module Tb;
 
     initial begin
         #5000;
-        $display("\n**** Simulation Passed ****");
         $finish;
     end
 

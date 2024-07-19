@@ -126,75 +126,73 @@ parameter M_DEST_WIDTH_INT = M_DEST_WIDTH > 0 ? M_DEST_WIDTH : 1;
 integer i, j;
 
 // check configuration
-`ifndef SYNTHESIS
-    initial begin
-        if (S_DEST_WIDTH < CL_M_COUNT) begin
-            $error("Error: S_DEST_WIDTH too small for port count (instance %m)");
+initial begin
+    if (S_DEST_WIDTH < CL_M_COUNT) begin
+        $error("Error: S_DEST_WIDTH too small for port count (instance %m)");
+        $finish;
+    end
+
+    if (UPDATE_TID) begin
+        if (!ID_ENABLE) begin
+            $error("Error: UPDATE_TID set requires ID_ENABLE set (instance %m)");
             $finish;
         end
-    
-        if (UPDATE_TID) begin
-            if (!ID_ENABLE) begin
-                $error("Error: UPDATE_TID set requires ID_ENABLE set (instance %m)");
-                $finish;
-            end
-    
-            if (M_ID_WIDTH < CL_S_COUNT) begin
-                $error("Error: M_ID_WIDTH too small for port count (instance %m)");
-                $finish;
-            end
+
+        if (M_ID_WIDTH < CL_S_COUNT) begin
+            $error("Error: M_ID_WIDTH too small for port count (instance %m)");
+            $finish;
         end
-    
-        if (M_BASE == 0) begin
-            // M_BASE is zero, route with tdest as port index
-            $display("Addressing configuration for axis_switch instance %m");
-            for (i = 0; i < M_COUNT; i = i + 1) begin
-                $display("%d: %08x-%08x (connect mask %b)", i, i << (S_DEST_WIDTH-CL_M_COUNT), ((i+1) << (S_DEST_WIDTH-CL_M_COUNT))-1, M_CONNECT[i*S_COUNT +: S_COUNT]);
-            end
-    
-        end else if (M_TOP == 0) begin
-            // M_TOP is zero, assume equal to M_BASE
-            $display("Addressing configuration for axis_switch instance %m");
-            for (i = 0; i < M_COUNT; i = i + 1) begin
-                $display("%d: %08x (connect mask %b)", i, M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH], M_CONNECT[i*S_COUNT +: S_COUNT]);
-            end
-    
-            for (i = 0; i < M_COUNT; i = i + 1) begin
-                for (j = i+1; j < M_COUNT; j = j + 1) begin
-                    if (M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH] == M_BASE[j*S_DEST_WIDTH +: S_DEST_WIDTH]) begin
-                        $display("%d: %08x", i, M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH]);
-                        $display("%d: %08x", j, M_BASE[j*S_DEST_WIDTH +: S_DEST_WIDTH]);
-                        $error("Error: ranges overlap (instance %m)");
-                        $finish;
-                    end
-                end
-            end
-        end else begin
-            $display("Addressing configuration for axis_switch instance %m");
-            for (i = 0; i < M_COUNT; i = i + 1) begin
-                $display("%d: %08x-%08x (connect mask %b)", i, M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH], M_TOP[i*S_DEST_WIDTH +: S_DEST_WIDTH], M_CONNECT[i*S_COUNT +: S_COUNT]);
-            end
-    
-            for (i = 0; i < M_COUNT; i = i + 1) begin
-                if (M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH] > M_TOP[i*S_DEST_WIDTH +: S_DEST_WIDTH]) begin
-                    $error("Error: invalid range (instance %m)");
+    end
+
+    if (M_BASE == 0) begin
+        // M_BASE is zero, route with tdest as port index
+        $display("Addressing configuration for axis_switch instance %m");
+        for (i = 0; i < M_COUNT; i = i + 1) begin
+            $display("%d: %08x-%08x (connect mask %b)", i, i << (S_DEST_WIDTH-CL_M_COUNT), ((i+1) << (S_DEST_WIDTH-CL_M_COUNT))-1, M_CONNECT[i*S_COUNT +: S_COUNT]);
+        end
+
+    end else if (M_TOP == 0) begin
+        // M_TOP is zero, assume equal to M_BASE
+        $display("Addressing configuration for axis_switch instance %m");
+        for (i = 0; i < M_COUNT; i = i + 1) begin
+            $display("%d: %08x (connect mask %b)", i, M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH], M_CONNECT[i*S_COUNT +: S_COUNT]);
+        end
+
+        for (i = 0; i < M_COUNT; i = i + 1) begin
+            for (j = i+1; j < M_COUNT; j = j + 1) begin
+                if (M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH] == M_BASE[j*S_DEST_WIDTH +: S_DEST_WIDTH]) begin
+                    $display("%d: %08x", i, M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH]);
+                    $display("%d: %08x", j, M_BASE[j*S_DEST_WIDTH +: S_DEST_WIDTH]);
+                    $error("Error: ranges overlap (instance %m)");
                     $finish;
                 end
             end
-    
-            for (i = 0; i < M_COUNT; i = i + 1) begin
-                for (j = i+1; j < M_COUNT; j = j + 1) begin
-                    if (M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH] <= M_TOP[j*S_DEST_WIDTH +: S_DEST_WIDTH] && M_BASE[j*S_DEST_WIDTH +: S_DEST_WIDTH] <= M_TOP[i*S_DEST_WIDTH +: S_DEST_WIDTH]) begin
-                        $display("%d: %08x-%08x", i, M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH], M_TOP[i*S_DEST_WIDTH +: S_DEST_WIDTH]);
-                        $display("%d: %08x-%08x", j, M_BASE[j*S_DEST_WIDTH +: S_DEST_WIDTH], M_TOP[j*S_DEST_WIDTH +: S_DEST_WIDTH]);
-                        $error("Error: ranges overlap (instance %m)");
-                        $finish;
-                    end
+        end
+    end else begin
+        $display("Addressing configuration for axis_switch instance %m");
+        for (i = 0; i < M_COUNT; i = i + 1) begin
+            $display("%d: %08x-%08x (connect mask %b)", i, M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH], M_TOP[i*S_DEST_WIDTH +: S_DEST_WIDTH], M_CONNECT[i*S_COUNT +: S_COUNT]);
+        end
+
+        for (i = 0; i < M_COUNT; i = i + 1) begin
+            if (M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH] > M_TOP[i*S_DEST_WIDTH +: S_DEST_WIDTH]) begin
+                $error("Error: invalid range (instance %m)");
+                $finish;
+            end
+        end
+
+        for (i = 0; i < M_COUNT; i = i + 1) begin
+            for (j = i+1; j < M_COUNT; j = j + 1) begin
+                if (M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH] <= M_TOP[j*S_DEST_WIDTH +: S_DEST_WIDTH] && M_BASE[j*S_DEST_WIDTH +: S_DEST_WIDTH] <= M_TOP[i*S_DEST_WIDTH +: S_DEST_WIDTH]) begin
+                    $display("%d: %08x-%08x", i, M_BASE[i*S_DEST_WIDTH +: S_DEST_WIDTH], M_TOP[i*S_DEST_WIDTH +: S_DEST_WIDTH]);
+                    $display("%d: %08x-%08x", j, M_BASE[j*S_DEST_WIDTH +: S_DEST_WIDTH], M_TOP[j*S_DEST_WIDTH +: S_DEST_WIDTH]);
+                    $error("Error: ranges overlap (instance %m)");
+                    $finish;
                 end
             end
         end
     end
-`endif
+end
 
 wire [S_COUNT*DATA_WIDTH-1:0]    int_s_axis_tdata;
 wire [S_COUNT*KEEP_WIDTH-1:0]    int_s_axis_tkeep;
