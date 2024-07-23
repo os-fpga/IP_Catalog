@@ -23,7 +23,7 @@ logging.info(f'Log started at {timestamp}')
 
 # AHB_2_AXI4_BRIDGE ---------------------------------------------------------------------------------------
 class AHBSRAM(Module):
-    def __init__(self, platform):
+    def __init__(self, platform, sram_data_width, sram_addr_width, addr_width, data_width):
 
         # Get Parameters.
         # ---------------------        
@@ -34,31 +34,31 @@ class AHBSRAM(Module):
         
         self.logger.info(f"===================================================")
         
-        self.haddr               = Signal(32)
+        self.haddr               = Signal(addr_width)
         self.hburst              = Signal(3)
         self.hsize               = Signal(3)
         self.htrans              = Signal(2)
         self.hwrite              = Signal(1)
-        self.hwdata              = Signal(32)
+        self.hwdata              = Signal(data_width)
         self.hsel                = Signal(1)
         self.hready              = Signal(1)
-        self.hrdata              = Signal(32)
+        self.hrdata              = Signal(data_width)
         self.hready_resp         = Signal(1)
         self.hresp               = Signal(1)
 
-        self.sram_q0             = Signal(8)
-        self.sram_q1             = Signal(8)
-        self.sram_q2             = Signal(8)
-        self.sram_q3             = Signal(8)
-        self.sram_q4             = Signal(8)
-        self.sram_q5             = Signal(8)
-        self.sram_q6             = Signal(8)
-        self.sram_q7             = Signal(8)
+        self.sram_q0             = Signal(sram_data_width)
+        self.sram_q1             = Signal(sram_data_width)
+        self.sram_q2             = Signal(sram_data_width)
+        self.sram_q3             = Signal(sram_data_width)
+        self.sram_q4             = Signal(sram_data_width)
+        self.sram_q5             = Signal(sram_data_width)
+        self.sram_q6             = Signal(sram_data_width)
+        self.sram_q7             = Signal(sram_data_width)
         self.sram_w_en           = Signal(1)
         self.bank0_csn           = Signal(4)
         self.bank1_csn           = Signal(4)
-        self.sram_addr_out       = Signal(13)
-        self.sram_wdata          = Signal(32)        
+        self.sram_addr_out       = Signal(sram_addr_width)
+        self.sram_wdata          = Signal(data_width)        
    
 
 
@@ -72,7 +72,10 @@ class AHBSRAM(Module):
             p_IP_TYPE           = Instance.PreformattedParam("IP_TYPE"),
             p_IP_ID             = Instance.PreformattedParam("IP_ID"),
             p_IP_VERSION        = Instance.PreformattedParam("IP_VERSION"),
-            # Global AXI
+            p_DATA_WIDTH        = Instance.PreformattedParam(data_width),
+            p_ADDR_WIDTH        = Instance.PreformattedParam(addr_width),
+            p_SRAM_DATA_WIDTH   = Instance.PreformattedParam(sram_data_width),
+            p_SRAM_ADDR_WIDTH   = Instance.PreformattedParam(sram_addr_width),
             # Clk / Rst.
             i_hclk               = ClockSignal(),
             i_hresetn            = ResetSignal(),
@@ -114,8 +117,7 @@ class AHBSRAM(Module):
     @staticmethod
     def add_sources(platform):
         rtl_dir = os.path.join(os.path.dirname(__file__), "../src")
-        platform.add_source(os.path.join(rtl_dir, "ahb_slave_if.v"))
-        platform.add_source(os.path.join(rtl_dir, "RA1SH.v"))
-        platform.add_source(os.path.join(rtl_dir, "sram_bist.v"))
-        platform.add_source(os.path.join(rtl_dir, "sram_core.v"))
-        platform.add_source(os.path.join(rtl_dir, "sramc_top.v"))
+        platform.add_source(os.path.join(rtl_dir, "ahb_slave_interface.sv"))
+        platform.add_source(os.path.join(rtl_dir, "sram.sv"))
+        platform.add_source(os.path.join(rtl_dir, "sram8x8k.sv"))
+        platform.add_source(os.path.join(rtl_dir, "sramc_top.sv"))
