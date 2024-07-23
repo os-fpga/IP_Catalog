@@ -35,7 +35,7 @@ def colorer(s, color="bright"):
     trailer = "\x1b[0m"
     return header + str(s) + trailer
 
-# AXI RAM ------------------------------------------------------------------------------------------
+# AXI SDRAM ------------------------------------------------------------------------------------------
 
 class AXISDRAM(Module):
     def __init__(self, platform, s_axi ):
