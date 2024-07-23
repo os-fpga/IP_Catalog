@@ -61,7 +61,7 @@ def sram_interface():
 
 # AHB SRAM Wrapper --------------------------------------------------------------------------------
 class AHBSRAMWrapper(Module):
-    def __init__(self, platform):
+    def __init__(self, platform, sram_data_width, sram_addr_width, addr_width, data_width):
         
         # Clocking
         platform.add_extension(get_clkin_ios())
@@ -71,7 +71,7 @@ class AHBSRAMWrapper(Module):
 
     
         # AHB_SRAM
-        self.submodules.ahb_sram = ahb_sram = AHBSRAM(platform)
+        self.submodules.ahb_sram = ahb_sram = AHBSRAM(platform, sram_data_width, sram_addr_width, addr_width, data_width )
         
         platform.add_extension(ahb_interface())
         self.comb += ahb_sram.haddr.eq(platform.request("haddr"))
@@ -110,14 +110,15 @@ def main():
     logging.info(("==================================================="))
 
     # Core fix value parameters.
-#    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-#    core_fix_param_group.add_argument("--data_width",       type=int,       default=32,         choices=[32, 64],      help="Data Width")
-#
-#    # Core range value parameters.
-#    core_range_param_group = parser.add_argument_group(title="Core range parameters")
-#    core_range_param_group.add_argument("--addr_width",     type=int,       default=32,      choices=range(6, 33),      help="Address Width")
-#    core_range_param_group.add_argument("--id_width",       type=int,       default=1,      choices=range(1, 33),      help="ID Width")
-#
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--data_width",       type=int,       default=32,         choices=[32, 64],      help="Data Width")
+
+    # Core range value parameters. 
+    core_range_param_group = parser.add_argument_group(title="Core range parameters")
+    core_range_param_group.add_argument("--addr_width",     type=int,       default=32,      choices=range(6, 33),      help="Address Width")
+    core_range_param_group.add_argument("--sram_data_width",       type=int,       default=8,      choices=range(1, 33),      help="ID Width")
+    core_range_param_group.add_argument("--sram_addr_width",       type=int,       default=13,      choices=range(1, 15),      help="ID Width")
+
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",            help="Build Core")
@@ -157,11 +158,13 @@ def main():
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
 
-
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = AHBSRAMWrapper(platform
-    )
+    module   = AHBSRAMWrapper(platform,
+        sram_data_width = args.sram_data_width,
+        sram_addr_width = args.sram_addr_width,
+        addr_width      = args.addr_width,
+        data_width      = args.data_width)
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
