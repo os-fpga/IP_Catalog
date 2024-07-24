@@ -156,7 +156,7 @@ def main():
         rs_builder.copy_images(file_path)
         
     summary =  {  
-    "AXI SDRAM controller"    }
+    "AXI SDRAM controller" : "  "   }
     
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
