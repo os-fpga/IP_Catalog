@@ -52,69 +52,9 @@ module ahb_slave_if_tb;
 	);
 	
 
-	/*
-	sram_top dut(
-	.hclk(hclk),
-	.sram_clk(hclk),
-	.hresetn(hresetn),
-	.hsel(hsel),
-	.haddr(haddr),
-	.hwrite(hwrite),
-	.hsize(hsize),
-	.hburst(hburst),
-	.htrans(htrans),
-	.hready(hready),
-	.hwdata(hwdata),
-	.dft_en(0),
-	.bist_en(0),
-	.hrdata(hrdata),
-	.hready_resp(hready_resp),
-	.hresp(hresp),	
-	.bist_done(bist_done),
-	.bist_fail(bist_fail));
-
-*/
 
 
-/*
 
-	
-	 ahb_slave_if ahb_slave_if(
-			//input signals
-		  .hclk						( hclk ),
-		  .hresetn					( hresetn ),
-        .hsel						( hsel ),
-        .haddr						( haddr ),
-        .hwrite					( hwrite ),
-        .hsize						( hsize ),
-        .hburst					( hburst ),
-        .htrans					( htrans ),
-        .hready					( hready ),
-        .hwdata					( hwdata ),
-
-		   //output signals
-		  .hready_resp				( hready_resp ),
-		  .hresp						( hresp ),
-		  .hrdata					( hrdata ),
-
-			//sram input signals 
-		  .sram_q0					( sram_q0 ),
-		  .sram_q1					( sram_q1 ),
-		  .sram_q2					( sram_q2 ),
-		  .sram_q3					( sram_q3 ),
-		  .sram_q4					( sram_q4 ),
-		  .sram_q5					( sram_q5 ),
-		  .sram_q6					( sram_q6 ),
-		  .sram_q7					( sram_q7 ),
-			
-			//sram output signals 
-		  .sram_w_en				( sram_w_en ),
-		  .sram_addr_out			( sram_addr_out ),
-		  .sram_wdata				( sram_wdata ),
-		  .bank0_csn				( bank0_csn ),
-		  .bank1_csn				( bank1_csn )
-);
-*/
 	parameter 		 IDLE		= 2'b00;
    parameter       BUSY		= 2'b01;
    parameter       NONSEQ	= 2'b10;
