@@ -65,7 +65,7 @@ class AHBSRAM(Module):
         
         # Module instance.
         # ----------------
-        self.specials += Instance("ahb_sram",
+        self.specials += Instance("sramc_top",
             # Parameters.
             # -----------
             # IP Parameters
