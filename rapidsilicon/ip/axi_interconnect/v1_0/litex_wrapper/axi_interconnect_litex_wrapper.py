@@ -21,11 +21,29 @@ logging.basicConfig(filename="IP.log",filemode="w", level=logging.INFO, format='
 timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 logging.info(f'Log started at {timestamp}')
 
+M_REGIONS = 1
+ADDR_WIDTH = 32
+output_base_address = []
+
+def calcBaseAddrs(m_count,M_ADDR_WIDTH):
+    calcBaseAddrs = [0]*(m_count*M_REGIONS)
+    base = 0
+    for i in range(m_count*M_REGIONS):
+        width = M_ADDR_WIDTH[i]
+        mask = 0xFFFFFFFF >> (ADDR_WIDTH - width)
+        size = mask + 1
+        if width > 0:
+            if base & mask != 0:
+                base = base + size - (base & mask) 
+            calcBaseAddrs[i] = base
+            base = base + size
+        output_base_address.append(calcBaseAddrs[i])
+    return calcBaseAddrs
 
 # AXI Interconnect ---------------------------------------------------------------------------------
 class AXIINTERCONNECT(Module):
     def __init__(self, platform, s_axi, m_axi, s_count, m_count, aw_user_en, w_user_en,
-        b_user_en, ar_user_en, r_user_en):
+        b_user_en, ar_user_en, r_user_en, MADDRWIDTH):
         
         self.logger = logging.getLogger("AXI_INTERCONNECT")
         
@@ -79,6 +97,26 @@ class AXIINTERCONNECT(Module):
         
         self.logger.info(f"===================================================")
         
+        MADDR_WIDTH = MADDRWIDTH[1:]
+        calcBaseAddrs(m_count,MADDR_WIDTH)
+        base_size_part = []
+
+        for i in range (m_count):
+            base_size_part.append(f"32'd{MADDRWIDTH[i+1]}")
+            base_size_part_fliped = base_size_part[::-1]
+        # Module instance.
+        # ----------------
+        flipped_base_address  = output_base_address[::-1]
+        base_address_parts = []
+
+        for value in flipped_base_address[0:]:
+            base_addres_hex = hex(value)[2:]
+            base_addres_zero_padded = base_addres_hex.zfill(8)
+            base_address_parts.append(f"32'h{base_addres_zero_padded}")
+
+
+        self.base_address = "{" + ", ".join(base_address_parts) + "}"
+        self.base_size = "{" + ", ".join(base_size_part_fliped) + "}"
         # Module instance.
         # ----------------
         self.specials += Instance("axi_interconnect",
@@ -92,6 +130,8 @@ class AXIINTERCONNECT(Module):
             p_M_COUNT       = Instance.PreformattedParam(len(m_axi)),
             p_DATA_WIDTH    = Instance.PreformattedParam(data_width),
             p_ADDR_WIDTH    = Instance.PreformattedParam(address_width),
+            p_M_BASE_ADDR       = Instance.PreformattedParam(self.base_address),
+            p_M_ADDR_WIDTH      = Instance.PreformattedParam(self.base_size),
             p_ID_WIDTH      = Instance.PreformattedParam(id_width),
             p_AWUSER_WIDTH  = Instance.PreformattedParam(aw_user_width),
             p_WUSER_WIDTH   = Instance.PreformattedParam(w_user_width),
