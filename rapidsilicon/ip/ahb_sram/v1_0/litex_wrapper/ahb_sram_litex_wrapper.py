@@ -46,19 +46,6 @@ class AHBSRAM(Module):
         self.hready_resp         = Signal(1)
         self.hresp               = Signal(1)
 
-        self.sram_q0             = Signal(sram_data_width)
-        self.sram_q1             = Signal(sram_data_width)
-        self.sram_q2             = Signal(sram_data_width)
-        self.sram_q3             = Signal(sram_data_width)
-        self.sram_q4             = Signal(sram_data_width)
-        self.sram_q5             = Signal(sram_data_width)
-        self.sram_q6             = Signal(sram_data_width)
-        self.sram_q7             = Signal(sram_data_width)
-        self.sram_w_en           = Signal(1)
-        self.bank0_csn           = Signal(4)
-        self.bank1_csn           = Signal(4)
-        self.sram_addr_out       = Signal(sram_addr_width)
-        self.sram_wdata          = Signal(data_width)        
    
 
 
@@ -95,19 +82,6 @@ class AHBSRAM(Module):
             o_hready_resp           = self.hready_resp,  
             o_hresp           		= self.hresp,
 
-            i_sram_q0               = self.sram_q0,              
-            i_sram_q1               = self.sram_q1,  
-            i_sram_q2               = self.sram_q2,  
-            i_sram_q3               = self.sram_q3,  
-            i_sram_q4               = self.sram_q4,  
-            i_sram_q5               = self.sram_q5,  
-            i_sram_q6               = self.sram_q6,  
-            i_sram_q7               = self.sram_q7,              
-            o_sram_w_en             = self.sram_w_en,
-            o_bank0_csn             = self.bank0_csn,            
-            o_bank1_csn             = self.bank1_csn,
-            o_sram_addr_out         = self.sram_addr_out,
-            o_sram_wdata            = self.sram_wdata,
         )
 
         # Add Sources.

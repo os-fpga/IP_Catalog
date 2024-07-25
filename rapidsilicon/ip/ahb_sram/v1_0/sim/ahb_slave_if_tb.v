@@ -55,7 +55,7 @@ module ahb_slave_if_tb;
 
 
 
-	parameter 		 IDLE		= 2'b00;
+   parameter 	   IDLE		= 2'b00;
    parameter       BUSY		= 2'b01;
    parameter       NONSEQ	= 2'b10;
    parameter       SEQ		= 2'b11;

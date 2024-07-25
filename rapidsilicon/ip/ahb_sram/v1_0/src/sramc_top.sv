@@ -4,8 +4,11 @@
 // Description: toplevel of sramc and ahb, including sram8x8k and ahb_slave_interface
 //----------------------------------------------------------------------------------------
 
-module sramc_top # (	
+module sramc_top # (
 
+parameter IP_TYPE 		= "A2HB",
+parameter IP_VERSION 	= 32'h1, 
+parameter IP_ID 		= 32'h597062f,
 parameter SRAM_DATA_WIDTH = 8,
 parameter SRAM_ADDR_WIDTH = 13,
 parameter ADDR_WIDTH = 32,
