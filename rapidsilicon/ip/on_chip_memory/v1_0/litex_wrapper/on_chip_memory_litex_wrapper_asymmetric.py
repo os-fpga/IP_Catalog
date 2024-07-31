@@ -421,7 +421,7 @@ class OCM_ASYM(Module):
             self.logger.info(f"===================================================")
             return INIT, INIT_PARITY
     
-    def __init__(self, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable):
+    def __init__(self, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode):
 
         self.write_depth_A  = write_depth_A
         self.write_width_A  = write_width_A
@@ -497,21 +497,25 @@ class OCM_ASYM(Module):
         
         # Port A din/dout
         self.din_A          = Signal(write_width_A)
+        self.din_A_reg      = Signal(write_width_A)
         self.dout_A         = Signal(read_width_A)
         self.dout_A_        = Signal(read_width_A)
         self.dout_A_reg     = Signal(read_width_A)
         
         # Port B din/dout
         self.din_B          = Signal(write_width_B)
+        self.din_B_reg      = Signal(write_width_B)
         self.dout_B         = Signal(read_width_B)
         self.dout_B_        = Signal(read_width_B)
         self.dout_B_reg     = Signal(read_width_B)
         
         # External write/read enables
         self.wen_A        = Signal(1)
+        self.wen_A_reg    = Signal(1)
         self.ren_A        = Signal(1)
         self.ren_A_reg    = Signal(1)
         self.wen_B        = Signal(1)
+        self.wen_B_reg    = Signal(1)
         self.ren_B        = Signal(1)
         self.ren_B_reg    = Signal(1)
         
@@ -799,9 +803,15 @@ class OCM_ASYM(Module):
             # --------------------------------------------------------------------------------------------
             # Single Port RAM
             if (memory_type == "Single_Port"):
-                self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
-                self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
-                self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                if (op_mode in ["No_Change", "Read_First"]):
+                    self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                    self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                    self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                else: # WRITE_FIRST
+                    self.comb += If((self.wen_A_reg), self.dout_A_.eq(self.din_A_reg)).Else(self.dout_A_.eq(self.dout_A))
+                    self.sync.A += self.wen_A_reg.eq(self.wen_A)
+                    self.sync.A += self.din_A_reg.eq(self.din_A)
+                    
                 if (write_width_A == read_width_A): # Symmetric Memory
                     if (write_depth_A in [1024, 2048, 4096, 8192, 16384, 32768]):
                         if n > 1:
@@ -884,20 +894,24 @@ class OCM_ASYM(Module):
                     addr_reg_mux    = {}
                     if (write_depth_A == 1024 and read_width_A <= 36):
                         for i in range(m):
-                            ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
+                            if (op_mode in ["No_Change", "Read_First"]):
+                                ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                             addr_reg_mux[i] = self.addr_reg_A.eq(i)
                     elif (write_depth_A == 2048 and read_width_A <= 18):
                         for i in range(m):
-                            ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
+                            if (op_mode in ["No_Change", "Read_First"]):
+                                ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                             addr_reg_mux[i] = self.addr_reg_A.eq(i)
                     elif (write_depth_A == 4096 and read_width_A <= 9):
                         for i in range(m):
-                            ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
+                            if (op_mode in ["No_Change", "Read_First"]):
+                                ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                             addr_reg_mux[i] = self.addr_reg_A.eq(i)
                     elif (write_depth_A in [8192, 16384, 32768]):
                         if (read_width_A >= 9):
                             for i in range(n * int(write_width_A/read_width_A)):
-                                ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
+                                if (op_mode in ["No_Change", "Read_First"]):
+                                    ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                                 addr_reg_mux[i] = self.addr_reg_A.eq(i)
                                         
                         if (m > 1 or n > 1):
@@ -906,7 +920,8 @@ class OCM_ASYM(Module):
                     else:
                         if (write_width_A > read_width_A):
                             for i in range(int(write_width_A/read_width_A)):
-                                ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
+                                if (op_mode in ["No_Change", "Read_First"]):
+                                    ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                                 addr_reg_mux[i] = self.addr_reg_A.eq(i)
 
                     # For more than 1 BRAMS
@@ -990,7 +1005,8 @@ class OCM_ASYM(Module):
                     if (read_depth_A >= 8192):
                         n_temp = int(read_depth_A/4096)
                         for i in range(n_temp):
-                            ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
+                            if (op_mode in ["No_Change", "Read_First"]):
+                                ren_mux[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                             dout_mux[i] = self.addr_reg_A.eq(i)
                             
                     if read_depth_A <= 1024 or read_depth_A in [2048, 4096]:
@@ -1447,7 +1463,10 @@ class OCM_ASYM(Module):
                                 write_data_A = self.din_A[(j*1):((j*1)+1)]
                                 w_parity_A   = Replicate(0,4)
                         
-                        
+                        if (op_mode == "Read_First"):
+                            renA = ren
+                        elif (op_mode == "No_Change" or op_mode == "Write_First"):
+                            renA = ~self.wen_A
                         
                         # Module instance.
                         # ----------------
@@ -1462,11 +1481,11 @@ class OCM_ASYM(Module):
                         p_READ_WIDTH_B      = param_read_width_A,
                         # Ports.
                         # -----------
-                        i_CLK_A     = clock1,
+                        i_CLK_A     = ClockSignal("A"),
                         i_CLK_B     = 0,
                         i_WEN_A     = wen,
                         i_WEN_B     = 0,
-                        i_REN_A     = ren,
+                        i_REN_A     = renA,
                         i_REN_B     = 0,
                         i_BE_A      = be_A,
                         i_BE_B      = Replicate(0,4),
@@ -1490,13 +1509,23 @@ class OCM_ASYM(Module):
             # --------------------------------------------------------------------------------------------
             # Simple Dual Port RAM
             elif (memory_type == "Simple_Dual_Port"):
-                self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
-                if (common_clk == 1):
-                    self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
-                    self.sync += self.ren_B_reg.eq(self.ren_B)
-                else:
-                    self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
-                    self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                if (op_mode in ["No_Change", "Read_First"]):
+                    self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                    if (common_clk == 1):
+                        self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync += self.ren_B_reg.eq(self.ren_B)
+                    else:
+                        self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                else: # WRITE_FIRST
+                    self.comb += If((self.wen_A_reg), self.dout_B_.eq(self.din_A_reg)).Else(self.dout_B_.eq(self.dout_B))
+                    if (common_clk == 1):
+                        self.sync += self.wen_A_reg.eq(self.wen_A)
+                        self.sync += self.din_A_reg.eq(self.din_A)
+                    else:
+                        self.sync.A += self.wen_A_reg.eq(self.wen_A)
+                        self.sync.A += self.din_A_reg.eq(self.din_A)
+                    
                 if (write_width_A == read_width_B): # Symmetric
                     read_loop = m
                     y = write_width_A - 36*(n-1)
@@ -1629,23 +1658,27 @@ class OCM_ASYM(Module):
                             addr_reg_mux    = {}
                             if (write_depth_A == 1024 and read_width_B <= 36):
                                 for i in range(m):
-                                    ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
+                                    if (op_mode in ["No_Change", "Read_First"]):
+                                        ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                                     addr_reg_mux[i] = self.addr_reg_B.eq(i)
 
                             elif (write_depth_A == 2048 and read_width_B <= 18):
                                 for i in range(m):
-                                    ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
+                                    if (op_mode in ["No_Change", "Read_First"]):
+                                        ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                                     addr_reg_mux[i] = self.addr_reg_B.eq(i)
 
                             elif (write_depth_A == 4096 and read_width_B <= 9):
                                 for i in range(m):
-                                    ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
+                                    if (op_mode in ["No_Change", "Read_First"]):
+                                        ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                                     addr_reg_mux[i] = self.addr_reg_B.eq(i)
 
                             elif (write_depth_A in [8192, 16384, 32768]):
                                 if (read_width_B >= 9):
                                     for i in range(n * int(write_width_A/read_width_B)):
-                                        ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
+                                        if (op_mode in ["No_Change", "Read_First"]):
+                                            ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                                         addr_reg_mux[i] = self.addr_reg_B.eq(i)
 
                                 if (m > 1 or n > 1):
@@ -1655,7 +1688,8 @@ class OCM_ASYM(Module):
                             else:
                                 if (write_width_A > read_width_B):
                                     for i in range(math.ceil(write_width_A/read_width_B)):
-                                        ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
+                                        if (op_mode in ["No_Change", "Read_First"]):
+                                            ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                                         addr_reg_mux[i] = self.addr_reg_B.eq(i)
                                         
                             if (m > 1):
@@ -1746,7 +1780,8 @@ class OCM_ASYM(Module):
                             if (read_depth_B >= 8192):
                                 n_temp = int(read_depth_B/4096)
                                 for i in range(n_temp):
-                                    ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
+                                    if (op_mode in ["No_Change", "Read_First"]):    
+                                        ren_mux[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                                     dout_mux[i] = self.addr_reg_B.eq(i)
                                     
                             if read_depth_B <= 1024 or read_depth_B in [2048, 4096]:
@@ -2254,6 +2289,11 @@ class OCM_ASYM(Module):
                                 write_data_A = self.din_A[(j*1):((j*1)+1)]
                                 w_parity_A   = Replicate(0,4)
                         
+                        if (op_mode == "Read_First"):
+                            renB = ren
+                        elif (op_mode == "No_Change" or op_mode == "Write_First"):
+                            renB = ~self.wen_A
+                        
                         # Module instance.
                         # ----------------
                         self.specials += Instance("TDP_RAM36K", name= "SDP_MEM",
@@ -2272,7 +2312,7 @@ class OCM_ASYM(Module):
                         i_WEN_A     = wen,
                         i_WEN_B     = 0,
                         i_REN_A     = 0,
-                        i_REN_B     = ren,
+                        i_REN_B     = renB,
                         i_BE_A      = be_A,
                         i_BE_B      = Replicate(0,4),
                         i_ADDR_A    = address_A,
@@ -2297,20 +2337,36 @@ class OCM_ASYM(Module):
             #################################################################################################
             #################################################################################################
             elif (memory_type == "True_Dual_Port"):
-                
-                self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
-                self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
-                if (common_clk == 1):
-                    self.sync += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
-                    self.sync += self.ren_A_reg.eq(self.ren_A)
-                    self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
-                    self.sync += self.ren_B_reg.eq(self.ren_B)
-                else:
-                    self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
-                    self.sync.A += self.ren_A_reg.eq(self.ren_A)
-                    self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
-                    self.sync.B += self.ren_B_reg.eq(self.ren_B)
-                
+                #############################################################################################
+                # Block RAM Operational Modes
+                #############################################################################################
+                if (op_mode in ["No_Change", "Read_First"]):
+                    self.comb += If((self.ren_A_reg), self.dout_A_.eq(self.dout_A)).Else(self.dout_A_.eq(self.dout_A_reg))
+                    self.comb += If((self.ren_B_reg), self.dout_B_.eq(self.dout_B)).Else(self.dout_B_.eq(self.dout_B_reg))
+                    if (common_clk == 1):
+                        self.sync += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                        self.sync += self.ren_A_reg.eq(self.ren_A)
+                        self.sync += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync += self.ren_B_reg.eq(self.ren_B)
+                    else:
+                        self.sync.A += If(self.ren_A_reg, self.dout_A_reg.eq(self.dout_A))
+                        self.sync.A += self.ren_A_reg.eq(self.ren_A)
+                        self.sync.B += If(self.ren_B_reg, self.dout_B_reg.eq(self.dout_B))
+                        self.sync.B += self.ren_B_reg.eq(self.ren_B)
+                else: # Write_First
+                    self.comb += If((self.wen_A_reg), self.dout_A_.eq(self.din_A_reg)).Else(self.dout_A_.eq(self.dout_A))
+                    self.comb += If((self.wen_B_reg), self.dout_B_.eq(self.din_B_reg)).Else(self.dout_B_.eq(self.dout_B))
+                    if (common_clk == 1):
+                        self.sync += self.wen_A_reg.eq(self.wen_A)
+                        self.sync += self.din_A_reg.eq(self.din_A)
+                        self.sync += self.wen_B_reg.eq(self.wen_B)
+                        self.sync += self.din_B_reg.eq(self.din_B)
+                    else:
+                        self.sync.A += self.wen_A_reg.eq(self.wen_A)
+                        self.sync.A += self.din_A_reg.eq(self.din_A)
+                        self.sync.B += self.wen_B_reg.eq(self.wen_B)
+                        self.sync.B += self.din_B_reg.eq(self.din_B)
+                        
                 write_ratio_A   = math.ceil(math.log2(large_width / write_width_A))
                 write_ratio_B   = math.ceil(math.log2(large_width / write_width_B))
                 read_ratio_A    = math.ceil(math.log2(large_width / read_width_A))
@@ -2558,7 +2614,8 @@ class OCM_ASYM(Module):
                     for j in range(n):
                         for i in range(read_loop_A):
                             addr_reg_mux_A[i] = self.addr_reg_A.eq(i)
-                            ren_mux_A[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A)) 
+                            if (op_mode in ["No_Change", "Read_First"]):
+                                ren_mux_A[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A)) 
                     if (m > 1 and n == 1): # when write depth is 1024 and width greater than 36
                         if read_width_A == 9:
                             self.comb += Case(self.addr_A[2:read_ratio_A+n_log], ren_mux_A)
@@ -2624,7 +2681,8 @@ class OCM_ASYM(Module):
                         for j in range(n):
                             for i in range(read_loop_A):
                                 addr_reg_mux_A[i] = self.addr_reg_A.eq(i)
-                                ren_mux_A[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
+                                if (op_mode in ["No_Change", "Read_First"]):
+                                    ren_mux_A[i] = self.ren_A1.eq(Cat(Replicate(0,i), self.ren_A))
                         if read_width_A == 9:
                             self.comb += Case(self.addr_A[msb_read_A-n_log:msb_read_A], ren_mux_A)
                             if common_clk == 1:
@@ -2651,7 +2709,8 @@ class OCM_ASYM(Module):
                     for j in range(n):
                         for i in range(read_loop_B):
                             addr_reg_mux_B[i] = self.addr_reg_B.eq(i)
-                            ren_mux_B[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
+                            if (op_mode in ["No_Change", "Read_First"]):
+                                ren_mux_B[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                     if (n == 1 and m > 1): # when write depth is 1024 and width greater than 36
                         if read_width_B == 9:
                             self.comb += Case(self.addr_B[2:read_ratio_B+n_log], ren_mux_B)
@@ -2716,7 +2775,8 @@ class OCM_ASYM(Module):
                         for j in range(n):
                             for i in range(read_loop_B):
                                 addr_reg_mux_B[i] = self.addr_reg_B.eq(i)
-                                ren_mux_B[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
+                                if (op_mode in ["No_Change", "Read_First"]):
+                                    ren_mux_B[i] = self.ren_B1.eq(Cat(Replicate(0,i), self.ren_B))
                         if read_width_B == 9:
                             self.comb += Case(self.addr_B[msb_read_B-n_log:msb_read_B], ren_mux_B)
                             if common_clk == 1:
@@ -2937,6 +2997,16 @@ class OCM_ASYM(Module):
                                 wen_B = self.wen_B1[k]
                         
                         #############################################################################################
+                        # Block RAM Operational Mode
+                        #############################################################################################
+                        if (op_mode == "Read_First"):
+                            renA = ren_A
+                            renB = ren_B
+                        elif (op_mode == "No_Change" or op_mode == "Write_First"):
+                            renA = ~self.wen_A
+                            renB = ~self.wen_B
+                        
+                        #############################################################################################
                         # True Dual Port Instance
                         #############################################################################################
                         # Module instance.
@@ -2956,8 +3026,8 @@ class OCM_ASYM(Module):
                         i_CLK_B     = clock2,
                         i_WEN_A     = wen_A,
                         i_WEN_B     = wen_B,
-                        i_REN_A     = ren_A,
-                        i_REN_B     = ren_B,
+                        i_REN_A     = renA,
+                        i_REN_B     = renB,
                         i_BE_A      = be_A, 
                         i_BE_B      = be_B, 
                         i_ADDR_A    = self.address_A,
