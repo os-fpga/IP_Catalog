@@ -206,8 +206,6 @@ class FIR(Module):
                     )
         elif (len(coefficients) > 0 or number_of_coefficients > 0):
             self.rst = Signal()
-            self.ready = Signal()
-            self.comb += self.ready.eq(~self.rst)
             if (not coefficients_file):
                 number_of_coefficients = len(coefficients)
             self.count = Signal(len(bin(number_of_coefficients - 1)[2:]), reset=0)
@@ -242,24 +240,31 @@ class FIR(Module):
             self.shift_reg = [Signal(input_width) for _ in range(number_of_coefficients)]
             if (coefficients != ""):
                 self.sync += [
-                    self.shift_reg[0].eq(self.data_in),
                     If(self.rst,
-                       self.shift_reg[0].eq(0))
+                       self.shift_reg[0].eq(0)
+                       ).Else (
+                           self.shift_reg[0].eq(self.data_in)
+                       )
                     ]
                 for i in range (1, number_of_coefficients):
                     self.sync += [
                         # Shift the data through the register
-                        self.shift_reg[i].eq(self.shift_reg[i - 1]
-                            ),
                     If(self.rst,
-                       self.shift_reg[i].eq(0))
+                       self.shift_reg[i].eq(0)
+                       ).Else (
+                           self.shift_reg[i].eq(self.shift_reg[i - 1])
+                       )
 
                     ]
             self.sync.accelerated += [
-                self.count.eq(self.count - 1),
-                If(self.count == 0,
-                   self.count.eq(number_of_coefficients - 1)
-                   )
+                If(self.rst,
+                    self.count.eq(0)
+                ).Else (
+                    self.count.eq(self.count - 1),
+                    If(self.count == 0,
+                       self.count.eq(number_of_coefficients - 1)
+                       )
+                )
 
             ]
             self.dsp_in = Signal(input_width)
@@ -269,20 +274,32 @@ class FIR(Module):
             elif (number_of_coefficients > 0):
                 self.comb += self.data_out.eq(Mux(self.feedback == 1, self.dsp_out[min(input_width + bit_growth, 38) - output_data_width : min(input_width + bit_growth, 38)], self.dout_reg))
 
-            self.comb += [
-                self.dout_reg.eq(self.data_out)
+            self.sync.accelerated += [
+                If(self.rst,
+                    self.dout_reg.eq(0)
+                ).Else(
+                    self.dout_reg.eq(self.data_out)
+                )
             ]
             if (number_of_coefficients > 0):
                 self.sync.accelerated += [
-                    If(self.count == 0,
-                       self.dsp_in.eq(self.shift_reg[number_of_coefficients - 1])
-                       )
+                    If(self.rst,
+                        self.dsp_in.eq(0)
+                    ).Else(
+                        If(self.count == 0,
+                           self.dsp_in.eq(self.shift_reg[number_of_coefficients - 1])
+                           )
+                    )
                 ]
             for i in range(1, number_of_coefficients):
                 self.sync.accelerated += [
-                    If(self.count == i,
-                       self.dsp_in.eq(self.shift_reg[i - 1])
-                       )
+                    If(self.rst,
+                        self.dsp_in.eq(0)
+                    ).Else(
+                        If(self.count == i,
+                           self.dsp_in.eq(self.shift_reg[i - 1])
+                           )
+                    )
 
                 ]
             self.input_coeff = Signal(20)

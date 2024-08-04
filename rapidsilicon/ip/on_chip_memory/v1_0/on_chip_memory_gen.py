@@ -85,22 +85,25 @@ def get_clkin_ios(port_type, data_width, write_depth, memory_type, write_width_A
         ("ren_A",   0, Pins(1)),
         
         ("wen_B",   0, Pins(1)),
-        ("ren_B",   0, Pins(1))
+        ("ren_B",   0, Pins(1)),
+        
+        ("be_A",    0, Pins(math.ceil(write_width_A/9))),
+        ("be_B",    0, Pins(math.ceil(write_width_B/9)))
     ]
 
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
-    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, write_depth, data_width, common_clk, port_type, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension):
+    def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, write_depth, data_width, common_clk, port_type, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios(port_type, data_width, write_depth, memory_type, write_width_A, write_width_B, read_width_A, read_width_B, write_depth_A, write_depth_B, read_depth_A, read_depth_B))
-        self.clock_domains.cd_sys   = ClockDomain()
-        self.clock_domains.A  = ClockDomain()
-        self.clock_domains.B  = ClockDomain()
+        self.clock_domains.cd_sys   = ClockDomain(reset_less = True)
+        self.clock_domains.A        = ClockDomain(reset_less = True)
+        self.clock_domains.B        = ClockDomain(reset_less = True)
         
         if port_type == "Asymmetric":
-            self.submodules.sp = ram = OCM_ASYM(write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path, file_extension)
+            self.submodules.sp = ram = OCM_ASYM(write_width_A, write_width_B, read_width_A, read_width_B, memory_type, common_clk, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode)
         else:
-            self.submodules.sp = ram = OCM_SYM(data_width, memory_type, common_clk, write_depth, memory_mapping, file_path, file_extension)
+            self.submodules.sp = ram = OCM_SYM(data_width, memory_type, common_clk, write_depth, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode)
             
         self.M = ram.m
         self.N = ram.n    
@@ -109,10 +112,15 @@ class OCMWrapper(Module):
         if (memory_type == "Single_Port"):
             self.comb += ram.addr_A.eq(platform.request("addr_A"))
             self.comb += ram.din_A.eq(platform.request("din_A"))
-            self.comb += platform.request("dout_A").eq(ram.dout_A)
             self.comb += self.A.clk.eq(platform.request("clk_A"))
             self.comb += ram.wen_A.eq(platform.request("wen_A"))
             self.comb += ram.ren_A.eq(platform.request("ren_A"))
+            if (memory_mapping == "Distributed_RAM"):
+                self.comb += platform.request("dout_A").eq(ram.dout_A)
+            else:
+                if (byte_write_enable):
+                    self.comb += ram.be_A.eq(platform.request("be_A"))
+                self.comb += platform.request("dout_A").eq(ram.dout_A_)
         
         # Simple Dual Port RAM
         elif (memory_type == "Simple_Dual_Port"):
@@ -121,7 +129,12 @@ class OCMWrapper(Module):
             self.comb += ram.addr_B.eq(platform.request("addr_B"))
             self.comb += ram.wen_A.eq(platform.request("wen_A"))
             self.comb += ram.ren_B.eq(platform.request("ren_B"))
-            self.comb += platform.request("dout_B").eq(ram.dout_B)
+            if (memory_mapping == "Distributed_RAM"):
+                self.comb += platform.request("dout_B").eq(ram.dout_B)
+            else:
+                if (byte_write_enable):
+                    self.comb += ram.be_A.eq(platform.request("be_A"))
+                self.comb += platform.request("dout_B").eq(ram.dout_B_)
             # Common Clock
             if (common_clk == 1):
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
@@ -139,8 +152,15 @@ class OCMWrapper(Module):
             self.comb += ram.ren_A.eq(platform.request("ren_A"))
             self.comb += ram.wen_B.eq(platform.request("wen_B"))
             self.comb += ram.ren_B.eq(platform.request("ren_B"))
-            self.comb += platform.request("dout_A").eq(ram.dout_A)
-            self.comb += platform.request("dout_B").eq(ram.dout_B)
+            if (memory_mapping == "Distributed_RAM"):
+                self.comb += platform.request("dout_A").eq(ram.dout_A)
+                self.comb += platform.request("dout_B").eq(ram.dout_B)
+            else:
+                if (byte_write_enable):
+                    self.comb += ram.be_A.eq(platform.request("be_A"))
+                    self.comb += ram.be_B.eq(platform.request("be_B"))
+                self.comb += platform.request("dout_A").eq(ram.dout_A_)
+                self.comb += platform.request("dout_B").eq(ram.dout_B_)
             # Common Clock
             if (common_clk == 1):
                 self.comb += self.cd_sys.clk.eq(platform.request("clk"))
@@ -174,24 +194,26 @@ def main():
     core_string_param_group.add_argument("--memory_type",       type=str,   default="Single_Port",   choices=["Single_Port", "Simple_Dual_Port", "True_Dual_Port"],   help="RAM Type")
     core_string_param_group.add_argument("--port_type",         type=str,   default="Symmetric",     choices=["Symmetric", "Asymmetric"],                             help="Ports Type")
     core_string_param_group.add_argument("--memory_mapping",    type=str,   default="Block_RAM",     choices=["Block_RAM", "Distributed_RAM"],                        help="Memory mapping on Block RAM and Distributed RAM (LUTs)")
+    core_string_param_group.add_argument("--op_mode",           type=str,   default="Read_First",    choices=["No_Change", "Write_First", "Read_First"],              help="Operation Mode of Memory")
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
-    core_bool_param_group.add_argument("--common_clk",  type=bool,   default=False,    help="Read/Write Synchronization")
+    core_bool_param_group.add_argument("--common_clk",          type=bool,   default=False,    help="Read/Write Synchronization")
+    core_bool_param_group.add_argument("--byte_write_enable",   type=bool,   default=False,    help="Byte Wide Write Enable")
     
+    # Core fix value parameters.
+    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+    core_fix_param_group.add_argument("--DATA_WIDTH",       type=int,   default=16,         choices=[8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128],         help="RAM Write/Read Width")
+    core_fix_param_group.add_argument("--write_width_A",    type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],                                              help="RAM Write Width for Port A")
+    core_fix_param_group.add_argument("--write_width_B",    type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],                                              help="RAM Write Width for Port B")
+    core_fix_param_group.add_argument("--read_width_A",     type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],                                              help="RAM Read Width for Port A")
+    core_fix_param_group.add_argument("--read_width_B",     type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],                                              help="RAM Read Width for Port B")
+    core_fix_param_group.add_argument("--write_depth_A",    type=int,   default=1024,       choices=[1024, 2048, 4096, 8192,16384, 32768],                                       help="RAM Depth for Port A")
+
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--data_width",    type=int,   default=32,         choices=range(1,129),         help="RAM Write/Read Width")
     core_range_param_group.add_argument("--write_depth",   type=int,   default=1024,       choices=range(2,32769),       help="RAM Depth")
-    
-    # Core fix value parameters.
-    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--write_width_A",    type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],         help="RAM Write Width for Port A")
-    core_fix_param_group.add_argument("--write_width_B",    type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],         help="RAM Write Width for Port B")
-    core_fix_param_group.add_argument("--read_width_A",     type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],         help="RAM Read Width for Port A")
-    core_fix_param_group.add_argument("--read_width_B",     type=int,   default=36,         choices=[9, 18, 36, 72, 144, 288, 576],         help="RAM Read Width for Port B")
-
-    core_fix_param_group.add_argument("--write_depth_A",    type=int,   default=1024,       choices=[1024, 2048, 4096, 8192,16384, 32768],  help="RAM Depth for Port A")
 
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
@@ -222,14 +244,28 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         
+        file_path = os.path.dirname(os.path.realpath(__file__))
+        rs_builder.copy_images(file_path)
+        
+        if (args.byte_write_enable == True):
+            option_strings_to_remove = ['--data_width']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+        else:
+            option_strings_to_remove = ['--DATA_WIDTH']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+        
+        if (args.memory_mapping == "Distributed_RAM"):
+            option_strings_to_remove = ['--byte_write_enable']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+        
         if (args.write_width_A >= 288 or args.read_width_A >= 288 or args.write_width_B >= 288 or args.read_width_B >= 288):
-                parser._actions[11].choices = [1024, 2048, 4096, 8192]
-
+            parser._actions[11].choices = [1024, 2048, 4096, 8192]
+            
         if (args.port_type == "Symmetric"):
             option_strings_to_remove = ['--write_width_A', '--write_width_B', '--read_width_A', '--read_width_B', '--write_depth_A']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         else:
-            option_strings_to_remove = ['--data_width','--write_depth']
+            option_strings_to_remove = ['--DATA_WIDTH', '--data_width','--write_depth']
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         if (args.memory_type in ["Single_Port"]):
@@ -279,9 +315,6 @@ def main():
         memory_mapping = "Block RAM"
     else:
         memory_mapping = "Distributed RAM(LUTs)"
-    
-        file_path = os.path.dirname(os.path.realpath(__file__))
-        rs_builder.copy_images(file_path)
         
     summary =  {  
     "Type of Memory": memory,
@@ -313,24 +346,31 @@ def main():
             summary["Synchronization"] = "True"
         else:
             summary["Synchronization"] = "False"
+            
+    if (args.byte_write_enable == True):
+        data = args.DATA_WIDTH
+    else:
+        data = args.data_width
     
     module   = OCMWrapper(platform,
-        memory_type     = args.memory_type,
-        data_width      = args.data_width,
-        write_depth     = args.write_depth,
-        write_width_A   = args.write_width_A,
-        write_width_B   = args.write_width_B,
-        read_width_A    = args.read_width_A,
-        read_width_B    = args.read_width_B,
-        write_depth_A   = args.write_depth_A,
-        write_depth_B   = write_depth_B,
-        read_depth_A    = read_depth_A,
-        read_depth_B    = read_depth_B,
-        common_clk      = args.common_clk,
-        memory_mapping  = args.memory_mapping,
-        port_type       = args.port_type,
-        file_path       = args.file_path,
-        file_extension  = file_extension
+        memory_type         = args.memory_type,
+        data_width          = data,
+        write_depth         = args.write_depth,
+        write_width_A       = args.write_width_A,
+        write_width_B       = args.write_width_B,
+        read_width_A        = args.read_width_A,
+        read_width_B        = args.read_width_B,
+        write_depth_A       = args.write_depth_A,
+        write_depth_B       = write_depth_B,
+        read_depth_A        = read_depth_A,
+        read_depth_B        = read_depth_B,
+        common_clk          = args.common_clk,
+        memory_mapping      = args.memory_mapping,
+        port_type           = args.port_type,
+        file_path_hex       = args.file_path,
+        file_extension      = file_extension,
+        byte_write_enable   = args.byte_write_enable,
+        op_mode             = args.op_mode
     )
     
     if (args.memory_mapping == "Block_RAM"):

@@ -29,7 +29,7 @@ def get_clkin_ios():
         ("CLK_OUT_DIV2",    0, Pins(1)),
         ("CLK_OUT_DIV3",    0, Pins(1)),
         ("CLK_OUT_DIV4",    0, Pins(1)),
-        ("SERDES_FAST_CLK", 0, Pins(1)),
+        ("FAST_CLK", 0, Pins(1)),
         ("LOCK",            0, Pins(1)),
             ]
 
@@ -55,7 +55,7 @@ class PLLWrapper(Module):
         self.comb += platform.request("CLK_OUT_DIV2").eq(pll.CLK_OUT_DIV2)
         self.comb += platform.request("CLK_OUT_DIV3").eq(pll.CLK_OUT_DIV3)
         self.comb += platform.request("CLK_OUT_DIV4").eq(pll.CLK_OUT_DIV4)
-        self.comb += platform.request("SERDES_FAST_CLK").eq(pll.SERDES_FAST_CLK)
+        self.comb += platform.request("FAST_CLK").eq(pll.FAST_CLK)
         self.comb += platform.request("LOCK").eq(pll.LOCK)
 
 # Build --------------------------------------------------------------------------------------------
@@ -81,14 +81,19 @@ def main():
     
 
     
+    # Core string value parameters.
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
+    core_string_param_group.add_argument("--pll_post_div",       type=str,   default="1",   choices=["1","2","3","4","5","6","7","8","9","10","12","14","15","16","18","20","21","24","25","28","30","35","36","42","49"],   help="PLL Post divider")
+
+
     # Core fix value parameters.
-    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
-    core_fix_param_group.add_argument("--pll_post_div",    type=int,   default= 2,     choices=[2,4,6,8,10,12,14,16,18,20,24,28,30,32,36,40,42,48,50,56,60,70,72,84,98],   help="CLock divided by 1")
+#    core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
+#    core_fix_param_group.add_argument("--pll_post_div",    type=int,   default= 2,     choices=[2,4,6,8,10,12,14,16,18,20,24,28,30,32,36,40,42,48,50,56,60,70,72,84,98],   help="CLock divided by 1")
 
     # Core range value parameters.
     core_range_param_group = parser.add_argument_group(title="Core range parameters")
     core_range_param_group.add_argument("--fast_clk_freq",     type=int,   default=1600,     choices=range(800,3201),     help="Freq in MHz")
-    core_range_param_group.add_argument("--ref_clk_freq",       type=int,   default=50,      choices=range(5, 1201),     help="Freq in MHz")
+    core_range_param_group.add_argument("--ref_clk_freq",       type=int,   default=40,      choices=range(5, 1201),     help="Freq in MHz")
     
     # Core bool value parameters.
     core_bool_param_group = parser.add_argument_group(title="Core bool parameters")
