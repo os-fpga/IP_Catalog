@@ -30,7 +30,7 @@ def get_other_ios():
         ("O",  0, Pins(1)),
     ]
 
-# AXI RAM Wrapper ----------------------------------------------------------------------------------
+# Boot clock Wrapper ----------------------------------------------------------------------------------
 class BOOTCLOCKWrapper(Module):
     def __init__(self, platform, period):
         self.clock_domains.cd_sys  = ClockDomain()
