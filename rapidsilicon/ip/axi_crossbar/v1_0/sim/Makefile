@@ -20,7 +20,7 @@
 
 TOPLEVEL_LANG = verilog
 
-SIM ?= icarus
+SIM ?= verilator
 WAVES ?= 1
 
 OUT_DIR ?= $(PWD)
@@ -66,7 +66,7 @@ ifeq ($(SIM), icarus)
 		COMPILE_ARGS += -s iverilog_dump
 	endif
 else ifeq ($(SIM), verilator)
-	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-fatal
+	COMPILE_ARGS += -Wno-SELRANGE -Wno-WIDTH -Wno-fatal --timing
 
 	ifeq ($(WAVES), 1)
 		COMPILE_ARGS += --trace-fst

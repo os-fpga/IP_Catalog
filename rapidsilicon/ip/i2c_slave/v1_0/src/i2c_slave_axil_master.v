@@ -213,22 +213,24 @@ parameter ADDR_WIDTH_ADJ = ADDR_WIDTH+WORD_PART_ADDR_WIDTH;
 parameter ADDR_WORD_WIDTH = (ADDR_WIDTH_ADJ+7)/8;
 
 // bus width assertions
-initial begin
-    if (WORD_WIDTH * WORD_SIZE != DATA_WIDTH) begin
-        $error("Error: AXI data width not evenly divisble");
-        $finish;
+`ifndef SYNTHESIS
+    initial begin
+        if (WORD_WIDTH * WORD_SIZE != DATA_WIDTH) begin
+            $error("Error: AXI data width not evenly divisble");
+            $finish;
+        end
+    
+        if (2**$clog2(WORD_WIDTH) != WORD_WIDTH) begin
+            $error("Error: AXI word width must be even power of two");
+            $finish;
+        end
+    
+        if (8*2**$clog2(WORD_SIZE/8) != WORD_SIZE) begin
+            $error("Error: AXI word size must be a power of two multiple of 8 bits");
+            $finish;
+        end
     end
-
-    if (2**$clog2(WORD_WIDTH) != WORD_WIDTH) begin
-        $error("Error: AXI word width must be even power of two");
-        $finish;
-    end
-
-    if (8*2**$clog2(WORD_SIZE/8) != WORD_SIZE) begin
-        $error("Error: AXI word size must be a power of two multiple of 8 bits");
-        $finish;
-    end
-end
+`endif
 
 localparam [2:0]
     STATE_IDLE = 3'd0,

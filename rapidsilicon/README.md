@@ -32,7 +32,6 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── axi_interconnect
 			├── axil_crossbar
 			├── axil_eio
-			├── axil_ethernet
 			├── axil_gpio
 			├── axil_interconnect
 			├── axil_quadspi
@@ -51,12 +50,13 @@ IP Catalog is an IP library for Raptor toolchain.
 			├── axis_uart
 			├── boot_clock
 			├── dsp_generator
+			├── ethernet_mac
 			├── fifo_generator
 			├── fir_generator
 			├── i2c_master
 			├── i2c_slave
+			├── io_configurator
 			├── jtag_to_axi
-			├── mipi_spi2dsi_bridge
 			├── ocla
 			├── on_chip_memory
 			├── pll
