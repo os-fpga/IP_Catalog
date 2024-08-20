@@ -154,7 +154,7 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
-    M_ADDR_WIDTH = [12] * (17)
+    M_ADDR_WIDTH = [24] * (17)
 
     details =  {   "IP details": {
     'Name' : 'AXI Crossbar',
@@ -171,7 +171,7 @@ def main():
         for i in range(1, n+1):
             arg_name = "--address" + str(i) + "_Space"
             arg_help = "address " + str(i)
-            core_string_param_group.add_argument(arg_name, type=str, default="4KB", choices=["4KB", "8KB", "1MB", "4MB", "8MB", "16MB"], help="Address Range")
+            core_string_param_group.add_argument(arg_name, type=str, default="16MB", choices=["4KB", "8KB", "1MB", "4MB", "8MB", "16MB"], help="Address Range")
 
             
             
