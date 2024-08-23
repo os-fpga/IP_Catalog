@@ -43,8 +43,8 @@ class TB(object):
     def __init__(self, dut):
         self.dut = dut
 
-        s_count = len(dut.axil_crossbar.s_axil_awvalid)
-        m_count = len(dut.axil_crossbar.m_axil_awvalid)
+        s_count = 4
+        m_count = 4
 
         self.log = logging.getLogger("cocotb.tb")
         self.log.setLevel(logging.DEBUG)
@@ -189,8 +189,8 @@ def cycle_pause():
 
 if cocotb.SIM_NAME:
 
-    s_count = len(cocotb.top.axil_crossbar.s_axil_awvalid)
-    m_count = len(cocotb.top.axil_crossbar.m_axil_awvalid)
+    s_count = 4
+    m_count = 4
 
     for test in [run_test_write, run_test_read]:
 
