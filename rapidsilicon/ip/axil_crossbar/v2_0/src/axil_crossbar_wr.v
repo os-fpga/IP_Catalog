@@ -126,14 +126,16 @@ parameter CL_M_COUNT_P1 = $clog2(M_COUNT_P1);
 integer i;
 
 // check configuration
-initial begin
-    for (i = 0; i < M_COUNT*M_REGIONS; i = i + 1) begin
-        if (M_ADDR_WIDTH[i*32 +: 32] && (M_ADDR_WIDTH[i*32 +: 32] < 12 || M_ADDR_WIDTH[i*32 +: 32] > ADDR_WIDTH)) begin
-            $error("Error: value out of range (instance %m)");
-            $finish;
+`ifndef SYNTHESIS
+    initial begin
+        for (i = 0; i < M_COUNT*M_REGIONS; i = i + 1) begin
+            if (M_ADDR_WIDTH[i*32 +: 32] && (M_ADDR_WIDTH[i*32 +: 32] < 12 || M_ADDR_WIDTH[i*32 +: 32] > ADDR_WIDTH)) begin
+                $error("Error: value out of range (instance %m)");
+                $finish;
+            end
         end
     end
-end
+`endif
 
 wire [S_COUNT*ADDR_WIDTH-1:0]    int_s_axil_awaddr;
 wire [S_COUNT*3-1:0]             int_s_axil_awprot;

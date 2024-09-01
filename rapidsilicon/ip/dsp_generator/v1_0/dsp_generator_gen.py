@@ -44,7 +44,10 @@ class RS_DSP_Wrapper(Module):
     def __init__(self, platform, a_width, b_width, c_width, d_width, e_width, f_width, g_width, h_width, equation, reg_in, reg_out, unsigned, feature):
     
     # Clocking
-        self.clock_domains.cd_sys = ClockDomain()
+        if (feature == "Pipeline"):
+            self.clock_domains.cd_sys = ClockDomain(reset_less=True)
+        else:
+            self.clock_domains.cd_sys = ClockDomain()
         platform.add_extension(get_clkin_ios())
         
             # AxB
@@ -136,7 +139,10 @@ class RS_DSP_Wrapper(Module):
         # Clock/Reset
         if (reg_in == 1 or reg_out == 1):
             self.comb += self.cd_sys.clk.eq(platform.request("clk"))
-            self.comb += self.cd_sys.rst.eq(platform.request("reset"))
+            if (feature == "Pipeline"):
+                self.comb += dsp.reset.eq(platform.request("reset"))
+            else:
+                self.comb += self.cd_sys.rst.eq(platform.request("reset"))
         # Registered Output
         if (reg_out == 1 and feature == "Pipeline"):
             self.sync += platform.request("z").eq(dsp.z)

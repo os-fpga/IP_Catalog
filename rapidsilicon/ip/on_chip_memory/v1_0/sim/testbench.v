@@ -7,11 +7,20 @@ wire  [31:0] dout_dut, dout_wrap;
 reg          clk_A;
 reg          wen_A;
 reg          ren_A;
+reg [3:0] be_A;
 
 integer mismatch=0;
 reg [6:0]cycle;
 
-on_chip_memory wrapper(.*, .dout_A(dout_wrap));
+on_chip_memory on_chip_memory_inst (
+    .addr_A(addr_A),
+    .din_A(din_A),
+    .clk_A(clk_A),
+    .wen_A(wen_A),
+    .ren_A(ren_A),
+    .be_A({4{1'b1}}),
+    .dout_A(dout_wrap)
+);
 
 ram dut (
 .addr_A(addr_A),

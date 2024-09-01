@@ -49,7 +49,7 @@ def sdram_interface():
         ("sdram_data_out_en_o", 0,  Pins(1)),
     ]
 
-# AXI RAM Wrapper ----------------------------------------------------------------------------------
+# SDRAM Wrapper ----------------------------------------------------------------------------------
 class SDRAMWRAPPER(Module):
     def __init__(self, platform):
         # Clocking ---------------------------------------------------------------------------------
@@ -141,10 +141,10 @@ def main():
     args = parser.parse_args()
 
     details =  {   "IP details": {
-    'Name' : 'DDR SDRAM',
+    'Name' : 'AXI SDRAM Controller',
     'Version' : 'V1_0',
     'Interface' : 'AXI',
-    'Description' : ' DDR1-SDRAM controller with a AXI4 slave port.'}
+    'Description' : ' SDRAM controller with a AXI4 slave port.'}
     }
     
     # Import JSON (Optional) -----------------------------------------------------------------------
@@ -156,7 +156,10 @@ def main():
         rs_builder.copy_images(file_path)
         
     summary =  {  
-    "AXI SDRAM controller"    }
+"SDRAM_MHZ"             : "50",
+"SDRAM_ADDR_W"          : "24",
+"SDRAM_COL_W"           : "9",
+"SDRAM_READ_LATENCY"    : "2" }
     
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:

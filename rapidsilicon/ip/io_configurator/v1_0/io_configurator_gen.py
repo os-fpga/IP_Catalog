@@ -60,7 +60,7 @@ def get_iserdes_ios(width):
     return [
         ("IOPAD_D",                     0, Pins(1)),
         ("IOPAD_CLK",                   0, Pins(1)),
-        ("FABRIC_RX_RST",               0, Pins(1)),
+        ("FABRIC_RST",                  0, Pins(1)),
         ("FABRIC_BITSLIP_ADJ",          0, Pins(1)),
         ("FABRIC_EN",                   0, Pins(1)),
         ("FABRIC_CLK_IN",               0, Pins(1)),
@@ -82,7 +82,7 @@ def get_oserdes_ios(width):
         ("IOPAD_CLK",               0, Pins(1)),
         ("FABRIC_D",                0, Pins(width)),
         ("FABRIC_RST",              0, Pins(1)),
-        ("FABRIC_LOAD_WORD",        0, Pins(1)),
+        ("FABRIC_DATA_VALID",       0, Pins(1)),
         ("FABRIC_CLK_IN",           0, Pins(1)),
         ("FABRIC_OE_IN",            0, Pins(1)),
         # ("CHANNEL_BOND_SYNC_IN",    0, Pins(1)),
@@ -138,13 +138,13 @@ def freq_calc(self, out_clk_freq, ref_clk_freq, clocking_source):
         b = ref_clk_freq
         
     a = out_clk_freq
-    c_range = 1000
+    c_range = 640
     d_range = 63
     # Nested loop for iterating over c and d
     for c in range(c_range):
         for d in range(d_range):
-            # Calculate 2 * (a / b)
-            product_candidate = 2 * (a / b)
+            # Calculate (a / b)
+            product_candidate = (a / b)
             # Check if the candidate product matches the formula with c and d
             if product_candidate == ((c+1) / (d+1)):
                 # If a match is found, assign c, d, and the product to the respective signals
@@ -351,7 +351,7 @@ def I_DELAY(self, platform, io_mode, delay, delay_type, clocking, clocking_sourc
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -389,7 +389,7 @@ def I_DELAY(self, platform, io_mode, delay, delay_type, clocking, clocking_sourc
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -487,7 +487,7 @@ def I_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -527,7 +527,7 @@ def I_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -723,7 +723,7 @@ def I_SERDES(self, platform, data_rate, width, op_mode, io_type, io_mode, clocki
             # Ports
             #------
             i_D               = self.d_1,
-            i_RX_RST          = platform.request("FABRIC_RX_RST"),
+            i_RST             = platform.request("FABRIC_RST"),
             i_BITSLIP_ADJ     = platform.request("FABRIC_BITSLIP_ADJ"),
             i_EN              = platform.request("FABRIC_EN"),
             i_CLK_IN          = platform.request("FABRIC_CLK_IN"),
@@ -769,7 +769,7 @@ def I_SERDES(self, platform, data_rate, width, op_mode, io_type, io_mode, clocki
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -789,7 +789,7 @@ def I_SERDES(self, platform, data_rate, width, op_mode, io_type, io_mode, clocki
                 # Ports
                 #------
                 i_D               = self.d_1,
-                i_RX_RST          = platform.request("FABRIC_RX_RST"),
+                i_RST             = platform.request("FABRIC_RST"),
                 i_BITSLIP_ADJ     = platform.request("FABRIC_BITSLIP_ADJ"),
                 i_EN              = platform.request("FABRIC_EN"),
                 i_CLK_IN          = platform.request("FABRIC_CLK_IN"),
@@ -819,7 +819,7 @@ def I_SERDES(self, platform, data_rate, width, op_mode, io_type, io_mode, clocki
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -839,7 +839,7 @@ def I_SERDES(self, platform, data_rate, width, op_mode, io_type, io_mode, clocki
                 # Ports
                 #------
                 i_D               = self.d_1,
-                i_RX_RST          = platform.request("FABRIC_RX_RST"),
+                i_RST             = platform.request("FABRIC_RST"),
                 i_BITSLIP_ADJ     = platform.request("FABRIC_BITSLIP_ADJ"),
                 i_EN              = platform.request("FABRIC_EN"),
                 i_CLK_IN          = platform.request("FABRIC_CLK_IN"),
@@ -904,7 +904,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                 #------
                 i_D                     = platform.request("FABRIC_D"),   
                 i_RST                   = platform.request("FABRIC_RST"),   
-                i_LOAD_WORD             = platform.request("FABRIC_LOAD_WORD"),         
+                i_DATA_VALID            = platform.request("FABRIC_DATA_VALID"),         
                 i_CLK_IN                = platform.request("FABRIC_CLK_IN"),    
                 i_OE_IN                 = platform.request("FABRIC_OE_IN"),
                 o_OE_OUT                = self.oe_out,     
@@ -970,7 +970,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                 #------
                 i_D                     = platform.request("FABRIC_D"),   
                 i_RST                   = platform.request("FABRIC_RST"),   
-                i_LOAD_WORD             = platform.request("FABRIC_LOAD_WORD"),         
+                i_DATA_VALID            = platform.request("FABRIC_DATA_VALID"),         
                 i_CLK_IN                = platform.request("FABRIC_CLK_IN"),    
                 i_OE_IN                 = platform.request("FABRIC_OE_IN"),
                 o_OE_OUT                = self.oe_out,     
@@ -1089,7 +1089,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1110,7 +1110,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                     #------
                     i_D                     = platform.request("FABRIC_D"),   
                     i_RST                   = platform.request("FABRIC_RST"),   
-                    i_LOAD_WORD             = platform.request("FABRIC_LOAD_WORD"),         
+                    i_DATA_VALID            = platform.request("FABRIC_DATA_VALID"),         
                     i_CLK_IN                = platform.request("FABRIC_CLK_IN"),    
                     i_OE_IN                 = platform.request("FABRIC_OE_IN"),
                     o_OE_OUT                = self.oe_out,     
@@ -1172,7 +1172,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                     #------
                     i_D                     = platform.request("FABRIC_D"),   
                     i_RST                   = platform.request("FABRIC_RST"),   
-                    i_LOAD_WORD             = platform.request("FABRIC_LOAD_WORD"),         
+                    i_DATA_VALID            = platform.request("FABRIC_DATA_VALID"),         
                     i_CLK_IN                = platform.request("FABRIC_CLK_IN"),    
                     i_OE_IN                 = platform.request("FABRIC_OE_IN"),
                     o_OE_OUT                = self.oe_out,     
@@ -1275,7 +1275,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1295,7 +1295,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                     #------
                     i_D                     = platform.request("FABRIC_D"),   
                     i_RST                   = platform.request("FABRIC_RST"),   
-                    i_LOAD_WORD             = platform.request("FABRIC_LOAD_WORD"),         
+                    i_DATA_VALID            = platform.request("FABRIC_DATA_VALID"),         
                     i_CLK_IN                = platform.request("FABRIC_CLK_IN"),    
                     i_OE_IN                 = platform.request("FABRIC_OE_IN"),
                     o_OE_OUT                = self.oe_out,     
@@ -1357,7 +1357,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                     #------
                     i_D                     = platform.request("FABRIC_D"),   
                     i_RST                   = platform.request("FABRIC_RST"),   
-                    i_LOAD_WORD             = platform.request("FABRIC_LOAD_WORD"),         
+                    i_DATA_VALID            = platform.request("FABRIC_DATA_VALID"),         
                     i_CLK_IN                = platform.request("FABRIC_CLK_IN"),    
                     i_OE_IN                 = platform.request("FABRIC_OE_IN"),
                     o_OE_OUT                = self.oe_out,     
@@ -1499,7 +1499,7 @@ def O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1538,7 +1538,7 @@ def O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1632,7 +1632,7 @@ def O_DELAY(self, platform, io_mode, delay, delay_type, clocking, clocking_sourc
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1669,7 +1669,7 @@ def O_DELAY(self, platform, io_mode, delay, delay_type, clocking, clocking_sourc
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
