@@ -773,13 +773,13 @@ module axi2axilite #(
 		if (!S_AXI_RVALID || S_AXI_RREADY)
 		begin
 			// if (rcounts == 1) s_axi_rlast <= 1; else
-			if (read_from_rdfifo)
-				s_axi_rlast <= (rfifo_rcount == 0);
-			else
-				s_axi_rlast <= 0;
-
-			if (rcounts == 1)
-				s_axi_rlast <= 1;
+			if (rcounts == 1) begin
+    		    s_axi_rlast <= 1; // Highest priority
+    		end else if (read_from_rdfifo) begin
+    		    s_axi_rlast <= (rfifo_rcount == 0); // Based on rfifo_rcount
+    		end else begin
+    		    s_axi_rlast <= 0; // Default case
+    		end
 		end
 		// }}}
 
