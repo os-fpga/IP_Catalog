@@ -66,6 +66,7 @@ module sfifo #(
 	// {{{
 	localparam	FLEN=(1<<LGFLEN);
 	reg			r_full, r_empty;
+	(* ram_style = "logic" *)
 	reg	[(BW-1):0]	mem[0:(FLEN-1)];
 	reg	[LGFLEN:0]	wr_addr, rd_addr;
 	reg	[LGFLEN-1:0]	rd_next;
