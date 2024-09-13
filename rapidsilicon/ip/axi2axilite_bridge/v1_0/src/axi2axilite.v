@@ -175,7 +175,7 @@ module axi2axilite #(
 	//
 	// Write registers
 	reg				m_axi_awvalid, s_axi_wready;
-	reg	[C_AXI_ADDR_WIDTH-1:0]	axi_awaddr;
+	reg	[C_AXI_ADDR_WIDTH-1:0]	axi_awaddr =0;
 	reg	[7:0]			axi_awlen, axi_blen;
 	reg	[1:0]			axi_awburst;
 	reg	[2:0]			axi_awsize;
@@ -186,7 +186,7 @@ module axi2axilite #(
 	wire	[7:0]			wfifo_bcount;
 	wire	[IW-1:0]		wfifo_bid;
 	reg	[8:0]			bcounts;
-	reg	[C_AXI_ID_WIDTH-1:0]	axi_bid, bid;
+	reg	[C_AXI_ID_WIDTH-1:0]	axi_bid =0, bid =0;
 	reg	[1:0]			axi_bresp;
 	reg				s_axi_bvalid;
 	wire				read_from_wrfifo;
@@ -198,16 +198,16 @@ module axi2axilite #(
 	wire				rfifo_empty;
 	wire	[7:0]			rfifo_rcount;
 	reg				s_axi_rvalid;
-	reg	[1:0]			s_axi_rresp;
+	reg	[1:0]			s_axi_rresp =0;
 	reg	[8:0]			rcounts;
-	reg	[C_AXI_ADDR_WIDTH-1:0]	axi_araddr;
+	reg	[C_AXI_ADDR_WIDTH-1:0]	axi_araddr =0;
 	reg	[7:0]			axi_arlen, axi_rlen;
 	reg	[1:0]			axi_arburst;
 	reg	[2:0]			axi_arsize;
 	wire	[C_AXI_ADDR_WIDTH-1:0]	next_read_addr;
 	reg	[C_AXI_ID_WIDTH-1:0]	s_axi_rid;
 	wire	[C_AXI_ID_WIDTH-1:0]	rfifo_rid;
-	reg	[C_AXI_DATA_WIDTH-1:0]	s_axi_rdata;
+	reg	[C_AXI_DATA_WIDTH-1:0]	s_axi_rdata =0;
 	reg				s_axi_rlast;
 	reg	[IW-1:0]		rid;
 	wire				read_from_rdfifo;
@@ -773,13 +773,13 @@ module axi2axilite #(
 		if (!S_AXI_RVALID || S_AXI_RREADY)
 		begin
 			// if (rcounts == 1) s_axi_rlast <= 1; else
-			if (read_from_rdfifo)
-				s_axi_rlast <= (rfifo_rcount == 0);
-			else
-				s_axi_rlast <= 0;
-
-			if (rcounts == 1)
-				s_axi_rlast <= 1;
+			if (rcounts == 1) begin
+    		    s_axi_rlast <= 1; // Highest priority
+    		end else if (read_from_rdfifo) begin
+    		    s_axi_rlast <= (rfifo_rcount == 0); // Based on rfifo_rcount
+    		end else begin
+    		    s_axi_rlast <= 0; // Default case
+    		end
 		end
 		// }}}
 
