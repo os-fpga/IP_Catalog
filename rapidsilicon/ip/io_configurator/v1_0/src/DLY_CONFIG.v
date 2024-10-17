@@ -5,7 +5,7 @@
 `define I_DELAY
 `define RX_CLOCK
 
-module IO_CONFIG #(
+module DLY_CONFIG #(
     // IO_BUF
     parameter WEAK_KEEPER   = "NONE",
     parameter IOSTANDARD    = "DEFAULT",
