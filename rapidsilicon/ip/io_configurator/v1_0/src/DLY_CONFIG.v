@@ -1,9 +1,7 @@
 
 `timescale 1ns/1ps
 
-`define IO_DELAY
-`define I_DELAY
-`define RX_CLOCK
+`include "header.vh"
 
 module DLY_CONFIG #(
     // IO_BUF
