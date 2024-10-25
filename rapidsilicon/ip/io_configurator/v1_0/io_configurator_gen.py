@@ -180,43 +180,59 @@ def freq_calc(self, out_clk_freq, ref_clk_freq, clocking_source):
                 pll_div  = d + 1
                 return pll_mult, pll_div
 
-def ports_file(ports_file_path):
-    if (ports_file_path == ""):
+def ports_file_read(ports_file, bank_select, num_dly, io_type):
+    if (ports_file == ""):
         return 0
     else:
-        ports = []
+        ports       = []
         # Open the text file in read mode
-        with open(ports_file_path, 'r') as file:
-            # Read each line in the file
-            for line in file:
-                # Strip any leading/trailing whitespace (like newline characters) and append to the list
+        with open(ports_file, 'r') as file:
+            for _ in range(num_dly):
+                line = file.readline()
+                if not line:
+                    break
                 ports.append(line.strip())
-        
-        ports = [int(name.split("_")[2]) for name in ports]
-        
-        ports = sorted(ports)
-        
-        bits_high = 0
-        for bit in ports:
-            bits_high |= (1 << bit) # making bits high depending upon bit number
+                
+        if (io_type == "SINGLE_ENDED"):
+            bits_high = 0
+            single_ended_ports = []
+            single_ended_ports = [int(_.split("_")[2]) for _ in ports]
+            single_ended_ports = sorted(single_ended_ports)
+            for bit in single_ended_ports:
+                bits_high |= (1 << bit) # making bits high depending upon bit number
+            binary_dly_loc = bin(bits_high)[2:] # removing 0b from binary string
             
-        binary_dly_loc = bin(bits_high)[2:] # removing 0b from binary string
+        elif (io_type == "DIFFERENTIAL"):
+            P_variable = 0
+            N_variable = 0
+            diff_ports = []
+            # Loop through each port and extract the numeric part before the last letter
+            for port in ports:
+                last_part = port.split('_')[-1]  # Split by underscore and take the last part (e.g., "0P")
+                number_part = int(last_part[:-1])      # Remove the last character (e.g., "P", "N") to get the number
+                diff_ports.append(int(number_part))
+                type_suffix = last_part[-1] # P/N type Port
+                if type_suffix == 'P':
+                    # Set the corresponding bit in P_variable
+                    P_variable |= (1 << number_part)  # Set the bit at position 'num' to 1
+                elif type_suffix == 'N':
+                    # Set the corresponding bit in N_variable
+                    N_variable |= (1 << number_part)
+            binary_dly_loc = bin(N_variable)[2:] + bin(P_variable)[2:]
         
+        bank_sel = [(bank[:4]) for bank in ports]
+        for bank in bank_sel:
+            if (bank != bank_select):
+                print("Error: Invalid Bank Selected")
+                return 0, 0
+
         if (len(binary_dly_loc) < 40):
             binary_dly_loc = binary_dly_loc.zfill(40) # appending zeros to remaining bits on MSB
         else:
             binary_dly_loc = binary_dly_loc
             
-        dly_loc = binary_dly_loc[20:] + binary_dly_loc[:20] # swapped bits
-        
-        # for name in ports:
-        #     # Extract the number from the name (e.g., 'signal_5' -> 5)
-        #     num = int(name.split("_")[-1])
-        # print(extracted_numbers)
-            # rotated_ports = ports[::-1] # rotated whole list
-            
-        # return dly_loc, ports
-        return 0, 0
+        dly_loc = binary_dly_loc
+        return dly_loc, ports
 
 #################################################################################
 # I_BUF
@@ -354,7 +370,7 @@ def CLK_BUF(self, platform, io_mode):
 #################################################################################
 # I_DELAY
 #################################################################################
-def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_rate, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_idly, ports_file_path, width):
+def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_rate, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_idly, ports_file, width, bank_select, io_type):
     platform.add_extension(get_idelay_ios(num_idly))
     
     if (clocking == "PLL"):
@@ -365,8 +381,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
         
         
     if (io_model == "I_DELAY"): 
-        # dly_loc, ports = ports_file(ports_file_path)
-        dly_loc = 0
+        dly_loc = ports_file_read(ports_file, bank_select, num_idly, io_type)
         iopad_i     = platform.request("IOPAD_DATA_IN")
         fabric_o    = platform.request("FABRIC_DATA_OUT")
         
@@ -385,7 +400,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
                 p_DELAY             = delay,
                 p_WEAK_KEEPER       = io_mode,
                 p_IOSTANDARD        = voltage_standard,
-                p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+                p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
                 p_NUM_DLY           = num_idly,
                 p_DELAY_TYPE        = delay_type,
                 p_PLL_MULT          = pll_mult,
@@ -415,7 +430,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
             p_DELAY             = delay,
             p_WEAK_KEEPER       = io_mode,
             p_IOSTANDARD        = voltage_standard,
-            p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+            p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY           = num_idly,
             p_DELAY_TYPE        = delay_type,
             p_PLL_MULT          = pll_mult,
@@ -437,8 +452,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
     elif (io_model == "I_DELAY+I_SERDES"):
         
         platform.add_extension(get_iserdes_ios(width, num_idly))
-        # dly_loc, ports = ports_file(ports_file_path)
-        dly_loc = 0
+        dly_loc = ports_file_read(ports_file, bank_select, num_idly, io_type)
         ADDR_WIDTH = 6
         dly_tap_val = Signal(num_idly*ADDR_WIDTH)
         pdata_out   = Signal(num_idly*width)
@@ -456,7 +470,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
                 p_DELAY             = delay,
                 p_WEAK_KEEPER       = io_mode,
                 p_IOSTANDARD        = voltage_standard,
-                p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+                p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
                 p_NUM_DLY           = num_idly,
                 p_DELAY_TYPE        = delay_type,
                 p_WIDTH             = width,
@@ -496,7 +510,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
             p_DELAY             = delay,
             p_WEAK_KEEPER       = io_mode,
             p_IOSTANDARD        = voltage_standard,
-            p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+            p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY           = num_idly,
             p_DELAY_TYPE        = delay_type,
             p_WIDTH             = width,
@@ -528,7 +542,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
     elif (io_model == "I_DELAY+I_DDR"):
         platform.add_extension(get_iddr_ios(num_idly))
         
-        # dly_loc, ports = ports_file(ports_file_path)
+        dly_loc = ports_file_read(ports_file, bank_select, num_idly, io_type)
         dly_loc = 0
         ADDR_WIDTH = 6
         dly_tap_val = Signal(num_idly*ADDR_WIDTH)
@@ -547,7 +561,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
                 p_DELAY             = delay,
                 p_WEAK_KEEPER       = io_mode,
                 p_IOSTANDARD        = voltage_standard,
-                p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+                p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
                 p_NUM_DLY           = num_idly,
                 p_DELAY_TYPE        = delay_type,
                 p_PLL_MULT          = pll_mult,
@@ -578,7 +592,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
             p_DELAY             = delay,
             p_WEAK_KEEPER       = io_mode,
             p_IOSTANDARD        = voltage_standard,
-            p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+            p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY           = num_idly,
             p_DELAY_TYPE        = delay_type,
             p_PLL_MULT          = pll_mult,
@@ -1739,7 +1753,7 @@ def O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
 #################################################################################
 # O_DELAY
 #################################################################################
-def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file_path):
+def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file, bank_select, io_type):
     
     platform.add_extension(get_odelay_ios(num_odly))
     
@@ -1750,8 +1764,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
         pll_div  = 1
     
     if (io_model == "O_DELAY"):
-        # dly_loc, ports = ports_file(ports_file_path)
-        dly_loc = 0
+        dly_loc = ports_file_read(ports_file, bank_select, num_odly, io_type)
         fabric_i     = platform.request("FABRIC_DATA_IN")
         iopad_o    = platform.request("IOPAD_DATA_OUT")
         
@@ -1770,7 +1783,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
                 p_DELAY             = delay,
                 p_WEAK_KEEPER       = io_mode,
                 p_IOSTANDARD        = voltage_standard,
-                p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+                p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
                 p_NUM_DLY           = num_odly,
                 p_DELAY_TYPE        = delay_type,
                 p_PLL_MULT          = pll_mult,
@@ -1800,7 +1813,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
             p_DELAY             = delay,
             p_WEAK_KEEPER       = io_mode,
             p_IOSTANDARD        = voltage_standard,
-            p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+            p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY           = num_odly,
             p_DELAY_TYPE        = delay_type,
             p_PLL_MULT          = pll_mult,
@@ -1823,8 +1836,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
         
         platform.add_extension(get_oserdes_ios(num_odly, width))
         
-        # dly_loc, ports = ports_file(ports_file_path)
-        dly_loc = 0
+        dly_loc = ports_file_read(ports_file, bank_select, num_odly, io_type)
         ADDR_WIDTH = 6
         dly_tap_val = Signal(num_odly*ADDR_WIDTH)
         pdata_in    = Signal(num_odly*width)
@@ -1845,7 +1857,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
                 p_DELAY             = delay,
                 p_WEAK_KEEPER       = io_mode,
                 p_IOSTANDARD        = voltage_standard,
-                p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+                p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
                 p_NUM_DLY           = num_odly,
                 p_DELAY_TYPE        = delay_type,
                 p_WIDTH             = width,
@@ -1882,7 +1894,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
             p_DELAY             = delay,
             p_WEAK_KEEPER       = io_mode,
             p_IOSTANDARD        = voltage_standard,
-            p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+            p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY           = num_odly,
             p_DELAY_TYPE        = delay_type,
             p_WIDTH             = width,
@@ -1912,8 +1924,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
         
         platform.add_extension(get_oddr_ios(num_odly))
         
-        # dly_loc, ports = ports_file(ports_file_path)
-        dly_loc = 0
+        dly_loc = ports_file_read(ports_file, bank_select, num_odly, io_type)
         ADDR_WIDTH  = 6
         dly_tap_val = Signal(num_odly*ADDR_WIDTH)
         dd_in       = Signal(num_odly*2)
@@ -1933,7 +1944,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
                 p_DELAY             = delay,
                 p_WEAK_KEEPER       = io_mode,
                 p_IOSTANDARD        = voltage_standard,
-                p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+                p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
                 p_NUM_DLY           = num_odly,
                 p_DELAY_TYPE        = delay_type,
                 p_DRIVE_STRENGTH    = drive_strength,
@@ -1966,7 +1977,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
             p_DELAY             = delay,
             p_WEAK_KEEPER       = io_mode,
             p_IOSTANDARD        = voltage_standard,
-            p_DLY_LOC           = Instance.PreformattedParam("40'd{}".format(dly_loc)),
+            p_DLY_LOC           = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY           = num_odly,
             p_DELAY_TYPE        = delay_type,
             p_DRIVE_STRENGTH    = drive_strength,
@@ -1991,7 +2002,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
 class IO_CONFIG_Wrapper(Module):
     def __init__(self, platform, io_model, io_type, io_mode, voltage_standard, delay, data_rate, op_mode, width, 
                 clocking, clocking_source, out_clk_freq, ref_clk_freq, diff_termination, slew_rate, drive_strength, 
-                clock_forwarding, delay_adjust, delay_type, clock_phase, num_idly, num_odly, ports_file_path):
+                clock_forwarding, delay_adjust, delay_type, clock_phase, num_idly, num_odly, ports_file, bank_select):
         # Clocking ---------------------------------------------------------------------------------
         self.clock_domains.cd_sys  = ClockDomain()
         
@@ -2002,7 +2013,7 @@ class IO_CONFIG_Wrapper(Module):
             O_BUF(self, platform, io_type, io_mode, voltage_standard, diff_termination, slew_rate, drive_strength)
             
         elif (io_model in ["I_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR"]):
-            I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_rate, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_idly, ports_file_path, width)
+            I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_rate, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_idly, ports_file, width, bank_select, io_type)
             
         elif (io_model == "CLK_BUF"):
             CLK_BUF(self, platform, io_mode)
@@ -2020,7 +2031,7 @@ class IO_CONFIG_Wrapper(Module):
             O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_clk_freq, num_odly)
             
         elif (io_model in ["O_DELAY", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
-            O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file_path)
+            O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file, bank_select, io_type)
             
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -2058,7 +2069,7 @@ def main():
     core_string_param_group.add_argument("--diff_termination",          type=str,   default="TRUE",                 choices=["TRUE", "FALSE"],                                                                                              help="Enable differential termination")
     core_string_param_group.add_argument("--slew_rate",                 type=str,   default="SLOW",                 choices=["SLOW", "FAST"],                                                                                               help="Transition rate for LVCMOS standards")
     core_fix_param_group.add_argument("--drive_strength",               type=int,   default=2,                      choices=[2, 4, 6, 8, 12, 16],                                                                                           help="Drive strength in mA for LVCMOS standards")
-    core_string_param_group.add_argument("--bank_select",               type=str,   default="HP0",                  choices=["HP0", "HP1", "HV0", "HV1", "HV2", "HV3"],                                                                     help="Bank Selection for DELAY")
+    core_string_param_group.add_argument("--bank_select",               type=str,   default="HR_1",                 choices=["HR_1", "HR_2", "HR_3", "HR_5", "HP_1", "HP_2"],                                                               help="Bank Selection for DELAY")
     core_range_param_group.add_argument ("--num_of_i_delays",           type=int,   default=1,                      choices=range(1,41),                                                                                                    help="Number of input delays")
     core_range_param_group.add_argument ("--num_of_o_delays",           type=int,   default=1,                      choices=range(1,41),                                                                                                    help="Number of output delays")
     core_string_param_group.add_argument("--data_rate",                 type=str,   default="SDR",                  choices=["SDR"],                                                                                                        help="Data Rate")
@@ -2067,7 +2078,7 @@ def main():
     core_string_param_group.add_argument("--clocking_source",           type=str,   default="RX_IO_CLOCK",          choices=["RX_IO_CLOCK", "LOCAL_OSCILLATOR"],                                                                            help="Clocking Source for PLL")
     core_string_param_group.add_argument("--clock_forwarding",          type=str,   default="FALSE",                choices=["TRUE", "FALSE"],                                                                                              help="Clock forwarding for O_SERDES")
     core_string_param_group.add_argument("--delay_adjust",              type=str,   default="TRUE",                 choices=["TRUE", "FALSE"],                                                                                              help="Data delay adjustment for SERDES")
-    core_string_param_group.add_argument("--delay_type",                type=str,   default="STATIC",               choices=["STATIC", "DYNAMIC"],                                                                                          help="Delay type static/dynamic for SERDES")
+    core_string_param_group.add_argument("--delay_type",                type=str,   default="STATIC",               choices=["STATIC", "DYNAMIC"],                                                                                          help="Delay type static/dynamic")
     core_string_param_group.add_argument("--clock_phase",               type=str,   default="0",                    choices=["0", "90", "180", "270"],                                                                                      help="Clock Phase 0,90,180,270")
     core_range_param_group.add_argument("--delay",                      type=int,   default=0,                      choices=range(0,64),                                                                                                    help="Tap Delay Value")
     core_range_param_group.add_argument("--width",                      type=int,   default=4,                      choices=range(3,11),                                                                                                    help="Width of Serialization/Deserialization")
@@ -2076,7 +2087,7 @@ def main():
     
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--ports_file_path",    type=str,    default="",       help="Path to port list")
+    core_file_path_group.add_argument("--ports_file",    type=str,    default="",       help="Path to port list")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
@@ -2105,6 +2116,17 @@ def main():
         file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.img_name(args.io_model, file_path)   
         
+        # if (args.io_model in ["I_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR"]):
+        #     dly_loc, ports = ports_file_read(args.ports_file, args.bank_select, args.num_idly)
+        # elif (args.io_model in ["O_DELAY", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
+        #     dly_loc, ports = ports_file_read(args.ports_file, args.bank_select, args.num_odly)
+        
+        # if (dly_loc == 0):
+        
+        if (args.io_type == "DIFFERENTIAL"):
+            parser._actions[9].choices = range(1,21)
+            parser._actions[10].choices = range(1,21)
+        
         if (device not in ["1VG28"]):
             parser._actions[1].choices = ["CLK_BUF", "I_BUF", "I_DDR", "I_SERDES", "O_BUF", "O_DDR", "O_SERDES"]
         
@@ -2128,12 +2150,12 @@ def main():
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         if (args.io_model == "I_BUF"):
-            option_strings_to_remove = ["--ports_file_path", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--diff_termination", "--delay_adjust", "--delay_type", "--clock_forwarding", "--slew_rate", "--drive_strength", "--data_rate", "--op_mode", "--delay", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--diff_termination", "--delay_adjust", "--delay_type", "--clock_forwarding", "--slew_rate", "--drive_strength", "--data_rate", "--op_mode", "--delay", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             parser._actions[2].choices = ["SINGLE_ENDED", "DIFFERENTIAL"]
         
         elif (args.io_model == "O_BUF"):
-            option_strings_to_remove = ["--ports_file_path", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type", "--clock_forwarding", "--data_rate", "--op_mode", "--delay", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type", "--clock_forwarding", "--data_rate", "--op_mode", "--delay", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             
             if (args.io_type in ["SINGLE_ENDED", "DIFFERENTIAL"]):
@@ -2141,13 +2163,14 @@ def main():
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         elif (args.io_model in ["I_DELAY", "O_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
-            option_strings_to_remove = ["--clock_phase", "--delay_adjust", "--clock_forwarding", "--diff_termination", "--io_type"]
+            option_strings_to_remove = ["--clock_phase", "--delay_adjust", "--clock_forwarding", "--diff_termination"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            parser._actions[2].choices = ["SINGLE_ENDED", "DIFFERENTIAL"]
             
             if (args.io_model not in ["O_DELAY", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
                 option_strings_to_remove = ["--drive_strength", "--slew_rate"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            
+
             if (args.clocking == "RX_CLOCK"):
                 option_strings_to_remove = ["--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
@@ -2162,16 +2185,18 @@ def main():
             if (args.io_model not in ["I_DELAY+I_SERDES", "O_DELAY+O_SERDES"]):
                 option_strings_to_remove = ["--data_rate", "--width"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            
+                
             if (args.io_model in ["I_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR"]):
                 option_strings_to_remove = ["--num_of_o_delays"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                
+                
             elif (args.io_model in ["O_DELAY", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
                 option_strings_to_remove = ["--num_of_i_delays"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-        
+                
         elif (args.io_model in ["I_DDR", "O_DDR"]):
-            option_strings_to_remove = ["--ports_file_path", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type","--clock_forwarding", "--slew_rate", "--drive_strength", "--diff_termination", "--delay", "--io_type", "--voltage_standard", "--data_rate", "--op_mode", "--width"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type","--clock_forwarding", "--slew_rate", "--drive_strength", "--diff_termination", "--delay", "--io_type", "--voltage_standard", "--data_rate", "--op_mode", "--width"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.clocking == "RX_CLOCK"):
                 option_strings_to_remove = ["--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
@@ -2181,12 +2206,12 @@ def main():
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         elif (args.io_model in ["CLK_BUF"]):
-            option_strings_to_remove = ["--ports_file_path", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type","--clock_forwarding", "--slew_rate", "--drive_strength", "--diff_termination", "--delay", "--io_type", "--voltage_standard", "--data_rate", "--op_mode", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type","--clock_forwarding", "--slew_rate", "--drive_strength", "--diff_termination", "--delay", "--io_type", "--voltage_standard", "--data_rate", "--op_mode", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         elif (args.io_model in ["I_SERDES", "O_SERDES"]):
             
-            option_strings_to_remove = ["--ports_file_path", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--voltage_standard", "--slew_rate"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--voltage_standard", "--slew_rate"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             
             if (args.clock_forwarding == "FALSE"):
@@ -2217,7 +2242,6 @@ def main():
             if (args.clocking_source == "LOCAL_OSCILLATOR"):
                 option_strings_to_remove = ["--ref_clk_freq"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-
         
     summary =  {  
     "IO_MODEL": args.io_model
@@ -2278,7 +2302,7 @@ def main():
         if (args.io_model == "O_SERDES"):
             summary["CLOCK_FORWARDING"] = args.clock_forwarding
         
-    elif (args.io_model in ["I_DELAY", "O_DELAY"]):
+    elif (args.io_model in ["I_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR", "O_DELAY", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
         summary["TAP_DELAY_VALUE"] = args.delay
     
     # Export JSON Template (Optional) --------------------------------------------------------------
@@ -2309,8 +2333,8 @@ def main():
         clock_phase                     = args.clock_phase,
         num_idly                        = args.num_of_i_delays,
         num_odly                        = args.num_of_o_delays,
-        # comb                            = args.combination,
-        ports_file_path                 = args.ports_file_path
+        ports_file                      = args.ports_file,
+        bank_select                     = args.bank_select
     )
 
     # Build Project --------------------------------------------------------------------------------
@@ -2362,21 +2386,26 @@ def main():
         
         # io models defines
         if (args.io_model == "I_DELAY"):
-            defines.append("`define IO_DELAY\n`define I_DELAY")
+            defines.append("`define IO_DELAY\n`define I_DELAY\n")
         elif (args.io_model == "I_DELAY+I_SERDES"):
-            defines.append("`define I_DELAY_I_SERDES")
+            defines.append("`define I_DELAY_I_SERDES\n")
         elif (args.io_model == "I_DELAY+I_DDR"):
-            defines.append("`define I_DELAY_I_DDR")
+            defines.append("`define I_DELAY_I_DDR\n")
         elif (args.io_model == "O_DELAY"):
-            defines.append("`define IO_DELAY\n`define O_DELAY")
+            defines.append("`define IO_DELAY\n`define O_DELAY\n")
         elif (args.io_model == "O_DELAY+O_SERDES"):
-            defines.append("`define O_SERDES_O_DELAY")
+            defines.append("`define O_SERDES_O_DELAY\n")
         elif (args.io_model == "O_DELAY+O_DDR"):
-            defines.append("`define O_DDR_O_DELAY")
+            defines.append("`define O_DDR_O_DELAY\n")
+        
+        # io type defines
+        if (args.io_type == "SINGLE_ENDED"):
+            defines.append("`define SINGLE_ENDED")
+        elif (args.io_type == "DIFFERENTIAL"):
+            defines.append("`define DIFFERENTIAL")
         
         with open(os.path.join(header_path), "w") as file:
             file.writelines(defines)
-        # with open (header_path, "r") as file:
 
         wrapper     = os.path.join(args.build_dir, "rapidsilicon", "ip", "io_configurator", "v1_0", args.build_name, "src",args.build_name + "_" + "v1_0" + ".v")
         new_lines   = []
