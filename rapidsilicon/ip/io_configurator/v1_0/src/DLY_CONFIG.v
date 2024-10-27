@@ -5,29 +5,31 @@
 
 module DLY_CONFIG #(
     // IO_BUF
-    parameter WEAK_KEEPER   = "NONE",
-    parameter IOSTANDARD    = "DEFAULT",
-    parameter DRIVE_STRENGTH= 2,
-    parameter SLEW_RATE     = "SLOW",
+    parameter WEAK_KEEPER               = "NONE",
+    parameter IOSTANDARD                = "DEFAULT",
+    parameter DRIVE_STRENGTH            = 2,
+    parameter SLEW_RATE                 = "SLOW",
+    parameter DIFFERENTIAL_TERMINATION  = "TRUE",
+    parameter IO_TYPE                   = "SINGLE_ENDED",
 
     //  PLL
-    parameter PLL_MULT      = 16,
-    parameter PLL_DIV       = 1,
+    parameter PLL_MULT                  = 16,
+    parameter PLL_DIV                   = 1,
 
     // IO_SERDES
-    parameter WIDTH         = 4,
-    parameter DATA_RATE     = "SDR",
-    parameter DPA_MODE      = "NONE",
+    parameter WIDTH                     = 4,
+    parameter DATA_RATE                 = "SDR",
+    parameter DPA_MODE                  = "NONE",
 
     // IO_DELAYs
-    parameter DELAY         = 0,
-    parameter NUM_DLY       = 4,
-    parameter DLY_LOC       = 40'b1100000000000000000000000000000000000101,
-    parameter ADDR_WIDTH    = 5,
-    parameter DLY_TAP_WIDTH = 6,
-    parameter DLY_SEL_WIDTH = $clog2(NUM_DLY),
-    parameter NUM_GB_SITES  = 20,                 // fixed for VIRGO TC
-    parameter DELAY_TYPE    = "STATIC"           // "STATIC", "DYNAMIC"
+    parameter DELAY                     = 0,
+    parameter NUM_DLY                   = 4,
+    parameter DLY_LOC                   = 40'b1100000000000000000000000000000000000011,
+    parameter ADDR_WIDTH                = 5,
+    parameter DLY_TAP_WIDTH             = 6,
+    parameter DLY_SEL_WIDTH             = $clog2(NUM_DLY),
+    parameter NUM_GB_SITES              = 20,                 // fixed for VIRGO TC
+    parameter DELAY_TYPE                = "STATIC"           // "STATIC", "DYNAMIC"
 )
 (   
     // `ifdef RX_CLOCK
@@ -36,11 +38,11 @@ module DLY_CONFIG #(
     `endif
 
     `ifdef IO_DELAY
-        input  wire [NUM_DLY-1:0]               DATA_IN,
+        input  wire [DATA_WIDTH-1:0]            DATA_IN,
         output wire [NUM_DLY-1:0]               DATA_OUT,
 
     `elsif I_DELAY_I_SERDES
-        input wire  [NUM_DLY-1:0]               SDATA_IN,
+        input wire  [DATA_WIDTH-1:0]            SDATA_IN,
         input wire  [NUM_DLY-1:0]               EN,
         input wire  [NUM_DLY-1:0]               BITSLIP_ADJ,
         output wire [NUM_DLY-1:0]               CLK_OUT,
@@ -50,7 +52,7 @@ module DLY_CONFIG #(
         output wire [(NUM_DLY*WIDTH)-1:0]       PDATA_OUT,
         
     `elsif I_DELAY_I_DDR
-        input  wire [NUM_DLY-1:0]               SD_IN,
+        input  wire [DATA_WIDTH-1:0]            SD_IN,
         input wire  [NUM_DLY-1:0]               EN,
         output wire [(2*NUM_DLY)-1:0]           DD_OUT,
     // `endif
@@ -60,13 +62,13 @@ module DLY_CONFIG #(
         input  wire [(NUM_DLY*WIDTH)-1:0]       PDATA_IN,
         input  wire [NUM_DLY-1:0]               DATA_VALID,
         input  wire [NUM_DLY-1:0]               OE_IN,
-        output wire [NUM_DLY-1:0]               SDATA_OUT,
+        output wire [DATA_WIDTH-1:0]            SDATA_OUT,
     // `endif
     
     `elsif O_DDR_O_DELAY
         input wire  [(2*NUM_DLY)-1:0]           DD_IN,
         input wire  [NUM_DLY-1:0]               EN,
-        output wire [NUM_DLY-1:0]               SD_OUT,
+        output wire [DATA_WIDTH-1:0]            SD_OUT,
     `endif
 
     input  wire                                 RESET,
@@ -77,6 +79,7 @@ module DLY_CONFIG #(
     output reg  [(DLY_TAP_WIDTH*NUM_DLY)-1:0]   DELAY_TAP_VALUE
 ); 
 
+localparam DATA_WIDTH           = (IO_TYPE == "SINGLE_ENDED") ? NUM_DLY : (2*NUM_DLY);
 localparam NUM_CNTRL            = ((DLY_LOC[39:20] > 0) && (DLY_LOC[19:0] > 0)) ? 2'd2 : 2'd1;
 localparam NUM_DLY_CNTRL        = (NUM_CNTRL == 2) ? 20 : NUM_DLY;
 localparam [39:0] DLY_LOC_INT   = (DLY_LOC[19:0] == 0) ? {20'd0, DLY_LOC[39:20]} : DLY_LOC;
@@ -315,14 +318,27 @@ generate
     for(genvar i = 0; i < NUM_DLY; i = i + 1) begin
         // --------------------------------------------------------- //
         `ifdef I_DELAY
-            I_BUF #(
-                .WEAK_KEEPER(WEAK_KEEPER),
-                .IOSTANDARD(IOSTANDARD)
-            ) I_BUF_data (
-                .EN(1'd1),
-                .I(DATA_IN[i]),
-                .O(i_buf_dout[i])
-            );
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(DATA_IN[i]),
+                    .O(i_buf_dout[i])
+                );
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(DATA_IN[i+NUM_DLY]),
+                    .I_P(DATA_IN[i]),
+                    .O(i_buf_dout[i])
+                );
+            `endif
 
             I_DELAY #(
                 .DELAY(DELAY)
@@ -332,7 +348,7 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+               .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(DATA_OUT[i])
             );
 
@@ -340,14 +356,27 @@ generate
         `elsif I_DELAY_I_SERDES
             wire [NUM_DLY-1:0] dly_out;
             wire [NUM_DLY-1:0] serdes_clk_out;
-            I_BUF #(
-                .WEAK_KEEPER(WEAK_KEEPER),
-                .IOSTANDARD(IOSTANDARD)
-            ) I_BUF_data (
-                .EN(1'd1),
-                .I(SDATA_IN[i]),
-                .O(i_buf_dout[i])
-            );
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(SDATA_IN[i]),
+                    .O(i_buf_dout[i])
+                );
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(SDATA_IN[i+NUM_DLY]),
+                    .I_P(SDATA_IN[i]),
+                    .O(i_buf_dout[i])
+                );
+            `endif
             
             I_DELAY #(
                 .DELAY(DELAY)
@@ -385,14 +414,28 @@ generate
             `elsif I_DELAY_I_DDR
                 wire [NUM_DLY-1:0] dly_out;
                 wire [NUM_DLY-1:0] serdes_clk_out;
-                I_BUF #(
-                    .WEAK_KEEPER(WEAK_KEEPER),
-                    .IOSTANDARD(IOSTANDARD)
-                ) I_BUF_data (
-                    .EN(1'd1),
-                    .I(SD_IN[i]),
-                    .O(i_buf_dout[i])
-                );
+                `ifdef SINGLE_ENDED
+                    I_BUF #(
+                        .WEAK_KEEPER(WEAK_KEEPER),
+                        .IOSTANDARD(IOSTANDARD)
+                    ) I_BUF_data (
+                        .EN(1'd1),
+                        .I(SD_IN[i]),
+                        .O(i_buf_dout[i])
+                    );
+                `elsif DIFFERENTIAL
+                    I_BUF_DS #(
+                        .IOSTANDARD(IOSTANDARD),
+                        .WEAK_KEEPER(WEAK_KEEPER),
+                        .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                    ) I_BUF_DS (
+                        .EN(1'd1),
+                        .I_N(SD_IN[i+NUM_DLY]),
+                        .I_P(SD_IN[i]),
+                        .O(i_buf_dout[i])
+                    );
+                `endif
+                
                 I_DELAY #(
                     .DELAY(DELAY)
                 ) I_DELAY_inst (
@@ -426,15 +469,27 @@ generate
                     .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(dly_out[i])
                 );
-                O_BUF # (
-                    .IOSTANDARD(IOSTANDARD),
-                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
-                    .SLEW_RATE(SLEW_RATE)
-                )
-                O_BUF_inst (
-                    .I(dly_out[i]),
-                    .O(DATA_OUT[i])
-                );
+
+                `ifdef SINGLE_ENDED
+                    O_BUF # (
+                        .IOSTANDARD(IOSTANDARD),
+                        .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                        .SLEW_RATE(SLEW_RATE)
+                    )
+                    O_BUF_inst (
+                        .I(dly_out[i]),
+                        .O(DATA_OUT[i])
+                    );
+                `elsif DIFFERENTIAL
+                    O_BUF_DS #(
+                        .IOSTANDARD(IOSTANDARD),
+                        .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                    ) O_BUF_DS (
+                        .I(dly_out[i]),
+                        .O_P(DATA_OUT[i]),
+                        .O_N(DATA_OUT[i+NUM_DLY])
+                    );
+                `endif
             
             // --------------------------------------------------------- //
             `elsif O_SERDES_O_DELAY
@@ -470,17 +525,30 @@ generate
                     .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(odly_out[i])
                 );
-                O_BUFT # (
-                    .WEAK_KEEPER(WEAK_KEEPER),
-                    .IOSTANDARD(IOSTANDARD),
-                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
-                    .SLEW_RATE(SLEW_RATE)
-                )
-                O_BUFT_inst (
-                    .I(odly_out[i]),
-                    .T(oe_out[i]),
-                    .O(SDATA_OUT[i])
-                );
+                `ifdef SINGLE_ENDED
+                    O_BUFT # (
+                        .WEAK_KEEPER(WEAK_KEEPER),
+                        .IOSTANDARD(IOSTANDARD),
+                        .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                        .SLEW_RATE(SLEW_RATE)
+                    )
+                    O_BUFT_inst (
+                        .I(odly_out[i]),
+                        .T(oe_out[i]),
+                        .O(SDATA_OUT[i])
+                    );
+                `elsif DIFFERENTIAL
+                    O_BUFT_DS #(
+                        .IOSTANDARD(IOSTANDARD),
+                        .WEAK_KEEPER(WEAK_KEEPER),
+                        .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                    ) O_BUFT_DS (
+                        .I(odly_out[i]),
+                        .T(oe_out[i]),
+                        .O_P(SDATA_OUT[i]),
+                        .O_N(SDATA_OUT[i+NUM_DLY])
+                    );
+                `endif
             
             // --------------------------------------------------------- //
             `elsif O_DDR_O_DELAY
@@ -504,15 +572,26 @@ generate
                     .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(odly_out[i])
                 );
-                O_BUF # (
-                    .IOSTANDARD(IOSTANDARD),
-                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
-                    .SLEW_RATE(SLEW_RATE)
-                )
-                O_BUF_inst (
-                    .I(odly_out[i]),
-                    .O(SD_OUT[i])
-                );
+                `ifdef SINGLE_ENDED
+                    O_BUF # (
+                        .IOSTANDARD(IOSTANDARD),
+                        .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                        .SLEW_RATE(SLEW_RATE)
+                    )
+                    O_BUF_inst (
+                        .I(odly_out[i]),
+                        .O(SD_OUT[i])
+                    );
+                `elsif DIFFERENTIAL
+                    O_BUF_DS #(
+                        .IOSTANDARD(IOSTANDARD),
+                        .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                    ) O_BUF_DS (
+                        .I(odly_out[i]),
+                        .O_P(SD_OUT[i]),
+                        .O_N(SD_OUT[i+NUM_DLY])
+                    );
+                `endif
         `endif
 
     end
