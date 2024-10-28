@@ -37,9 +37,13 @@ module DLY_CONFIG #(
         input  wire                             CLK_IN,
     `endif
 
-    `ifdef IO_DELAY
+    `ifdef I_DELAY
         input  wire [DATA_WIDTH-1:0]            DATA_IN,
         output wire [NUM_DLY-1:0]               DATA_OUT,
+    
+    `elsif O_DELAY
+        input  wire [NUM_DLY-1:0]               DATA_IN,
+        output wire [DATA_WIDTH-1:0]            DATA_OUT,
 
     `elsif I_DELAY_I_SERDES
         input wire  [DATA_WIDTH-1:0]            SDATA_IN,
