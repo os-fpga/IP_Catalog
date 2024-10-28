@@ -197,16 +197,17 @@ def ports_file_read(ports_file, bank_select, num_dly, io_type):
         return 0
     else:
         ports       = []
-        # Open the text file in read mode
-        with open(ports_file, 'r') as file:
-            for _ in range(num_dly):
-                line = file.readline()
-                if not line:
-                    break
-                ports.append(line.strip())
-                
+        bits_high   = 0
+        
         if (io_type == "SINGLE_ENDED"):
-            bits_high = 0
+            # Open the text file in read mode
+            with open(ports_file, 'r') as file:
+                for _ in range(num_dly):
+                    line = file.readline()
+                    if not line:
+                        break
+                    ports.append(line.strip())
+            
             single_ended_ports = []
             single_ended_ports = [int(_.split("_")[2]) for _ in ports]
             single_ended_ports = sorted(single_ended_ports)
@@ -215,22 +216,19 @@ def ports_file_read(ports_file, bank_select, num_dly, io_type):
             binary_dly_loc = bin(bits_high)[2:] # removing 0b from binary string
             
         elif (io_type == "DIFFERENTIAL"):
-            P_variable = 0
-            N_variable = 0
-            diff_ports = []
+            # Open the text file in read mode
+            with open(ports_file, 'r') as file:
+                for _ in range(2*num_dly):
+                    line = file.readline()
+                    if not line:
+                        break
+                    ports.append(line.strip())
             # Loop through each port and extract the numeric part before the last letter
             for port in ports:
                 last_part = port.split('_')[-1]  # Split by underscore and take the last part (e.g., "0P")
                 number_part = int(last_part[:-1])      # Remove the last character (e.g., "P", "N") to get the number
-                diff_ports.append(int(number_part))
-                type_suffix = last_part[-1] # P/N type Port
-                if type_suffix == 'P':
-                    # Set the corresponding bit in P_variable
-                    P_variable |= (1 << number_part)  # Set the bit at position 'num' to 1
-                elif type_suffix == 'N':
-                    # Set the corresponding bit in N_variable
-                    N_variable |= (1 << number_part)
-            binary_dly_loc = bin(N_variable)[2:] + bin(P_variable)[2:]
+                bits_high |= (1 << (2*number_part))  # Set the bit at position 'numx2' to 1
+            binary_dly_loc =  bin(bits_high)[2:]
         
         bank_sel = [(bank[:4]) for bank in ports]
         for bank in bank_sel:
@@ -382,7 +380,7 @@ def CLK_BUF(self, platform, io_mode):
 #################################################################################
 # I_DELAY
 #################################################################################
-def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_rate, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_idly, ports_file, width, bank_select, io_type, diff_termination):
+def I_DELAY(self, platform, sel_dly, io_model, io_mode, voltage_standard, op_mode, data_rate, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_idly, ports_file, width, bank_select, io_type, diff_termination):
     platform.add_extension(get_idelay_ios(num_idly))
     ADDR_WIDTH  = 6
     
@@ -426,6 +424,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
                 p_PLL_DIV                   = pll_div,
                 p_DIFFERENTIAL_TERMINATION  = diff_termination,
                 p_IO_TYPE                   = io_type,
+                p_DLY_SEL_WIDTH             = sel_dly,
                 # Ports
                 #------
                 i_DATA_IN                   = data_in,
@@ -458,6 +457,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
             p_PLL_DIV                   = pll_div,
             p_DIFFERENTIAL_TERMINATION  = diff_termination,
             p_IO_TYPE                   = io_type,
+            p_DLY_SEL_WIDTH             = sel_dly,
             # Ports
             #------
             i_DATA_IN                   = data_in,
@@ -505,6 +505,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
                 p_PLL_DIV                   = pll_div,
                 p_DIFFERENTIAL_TERMINATION  = diff_termination,
                 p_IO_TYPE                   = io_type,
+                p_DLY_SEL_WIDTH             = sel_dly,
                 # Ports
                 #------
                 i_EN                        = platform.request("FABRIC_EN"),
@@ -546,6 +547,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
             p_PLL_DIV                   = pll_div,
             p_DIFFERENTIAL_TERMINATION  = diff_termination,
             p_IO_TYPE                   = io_type,
+            p_DLY_SEL_WIDTH             = sel_dly,
             # Ports
             #------
             i_EN                        = platform.request("FABRIC_EN"),
@@ -595,6 +597,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
                 p_PLL_DIV                   = pll_div,
                 p_DIFFERENTIAL_TERMINATION  = diff_termination,
                 p_IO_TYPE                   = io_type,
+                p_DLY_SEL_WIDTH             = sel_dly,
                 # Ports
                 #------
                 i_EN                        = platform.request("FABRIC_EN"),
@@ -628,6 +631,7 @@ def I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_r
             p_PLL_DIV                   = pll_div,
             p_DIFFERENTIAL_TERMINATION  = diff_termination,
             p_IO_TYPE                   = io_type,
+            p_DLY_SEL_WIDTH             = sel_dly,
             # Ports
             #------
             i_CLK_IN                    = clk_in,
@@ -1784,7 +1788,7 @@ def O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
 #################################################################################
 # O_DELAY
 #################################################################################
-def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file, bank_select, io_type, diff_termination):
+def O_DELAY(self, platform, sel_dly, io_model, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file, bank_select, io_type, diff_termination):
     
     platform.add_extension(get_odelay_ios(num_odly))
     ADDR_WIDTH = 6
@@ -1828,6 +1832,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
                 p_PLL_DIV                   = pll_div,
                 p_DIFFERENTIAL_TERMINATION  = diff_termination,
                 p_IO_TYPE                   = io_type,
+                p_DLY_SEL_WIDTH             = sel_dly,
                 # Ports
                 #------
                 i_DATA_IN                   = fabric_i,
@@ -1860,6 +1865,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
             p_PLL_DIV                   = pll_div,
             p_DIFFERENTIAL_TERMINATION  = diff_termination,
             p_IO_TYPE                   = io_type,
+            p_DLY_SEL_WIDTH             = sel_dly,
             # Ports
             #------
             i_DATA_IN                   = fabric_i,
@@ -1908,6 +1914,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
                 p_PLL_DIV                   = pll_div,
                 p_DIFFERENTIAL_TERMINATION  = diff_termination,
                 p_IO_TYPE                   = io_type,
+                p_DLY_SEL_WIDTH             = sel_dly,
                 # Ports
                 #------
                 i_PDATA_IN                  = Cat([platform.request(f"FABRIC_PDATA_{i}") for i in range(num_odly)]),
@@ -1947,6 +1954,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
             p_PLL_DIV                   = pll_div,
             p_DIFFERENTIAL_TERMINATION  = diff_termination,
             p_IO_TYPE                   = io_type,
+            p_DLY_SEL_WIDTH             = sel_dly,
             # Ports
             #------
             i_CLK_IN                    = clk_in,
@@ -1996,6 +2004,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
                 p_PLL_DIV                   = pll_div,
                 p_DIFFERENTIAL_TERMINATION  = diff_termination,
                 p_IO_TYPE                   = io_type,
+                p_DLY_SEL_WIDTH             = sel_dly,
                 # Ports
                 #------
                 i_DD_IN                     = Cat([platform.request(f"FABRIC_DD_IN_{i}") for i in range(num_odly)]),
@@ -2031,6 +2040,7 @@ def O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, driv
             p_PLL_DIV                   = pll_div,
             p_DIFFERENTIAL_TERMINATION  = diff_termination,
             p_IO_TYPE                   = io_type,
+            p_DLY_SEL_WIDTH             = sel_dly,
             # Ports
             #------
             i_CLK_IN                    = clk_in,
@@ -2060,7 +2070,11 @@ class IO_CONFIG_Wrapper(Module):
             O_BUF(self, platform, io_type, io_mode, voltage_standard, diff_termination, slew_rate, drive_strength)
             
         elif (io_model in ["I_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR"]):
-            I_DELAY(self, platform, io_model, io_mode, voltage_standard, op_mode, data_rate, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_idly, ports_file, width, bank_select, io_type, diff_termination)
+            if (num_idly > 1):
+                sel_dly = math.ceil(math.log2(num_idly))
+            else:
+                sel_dly = 1
+            I_DELAY(self, platform, sel_dly, io_model, io_mode, voltage_standard, op_mode, data_rate, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_idly, ports_file, width, bank_select, io_type, diff_termination)
             
         elif (io_model == "CLK_BUF"):
             CLK_BUF(self, platform, io_mode)
@@ -2078,7 +2092,11 @@ class IO_CONFIG_Wrapper(Module):
             O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_clk_freq, num_odly)
             
         elif (io_model in ["O_DELAY", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
-            O_DELAY(self, platform, io_model, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file, bank_select, io_type, diff_termination)
+            if (num_odly > 1):
+                sel_dly = math.ceil(math.log2(num_odly))
+            else:
+                sel_dly = 1
+            O_DELAY(self, platform, sel_dly, io_model, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file, bank_select, io_type, diff_termination)
             
 # Build --------------------------------------------------------------------------------------------
 def main():
