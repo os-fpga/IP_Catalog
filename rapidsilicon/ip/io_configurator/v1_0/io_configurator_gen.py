@@ -2437,13 +2437,13 @@ def main():
         
         # io models defines
         if (args.io_model == "I_DELAY"):
-            defines.append("`define IO_DELAY\n`define I_DELAY\n")
+            defines.append("`define I_DELAY\n")
         elif (args.io_model == "I_DELAY+I_SERDES"):
             defines.append("`define I_DELAY_I_SERDES\n")
         elif (args.io_model == "I_DELAY+I_DDR"):
             defines.append("`define I_DELAY_I_DDR\n")
         elif (args.io_model == "O_DELAY"):
-            defines.append("`define IO_DELAY\n`define O_DELAY\n")
+            defines.append("`define O_DELAY\n")
         elif (args.io_model == "O_DELAY+O_SERDES"):
             defines.append("`define O_SERDES_O_DELAY\n")
         elif (args.io_model == "O_DELAY+O_DDR"):
