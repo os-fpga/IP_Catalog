@@ -2374,7 +2374,7 @@ def main():
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
         
     # Create Wrapper -------------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device=device) # device needs to be fixed
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device=args.device) # device needs to be fixed
     module   = IO_CONFIG_Wrapper(platform,
         io_model                        = args.io_model,
         io_type                         = args.io_type,
