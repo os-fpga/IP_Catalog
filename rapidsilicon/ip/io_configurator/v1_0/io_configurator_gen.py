@@ -2113,8 +2113,7 @@ def main():
     dep_dict = {}            
 
     # IP Builder.
-    device = "1VG28"
-    rs_builder = IP_Builder(device=device, ip_name="io_configurator", language="verilog")
+    rs_builder = IP_Builder(device="virgo", ip_name="io_configurator", language="verilog")
 
     logging.info("===================================================")
     logging.info("IP    : %s", rs_builder.ip_name.upper())
@@ -2152,14 +2151,14 @@ def main():
     
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--ports_file",    type=str,    default="",       help="Path to port list")
+    core_file_path_group.add_argument("--ports_file",                   type=str,    default="",                    help="Path to port list")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
     build_group.add_argument("--build",         action="store_true",                    help="Build Core")
     build_group.add_argument("--build-dir",     default="./",                           help="Build Directory")
     build_group.add_argument("--build-name",    default="io_configurator",              help="Build Folder Name, Build RTL File Name and Module Name")
-
+    build_group.add_argument("--device",        default="",                             help="Device")
     # JSON Import/Template
     json_group = parser.add_argument_group(title="JSON Parameters")
     json_group.add_argument("--json",                                           help="Generate Core from JSON File")
@@ -2179,14 +2178,10 @@ def main():
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         file_path = os.path.dirname(os.path.realpath(__file__))
-        rs_builder.img_name(args.io_model, file_path)   
-        
-        # if (args.io_model in ["I_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR"]):
-        #     dly_loc, ports = ports_file_read(args.ports_file, args.bank_select, args.num_idly)
-        # elif (args.io_model in ["O_DELAY", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
-        #     dly_loc, ports = ports_file_read(args.ports_file, args.bank_select, args.num_odly)
-        
-        # if (dly_loc == 0):
+        rs_builder.img_name(args.io_model, file_path)  
+
+        device = args.device
+        parser._actions[27].default = [str(args.device)]
         
         if (args.io_type == "DIFFERENTIAL"):
             parser._actions[9].choices = range(1,21)
@@ -2377,9 +2372,9 @@ def main():
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
-
+        
     # Create Wrapper -------------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device=device)
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device=device) # device needs to be fixed
     module   = IO_CONFIG_Wrapper(platform,
         io_model                        = args.io_model,
         io_type                         = args.io_type,
@@ -2405,7 +2400,7 @@ def main():
         ports_file                      = args.ports_file,
         bank_select                     = args.bank_select
     )
-
+    
     # Build Project --------------------------------------------------------------------------------
     if args.build:
         rs_builder.prepare(
