@@ -2134,8 +2134,8 @@ def main():
     core_string_param_group.add_argument("--slew_rate",                 type=str,   default="SLOW",                 choices=["SLOW", "FAST"],                                                                                               help="Transition rate for LVCMOS standards")
     core_fix_param_group.add_argument("--drive_strength",               type=int,   default=2,                      choices=[2, 4, 6, 8, 12, 16],                                                                                           help="Drive strength in mA for LVCMOS standards")
     core_string_param_group.add_argument("--bank_select",               type=str,   default="HR_1",                 choices=["HR_1", "HR_2", "HR_3", "HR_5", "HP_1", "HP_2"],                                                               help="Bank Selection for DELAY")
-    core_range_param_group.add_argument ("--num_of_i_delays",           type=int,   default=1,                      choices=range(1,41),                                                                                                    help="Number of input delays")
-    core_range_param_group.add_argument ("--num_of_o_delays",           type=int,   default=1,                      choices=range(1,41),                                                                                                    help="Number of output delays")
+    core_range_param_group.add_argument ("--num_idly",                  type=int,   default=1,                      choices=range(1,41),                                                                                                    help="Number of input delays")
+    core_range_param_group.add_argument ("--num_odly",                  type=int,   default=1,                      choices=range(1,41),                                                                                                    help="Number of output delays")
     core_string_param_group.add_argument("--data_rate",                 type=str,   default="SDR",                  choices=["SDR"],                                                                                                        help="Data Rate")
     core_string_param_group.add_argument("--op_mode",                   type=str,   default="NONE",                 choices=["NONE", "DPA", "CDR"],                                                                                         help="Dynamic Phase Alignment or Clock Data Recovery")
     core_string_param_group.add_argument("--clocking",                  type=str,   default="RX_CLOCK",             choices=["RX_CLOCK", "PLL"],                                                                                            help="Clocking option for I_SERDES")
@@ -2214,12 +2214,12 @@ def main():
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         if (args.io_model == "I_BUF"):
-            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type", "--clock_forwarding", "--slew_rate", "--drive_strength", "--data_rate", "--op_mode", "--delay", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_idly", "--num_odly", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type", "--clock_forwarding", "--slew_rate", "--drive_strength", "--data_rate", "--op_mode", "--delay", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             parser._actions[2].choices = ["SINGLE_ENDED", "DIFFERENTIAL"]
         
         elif (args.io_model == "O_BUF"):
-            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type", "--clock_forwarding", "--data_rate", "--op_mode", "--delay", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_idly", "--num_odly", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type", "--clock_forwarding", "--data_rate", "--op_mode", "--delay", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             
             if (args.io_type in ["SINGLE_ENDED", "DIFFERENTIAL"]):
@@ -2251,16 +2251,16 @@ def main():
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
                 
             if (args.io_model in ["I_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR"]):
-                option_strings_to_remove = ["--num_of_o_delays"]
+                option_strings_to_remove = ["--num_odly"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
                 
                 
             elif (args.io_model in ["O_DELAY", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
-                option_strings_to_remove = ["--num_of_i_delays"]
+                option_strings_to_remove = ["--num_idly"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
                 
         elif (args.io_model in ["I_DDR", "O_DDR"]):
-            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type","--clock_forwarding", "--slew_rate", "--drive_strength", "--diff_termination", "--delay", "--io_type", "--voltage_standard", "--data_rate", "--op_mode", "--width"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_idly", "--num_odly", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type","--clock_forwarding", "--slew_rate", "--drive_strength", "--diff_termination", "--delay", "--io_type", "--voltage_standard", "--data_rate", "--op_mode", "--width"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             if (args.clocking == "RX_CLOCK"):
                 option_strings_to_remove = ["--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
@@ -2270,12 +2270,12 @@ def main():
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         elif (args.io_model in ["CLK_BUF"]):
-            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type","--clock_forwarding", "--slew_rate", "--drive_strength", "--diff_termination", "--delay", "--io_type", "--voltage_standard", "--data_rate", "--op_mode", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_idly", "--num_odly", "--delay_type", "--bank_select", "--clock_phase", "--delay_adjust", "--delay_type","--clock_forwarding", "--slew_rate", "--drive_strength", "--diff_termination", "--delay", "--io_type", "--voltage_standard", "--data_rate", "--op_mode", "--width", "--clocking", "--clocking_source", "--out_clk_freq", "--ref_clk_freq"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         elif (args.io_model in ["I_SERDES", "O_SERDES"]):
             
-            option_strings_to_remove = ["--ports_file", "--combination", "--num_of_i_delays", "--num_of_o_delays", "--delay_type", "--bank_select", "--voltage_standard", "--slew_rate"]
+            option_strings_to_remove = ["--ports_file", "--combination", "--num_idly", "--num_odly", "--delay_type", "--bank_select", "--voltage_standard", "--slew_rate"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             
             if (args.clock_forwarding == "FALSE"):
@@ -2374,7 +2374,7 @@ def main():
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
         
     # Create Wrapper -------------------------------------------------------------------------------
-    platform = OSFPGAPlatform(io=[], toolchain="raptor", device=device) # device needs to be fixed
+    platform = OSFPGAPlatform(io=[], toolchain="raptor", device=args.device) # device needs to be fixed
     module   = IO_CONFIG_Wrapper(platform,
         io_model                        = args.io_model,
         io_type                         = args.io_type,
@@ -2395,8 +2395,8 @@ def main():
         delay_adjust                    = args.delay_adjust,
         delay_type                      = args.delay_type,
         clock_phase                     = args.clock_phase,
-        num_idly                        = args.num_of_i_delays,
-        num_odly                        = args.num_of_o_delays,
+        num_idly                        = args.num_idly,
+        num_odly                        = args.num_odly,
         ports_file                      = args.ports_file,
         bank_select                     = args.bank_select
     )
