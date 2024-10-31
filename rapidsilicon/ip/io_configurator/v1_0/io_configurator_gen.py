@@ -2151,7 +2151,7 @@ def main():
     
     # Core file path parameters.
     core_file_path_group = parser.add_argument_group(title="Core file path parameters")
-    core_file_path_group.add_argument("--ports_file",                   type=str,    default="",                    help="Path to port list")
+    core_file_path_group.add_argument("--ports_file",                   type=str,    default="",                    help="Path to Ports file(.txt)")
     
     # Build Parameters.
     build_group = parser.add_argument_group(title="Build parameters")
