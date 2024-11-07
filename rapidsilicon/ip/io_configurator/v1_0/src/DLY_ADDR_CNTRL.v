@@ -25,7 +25,7 @@ module DLY_ADDR_CNTRL #(parameter                    NUM_GB_SITES  = 20,
                         parameter                    NUM_DLY       = 5,   //Minimum of 1 and maximum of 20 I_DELAY or O_DELAY  
                         parameter                    DLY_TAP_WIDTH = 6,
                         parameter                    ADDR_WIDTH    = 5
-					)
+					  )
                     (input       rst,  
                      input [5:0] cntrl_dly_tap_value,							// Input to fabric from GearBox. I_DELAY TAP Value MUXED Output from GBox
                      input [NUM_DLY-1: 0] usr_dly_incdec,						// Input from user to control I_DELAY
