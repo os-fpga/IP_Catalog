@@ -3176,11 +3176,11 @@ module ocla_mem_controller #(
     end
   end
 
-  dual_port_ram #(
+  dual_port_ram_ocla #(
                   .DATASIZE(DATASIZE),
                   .ADDRSIZE(ADDRSIZE),
                   .DEPTH(MEM_DEPTH)
-                ) dual_port_ram (
+                ) dual_port_ram_ocla (
                   .rdata (rd_data),
                   .wr_clk(wr_clk),
                   .rd_clk(rd_clk),
@@ -3191,10 +3191,10 @@ module ocla_mem_controller #(
                   .raddr (rdaddr)
                 );
 
-  synchronizer #(
+  synchronizer_ocla #(
                  .SYNC_STAGES(SYNC_STAGES),
                  .ADDRSIZE   (ADDRSIZE)
-               ) synchronizer (
+               ) synchronizer_ocla (
                  .wptr_reg(wptr_reg),
                  .rptr_reg(rptr_reg),
                  .wr_clk  (wr_clk),
@@ -3436,7 +3436,7 @@ endmodule
 //
 // *****************************************************************
 
-module dual_port_ram #(
+module dual_port_ram_ocla #(
     parameter DATASIZE = 32,
     parameter ADDRSIZE = 8,
     parameter DEPTH = 256
@@ -3451,13 +3451,13 @@ module dual_port_ram #(
     input  [ADDRSIZE-1:0]  waddr,
     input  [ADDRSIZE-1:0]  raddr
   );
-  reg [DATASIZE-1:0] mem [0:DEPTH-1];
+  reg [DATASIZE-1:0] ocla_mem [0:DEPTH-1];
 
   always @(posedge rd_clk)
   begin
     if (ren)
     begin
-      rdata   <= mem[raddr];
+      rdata   <= ocla_mem[raddr];
     end
   end
 
@@ -3465,7 +3465,7 @@ module dual_port_ram #(
   begin
     if (wen)
     begin
-      mem[waddr]  <=  wdata;
+      ocla_mem[waddr]  <=  wdata;
     end
   end
 
@@ -3756,7 +3756,7 @@ endmodule
 //
 // *****************************************************************
 
-module synchronizer #(
+module synchronizer_ocla #(
     parameter SYNC_STAGES   = 2,
     parameter ADDRSIZE      = 4
   )
