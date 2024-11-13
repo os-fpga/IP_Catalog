@@ -73,6 +73,12 @@ module DLY_CONFIG #(
         input wire  [(2*NUM_DLY)-1:0]           DD_IN,
         input wire  [NUM_DLY-1:0]               EN,
         output wire [DATA_WIDTH-1:0]            SD_OUT,
+
+    `elsif I_DELAY_O_DELAY
+        input  wire [(DATA_WIDTH/2)-1:0]        DIN_IDLY,
+        input  wire [(NUM_DLY/2)-1:0]           DIN_ODLY,
+        output wire [(NUM_DLY/2)-1:0]           DOUT_IDLY,
+        output wire [(DATA_WIDTH/2)-1:0]        DOUT_ODLY,
     `endif
 
     input  wire                                 RESET,
@@ -88,7 +94,6 @@ localparam NUM_CNTRL            = ((DLY_LOC[39:20] > 0) && (DLY_LOC[19:0] > 0)) 
 localparam NUM_DLY_CNTRL        = (NUM_CNTRL == 2) ? 20 : NUM_DLY;
 localparam [39:0] DLY_LOC_INT   = (DLY_LOC[19:0] == 0) ? {20'd0, DLY_LOC[39:20]} : DLY_LOC;
 
-wire  [NUM_DLY-1:0] i_buf_dout;
 reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_ld;
 reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_adj;
 reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_incdec;
@@ -318,6 +323,84 @@ always @(*) begin
         ACT_IDLY_CNT    = act_dly_cnt(NUM_GB_SITES*NUM_CNTRL);
 end
 
+`ifdef bidirectional
+wire  [(NUM_DLY/2)-1:0] i_buf_out;
+wire  [(NUM_DLY/2)-1:0] dly_out;
+
+generate
+    for(genvar i = 0; i < NUM_DLY/2; i = i + 1) begin
+        `ifdef I_DELAY_O_DELAY
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(DIN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF # (
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUF_inst (
+                    .I(dly_out[i]),
+                    .O(DOUT_ODLY[i])
+                );
+            
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(DIN_IDLY[i+(NUM_DLY/2)]),
+                    .I_P(DIN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF_DS #(
+                        .IOSTANDARD(IOSTANDARD),
+                        .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                    ) O_BUF_DS (
+                        .I(dly_out[i]),
+                        .O_P(DOUT_ODLY[i]),
+                        .O_N(DOUT_ODLY[i+(NUM_DLY/2)])
+                    );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+               .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(DOUT_IDLY[i])
+            );
+
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(DIN_ODLY[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(dly_out[i])
+            );
+        `endif
+    end
+endgenerate
+
+`elsif unidirectional
+wire  [NUM_DLY-1:0] i_buf_dout;
 generate
     for(genvar i = 0; i < NUM_DLY; i = i + 1) begin
         // --------------------------------------------------------- //
@@ -597,8 +680,8 @@ generate
                     );
                 `endif
         `endif
-
     end
 endgenerate
+`endif
 
 endmodule
