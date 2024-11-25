@@ -44,7 +44,7 @@ def get_clkin_ios_m(j):
 
 # AXI LITE CROSSBAR ----------------------------------------------------------------------------------
 class AXILITECROSSBARWrapper(Module):
-    def __init__(self, platform, s_count, m_count, data_width, addr_width,bram):
+    def __init__(self, platform, s_count, m_count, data_width, addr_width,bram, MADDRWIDTH):
         # Clocking ---------------------------------------------------------------------------------
         platform.add_extension(get_clkin_ios())
         self.clock_domains.cd_sys  = ClockDomain()
@@ -96,6 +96,7 @@ class AXILITECROSSBARWrapper(Module):
         self.submodules += AXILITECROSSBAR (platform, 
             s_axil      = s_axils,
             m_axil      = m_axils,
+            MADDRWIDTH  = MADDRWIDTH,
             s_count     = s_count,
             m_count     = m_count,
             bram        = bram,
@@ -121,6 +122,9 @@ def main():
     logging.info("IP    : %s", rs_builder.ip_name.upper())
     logging.info(("==================================================="))
     
+    # Core String parameters
+    core_string_param_group = parser.add_argument_group(title="Core string parameters")
+
     # Core fix value parameters.
     core_fix_param_group = parser.add_argument_group(title="Core fix parameters")
     core_fix_param_group.add_argument("--data_width",    type=int,      default=32,     choices=[32, 64],  help="Crossbar Data Width.")
@@ -147,6 +151,8 @@ def main():
     json_group.add_argument("--json-template",  action="store_true",            help="Generate JSON Template")
 
     args = parser.parse_args()
+    M_ADDR_WIDTH = [24] * (17)
+
     details =  {   "IP details": {
     'Name' : 'AXI Crossbar Lite',
     'Version' : 'V2_0',
@@ -159,6 +165,36 @@ def main():
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v2_0")
+        num_elements  =len(vars(args))
+        n= args.m_count
+        for i in range(1, n+1):
+            arg_name = "--address" + str(i) + "_Space"
+            arg_help = "address " + str(i)
+            core_string_param_group.add_argument(arg_name, type=str, default="16MB", choices=["4KB", "8KB", "1MB", "4MB", "8MB", "16MB"], help="Address Range")
+
+            
+            
+    
+        if(num_elements == ((1*n) + 10)):
+
+            for i in range (1, n+1):
+               if((i + 10) <= num_elements):
+                    arg_name = "address" + str(i) + "_Space"
+                  #  post_div = enum_post_div(eval(f'args.{arg_name}'))
+                    if (eval(f'args.{arg_name}')) == "4KB":
+                        M_ADDR_WIDTH[i] = 12  
+                    elif  (eval(f'args.{arg_name}')) == "8KB":
+                        M_ADDR_WIDTH[i] = 13 
+                    elif  (eval(f'args.{arg_name}')) == "1MB":
+                        M_ADDR_WIDTH[i] = 20  
+                    elif  (eval(f'args.{arg_name}')) == "4MB":
+                        M_ADDR_WIDTH[i] = 22
+                    elif  (eval(f'args.{arg_name}')) == "8MB":
+                        M_ADDR_WIDTH[i] = 23
+                    elif  (eval(f'args.{arg_name}')) == "16MB":
+                        M_ADDR_WIDTH[i] = 24  
+                    else:
+                        M_ADDR_WIDTH[i] = 1 
         file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.copy_images(file_path)
         
@@ -180,6 +216,7 @@ def main():
     module     = AXILITECROSSBARWrapper(platform,
         m_count     = args.m_count,
         s_count     = args.s_count,
+        MADDRWIDTH = M_ADDR_WIDTH,
         data_width  = args.data_width,
         addr_width  = args.addr_width,
         bram        = args.bram,

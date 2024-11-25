@@ -120,17 +120,19 @@ parameter PTR_WIDTH = $clog2(CYCLE_COUNT);
 parameter OFFSET = HDR_SIZE % BYTE_LANES;
 
 // check configuration
-initial begin
-    if (BYTE_LANES * 8 != DATA_WIDTH) begin
-        $error("Error: AXI stream interface requires byte (8-bit) granularity (instance %m)");
-        $finish;
+`ifndef SYNTHESIS
+    initial begin
+        if (BYTE_LANES * 8 != DATA_WIDTH) begin
+            $error("Error: AXI stream interface requires byte (8-bit) granularity (instance %m)");
+            $finish;
+        end
+    
+        if (MCF_PARAMS_SIZE > 44) begin
+            $error("Error: Maximum MCF_PARAMS_SIZE is 44 bytes (instance %m)");
+            $finish;
+        end
     end
-
-    if (MCF_PARAMS_SIZE > 44) begin
-        $error("Error: Maximum MCF_PARAMS_SIZE is 44 bytes (instance %m)");
-        $finish;
-    end
-end
+`endif
 
 /*
 

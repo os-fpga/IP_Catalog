@@ -432,11 +432,12 @@ end else if (STYLE_INT == "LOOP") begin
     end
 
 end else begin
-
-    initial begin
-        $error("Error: unknown style setting!");
-        $finish;
-    end
+    `ifndef SYNTHESIS
+        initial begin
+            $error("Error: unknown style setting!");
+            $finish;
+        end
+    `endif
 
 end
 

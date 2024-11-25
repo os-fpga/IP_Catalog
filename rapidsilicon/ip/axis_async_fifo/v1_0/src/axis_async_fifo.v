@@ -131,32 +131,34 @@ parameter ADDR_WIDTH = (KEEP_ENABLE && KEEP_WIDTH > 1) ? $clog2(DEPTH/KEEP_WIDTH
 parameter OUTPUT_FIFO_ADDR_WIDTH = RAM_PIPELINE < 2 ? 3 : $clog2(RAM_PIPELINE*2+7);
 
 // check configuration
-initial begin
-    if (FRAME_FIFO && !LAST_ENABLE) begin
-        $error("Error: FRAME_FIFO set requires LAST_ENABLE set (instance %m)");
-        $finish;
+`ifndef SYNTHESIS
+    initial begin
+        if (FRAME_FIFO && !LAST_ENABLE) begin
+            $error("Error: FRAME_FIFO set requires LAST_ENABLE set (instance %m)");
+            $finish;
+        end
+    
+        if (DROP_OVERSIZE_FRAME && !FRAME_FIFO) begin
+            $error("Error: DROP_OVERSIZE_FRAME set requires FRAME_FIFO set (instance %m)");
+            $finish;
+        end
+    
+        if (DROP_BAD_FRAME && !(FRAME_FIFO && DROP_OVERSIZE_FRAME)) begin
+            $error("Error: DROP_BAD_FRAME set requires FRAME_FIFO and DROP_OVERSIZE_FRAME set (instance %m)");
+            $finish;
+        end
+    
+        if (DROP_WHEN_FULL && !(FRAME_FIFO && DROP_OVERSIZE_FRAME)) begin
+            $error("Error: DROP_WHEN_FULL set requires FRAME_FIFO and DROP_OVERSIZE_FRAME set (instance %m)");
+            $finish;
+        end
+    
+        if (DROP_BAD_FRAME && (USER_BAD_FRAME_MASK & {USER_WIDTH{1'b1}}) == 0) begin
+            $error("Error: Invalid USER_BAD_FRAME_MASK value (instance %m)");
+            $finish;
+        end
     end
-
-    if (DROP_OVERSIZE_FRAME && !FRAME_FIFO) begin
-        $error("Error: DROP_OVERSIZE_FRAME set requires FRAME_FIFO set (instance %m)");
-        $finish;
-    end
-
-    if (DROP_BAD_FRAME && !(FRAME_FIFO && DROP_OVERSIZE_FRAME)) begin
-        $error("Error: DROP_BAD_FRAME set requires FRAME_FIFO and DROP_OVERSIZE_FRAME set (instance %m)");
-        $finish;
-    end
-
-    if (DROP_WHEN_FULL && !(FRAME_FIFO && DROP_OVERSIZE_FRAME)) begin
-        $error("Error: DROP_WHEN_FULL set requires FRAME_FIFO and DROP_OVERSIZE_FRAME set (instance %m)");
-        $finish;
-    end
-
-    if (DROP_BAD_FRAME && (USER_BAD_FRAME_MASK & {USER_WIDTH{1'b1}}) == 0) begin
-        $error("Error: Invalid USER_BAD_FRAME_MASK value (instance %m)");
-        $finish;
-    end
-end
+`endif
 
 localparam KEEP_OFFSET = DATA_WIDTH;
 localparam LAST_OFFSET = KEEP_OFFSET + (KEEP_ENABLE ? KEEP_WIDTH : 0);

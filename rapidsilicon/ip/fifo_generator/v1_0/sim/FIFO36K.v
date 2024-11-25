@@ -8,8 +8,8 @@
 //
 
 module FIFO36K #(
-  parameter DATA_WRITE_WIDTH = 36, // FIFO data write width (1-36)
-  parameter DATA_READ_WIDTH = 36, // FIFO data read width (1-36)
+  parameter DATA_WRITE_WIDTH = 36, // FIFO data write width (9, 18, 36)
+  parameter DATA_READ_WIDTH = 36, // FIFO data read width (9, 18, 36)
   parameter FIFO_TYPE = "SYNCHRONOUS", // Synchronous or Asynchronous data transfer (SYNCHRONOUS/ASYNCHRONOUS)
   parameter [11:0] PROG_EMPTY_THRESH = 12'h004, // 12-bit Programmable empty depth
   parameter [11:0] PROG_FULL_THRESH = 12'hffa // 12-bit Programmable full depth
@@ -197,22 +197,27 @@ module FIFO36K #(
     .RDATA_B(ram_rd_data), // Read data port B
     .RPARITY_B(ram_rd_parity) // Read parity port B
   ); initial begin
-
-    if ((DATA_WRITE_WIDTH < 1) || (DATA_WRITE_WIDTH > 36)) begin
-       $display("FIFO36K instance %m DATA_WRITE_WIDTH set to incorrect value, %d.  Values must be between 1 and 36.", DATA_WRITE_WIDTH);
-    #1 $stop;
-    end
-
-    if ((DATA_READ_WIDTH < 1) || (DATA_READ_WIDTH > 36)) begin
-       $display("FIFO36K instance %m DATA_READ_WIDTH set to incorrect value, %d.  Values must be between 1 and 36.", DATA_READ_WIDTH);
-    #1 $stop;
-    end
+    case(DATA_WRITE_WIDTH)
+      9 ,
+      18 ,
+      36: begin end
+      default: begin
+        $fatal(1,"\nError: FIFO36K instance %m has parameter DATA_WRITE_WIDTH set to %d.  Valid values are 9, 18, 36\n", DATA_WRITE_WIDTH);
+      end
+    endcase
+    case(DATA_READ_WIDTH)
+      9 ,
+      18 ,
+      36: begin end
+      default: begin
+        $fatal(1,"\nError: FIFO36K instance %m has parameter DATA_READ_WIDTH set to %d.  Valid values are 9, 18, 36\n", DATA_READ_WIDTH);
+      end
+    endcase
     case(FIFO_TYPE)
       "SYNCHRONOUS" ,
       "ASYNCHRONOUS": begin end
       default: begin
-        $display("\nError: FIFO36K instance %m has parameter FIFO_TYPE set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE);
-        #1 $stop ;
+        $fatal(1,"\nError: FIFO36K instance %m has parameter FIFO_TYPE set to %s.  Valid values are SYNCHRONOUS, ASYNCHRONOUS\n", FIFO_TYPE);
       end
     endcase
 

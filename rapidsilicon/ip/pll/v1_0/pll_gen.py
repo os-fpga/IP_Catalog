@@ -33,7 +33,7 @@ def get_clkin_ios():
         ("LOCK",            0, Pins(1)),
             ]
 
-# AXI RAM Wrapper ----------------------------------------------------------------------------------
+# PLL Wrapper ----------------------------------------------------------------------------------
 class PLLWrapper(Module):
     def __init__(self, platform, divide_clk_in_by_2, fast_clk_freq, ref_clk_freq, pll_post_div):
 
