@@ -1481,7 +1481,7 @@ class OCM_ASYM(Module):
                         p_READ_WIDTH_B      = param_read_width_A,
                         # Ports.
                         # -----------
-                        i_CLK_A     = clock1,
+                        i_CLK_A     = ClockSignal("A"),
                         i_CLK_B     = 0,
                         i_WEN_A     = wen,
                         i_WEN_B     = 0,

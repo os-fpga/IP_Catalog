@@ -210,145 +210,225 @@ def main():
     'Interface' : 'Native',
     'Description' : 'DSP Generator IP is a versatile solution that tailors DSP IPs based on specified parameters. It offers pre-built functions, optimizing performance by allowing the configuration of different multiplicative algorithms suited for custom requirements.'}
     }
+
+    device_dic = {
+            'dsp' : 56,
+            'bram' : 56
+        }
+    
     
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
         rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
 
-        if (args.equation == "AxB"):
-            dep_dict.update({
-                'c_width'     :     'True',
-                'd_width'     :     'True',
-                'e_width'     :     'True',
-                'f_width'     :     'True',
-                'g_width'     :     'True',
-                'h_width'     :     'True'
-            })
-            parser._actions[2].choices = ["Base", "Enhanced", "Pipeline"]
-            if (args.feature == "Base") or (args.feature == "Pipeline" and args.unsigned == True):
-                if(args.feature == "Pipeline"):
-                    parser._actions[11].default = True
-                    dep_dict.update({
-                        'reg_in'     :     'True'
-                    })
-                parser._actions[3].choices = range(1, 73)
-                parser._actions[4].choices = range(1, 73)
-            elif (args.feature == "Pipeline" and args.unsigned == False) or (args.feature == "Enhanced" and args.unsigned == True):
-                if(args.feature == "Pipeline"):
-                    parser._actions[11].default = True
-                    dep_dict.update({
-                        'reg_in'     :     'True'
-                    })
-                if (args.a_width > 68):
-                    parser._actions[3].default = 68
-                if (args.b_width > 68):
-                    parser._actions[4].default = 68
-                parser._actions[3].choices = range(1, 69)
-                parser._actions[4].choices = range(1, 69)
-            elif (args.feature == "Enhanced" and args.unsigned == False):
-                if (args.a_width > 64):
-                    parser._actions[3].default = 64
-                if (args.b_width > 64):
-                    parser._actions[4].default = 64
-                parser._actions[3].choices = range(1, 65)
-                parser._actions[4].choices = range(1, 65)
-        else:
-            parser._actions[2].choices = ["Base"]
-            parser._actions[3].choices = range(1, 21)
-            parser._actions[4].choices = range(1, 19)
-            if (args.equation == "AxB+CxD"):
+        #device_dict contains the number of BRAMs and DSP for the device used.
+        device_dic = rs_builder.parse_device(args.device_path,args.device)
+
+        if (device_dic['dsp'] > 0):
+            if (args.equation == "AxB"):
                 dep_dict.update({
+                    'c_width'     :     'True',
+                    'd_width'     :     'True',
                     'e_width'     :     'True',
                     'f_width'     :     'True',
                     'g_width'     :     'True',
                     'h_width'     :     'True'
                 })
+                parser._actions[2].choices = ["Base", "Enhanced", "Pipeline"]
+                if (args.feature == "Base") or (args.feature == "Pipeline" and args.unsigned == True):
+                    if(args.feature == "Pipeline"):
+                        parser._actions[11].default = True
+                        dep_dict.update({
+                            'reg_in'     :     'True'
+                        })
+                    if (args.feature == "Base"):
+                        if (device_dic['dsp'] >= 16):
+                            parser._actions[3].choices = range(1, 73)
+                            parser._actions[4].choices = range(1, 73)
+                        elif (device_dic['dsp'] >= 9):
+                            parser._actions[3].choices = range(1, 55)
+                            parser._actions[4].choices = range(1, 55)
+                        elif (device_dic['dsp'] >= 4):
+                            parser._actions[3].choices = range(1, 37)
+                            parser._actions[4].choices = range(1, 37)
+                        else:
+                            parser._actions[3].choices = range(1, 21)
+                            parser._actions[4].choices = range(1, 19)
+                    else:
+                        if (device_dic['dsp'] >= 7):
+                            parser._actions[3].choices = range(1, 73)
+                            parser._actions[4].choices = range(1, 73)
+                        elif (device_dic['dsp'] >= 5):
+                            parser._actions[3].choices = range(1, 55)
+                            parser._actions[4].choices = range(1, 55)
+                        elif (device_dic['dsp'] >= 3):
+                            parser._actions[3].choices = range(1, 37)
+                            parser._actions[4].choices = range(1, 37)
+                        else:
+                            parser._actions[3].choices = range(1, 21)
+                            parser._actions[4].choices = range(1, 19)
+
+                elif (args.feature == "Pipeline" and args.unsigned == False) or (args.feature == "Enhanced" and args.unsigned == True):
+                    if(args.feature == "Pipeline"):
+                        parser._actions[11].default = True
+                        dep_dict.update({
+                            'reg_in'     :     'True'
+                        })
+                    if (args.a_width > 68):
+                        parser._actions[3].default = 68
+                    if (args.b_width > 68):
+                        parser._actions[4].default = 68
+
+                    if (args.feature == "Pipeline"):
+                        if (device_dic['dsp'] >= 7):
+                            parser._actions[3].choices = range(1, 69)
+                            parser._actions[4].choices = range(1, 69)
+                        elif (device_dic['dsp'] >= 5):
+                            parser._actions[3].choices = range(1, 52)
+                            parser._actions[4].choices = range(1, 52)
+                        elif (device_dic['dsp'] >= 3):
+                            parser._actions[3].choices = range(1, 35)
+                            parser._actions[4].choices = range(1, 35)
+                        else:
+                            parser._actions[3].choices = range(1, 21)
+                            parser._actions[4].choices = range(1, 19)
+                    else:
+                        if (device_dic['dsp'] >= 10):
+                            parser._actions[3].choices = range(1, 69)
+                            parser._actions[4].choices = range(1, 69)
+                        elif (device_dic['dsp'] >= 6):
+                            parser._actions[3].choices = range(1, 52)
+                            parser._actions[4].choices = range(1, 52)
+                        elif (device_dic['dsp'] >= 3):
+                            parser._actions[3].choices = range(1, 35)
+                            parser._actions[4].choices = range(1, 35)
+                        else:
+                            parser._actions[3].choices = range(1, 21)
+                            parser._actions[4].choices = range(1, 19)
+
+                elif (args.feature == "Enhanced" and args.unsigned == False):
+                    if (args.a_width > 64):
+                        parser._actions[3].default = 64
+                    if (args.b_width > 64):
+                        parser._actions[4].default = 64
+                    if (device_dic['dsp'] >= 10):
+                        parser._actions[3].choices = range(1, 65)
+                        parser._actions[4].choices = range(1, 65)
+                    elif (device_dic['dsp'] >= 6):
+                        parser._actions[3].choices = range(1, 49)
+                        parser._actions[4].choices = range(1, 49)
+                    elif (device_dic['dsp'] >= 3):
+                        parser._actions[3].choices = range(1, 33)
+                        parser._actions[4].choices = range(1, 33)
+                    else:
+                        parser._actions[3].choices = range(1, 21)
+                        parser._actions[4].choices = range(1, 19)
+
+            else:
+                parser._actions[2].choices = ["Base"]
+                if (device_dic['dsp'] >= 1):
+                    parser._actions[3].choices = range(1, 21)
+                    parser._actions[4].choices = range(1, 19)
+                if (args.equation == "AxB+CxD"):
+                    dep_dict.update({
+                        'e_width'     :     'True',
+                        'f_width'     :     'True',
+                        'g_width'     :     'True',
+                        'h_width'     :     'True'
+                    })
+        else:
+            parser._actions = [action for action in parser._actions if not action.option_strings]
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
     
         file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.copy_images(file_path)
-        
-    summary =  {  
-    "Multiplier" : args.equation
-    }
-    if(args.feature == "Base"):
-        summary["Algorithm"] = "Karatsuba Algorithm"
-        summary["Latency (clock cycles)"] = "1"
-        if(args.equation == "AxB"):
-            if ((args.a_width > 54 and args.a_width <=72) or (args.b_width > 54 and args.b_width <=72)):
-                summary["Count of DSPs"] = "16"
-            elif ((args.a_width > 36 and args.a_width <=54) or (args.b_width > 36 and args.b_width <=54)):
-                summary["Count of DSPs"] = "9"
-            elif ((args.a_width > 20 and args.a_width <=36) or (args.b_width > 18 and args.b_width <=36)):
+
+    if (device_dic['dsp'] > 0):
+        summary =  {  
+        "Multiplier" : args.equation
+        }
+        if(args.feature == "Base"):
+            summary["Algorithm"] = "Karatsuba Algorithm"
+            summary["Latency (clock cycles)"] = "1"
+            if(args.equation == "AxB"):
+                if ((args.a_width > 54 and args.a_width <=72) or (args.b_width > 54 and args.b_width <=72)):
+                    summary["Count of DSPs"] = "16"
+                elif ((args.a_width > 36 and args.a_width <=54) or (args.b_width > 36 and args.b_width <=54)):
+                    summary["Count of DSPs"] = "9"
+                elif ((args.a_width > 20 and args.a_width <=36) or (args.b_width > 18 and args.b_width <=36)):
+                    summary["Count of DSPs"] = "4"
+                else:
+                    summary["Count of DSPs"] = "1"
+            elif (args.equation == "AxB+CxD"):
+                summary["Count of DSPs"] = "2"
+            else:
                 summary["Count of DSPs"] = "4"
+        elif (args.feature == "Enhanced"):
+            summary["Algorithm"] = "Karatsuba-Offman Algorithm"
+            summary["Latency (clock cycles)"] = "1"
+            if(args.unsigned):
+                if ((args.a_width > 51 and args.a_width <=68) or (args.b_width > 51 and args.b_width <=68)):
+                    summary["Count of DSPs"] = "10"
+                elif ((args.a_width > 34 and args.a_width <=51) or (args.b_width > 34 and args.b_width <=51)):
+                    summary["Count of DSPs"] = "6"
+                elif ((args.a_width > 20 and args.a_width <=34) or (args.b_width > 18 and args.b_width <=34)):
+                    summary["Count of DSPs"] = "3"
+                else:
+                    summary["Count of DSPs"] = "1"
             else:
-                summary["Count of DSPs"] = "1"
-        elif (args.equation == "AxB+CxD"):
-            summary["Count of DSPs"] = "2"
+                if ((args.a_width > 48 and args.a_width <=64) or (args.b_width > 48 and args.b_width <=64)):
+                    summary["Count of DSPs"] = "10"
+                elif ((args.a_width > 32 and args.a_width <=48) or (args.b_width > 32 and args.b_width <=48)):
+                    summary["Count of DSPs"] = "6"
+                elif ((args.a_width > 20 and args.a_width <=32) or (args.b_width > 18 and args.b_width <=32)):
+                    summary["Count of DSPs"] = "3"
+                else:
+                    summary["Count of DSPs"] = "1"
         else:
-            summary["Count of DSPs"] = "4"
-    elif (args.feature == "Enhanced"):
-        summary["Algorithm"] = "Karatsuba-Offman Algorithm"
-        summary["Latency (clock cycles)"] = "1"
-        if(args.unsigned):
-            if ((args.a_width > 51 and args.a_width <=68) or (args.b_width > 51 and args.b_width <=68)):
-                summary["Count of DSPs"] = "10"
-            elif ((args.a_width > 34 and args.a_width <=51) or (args.b_width > 34 and args.b_width <=51)):
-                summary["Count of DSPs"] = "6"
-            elif ((args.a_width > 20 and args.a_width <=34) or (args.b_width > 18 and args.b_width <=34)):
-                summary["Count of DSPs"] = "3"
+            summary["Algorithm"] = "Pipelined Algorithm"
+            if(args.unsigned):
+                if ((args.a_width > 54 and args.a_width <=72) or (args.b_width > 54 and args.b_width <=72)):
+                    summary["Count of DSPs"] = "7"
+                    summary["Latency (clock cycles)"] = "4"
+                elif ((args.a_width > 36 and args.a_width <=54) or (args.b_width > 36 and args.b_width <=54)):
+                    summary["Count of DSPs"] = "5"
+                    summary["Latency (clock cycles)"] = "3"
+                elif ((args.a_width > 20 and args.a_width <=36) or (args.b_width > 18 and args.b_width <=36)):
+                    summary["Count of DSPs"] = "3"
+                    summary["Latency (clock cycles)"] = "2"
+                else:
+                    summary["Count of DSPs"] = "1"
+                    summary["Latency (clock cycles)"] = "1"
             else:
-                summary["Count of DSPs"] = "1"
+                if ((args.a_width > 51 and args.a_width <=68) or (args.b_width > 51 and args.b_width <=68)):
+                    summary["Count of DSPs"] = "7"
+                    summary["Latency (clock cycles)"] = "4"
+                elif ((args.a_width > 34 and args.a_width <=51) or (args.b_width > 34 and args.b_width <=51)):
+                    summary["Count of DSPs"] = "5"
+                    summary["Latency (clock cycles)"] = "3"
+                elif ((args.a_width > 20 and args.a_width <=34) or (args.b_width > 18 and args.b_width <=34)):
+                    summary["Count of DSPs"] = "3"
+                    summary["Latency (clock cycles)"] = "2"
+                else:
+                    summary["Count of DSPs"] = "1"
+                    summary["Latency (clock cycles)"] = "1"
+        if (args.unsigned and not args.reg_in):
+            summary["Input"] = "Unregistered and Unsigned"
+        elif (args.unsigned and args.reg_in):
+            summary["Input"] = "Registered and Unsigned"
+        elif (not args.unsigned and args.reg_in):
+            summary["Input"] = "Registered and Signed"
         else:
-            if ((args.a_width > 48 and args.a_width <=64) or (args.b_width > 48 and args.b_width <=64)):
-                summary["Count of DSPs"] = "10"
-            elif ((args.a_width > 32 and args.a_width <=48) or (args.b_width > 32 and args.b_width <=48)):
-                summary["Count of DSPs"] = "6"
-            elif ((args.a_width > 20 and args.a_width <=32) or (args.b_width > 18 and args.b_width <=32)):
-                summary["Count of DSPs"] = "3"
-            else:
-                summary["Count of DSPs"] = "1"
-    else:
-        summary["Algorithm"] = "Pipelined Algorithm"
-        if(args.unsigned):
-            if ((args.a_width > 54 and args.a_width <=72) or (args.b_width > 54 and args.b_width <=72)):
-                summary["Count of DSPs"] = "7"
-                summary["Latency (clock cycles)"] = "4"
-            elif ((args.a_width > 36 and args.a_width <=54) or (args.b_width > 36 and args.b_width <=54)):
-                summary["Count of DSPs"] = "5"
-                summary["Latency (clock cycles)"] = "3"
-            elif ((args.a_width > 20 and args.a_width <=36) or (args.b_width > 18 and args.b_width <=36)):
-                summary["Count of DSPs"] = "3"
-                summary["Latency (clock cycles)"] = "2"
-            else:
-                summary["Count of DSPs"] = "1"
-                summary["Latency (clock cycles)"] = "1"
+            summary["Input"] = "Unregistered and Signed"
+        if (args.reg_out):
+            summary["Output"] = "Registered Output"
         else:
-            if ((args.a_width > 51 and args.a_width <=68) or (args.b_width > 51 and args.b_width <=68)):
-                summary["Count of DSPs"] = "7"
-                summary["Latency (clock cycles)"] = "4"
-            elif ((args.a_width > 34 and args.a_width <=51) or (args.b_width > 34 and args.b_width <=51)):
-                summary["Count of DSPs"] = "5"
-                summary["Latency (clock cycles)"] = "3"
-            elif ((args.a_width > 20 and args.a_width <=34) or (args.b_width > 18 and args.b_width <=34)):
-                summary["Count of DSPs"] = "3"
-                summary["Latency (clock cycles)"] = "2"
-            else:
-                summary["Count of DSPs"] = "1"
-                summary["Latency (clock cycles)"] = "1"
-    if (args.unsigned and not args.reg_in):
-        summary["Input"] = "Unregistered and Unsigned"
-    elif (args.unsigned and args.reg_in):
-        summary["Input"] = "Registered and Unsigned"
-    elif (not args.unsigned and args.reg_in):
-        summary["Input"] = "Registered and Signed"
+            summary["Output"] = "Unregistered Output"
     else:
-        summary["Input"] = "Unregistered and Signed"
-    if (args.reg_out):
-        summary["Output"] = "Registered Output"
-    else:
-        summary["Output"] = "Unregistered Output"
+        summary =  {  
+        "WARNING" : "No DSPs in selected device. Select a different device with DSPs."
+        }
 
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
@@ -357,21 +437,22 @@ def main():
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = RS_DSP_Wrapper(platform,
-        a_width     = args.a_width,
-        b_width     = args.b_width,
-        c_width     = args.c_width, 
-        d_width     = args.d_width,
-        e_width     = args.e_width,
-        f_width     = args.f_width,
-        g_width     = args.g_width,
-        h_width     = args.h_width,
-        feature     = args.feature,
-        reg_in      = args.reg_in,
-        reg_out     = args.reg_out,
-        unsigned    = args.unsigned,
-        equation    = args.equation
-    )
+    if (device_dic['dsp'] > 0):
+        module   = RS_DSP_Wrapper(platform,
+            a_width     = args.a_width,
+            b_width     = args.b_width,
+            c_width     = args.c_width, 
+            d_width     = args.d_width,
+            e_width     = args.e_width,
+            f_width     = args.f_width,
+            g_width     = args.g_width,
+            h_width     = args.h_width,
+            feature     = args.feature,
+            reg_in      = args.reg_in,
+            reg_out     = args.reg_out,
+            unsigned    = args.unsigned,
+            equation    = args.equation
+        )
     
     # Build Project --------------------------------------------------------------------------------
     if args.build:

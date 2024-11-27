@@ -227,14 +227,31 @@ def main():
 
     args = parser.parse_args()
 
+    details =  {   "IP details": {
+    'Name' : 'FIFO Generator',
+    'Version' : 'V1_0',
+    'Interface' : 'Native',
+    'Description' : 'FIFO Generator IP is a versatile solution that tailors FIFO IPs based on specified parameters. It optimizes data flow, synchronizes components with different data rates, and adapts to various design requirements, offering efficient and customizable data management.'}
+    }
+
     if (args.builtin_fifo == False and args.synchronous == False):
         depth = args.DEPTH
     else:
         depth = args.depth
+
+    device_dic = {
+            'dsp' : 56,
+            'bram' : 56
+        }
         
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
+        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
+
+        #device_dict contains the number of BRAMs and DSP for the device used.
+        device_dic = rs_builder.parse_device(args.device_path,args.device)
+
         if (args.asymmetric):
             data_width_read  = args.data_width_read
             data_width_write = args.data_width_write
@@ -247,7 +264,7 @@ def main():
         num_9K = 0
         num_18K = 0
         total_mem = 0
-        while total_BRAM(data_width_write, remaining_memory/data_width_write) < 128:
+        while total_BRAM(data_width_write, remaining_memory/data_width_write) < device_dic['bram']:
             for i, bus in enumerate(buses_write):
                 if (len(bus) <= 9):
                     memory = 1024
@@ -272,178 +289,174 @@ def main():
                 else:
                     prev_rem = prev_rem
             
-    details =  {   "IP details": {
-    'Name' : 'FIFO Generator',
-    'Version' : 'V1_0',
-    'Interface' : 'Native',
-    'Description' : 'FIFO Generator IP is a versatile solution that tailors FIFO IPs based on specified parameters. It optimizes data flow, synchronizes components with different data rates, and adapts to various design requirements, offering efficient and customizable data management.'}
-    }
-
-    # Import JSON (Optional) -----------------------------------------------------------------------
-    if args.json:
-        args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
-        rs_builder.import_ip_details_json(build_dir=args.build_dir ,details=details , build_name = args.build_name, version = "v1_0")
         file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.copy_images(file_path)
-        
-        if (args.full_threshold == False):
-            dep_dict.update({
-                'full_value'    :   'True'
-            })
-        if (args.empty_threshold == False):
-            dep_dict.update({
-                'empty_value'   :   'True'
-            })
-        if (args.builtin_fifo == False):
-            dep_dict.update({
-                'asymmetric'    :   'True'
-            })
-        if (args.asymmetric == True):
-            dep_dict.update({
-                'builtin_fifo'    :   'True'
-            })
-        if (args.builtin_fifo == False):
-            args.asymmetric = False
-        if (args.builtin_fifo == False and args.synchronous == False):
-            option_strings_to_remove = ['--write_depth']
-            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            option_strings_to_remove = ['--depth']
-            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            if (args.asymmetric):
-                option_strings_to_remove = ['--data_width']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
-                    parser._actions[5].default = 2 ** round(math.log2(args.depth))
-                parser._actions[2].choices = range(2, args.DEPTH)
-                parser._actions[3].choices = range(1, args.DEPTH)
-                if (args.full_value >= args.DEPTH):
-                    parser._actions[2].default = args.DEPTH - 1
-                if (args.empty_value >= args.DEPTH):    
-                    parser._actions[3].default = 1
-                parser._actions[4].choices = factors_multiples(args.data_width_write)
-                parser._actions[4].default = args.data_width_write
-            else:
-                option_strings_to_remove = ['--data_width_read']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                option_strings_to_remove = ['--data_width_write']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
-                    parser._actions[4].default = 2 ** round(math.log2(args.depth))
-                parser._actions[2].choices = range(2, args.DEPTH)
-                parser._actions[3].choices = range(1, args.DEPTH)
-                if (args.full_value >= args.DEPTH):
-                    parser._actions[2].default = args.DEPTH - 1
-                if (args.empty_value >= args.DEPTH):    
-                    parser._actions[3].default = 1
-                parser._actions[4].choices = [4 * (2 ** i) for i in range(int(math.log2(remaining_memory/args.data_width) - 1))]
-        else:
-            if (args.asymmetric):
-                option_strings_to_remove = ['--data_width']
+        if (device_dic['bram'] > 0):
+            if (args.full_threshold == False):
+                dep_dict.update({
+                    'full_value'    :   'True'
+                })
+            if (args.empty_threshold == False):
+                dep_dict.update({
+                    'empty_value'   :   'True'
+                })
+            if (args.builtin_fifo == False):
+                dep_dict.update({
+                    'asymmetric'    :   'True'
+                })
+            if (args.asymmetric == True):
+                dep_dict.update({
+                    'builtin_fifo'    :   'True'
+                })
+            if (args.builtin_fifo == False):
+                args.asymmetric = False
+            if (args.builtin_fifo == False and args.synchronous == False):
+                option_strings_to_remove = ['--write_depth']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
                 option_strings_to_remove = ['--depth']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                data_width_write = args.data_width_write
+                if (args.asymmetric):
+                    option_strings_to_remove = ['--data_width']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
+                        parser._actions[5].default = 2 ** round(math.log2(args.depth))
+                    parser._actions[2].choices = range(2, args.DEPTH)
+                    parser._actions[3].choices = range(1, args.DEPTH)
+                    if (args.full_value >= args.DEPTH):
+                        parser._actions[2].default = args.DEPTH - 1
+                    if (args.empty_value >= args.DEPTH):    
+                        parser._actions[3].default = 1
+                    parser._actions[4].choices = factors_multiples(args.data_width_write)
+                    parser._actions[4].default = args.data_width_write
+                else:
+                    option_strings_to_remove = ['--data_width_read']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    option_strings_to_remove = ['--data_width_write']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    if (math.ceil(math.log2(args.depth)) != math.floor(math.log2(args.depth))):
+                        parser._actions[4].default = 2 ** round(math.log2(args.depth))
+                    parser._actions[2].choices = range(2, args.DEPTH)
+                    parser._actions[3].choices = range(1, args.DEPTH)
+                    if (args.full_value >= args.DEPTH):
+                        parser._actions[2].default = args.DEPTH - 1
+                    if (args.empty_value >= args.DEPTH):    
+                        parser._actions[3].default = 1
+                    parser._actions[4].choices = [4 * (2 ** i) for i in range(int(math.log2(remaining_memory/args.data_width) - 1))]
             else:
-                option_strings_to_remove = ['--write_depth']
+                if (args.asymmetric):
+                    option_strings_to_remove = ['--data_width']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    option_strings_to_remove = ['--depth']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    data_width_write = args.data_width_write
+                else:
+                    option_strings_to_remove = ['--write_depth']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    data_width_write = args.data_width
+                option_strings_to_remove = ['--DEPTH']
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                data_width_write = args.data_width
-            option_strings_to_remove = ['--DEPTH']
-            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            if (args.asymmetric):
-                option_strings_to_remove = ['--data_width']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                parser._actions[2].choices = range(2, args.depth)
-                parser._actions[3].choices = range(1, args.depth)
-                if (args.full_value >= args.depth):
-                    parser._actions[2].default = args.depth - 1
-                if (args.empty_value >= args.depth):    
-                    parser._actions[3].default = 1
-                parser._actions[5].choices = factors_multiples(args.data_width_write)
-                parser._actions[5].default = args.data_width_write
-                parser._actions[4].choices = [16 * 2**i for i in range(0, 120) if 16 * 2**i <= int(prev_rem/args.data_width_write)]
-            else:
-                option_strings_to_remove = ['--data_width_read']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                option_strings_to_remove = ['--data_width_write']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                parser._actions[2].choices = range(2, args.depth)
-                parser._actions[3].choices = range(1, args.depth)
-                if (args.full_value >= args.depth):
-                    parser._actions[2].default = args.depth - 1
-                if (args.empty_value >= args.depth):    
-                    parser._actions[3].default = 1
-                parser._actions[4].choices = range(2, int(prev_rem/args.data_width) + 1)
+                if (args.asymmetric):
+                    option_strings_to_remove = ['--data_width']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    parser._actions[2].choices = range(2, args.depth)
+                    parser._actions[3].choices = range(1, args.depth)
+                    if (args.full_value >= args.depth):
+                        parser._actions[2].default = args.depth - 1
+                    if (args.empty_value >= args.depth):    
+                        parser._actions[3].default = 1
+                    parser._actions[5].choices = factors_multiples(args.data_width_write)
+                    parser._actions[5].default = args.data_width_write
+                    parser._actions[4].choices = [16 * 2**i for i in range(0, 120) if 16 * 2**i <= int(prev_rem/args.data_width_write)]
+                else:
+                    option_strings_to_remove = ['--data_width_read']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    option_strings_to_remove = ['--data_width_write']
+                    parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+                    parser._actions[2].choices = range(2, args.depth)
+                    parser._actions[3].choices = range(1, args.depth)
+                    if (args.full_value >= args.depth):
+                        parser._actions[2].default = args.depth - 1
+                    if (args.empty_value >= args.depth):    
+                        parser._actions[3].default = 1
+                    parser._actions[4].choices = range(2, int(prev_rem/args.data_width) + 1)
+        else:
+            parser._actions = [action for action in parser._actions if not action.option_strings]
         
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
 
-    if (args.builtin_fifo == False and args.synchronous == False):
-        depth = args.DEPTH
-    else:
-        if(not args.asymmetric):
-            depth = args.depth
+    if (device_dic['bram'] > 0):
+        if (args.builtin_fifo == False and args.synchronous == False):
+            depth = args.DEPTH
         else:
-            if(args.data_width_read > args.data_width_write):
-                depth = args.write_depth
+            if(not args.asymmetric):
+                depth = args.depth
+            else:
+                if(args.data_width_read > args.data_width_write):
+                    depth = args.write_depth
 
 
     summary =  { }
-    if (args.asymmetric):
-        summary["Write Depth"] = depth
-        summary["Data Width Write"] = args.data_width_write
-        summary["Data Width Read"] = args.data_width_read
-        if (args.data_width_read > args.data_width_write):
-            summary["Read Latency (clock cycles)"] = clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write)
-            depth = args.write_depth
-            summary["Read Depth"] = int(depth/clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write) if (clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write)) > 1 else depth/(args.data_width_read/args.data_width_write))
-        else:
-            depth = args.write_depth
-            summary["Read Latency (clock cycles)"] = "1"
-            summary["Read Depth"] = int(depth*(args.data_width_write/args.data_width_read))
-    else:
-        summary["FIFO Depth"] = depth
-        summary["Data Width"] = args.data_width
-        summary["Read Latency (clock cycles)"] = "1"
-    if(args.first_word_fall_through):
-        summary["FIFO Mode"] = "First Word Fall Through"
-    else:
-        summary["FIFO Mode"] = "Standard"
-    if (args.builtin_fifo):
+    if (device_dic['bram'] > 0):
         if (args.asymmetric):
-            data_width_write = args.data_width_write
+            summary["Write Depth"] = depth
+            summary["Data Width Write"] = args.data_width_write
+            summary["Data Width Read"] = args.data_width_read
+            if (args.data_width_read > args.data_width_write):
+                summary["Read Latency (clock cycles)"] = clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write)
+                depth = args.write_depth
+                summary["Read Depth"] = int(depth/clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write) if (clock_cycles_to_obtain_desired_output(args.data_width_read, args.data_width_write)) > 1 else depth/(args.data_width_read/args.data_width_write))
+            else:
+                depth = args.write_depth
+                summary["Read Latency (clock cycles)"] = "1"
+                summary["Read Depth"] = int(depth*(args.data_width_write/args.data_width_read))
         else:
-            data_width_write = args.data_width
-        summary["Count of FIFOs"] = math.ceil(total_BRAM(data_width_write, depth) * 2) / 2
-    if (args.empty_threshold):
-        summary["Programmable Empty"] = "Programmble Empty will be asserted at data count %s" % args.empty_value
-    if (args.full_threshold):
-        summary["Programmable Full"] = "Programmble Full will be asserted at data count %s" % args.full_value
+            summary["FIFO Depth"] = depth
+            summary["Data Width"] = args.data_width
+            summary["Read Latency (clock cycles)"] = "1"
+        if(args.first_word_fall_through):
+            summary["FIFO Mode"] = "First Word Fall Through"
+        else:
+            summary["FIFO Mode"] = "Standard"
+        if (args.builtin_fifo):
+            if (args.asymmetric):
+                data_width_write = args.data_width_write
+            else:
+                data_width_write = args.data_width
+            summary["Count of FIFOs"] = math.ceil(total_BRAM(data_width_write, depth) * 2) / 2
+        if (args.empty_threshold):
+            summary["Programmable Empty"] = "Programmble Empty will be asserted at data count %s" % args.empty_value
+        if (args.full_threshold):
+            summary["Programmable Full"] = "Programmble Full will be asserted at data count %s" % args.full_value
+    else:
+        summary["WARNING"] = "No FIFOs in selected device. Select a different device with BRAMs/FIFOs."
     
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
         rs_builder.export_json_template(parser=parser, dep_dict=dep_dict, summary=summary)
 
-
-    if (args.asymmetric):
-        data_width_read  = args.data_width_read
-        data_width_write = args.data_width_write
-    else:
-        data_width_read  = args.data_width
-        data_width_write = args.data_width
+    if (device_dic['bram'] > 0):
+        if (args.asymmetric):
+            data_width_read  = args.data_width_read
+            data_width_write = args.data_width_write
+        else:
+            data_width_read  = args.data_width
+            data_width_write = args.data_width
 
     # Create Generator -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
-    module   = FIFOGenerator(platform,
-        data_width_read   				= data_width_read,
-        data_width_write                = data_width_write,
-        synchronous     				= args.synchronous,
-        full_threshold  				= args.full_threshold,
-        empty_threshold 				= args.empty_threshold,
-        depth           				= depth,
-        full_value                      = args.full_value,
-        empty_value                     = args.empty_value,
-        first_word_fall_through         = args.first_word_fall_through,
-        builtin_fifo                    = args.builtin_fifo
-    )
+    if (device_dic['bram'] > 0):
+        module   = FIFOGenerator(platform,
+            data_width_read   				= data_width_read,
+            data_width_write                = data_width_write,
+            synchronous     				= args.synchronous,
+            full_threshold  				= args.full_threshold,
+            empty_threshold 				= args.empty_threshold,
+            depth           				= depth,
+            full_value                      = args.full_value,
+            empty_value                     = args.empty_value,
+            first_word_fall_through         = args.first_word_fall_through,
+            builtin_fifo                    = args.builtin_fifo
+        )
 
     # Build Project --------------------------------------------------------------------------------
     if args.build:
