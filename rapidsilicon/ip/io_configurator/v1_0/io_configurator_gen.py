@@ -209,6 +209,11 @@ def bidirectional_ios(num_dly, width):
         ("FABRIC_DPA_LOCK",     0, Pins(math.ceil(num_dly/2))),
         ("FABRIC_DPA_ERROR",    0, Pins(math.ceil(num_dly/2))),
         ("FABRIC_CLK_OUT",      0, Pins(math.ceil(num_dly/2))),
+        #iddr
+        ("IOPAD_SD_IN",           0, Pins(math.ceil(num_dly/2))),
+        ("IOPAD_SD_IN_P",         0, Pins(math.ceil(num_dly/2))),
+        ("IOPAD_SD_IN_N",         0, Pins(math.ceil(num_dly/2))),
+        ("FABRIC_EN_IDDR",        0, Pins(math.ceil(num_dly/2))),
         # odelay
         ("FABRIC_DIN",          0, Pins(math.ceil(num_dly/2))),
         ("IOPAD_DOUT",          0, Pins(math.ceil(num_dly/2))),
@@ -222,7 +227,7 @@ def bidirectional_ios(num_dly, width):
         ("IOPAD_SDATA_OUT_P",   0, Pins(math.ceil(num_dly/2))),
         ("IOPAD_SDATA_OUT_N",   0, Pins(math.ceil(num_dly/2))),
         #oddr
-        ("FABRIC_EN_DDR",       0, Pins(math.ceil(num_dly/2))),
+        ("FABRIC_EN_ODDR",      0, Pins(math.ceil(num_dly/2))),
         ("IOPAD_SD_OUT",        0, Pins(math.ceil(num_dly/2))),
         ("IOPAD_SD_OUT_P",      0, Pins(math.ceil(num_dly/2))),
         ("IOPAD_SD_OUT_N",      0, Pins(math.ceil(num_dly/2))),
@@ -232,6 +237,8 @@ def bidirectional_ios(num_dly, width):
         (f"FABRIC_PDATA_OUT_{i}",   i, Pins(width)) for i in range(math.ceil(num_dly/2))
     ]+ [
         (f"FABRIC_DD_IN_{i}",       i, Pins(2)) for i in range(math.ceil(num_dly/2))
+    ] + [
+        (f"FABRIC_DD_OUT_{i}",      i, Pins(2)) for i in range(math.ceil(num_dly/2))
     ] 
 
 def freq_calc(self, out_clk_freq, ref_clk_freq, clocking_source):
@@ -2354,7 +2361,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             # -----------
             i_DIN_IDLY                      = iopad_i,
             i_DD_IN_ODDR                    = Cat([platform.request(f"FABRIC_DD_IN_{i}") for i in range(math.ceil(num_dly/2))]),
-            i_EN_ODDR                       = platform.request("FABRIC_EN_DDR"),
+            i_EN_ODDR                       = platform.request("FABRIC_EN_ODDR"),
             i_RESET                         = platform.request("FABRIC_RST"),
             i_SEL_DLY                       = platform.request("SEL_DLY"),
             i_DLY_LOAD                      = platform.request("FABRIC_DLY_LOAD"),
@@ -2393,7 +2400,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             i_CLK_IN                        = clk_in,
             i_DIN_IDLY                      = iopad_i,
             i_DD_IN_ODDR                    = Cat([platform.request(f"FABRIC_DD_IN_{i}") for i in range(math.ceil(num_dly/2))]),
-            i_EN_ODDR                       = platform.request("FABRIC_EN_DDR"),
+            i_EN_ODDR                       = platform.request("FABRIC_EN_ODDR"),
             i_RESET                         = platform.request("FABRIC_RST"),
             i_SEL_DLY                       = platform.request("SEL_DLY"),
             i_DLY_LOAD                      = platform.request("FABRIC_DLY_LOAD"),
@@ -2640,6 +2647,9 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             p_DRIVE_STRENGTH                = drive_strength,
             p_SLEW_RATE                     = slew_rate,
             p_DIFFERENTIAL_TERMINATION      = diff_termination,
+            p_WIDTH                         = width,
+            p_DATA_RATE                     = data_rate,
+            p_DPA_MODE                      = op_mode,
             p_DLY_SEL_WIDTH                 = sel_dly,
             p_IO_TYPE                       = io_type,
             p_DELAY_TYPE                    = delay_type,
@@ -2656,7 +2666,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             o_CLK_OUT                       = platform.request("FABRIC_CLK_OUT"),
             o_PDATA_OUT_ISERDES             = Cat([platform.request(f"FABRIC_PDATA_OUT_{i}") for i in range(math.ceil(num_dly/2))]),
             i_DD_IN_ODDR                    = Cat([platform.request(f"FABRIC_DD_IN_{i}") for i in range(math.ceil(num_dly/2))]),
-            i_EN_ODDR                       = platform.request("FABRIC_EN_DDR"),
+            i_EN_ODDR                       = platform.request("FABRIC_EN_ODDR"),
             o_SD_OUT_ODDR                   = iopad_o,
             i_RESET                         = platform.request("FABRIC_RST"),
             i_SEL_DLY                       = platform.request("SEL_DLY"),
@@ -2685,6 +2695,9 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             p_DRIVE_STRENGTH                = drive_strength,
             p_SLEW_RATE                     = slew_rate,
             p_DIFFERENTIAL_TERMINATION      = diff_termination,
+            p_WIDTH                         = width,
+            p_DATA_RATE                     = data_rate,
+            p_DPA_MODE                      = op_mode,
             p_DLY_SEL_WIDTH                 = sel_dly,
             p_IO_TYPE                       = io_type,
             p_DELAY_TYPE                    = delay_type,
@@ -2702,7 +2715,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             o_CLK_OUT                       = platform.request("FABRIC_CLK_OUT"),
             o_PDATA_OUT_ISERDES             = Cat([platform.request(f"FABRIC_PDATA_OUT_{i}") for i in range(math.ceil(num_dly/2))]),
             i_DD_IN_ODDR                    = Cat([platform.request(f"FABRIC_DD_IN_{i}") for i in range(math.ceil(num_dly/2))]),
-            i_EN_ODDR                       = platform.request("FABRIC_EN_DDR"),
+            i_EN_ODDR                       = platform.request("FABRIC_EN_ODDR"),
             o_SD_OUT_ODDR                   = iopad_o,
             i_RESET                         = platform.request("FABRIC_RST"),
             i_SEL_DLY                       = platform.request("SEL_DLY"),
@@ -2711,6 +2724,285 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             i_DLY_INCDEC                    = platform.request("FABRIC_DLY_INCDEC"),
             o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])          
             )
+            
+    ### I_DELAY_I_DDR+O_DELAY ###
+    elif (combination == "I_DELAY_I_DDR+O_DELAY"):
+        
+        if (io_type == "SINGLE_ENDED"):
+            iopad_i     = platform.request("IOPAD_SD_IN")
+            iopad_o     = platform.request("IOPAD_DOUT")
+            
+        elif (io_type == "DIFFERENTIAL"):
+            iopad_i_p   = platform.request("IOPAD_SD_IN_P")
+            iopad_i_n   = platform.request("IOPAD_SD_IN_N")
+            iopad_o_p   = platform.request("IOPAD_DOUT_P")
+            iopad_o_n   = platform.request("IOPAD_DOUT_N")
+            iopad_i     = Cat(iopad_i_p, iopad_i_n)
+            iopad_o     = Cat(iopad_o_p, iopad_o_n)
+        
+        if (clocking_source == "LOCAL_OSCILLATOR"):
+            # Module instance.
+            # ----------------
+            self.specials += Instance("DLY_CONFIG",
+            # Parameters.
+            # -----------
+            p_DELAY                         = delay,
+            p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
+            p_NUM_DLY                       = num_dly,
+            p_WEAK_KEEPER                   = io_mode,
+            p_IOSTANDARD                    = voltage_standard,
+            p_DRIVE_STRENGTH                = drive_strength,
+            p_SLEW_RATE                     = slew_rate,
+            p_DIFFERENTIAL_TERMINATION      = diff_termination,
+            p_DLY_SEL_WIDTH                 = sel_dly,
+            p_IO_TYPE                       = io_type,
+            p_DELAY_TYPE                    = delay_type,
+            p_PLL_MULT                      = pll_mult,
+            p_PLL_DIV                       = pll_div,
+            # Ports.
+            # -----------
+            i_SD_IN_IDDR                    = iopad_i,    
+            i_EN_IDDR                       = platform.request("FABRIC_EN_IDDR"),
+            i_DIN_ODLY                      = platform.request("FABRIC_DIN"),
+            o_DD_OUT_IDDR                   = Cat([platform.request(f"FABRIC_DD_OUT_{i}") for i in range(math.ceil(num_dly/2))]),
+            o_DOUT_ODLY                     = iopad_o,
+            i_RESET                         = platform.request("FABRIC_RST"),
+            i_SEL_DLY                       = platform.request("SEL_DLY"),
+            i_DLY_LOAD                      = platform.request("FABRIC_DLY_LOAD"),
+            i_DLY_ADJ                       = platform.request("FABRIC_DLY_ADJ"),
+            i_DLY_INCDEC                    = platform.request("FABRIC_DLY_INCDEC"),
+            o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])          
+            )
+        else:
+            if (clocking == "RX_CLOCK"):
+                clk_in = platform.request("IOPAD_CLK")
+            elif (clocking == "PLL"):
+                clk_in = platform.request("IOPAD_PLL_REF_CLK")
+            
+            # Module instance.
+            # ----------------
+            self.specials += Instance("DLY_CONFIG",
+            # Parameters.
+            # -----------
+            p_DELAY                         = delay,
+            p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
+            p_NUM_DLY                       = num_dly,
+            p_WEAK_KEEPER                   = io_mode,
+            p_IOSTANDARD                    = voltage_standard,
+            p_DRIVE_STRENGTH                = drive_strength,
+            p_SLEW_RATE                     = slew_rate,
+            p_DIFFERENTIAL_TERMINATION      = diff_termination,
+            p_DLY_SEL_WIDTH                 = sel_dly,
+            p_IO_TYPE                       = io_type,
+            p_DELAY_TYPE                    = delay_type,
+            p_PLL_MULT                      = pll_mult,
+            p_PLL_DIV                       = pll_div,
+            # Ports.
+            # -----------
+            i_CLK_IN                        = clk_in,
+            i_SD_IN_IDDR                    = iopad_i,    
+            i_EN_IDDR                       = platform.request("FABRIC_EN_IDDR"),
+            i_DIN_ODLY                      = platform.request("FABRIC_DIN"),
+            o_DD_OUT_IDDR                   = Cat([platform.request(f"FABRIC_DD_OUT_{i}") for i in range(math.ceil(num_dly/2))]),
+            o_DOUT_ODLY                     = iopad_o,
+            i_RESET                         = platform.request("FABRIC_RST"),
+            i_SEL_DLY                       = platform.request("SEL_DLY"),
+            i_DLY_LOAD                      = platform.request("FABRIC_DLY_LOAD"),
+            i_DLY_ADJ                       = platform.request("FABRIC_DLY_ADJ"),
+            i_DLY_INCDEC                    = platform.request("FABRIC_DLY_INCDEC"),
+            o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])          
+            )
+        
+    ### I_DELAY_I_DDR+O_DELAY_O_SERDES ###
+    elif (combination == "I_DELAY_I_DDR+O_DELAY_O_SERDES"):
+        
+        if (io_type == "SINGLE_ENDED"):
+            iopad_i     = platform.request("IOPAD_SD_IN")
+            iopad_o     = platform.request("IOPAD_SDATA_OUT")
+            
+        elif (io_type == "DIFFERENTIAL"):
+            iopad_i_p   = platform.request("IOPAD_SD_IN_P")
+            iopad_i_n   = platform.request("IOPAD_SD_IN_N")
+            iopad_o_p   = platform.request("IOPAD_SDATA_OUT_P")
+            iopad_o_n   = platform.request("IOPAD_SDATA_OUT_N")
+            iopad_i     = Cat(iopad_i_p, iopad_i_n)
+            iopad_o     = Cat(iopad_o_p, iopad_o_n)
+        
+        if (clocking_source == "LOCAL_OSCILLATOR"):
+            # Module instance.
+            # ----------------
+            self.specials += Instance("DLY_CONFIG",
+            # Parameters.
+            # -----------
+            p_DELAY                         = delay,
+            p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
+            p_NUM_DLY                       = num_dly,
+            p_WEAK_KEEPER                   = io_mode,
+            p_IOSTANDARD                    = voltage_standard,
+            p_DRIVE_STRENGTH                = drive_strength,
+            p_SLEW_RATE                     = slew_rate,
+            p_DIFFERENTIAL_TERMINATION      = diff_termination,
+            p_WIDTH                         = width,
+            p_DATA_RATE                     = data_rate,
+            p_DLY_SEL_WIDTH                 = sel_dly,
+            p_IO_TYPE                       = io_type,
+            p_DELAY_TYPE                    = delay_type,
+            p_PLL_MULT                      = pll_mult,
+            p_PLL_DIV                       = pll_div,
+            # Ports.
+            # -----------
+            i_SD_IN_IDDR                    = iopad_i,    
+            i_EN_IDDR                       = platform.request("FABRIC_EN_IDDR"),
+            o_DD_OUT_IDDR                   = Cat([platform.request(f"FABRIC_DD_OUT_{i}") for i in range(math.ceil(num_dly/2))]),
+            i_PDATA_IN_OSERDES              = Cat([platform.request(f"FABRIC_PDATA_IN_{i}") for i in range(math.ceil(num_dly/2))]),           
+            i_DATA_VALID_OSERDES            = platform.request("FABRIC_DATA_VALID"),                
+            i_FAB_CLK_IN                    = platform.request("FABRIC_CLK_IN"),        
+            i_OE_IN                         = platform.request("FABRIC_OE_IN"),
+            o_SDATA_OUT_ODLY                = iopad_o,
+            i_RESET                         = platform.request("FABRIC_RST"),
+            i_SEL_DLY                       = platform.request("SEL_DLY"),
+            i_DLY_LOAD                      = platform.request("FABRIC_DLY_LOAD"),
+            i_DLY_ADJ                       = platform.request("FABRIC_DLY_ADJ"),
+            i_DLY_INCDEC                    = platform.request("FABRIC_DLY_INCDEC"),
+            o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])
+            )
+        
+        else:
+            if (clocking == "RX_CLOCK"):
+                clk_in = platform.request("IOPAD_CLK")
+            elif (clocking == "PLL"):
+                clk_in = platform.request("IOPAD_PLL_REF_CLK")
+            
+            # Module instance.
+            # ----------------
+            self.specials += Instance("DLY_CONFIG",
+            # Parameters.
+            # -----------
+            p_DELAY                         = delay,
+            p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
+            p_NUM_DLY                       = num_dly,
+            p_WEAK_KEEPER                   = io_mode,
+            p_IOSTANDARD                    = voltage_standard,
+            p_DRIVE_STRENGTH                = drive_strength,
+            p_SLEW_RATE                     = slew_rate,
+            p_DIFFERENTIAL_TERMINATION      = diff_termination,
+            p_WIDTH                         = width,
+            p_DATA_RATE                     = data_rate,
+            p_DLY_SEL_WIDTH                 = sel_dly,
+            p_IO_TYPE                       = io_type,
+            p_DELAY_TYPE                    = delay_type,
+            p_PLL_MULT                      = pll_mult,
+            p_PLL_DIV                       = pll_div,
+            # Ports.
+            # -----------
+            i_CLK_IN                        = clk_in,
+            i_SD_IN_IDDR                    = iopad_i,    
+            i_EN_IDDR                       = platform.request("FABRIC_EN_IDDR"),
+            o_DD_OUT_IDDR                   = Cat([platform.request(f"FABRIC_DD_OUT_{i}") for i in range(math.ceil(num_dly/2))]),
+            i_PDATA_IN_OSERDES              = Cat([platform.request(f"FABRIC_PDATA_IN_{i}") for i in range(math.ceil(num_dly/2))]),           
+            i_DATA_VALID_OSERDES            = platform.request("FABRIC_DATA_VALID"),                
+            i_FAB_CLK_IN                    = platform.request("FABRIC_CLK_IN"),        
+            i_OE_IN                         = platform.request("FABRIC_OE_IN"),
+            o_SDATA_OUT_ODLY                = iopad_o,
+            i_RESET                         = platform.request("FABRIC_RST"),
+            i_SEL_DLY                       = platform.request("SEL_DLY"),
+            i_DLY_LOAD                      = platform.request("FABRIC_DLY_LOAD"),
+            i_DLY_ADJ                       = platform.request("FABRIC_DLY_ADJ"),
+            i_DLY_INCDEC                    = platform.request("FABRIC_DLY_INCDEC"),
+            o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])
+            )
+        
+    ### I_DELAY_I_DDR+O_DELAY_O_DDR ###
+    elif (combination == "I_DELAY_I_DDR+O_DELAY_O_DDR"):
+        
+        if (io_type == "SINGLE_ENDED"):
+            iopad_i     = platform.request("IOPAD_SD_IN")
+            iopad_o     = platform.request("IOPAD_SD_OUT")
+            
+        elif (io_type == "DIFFERENTIAL"):
+            iopad_i_p   = platform.request("IOPAD_SD_IN_P")
+            iopad_i_n   = platform.request("IOPAD_SD_IN_N")
+            iopad_o_p   = platform.request("IOPAD_SD_OUT_P")
+            iopad_o_n   = platform.request("IOPAD_SD_OUT_N")
+            iopad_i     = Cat(iopad_i_p, iopad_i_n)
+            iopad_o     = Cat(iopad_o_p, iopad_o_n)
+        
+        if (clocking_source == "LOCAL_OSCILLATOR"):
+            # Module instance.
+            # ----------------
+            self.specials += Instance("DLY_CONFIG",
+            # Parameters.
+            # -----------
+            p_DELAY                         = delay,
+            p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
+            p_NUM_DLY                       = num_dly,
+            p_WEAK_KEEPER                   = io_mode,
+            p_IOSTANDARD                    = voltage_standard,
+            p_DRIVE_STRENGTH                = drive_strength,
+            p_SLEW_RATE                     = slew_rate,
+            p_DIFFERENTIAL_TERMINATION      = diff_termination,
+            p_DLY_SEL_WIDTH                 = sel_dly,
+            p_IO_TYPE                       = io_type,
+            p_DELAY_TYPE                    = delay_type,
+            p_PLL_MULT                      = pll_mult,
+            p_PLL_DIV                       = pll_div,
+            # Ports.
+            # -----------
+            i_SD_IN_IDDR                    = iopad_i,     
+            i_DD_IN_ODDR                    = Cat([platform.request(f"FABRIC_DD_IN_{i}") for i in range(math.ceil(num_dly/2))]),     
+            i_EN_IDDR                       = platform.request("FABRIC_EN_IDDR"), 
+            i_EN_ODDR                       = platform.request("FABRIC_EN_ODDR"), 
+            o_DD_OUT_IDDR                   = Cat([platform.request(f"FABRIC_DD_OUT_{i}") for i in range(math.ceil(num_dly/2))]),
+            o_SD_OUT_ODDR                   = iopad_o,
+            i_RESET                         = platform.request("FABRIC_RST"),
+            i_SEL_DLY                       = platform.request("SEL_DLY"),
+            i_DLY_LOAD                      = platform.request("FABRIC_DLY_LOAD"),
+            i_DLY_ADJ                       = platform.request("FABRIC_DLY_ADJ"),
+            i_DLY_INCDEC                    = platform.request("FABRIC_DLY_INCDEC"),
+            o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])
+            )
+        
+        else:
+            if (clocking == "RX_CLOCK"):
+                clk_in = platform.request("IOPAD_CLK")
+            elif (clocking == "PLL"):
+                clk_in = platform.request("IOPAD_PLL_REF_CLK")
+                
+            # Module instance.
+            # ----------------
+            self.specials += Instance("DLY_CONFIG",
+            # Parameters.
+            # -----------
+            p_DELAY                         = delay,
+            p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
+            p_NUM_DLY                       = num_dly,
+            p_WEAK_KEEPER                   = io_mode,
+            p_IOSTANDARD                    = voltage_standard,
+            p_DRIVE_STRENGTH                = drive_strength,
+            p_SLEW_RATE                     = slew_rate,
+            p_DIFFERENTIAL_TERMINATION      = diff_termination,
+            p_DLY_SEL_WIDTH                 = sel_dly,
+            p_IO_TYPE                       = io_type,
+            p_DELAY_TYPE                    = delay_type,
+            p_PLL_MULT                      = pll_mult,
+            p_PLL_DIV                       = pll_div,
+            # Ports.
+            # -----------
+            i_CLK_IN                        = clk_in,
+            i_SD_IN_IDDR                    = iopad_i,     
+            i_DD_IN_ODDR                    = Cat([platform.request(f"FABRIC_DD_IN_{i}") for i in range(math.ceil(num_dly/2))]),     
+            i_EN_IDDR                       = platform.request("FABRIC_EN_IDDR"), 
+            i_EN_ODDR                       = platform.request("FABRIC_EN_ODDR"), 
+            o_DD_OUT_IDDR                   = Cat([platform.request(f"FABRIC_DD_OUT_{i}") for i in range(math.ceil(num_dly/2))]),
+            o_SD_OUT_ODDR                   = iopad_o,
+            i_RESET                         = platform.request("FABRIC_RST"),
+            i_SEL_DLY                       = platform.request("SEL_DLY"),
+            i_DLY_LOAD                      = platform.request("FABRIC_DLY_LOAD"),
+            i_DLY_ADJ                       = platform.request("FABRIC_DLY_ADJ"),
+            i_DLY_INCDEC                    = platform.request("FABRIC_DLY_INCDEC"),
+            o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])
+            )
+            
 
 # IO Configurator Wrapper ----------------------------------------------------------------------------------
 class IO_CONFIG_Wrapper(Module):
