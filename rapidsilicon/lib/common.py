@@ -8,7 +8,6 @@ import os
 import json
 import shutil
 import argparse
-import xml.etree.ElementTree as ET
 
 # IP Catalog Builder -------------------------------------------------------------------------------
 
@@ -374,32 +373,3 @@ class IP_Builder:
 
         # Remove build files.
         shutil.rmtree(build_path)
-
-#Function to parse device.xml for BRAMs and DSPs
-    def parse_device(self, device_file, device):
-
-        # Read the XML data from the file
-        with open(device_file, 'r') as file:
-            xml_data = file.read()
-
-
-        # Parse the XML data
-        root = ET.fromstring(xml_data)
-
-        # Initialize variables to store the fnum values
-        fnum_bram = None
-        fnum_dsp = None
-        device_dict = {}
-
-        for dummy in root:
-            if dummy.attrib.get('name') == device:
-#                print("Device name = " , device ," ----------  found")
-                for sub_dummy in dummy:
-                    if sub_dummy.attrib.get('type') == 'bram':
-                        fnum_bram = sub_dummy.attrib.get('num')
-                        device_dict[sub_dummy.attrib.get('type')] = (int(fnum_bram))
-                    elif sub_dummy.attrib.get('type') == 'dsp':
-                        fnum_dsp = sub_dummy.attrib.get('num')
-                        device_dict[sub_dummy.attrib.get('type')] = (int(fnum_dsp))
-
-        return device_dict
