@@ -3439,6 +3439,7 @@ def main():
         
         # io models defines
         if (args.direction == "UNIDIRECTIONAL"):
+            defines.append("`define unidirectional\n")
             if (args.combination == "I_DELAY"):
                 defines.append("`define I_DELAY\n")
                 
@@ -3458,6 +3459,7 @@ def main():
                 defines.append("`define O_DDR_O_DELAY\n")
                 
         elif (args.direction == "BIDIRECTIONAL"):
+            defines.append("`define bidirectional\n")
             if (args.combination == "I_DELAY+O_DELAY"):
                 defines.append("`define I_DELAY_O_DELAY\n")
             
