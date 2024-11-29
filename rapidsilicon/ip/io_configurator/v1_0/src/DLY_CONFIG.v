@@ -545,7 +545,7 @@ generate
             )
             I_SERDES_inst (
                 .D(idly_out[i]),
-                .RST(RESET),
+                .RST(~RESET),
                 .BITSLIP_ADJ(BITSLIP_ADJ[i]),
                 .EN(EN[i]),
                 .CLK_IN(serdes_clk_out[i]),
@@ -912,7 +912,7 @@ generate
             )
             I_SERDES_inst (
                 .D(idly_out[i]),
-                .RST(RESET),
+                .RST(~RESET),
                 .BITSLIP_ADJ(BITSLIP_ADJ[i]),
                 .EN(EN_ISERDES[i]),
                 .CLK_IN(serdes_clk_out[i]),
@@ -1007,7 +1007,7 @@ generate
             )
             I_SERDES_inst (
                 .D(idly_out[i]),
-                .RST(RESET),
+                .RST(~RESET),
                 .BITSLIP_ADJ(BITSLIP_ADJ[i]),
                 .EN(EN_ISERDES[i]),
                 .CLK_IN(serdes_clk_out[i]),
@@ -1311,7 +1311,7 @@ generate
             )
             I_SERDES_inst (
                 .D(dly_out[i]),
-                .RST(RESET),
+                .RST(~RESET),
                 .BITSLIP_ADJ(BITSLIP_ADJ[i]),
                 .EN(EN[i]),
                 .CLK_IN(serdes_clk_out[i]),
