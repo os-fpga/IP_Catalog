@@ -32,7 +32,7 @@ module DLY_ADDR_CNTRL #(parameter                    NUM_GB_SITES  = 20,
 	                 input [20-1: 0] usr_dly_ld,							// Input from user to control I_DELAY. Only one signal should be active at any time
 	                 input [20-1: 0] usr_dly_adj,							// Input from user to control I_DELAY
 	                 input [20-1: 0] usr_rd_dly_value,						// Input from user to read the I_DELAY output port for TAP Value
-	                 output reg [ADDR_WIDTH-1:0] f2g_dly_addr,						// Address bus to GBox. Selects the I_DELAY
+	                 output [ADDR_WIDTH-1:0] f2g_dly_addr,						// Address bus to GBox. Selects the I_DELAY
                      output cntrl_dly_incdec,									// Drive the selected I_DELAY INCDEC signal based upon the active user_dly_ld signal
                      output cntrl_dly_ld,										// Drive the selected I_DELAY LD siganl based upon the active user_dly_ld signal
                      output cntrl_dly_adj,										// Drive the selected I_DELAY ADJ siganl based upon the active user_dly_adj signal

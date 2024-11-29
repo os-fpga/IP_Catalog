@@ -176,7 +176,7 @@ reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_ld;
 reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_adj;
 reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_incdec;
 wire  [(DLY_TAP_WIDTH*NUM_GB_SITES*NUM_CNTRL)-1:0] usr_delay_tap_value;
-wire  [(DLY_TAP_WIDTH*NUM_GB_SITES*NUM_CNTRL)-1:0] dly_tap_value;
+reg  [(DLY_TAP_WIDTH*NUM_GB_SITES*NUM_CNTRL)-1:0] dly_tap_value;
 
 wire clk_in;
 wire lock;
@@ -226,11 +226,8 @@ wire lock;
     `endif
 
 PLL #(
-    .DIVIDE_CLK_IN_BY_2("FALSE"),
     .PLL_MULT(PLL_MULT),
-    .PLL_DIV(PLL_DIV),
-    .PLL_MULT_FRAC(0),
-    .PLL_POST_DIV(2)
+    .PLL_DIV(PLL_DIV)
 )
 PLL_inst (
     .PLL_EN(1'd1),
@@ -260,11 +257,11 @@ always @(*) begin
     end
 end
 
-// wire [DLY_TAP_WIDTH-1:0] dly_tap_val_reg [NUM_DLY-1:0];
-// always @(*) begin
-//     dly_tap_value = 'h0;
-//     dly_tap_value[(dly_site_addr[SEL_DLY] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH] = dly_tap_val_reg[SEL_DLY];
-// end
+wire [DLY_TAP_WIDTH-1:0] dly_tap_val_reg [NUM_DLY-1:0];
+always @(*) begin
+    // dly_tap_value = 'h0;
+    dly_tap_value[(dly_site_addr[SEL_DLY] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH] = dly_tap_val_reg[SEL_DLY];
+end
 
 wire [(NUM_CNTRL*ADDR_WIDTH)-1:0] f2g_dly_addr;
 wire [NUM_CNTRL-1:0] cntrl_dly_ld;
@@ -403,7 +400,6 @@ end
 
 `ifdef bidirectional
 wire  [(NUM_DLY/2)-1:0] i_buf_out;
-// wire  [(NUM_DLY/2)-1:0] dly_out;
 
 generate
     for(genvar i = 0; i < NUM_DLY/2; i = i + 1) begin
@@ -458,7 +454,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-               .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(DOUT_IDLY[i])
             );
 
@@ -470,7 +467,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
 
@@ -535,7 +533,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(idly_out[i])
             );
 
@@ -585,7 +584,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
 
@@ -643,7 +643,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(idly_out[i])
             );
             I_DDR I_DDR_inst (
@@ -669,7 +670,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
 
@@ -730,7 +732,7 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-               .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(DOUT_IDLY[i])
             );
 
@@ -759,7 +761,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
 
@@ -817,7 +820,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-               .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(DOUT_IDLY[i])
             );
 
@@ -836,7 +840,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
 
@@ -895,7 +900,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(idly_out[i])
             );
 
@@ -928,7 +934,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
         
@@ -988,7 +995,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(idly_out[i])
             );
 
@@ -1028,7 +1036,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
         
@@ -1085,7 +1094,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(idly_out[i])
             );
             I_DDR I_DDR_inst (
@@ -1104,7 +1114,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
 
@@ -1168,7 +1179,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(idly_out[i])
             );
             I_DDR I_DDR_inst (
@@ -1204,7 +1216,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(odly_out[i])
             );
 
@@ -1248,7 +1261,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-               .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(DATA_OUT[i])
             );
 
@@ -1286,7 +1300,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(dly_out[i])
             );
             I_SERDES # (
@@ -1344,7 +1359,8 @@ generate
                     .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                     .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                     .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                    .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                    .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                    // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(dly_out[i])
                 );
                 I_DDR I_DDR_inst (
@@ -1366,7 +1382,8 @@ generate
                     .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                     .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                     .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                    .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                    .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                    // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(dly_out[i])
                 );
 
@@ -1422,7 +1439,8 @@ generate
                     .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                     .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                     .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                    .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                    .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                    // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(odly_out[i])
                 );
                 `ifdef SINGLE_ENDED
@@ -1469,7 +1487,8 @@ generate
                     .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                     .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                     .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                    .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                    .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                    // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(odly_out[i])
                 );
                 `ifdef SINGLE_ENDED
