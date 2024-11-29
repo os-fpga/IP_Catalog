@@ -91,14 +91,6 @@ def get_clkin_ios(port_type, data_width, write_depth, memory_type, write_width_A
         ("be_B",    0, Pins(math.ceil(write_width_B/9)))
     ]
 
-def depth_param_limit(data_width, device_dic):
-    if (data_width > 36):
-        Max_Depth = math.ceil(int(device_dic['bram'] * 1024) / math.ceil(data_width/36))
-    else:
-        Max_Depth = device_dic['bram'] * 1024
-        
-    return Max_Depth
-
 # on_chip_memory Wrapper ----------------------------------------------------------------------------------
 class OCMWrapper(Module):
     def __init__(self, platform, write_width_A, write_width_B, read_width_A, read_width_B, memory_type, write_depth, data_width, common_clk, port_type, write_depth_A, read_depth_A, write_depth_B, read_depth_B, memory_mapping, file_path_hex, file_extension, byte_write_enable, op_mode):
@@ -247,13 +239,6 @@ def main():
     'Description' : 'On Chip Memory Generator is an IP Core with native interface. This IP Core simplifies the integration of memory elements, allowing designers to generate customized on-chip memory instances that match their specific requirements. It include the ability to configure memory size, data width, organization (e.g., single-port, dual-port), and various memory types (e.g., single-ported RAM, simple dual-port RAM and true dual port RAM).'}
     }
     
-    device_dic = {
-            'dsp'  : 0,
-            'bram' : 0
-        }
-    
-    summary =  {}
-    
     # Import JSON (Optional) -----------------------------------------------------------------------
     if args.json:
         args = rs_builder.import_args_from_json(parser=parser, json_filename=args.json)
@@ -262,68 +247,45 @@ def main():
         file_path = os.path.dirname(os.path.realpath(__file__))
         rs_builder.copy_images(file_path)
         
-        # bram & dsp device resources
-        device_dic = rs_builder.parse_device(args.device_path, args.device)
-        
-        if (args.port_type == "Symmetric"):
-            if (args.byte_write_enable == True):
-                data_width = args.DATA_WIDTH
-            else:
-                data_width = args.data_width
-        else: # Asymmetric
-            if (args.memory_type == "Single_Port"):
-                data_width = max(args.write_width_A, args.read_width_A)
-            elif (args.memory_type == "Simple_Dual_Port"):
-                data_width = max(args.write_width_A, args.read_width_B)
-            elif (args.memory_type == "True_Dual_Port"):
-                data_width = max(args.write_width_A, args.read_width_A, args.write_width_B, args.read_width_B)
-        
-        Max_Depth = depth_param_limit(data_width, device_dic)
-        
-        if (args.port_type == "Symmetric"):
-            parser._actions[14].choices = range(2, Max_Depth+1)
-            parser._actions[14].default = Max_Depth
+        if (args.byte_write_enable == True):
+            option_strings_to_remove = ['--data_width']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         else:
-            depth_list = [1024, 2048, 4096, 8192, 16384, 32768]
-            parser._actions[12].choices = [value for value in depth_list if value <= Max_Depth]
-            parser._actions[12].default = Max_Depth
+            option_strings_to_remove = ['--DATA_WIDTH']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
-        if (device_dic['bram'] > 0):
-            if (args.byte_write_enable == True):
-                option_strings_to_remove = ['--data_width']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            else:
-                option_strings_to_remove = ['--DATA_WIDTH']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            if (args.memory_mapping == "Distributed_RAM"):
-                option_strings_to_remove = ['--byte_write_enable']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            if (args.write_width_A >= 288 or args.read_width_A >= 288 or args.write_width_B >= 288 or args.read_width_B >= 288):
-                parser._actions[12].choices = [1024, 2048, 4096, 8192]
-            if (args.port_type == "Symmetric"):
-                option_strings_to_remove = ['--write_width_A', '--write_width_B', '--read_width_A', '--read_width_B', '--write_depth_A']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            else:
-                option_strings_to_remove = ['--DATA_WIDTH', '--data_width','--write_depth']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            if (args.memory_type in ["Single_Port"]):
-                dep_dict.update({
-                            'common_clk':     'True'
-                        })
-                option_strings_to_remove = ['--write_width_B', '--read_width_B']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                if (args.write_width_A != args.read_width_A):
-                    parser._actions[3].choices = ["Block_RAM"]
-            elif (args.memory_type in ["Simple_Dual_Port"]):
-                option_strings_to_remove = ['--write_width_B', '--read_width_A']
-                parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-                if (args.write_width_A != args.read_width_B):
-                    parser._actions[3].choices = ["Block_RAM"]
-            elif (args.memory_type in ["True_Dual_Port"]):
-                if (args.write_width_A != args.read_width_A or args.write_width_A != args.write_width_B or args.write_width_B != args.read_width_B):
-                    parser._actions[3].choices = ["Block_RAM"]
+        if (args.memory_mapping == "Distributed_RAM"):
+            option_strings_to_remove = ['--byte_write_enable']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+        
+        if (args.write_width_A >= 288 or args.read_width_A >= 288 or args.write_width_B >= 288 or args.read_width_B >= 288):
+            parser._actions[11].choices = [1024, 2048, 4096, 8192]
+            
+        if (args.port_type == "Symmetric"):
+            option_strings_to_remove = ['--write_width_A', '--write_width_B', '--read_width_A', '--read_width_B', '--write_depth_A']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         else:
-            parser._actions = [action for action in parser._actions if not action.option_strings]
+            option_strings_to_remove = ['--DATA_WIDTH', '--data_width','--write_depth']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+        
+        if (args.memory_type in ["Single_Port"]):
+            dep_dict.update({
+                        'common_clk':     'True'
+                    })
+            option_strings_to_remove = ['--write_width_B', '--read_width_B']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            if (args.write_width_A != args.read_width_A):
+                parser._actions[3].choices = ["Block_RAM"]
+                
+        elif (args.memory_type in ["Simple_Dual_Port"]):
+            option_strings_to_remove = ['--write_width_B', '--read_width_A']
+            parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
+            if (args.write_width_A != args.read_width_B):
+                parser._actions[3].choices = ["Block_RAM"]
+
+        elif (args.memory_type in ["True_Dual_Port"]):
+            if (args.write_width_A != args.read_width_A or args.write_width_A != args.write_width_B or args.write_width_B != args.read_width_B):
+                parser._actions[3].choices = ["Block_RAM"]
 
     # Create Wrapper -------------------------------------------------------------------------------
     platform = OSFPGAPlatform(io=[], toolchain="raptor", device="gemini")
@@ -353,37 +315,38 @@ def main():
         memory_mapping = "Block RAM"
     else:
         memory_mapping = "Distributed RAM(LUTs)"
+        
+    summary =  {  
+    "Type of Memory": memory,
+    "Mapping": memory_mapping,
+    }
     
-    if (device_dic['bram'] > 0):
-        summary["Type of Memory"]   = memory
-        summary["Mapping"]          = memory_mapping
-        if args.port_type == "Asymmetric":
-            if (args.memory_type == "Single_Port"):
-                summary["Address A"] = math.ceil(math.log2(args.write_depth_A))
-            elif args.memory_type == "Simple_Dual_Port":
-                summary["Address A"] = math.ceil(math.log2(args.write_depth_A))
-                summary["Address B"] = math.ceil(math.log2(read_depth_B))
-            elif args.memory_type == "True_Dual_Port":
-                if (args.write_depth_A > read_depth_A): # assigning greater value to addr_A port
-                    write_depthA = args.write_depth_A
-                else:
-                    write_depthA = read_depth_A
-                if (write_depth_B > read_depth_B): # assigning greater value to addr_B port
-                    write_depthB = write_depth_B
-                else:
-                    write_depthB = read_depth_B
-                summary["Address A"] = math.ceil(math.log2(write_depthA))
-                summary["Address B"] = math.ceil(math.log2(write_depthB))
-        else:
-            summary["Address"] = math.ceil(math.log2(args.write_depth))
-        if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
-            if (args.common_clk == 1):
-                summary["Synchronization"] = "True"
+    if args.port_type == "Asymmetric":
+        if (args.memory_type == "Single_Port"):
+            summary["Address A"] = math.ceil(math.log2(args.write_depth_A))
+        elif args.memory_type == "Simple_Dual_Port":
+            summary["Address A"] = math.ceil(math.log2(args.write_depth_A))
+            summary["Address B"] = math.ceil(math.log2(read_depth_B))
+        elif args.memory_type == "True_Dual_Port":
+            if (args.write_depth_A > read_depth_A): # assigning greater value to addr_A port
+                write_depthA = args.write_depth_A
             else:
-                summary["Synchronization"] = "False"
+                write_depthA = read_depth_A
+            if (write_depth_B > read_depth_B): # assigning greater value to addr_B port
+                write_depthB = write_depth_B
+            else:
+                write_depthB = read_depth_B
+            summary["Address A"] = math.ceil(math.log2(write_depthA))
+            summary["Address B"] = math.ceil(math.log2(write_depthB))
     else:
-        summary["WARNING"] = "No BRAMs in selected device. Select a different device with BRAMs."
+        summary["Address"] = math.ceil(math.log2(args.write_depth))
     
+    if (args.memory_type in ["Simple_Dual_Port", "True_Dual_Port"]):
+        if (args.common_clk == 1):
+            summary["Synchronization"] = "True"
+        else:
+            summary["Synchronization"] = "False"
+            
     if (args.byte_write_enable == True):
         data = args.DATA_WIDTH
     else:
@@ -410,9 +373,8 @@ def main():
         op_mode             = args.op_mode
     )
     
-    if (device_dic['bram'] > 0):
-        if (args.memory_mapping == "Block_RAM"):
-            summary["Number of BRAMs"] = module.M * module.N
+    if (args.memory_mapping == "Block_RAM"):
+        summary["Number of BRAMs"] = module.M * module.N
     
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
