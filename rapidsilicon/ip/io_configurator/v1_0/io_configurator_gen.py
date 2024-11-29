@@ -2228,8 +2228,8 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             o_DOUT_ODLY                     = iopad_o
             )
     
-    ### I_DELAY+O_DELAY_O_SERDES ###
-    elif (combination == "I_DELAY+O_DELAY_O_SERDES"):
+    ### I_DELAY+O_SERDES_O_DELAY ###
+    elif (combination == "I_DELAY+O_SERDES_O_DELAY"):
         
         if (io_type == "SINGLE_ENDED"):
             iopad_i     = platform.request("IOPAD_DIN")
@@ -2324,8 +2324,8 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             o_SDATA_OUT_ODLY                = iopad_o
             )
     
-    ### I_DELAY+O_DELAY_O_DDR ###
-    elif (combination == "I_DELAY+O_DELAY_O_DDR"):
+    ### I_DELAY+O_DDR_O_DELAY ###
+    elif (combination == "I_DELAY+O_DDR_O_DELAY"):
         if (io_type == "SINGLE_ENDED"):
             iopad_i     = platform.request("IOPAD_DIN")
             iopad_o     = platform.request("IOPAD_SD_OUT")
@@ -2509,8 +2509,8 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])
             )
             
-    ### I_DELAY_I_SERDES+O_DELAY_O_SERDES ###
-    elif (combination == "I_DELAY_I_SERDES+O_DELAY_O_SERDES"):
+    ### I_DELAY_I_SERDES+O_SERDES_O_DELAY ###
+    elif (combination == "I_DELAY_I_SERDES+O_SERDES_O_DELAY"):
         
         if (io_type == "SINGLE_ENDED"):
             iopad_i     = platform.request("IOPAD_SDATA_IN")
@@ -2618,8 +2618,8 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])          
             )
     
-    ### I_DELAY_I_SERDES+O_DELAY_O_DDR ###
-    elif (combination == "I_DELAY_I_SERDES+O_DELAY_O_DDR"):
+    ### I_DELAY_I_SERDES+O_DDR_O_DELAY ###
+    elif (combination == "I_DELAY_I_SERDES+O_DDR_O_DELAY"):
         
         if (io_type == "SINGLE_ENDED"):
             iopad_i     = platform.request("IOPAD_SDATA_IN")
@@ -2813,8 +2813,8 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])          
             )
         
-    ### I_DELAY_I_DDR+O_DELAY_O_SERDES ###
-    elif (combination == "I_DELAY_I_DDR+O_DELAY_O_SERDES"):
+    ### I_DELAY_I_DDR+O_SERDES_O_DELAY ###
+    elif (combination == "I_DELAY_I_DDR+O_SERDES_O_DELAY"):
         
         if (io_type == "SINGLE_ENDED"):
             iopad_i     = platform.request("IOPAD_SD_IN")
@@ -2912,8 +2912,8 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])
             )
         
-    ### I_DELAY_I_DDR+O_DELAY_O_DDR ###
-    elif (combination == "I_DELAY_I_DDR+O_DELAY_O_DDR"):
+    ### I_DELAY_I_DDR+O_DDR_O_DELAY ###
+    elif (combination == "I_DELAY_I_DDR+O_DDR_O_DELAY"):
         
         if (io_type == "SINGLE_ENDED"):
             iopad_i     = platform.request("IOPAD_SD_IN")
@@ -3019,7 +3019,6 @@ class IO_CONFIG_Wrapper(Module):
             O_BUF(self, platform, io_type, io_mode, voltage_standard, diff_termination, slew_rate, drive_strength)
             
         elif (io_model in ["IO_DELAY"]):
-        # elif (io_model in ["I_DELAY", "I_DELAY_I_SERDES", "I_DELAY+I_DDR"]):
             if (combination in ["I_DELAY", "I_DELAY_I_SERDES", "I_DELAY_I_DDR"]):
                 if (num_idly > 1):
                     sel_dly = math.ceil(math.log2(num_idly))
@@ -3034,9 +3033,9 @@ class IO_CONFIG_Wrapper(Module):
                     sel_dly = 1
                 O_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_standard, slew_rate, drive_strength, delay, delay_type, clocking, clocking_source, ref_clk_freq, out_clk_freq, num_odly, width, data_rate, ports_file, bank_select, io_type, diff_termination)
             
-            elif (combination in ["I_DELAY+O_DELAY", "I_DELAY+O_DELAY_O_SERDES", "I_DELAY+O_DELAY_O_DDR", 
-                                "I_DELAY_I_SERDES+O_DELAY", "I_DELAY_I_SERDES+O_DELAY_O_SERDES", "I_DELAY_I_SERDES+O_DELAY_O_DDR",
-                                "I_DELAY_I_DDR+O_DELAY", "I_DELAY_I_DDR+O_DELAY_O_SERDES", "I_DELAY_I_DDR+O_DELAY_O_DDR"]):
+            elif (combination in ["I_DELAY+O_DELAY", "I_DELAY+O_SERDES_O_DELAY", "I_DELAY+O_DDR_O_DELAY", 
+                                "I_DELAY_I_SERDES+O_DELAY", "I_DELAY_I_SERDES+O_SERDES_O_DELAY", "I_DELAY_I_SERDES+O_DDR_O_DELAY",
+                                "I_DELAY_I_DDR+O_DELAY", "I_DELAY_I_DDR+O_SERDES_O_DELAY", "I_DELAY_I_DDR+O_DDR_O_DELAY"]):
                 sel_dly = sel_dly = math.ceil(math.log2(num_dly))
                 Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type, io_mode, voltage_standard, diff_termination, slew_rate, drive_strength,
                                     delay, delay_type, ports_file, bank_select, clocking, out_clk_freq, ref_clk_freq, clocking_source, width, data_rate, op_mode)
@@ -3055,10 +3054,6 @@ class IO_CONFIG_Wrapper(Module):
         
         elif (io_model == "O_DDR"):
             O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_clk_freq, num_odly)
-            
-        # elif (io_model in ["IO_DELAY"]):
-        # elif (io_model in ["O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR"]):
-            
             
 # Build --------------------------------------------------------------------------------------------
 def main():
@@ -3088,9 +3083,9 @@ def main():
     core_string_param_group.add_argument("--io_model",                  type=str,   default="CLK_BUF",              choices=["CLK_BUF", "I_BUF", "IO_DELAY", "I_DDR", "I_SERDES", "O_BUF", "O_DDR", "O_SERDES"],                            help="Type of Model")
     core_string_param_group.add_argument("--direction",                 type=str,   default="UNIDIRECTIONAL",       choices=["UNIDIRECTIONAL", "BIDIRECTIONAL"],                                                                            help="Direction of Port")
     core_string_param_group.add_argument("--combination",               type=str,   default="I_DELAY",              choices=["I_DELAY", "I_DELAY_I_SERDES", "I_DELAY_I_DDR", "O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR",
-                                                                                                                            "I_DELAY+O_DELAY", "I_DELAY+O_DELAY_O_SERDES", "I_DELAY+O_DELAY_O_DDR", 
-                                                                                                                            "I_DELAY_I_SERDES+O_DELAY", "I_DELAY_I_SERDES+O_DELAY_O_SERDES", "I_DELAY_I_SERDES+O_DELAY_O_DDR",
-                                                                                                                            "I_DELAY_I_DDR+O_DELAY", "I_DELAY_I_DDR+O_DELAY_O_SERDES", "I_DELAY_I_DDR+O_DELAY_O_DDR"],                      help="Multiple IO_DELAY Combinations")
+                                                                                                                            "I_DELAY+O_DELAY", "I_DELAY+O_SERDES_O_DELAY", "I_DELAY+O_DDR_O_DELAY", 
+                                                                                                                            "I_DELAY_I_SERDES+O_DELAY", "I_DELAY_I_SERDES+O_SERDES_O_DELAY", "I_DELAY_I_SERDES+O_DDR_O_DELAY",
+                                                                                                                            "I_DELAY_I_DDR+O_DELAY", "I_DELAY_I_DDR+O_SERDES_O_DELAY", "I_DELAY_I_DDR+O_DDR_O_DELAY"],                      help="Multiple IO_DELAY Combinations")
     core_string_param_group.add_argument("--io_type",                   type=str,   default="SINGLE_ENDED",         choices=["SINGLE_ENDED", "DIFFERENTIAL", "TRI_STATE", "DIFF_TRI_STATE"],                                                help="Type of IO")
     core_string_param_group.add_argument("--io_mode",                   type=str,   default="NONE",                 choices=["NONE", "PULLUP", "PULLDOWN"],                                                                                 help="Input Configuration")
     core_string_param_group.add_argument("--voltage_standard",          type=str,   default="DEFAULT",              choices=["DEFAULT", "LVCMOS_12", "LVCMOS_15", "LVCMOS_18_HP", "LVCMOS_18_HR", "LVCMOS_25", "LVCMOS_33",
@@ -3103,7 +3098,7 @@ def main():
     core_string_param_group.add_argument("--bank_select",               type=str,   default="HR_1",                 choices=["HR_1", "HR_2", "HR_3", "HR_5", "HP_1", "HP_2"],                                                               help="Bank Selection for DELAY")
     core_range_param_group.add_argument ("--num_idly",                  type=int,   default=1,                      choices=range(1,41),                                                                                                    help="Number of input delays")
     core_range_param_group.add_argument ("--num_odly",                  type=int,   default=1,                      choices=range(1,41),                                                                                                    help="Number of output delays")
-    core_fix_param_group.add_argument("--num_dly",                      type=int,   default=2,                      choices=[2, 4, 6, 8, 10, 12, 14, 16, 18, 20],                                                                           help="Number of Bidirectional IO_DELAYs")
+    core_fix_param_group.add_argument("--num_dly",                      type=int,   default=2,                      choices=[2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40],                                   help="Number of Bidirectional IO_DELAYs")
     core_string_param_group.add_argument("--data_rate",                 type=str,   default="SDR",                  choices=["SDR"],                                                                                                        help="Data Rate")
     core_string_param_group.add_argument("--op_mode",                   type=str,   default="NONE",                 choices=["NONE", "DPA", "CDR"],                                                                                         help="Dynamic Phase Alignment or Clock Data Recovery")
     core_string_param_group.add_argument("--clocking",                  type=str,   default="RX_CLOCK",             choices=["RX_CLOCK", "PLL"],                                                                                            help="Clocking option for I_SERDES")
@@ -3154,11 +3149,10 @@ def main():
         if (args.io_type == "DIFFERENTIAL"):
             parser._actions[11].choices = range(1,21)
             parser._actions[12].choices = range(1,21)
-            parser._actions[13].choices = [2, 4, 6, 8, 10]
+            parser._actions[13].choices = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
         
         if (device not in ["1VG28"]):
             parser._actions[1].choices = ["CLK_BUF", "I_BUF", "I_DDR", "I_SERDES", "O_BUF", "O_DDR", "O_SERDES"]
-        
         
         if (args.direction != "BIDIRECTIONAL"):
             option_strings_to_remove = ["--num_dly"]
@@ -3170,13 +3164,6 @@ def main():
         # if (args.io_type not in ["DIFFERENTIAL"]):
         #     option_strings_to_remove = ["--diff_termination"]
         #     parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-        
-        if (args.direction == "UNIDIRECTIONAL"):
-            parser._actions[3].choices = ["I_DELAY", "I_DELAY_I_SERDES", "I_DELAY_I_DDR", "O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR"]
-        elif (args.direction == "BIDIRECTIONAL"):
-            parser._actions[3].choices = ["I_DELAY+O_DELAY", "I_DELAY+O_DELAY_O_SERDES", "I_DELAY+O_DELAY_O_DDR", 
-                                        "I_DELAY_I_SERDES+O_DELAY", "I_DELAY_I_SERDES+O_DELAY_O_SERDES", "I_DELAY_I_SERDES+O_DELAY_O_DDR",
-                                        "I_DELAY_I_DDR+O_DELAY", "I_DELAY_I_DDR+O_DELAY_O_SERDES", "I_DELAY_I_DDR+O_DELAY_O_DDR"]
         
         if (args.voltage_standard not in ["LVCMOS_12", "LVCMOS_15", "LVCMOS_18_HP", "LVCMOS_18_HR", "LVCMOS_25", "LVCMOS_33"]):
             option_strings_to_remove = ["--slew_rate", "--drive_strength"]
@@ -3217,10 +3204,17 @@ def main():
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
         
         elif (args.io_model in ["IO_DELAY"]):
-        # elif (args.io_model in ["I_DELAY", "O_DELAY", "I_DELAY+I_SERDES", "I_DELAY+I_DDR", "O_DELAY+O_SERDES", "O_DELAY+O_DDR"]):
             option_strings_to_remove = ["--clock_phase", "--delay_adjust", "--clock_forwarding"]
             parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
             parser._actions[4].choices = ["SINGLE_ENDED", "DIFFERENTIAL"]
+            
+            if (args.direction == "UNIDIRECTIONAL"):
+                parser._actions[3].choices = ["I_DELAY", "I_DELAY_I_SERDES", "I_DELAY_I_DDR", "O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR"]
+            elif (args.direction == "BIDIRECTIONAL"):
+                parser._actions[3].default = "I_DELAY+O_DELAY"
+                parser._actions[3].choices = ["I_DELAY+O_DELAY", "I_DELAY+O_SERDES_O_DELAY", "I_DELAY+O_DDR_O_DELAY", 
+                                            "I_DELAY_I_SERDES+O_DELAY", "I_DELAY_I_SERDES+O_SERDES_O_DELAY", "I_DELAY_I_SERDES+O_DDR_O_DELAY",
+                                            "I_DELAY_I_DDR+O_DELAY", "I_DELAY_I_DDR+O_SERDES_O_DELAY", "I_DELAY_I_DDR+O_DDR_O_DELAY"]
             
             if (args.combination not in ["O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR"]):
                 option_strings_to_remove = ["--drive_strength", "--slew_rate"]
@@ -3247,8 +3241,6 @@ def main():
             elif (args.combination in ["O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR"]):
                 option_strings_to_remove = ["--num_idly"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
-            else:
-                parser._actions[11] = "--num_dly"
                 
         elif (args.io_model in ["I_DDR", "O_DDR"]):
             option_strings_to_remove = ["--ports_file", "--direction", "--combination", "--num_idly", "--num_odly", "--delay_type", "--bank_select", "--clock_phase",
@@ -3469,28 +3461,28 @@ def main():
             if (args.combination == "I_DELAY+O_DELAY"):
                 defines.append("`define I_DELAY_O_DELAY\n")
             
-            elif (args.combination == "I_DELAY+O_DELAY_O_SERDES"):
+            elif (args.combination == "I_DELAY+O_SERDES_O_DELAY"):
                 defines.append("`define I_DELAY_O_DELAY_O_SERDES\n")
                 
-            elif (args.combination == "I_DELAY+O_DELAY_O_DDR"):
+            elif (args.combination == "I_DELAY+O_DDR_O_DELAY"):
                 defines.append("`define I_DELAY_O_DELAY_O_DDR\n")
                 
             elif (args.combination == "I_DELAY_I_SERDES+O_DELAY"):
                 defines.append("`define I_DELAY_I_SERDES_O_DELAY\n")
                 
-            elif (args.combination == "I_DELAY_I_SERDES+O_DELAY_O_SERDES"):
+            elif (args.combination == "I_DELAY_I_SERDES+O_SERDES_O_DELAY"):
                 defines.append("`define I_DELAY_I_SERDES_O_DELAY_O_SERDES\n")
                 
-            elif (args.combination == "I_DELAY_I_SERDES+O_DELAY_O_DDR"):
+            elif (args.combination == "I_DELAY_I_SERDES+O_DDR_O_DELAY"):
                 defines.append("`define I_DELAY_I_SERDES_O_DELAY_O_DDR\n")
                 
             elif (args.combination == "I_DELAY_I_DDR+O_DELAY"):
                 defines.append("`define I_DELAY_I_DDR_O_DELAY\n")
                 
-            elif (args.combination == "I_DELAY_I_DDR+O_DELAY_O_SERDES"):
+            elif (args.combination == "I_DELAY_I_DDR+O_SERDES_O_DELAY"):
                 defines.append("`define I_DELAY_I_DDR_O_DELAY_O_SERDES\n")
                 
-            elif (args.combination == "I_DELAY_I_DDR+O_DELAY_O_DDR"):
+            elif (args.combination == "I_DELAY_I_DDR+O_DDR_O_DELAY"):
                 defines.append("`define I_DELAY_I_DDR_O_DELAY_O_DDR\n")
         
         # io type defines
