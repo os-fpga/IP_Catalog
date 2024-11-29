@@ -565,7 +565,7 @@ generate
             )
             O_SERDES_inst (
                 .D(PDATA_IN_OSERDES[(i*WIDTH) +:WIDTH]),
-                .RST(RESET),
+                .RST(~RESET),
                 .DATA_VALID(DATA_VALID_OSERDES[i]),
                 .CLK_IN(FAB_CLK_IN),
                 .OE_IN(OE_IN[i]),
@@ -742,7 +742,7 @@ generate
             )
             O_SERDES_inst (
                 .D(PDATA_IN_OSERDES[(i*WIDTH) +:WIDTH]),
-                .RST(RESET),
+                .RST(~RESET),
                 .DATA_VALID(DATA_VALID_OSERDES[i]),
                 .CLK_IN(FAB_CLK_IN),
                 .OE_IN(OE_IN[i]),
@@ -1197,7 +1197,7 @@ generate
             )
             O_SERDES_inst (
                 .D(PDATA_IN_OSERDES[(i*WIDTH) +:WIDTH]),
-                .RST(RESET),
+                .RST(~RESET),
                 .DATA_VALID(DATA_VALID_OSERDES[i]),
                 .CLK_IN(FAB_CLK_IN),
                 .OE_IN(OE_IN[i]),
@@ -1420,7 +1420,7 @@ generate
                 )
                 O_SERDES_inst (
                     .D(PDATA_IN[(i*WIDTH) +:WIDTH]),
-                    .RST(RESET),
+                    .RST(~RESET),
                     .DATA_VALID(DATA_VALID[i]),
                     .CLK_IN(FAB_CLK_IN),
                     .OE_IN(OE_IN[i]),
