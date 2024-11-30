@@ -32,7 +32,6 @@ module DLY_CONFIG #(
     parameter DELAY_TYPE                = "STATIC"           // "STATIC", "DYNAMIC"
 )
 (   
-    // `ifdef RX_CLOCK
     `ifndef LOCAL_OSCILLATOR
         input  wire                             CLK_IN,
     `endif
@@ -59,7 +58,6 @@ module DLY_CONFIG #(
         input  wire [DATA_WIDTH-1:0]            SD_IN,
         input wire  [NUM_DLY-1:0]               EN,
         output wire [(2*NUM_DLY)-1:0]           DD_OUT,
-    // `endif
 
     `elsif O_SERDES_O_DELAY
         input  wire                             FAB_CLK_IN,
@@ -67,12 +65,98 @@ module DLY_CONFIG #(
         input  wire [NUM_DLY-1:0]               DATA_VALID,
         input  wire [NUM_DLY-1:0]               OE_IN,
         output wire [DATA_WIDTH-1:0]            SDATA_OUT,
-    // `endif
     
     `elsif O_DDR_O_DELAY
         input wire  [(2*NUM_DLY)-1:0]           DD_IN,
         input wire  [NUM_DLY-1:0]               EN,
         output wire [DATA_WIDTH-1:0]            SD_OUT,
+
+    `elsif I_DELAY_O_DELAY
+        input  wire [(DATA_WIDTH/2)-1:0]        DIN_IDLY,
+        input  wire [(NUM_DLY/2)-1:0]           DIN_ODLY,
+        output wire [(NUM_DLY/2)-1:0]           DOUT_IDLY,
+        output wire [(DATA_WIDTH/2)-1:0]        DOUT_ODLY,
+    
+    `elsif I_DELAY_I_SERDES_O_DELAY_O_SERDES
+        input wire  [(DATA_WIDTH/2)-1:0]        SDATA_IN_IDLY,
+        input wire  [((NUM_DLY/2)*WIDTH)-1:0]   PDATA_IN_OSERDES,
+        input wire  [(NUM_DLY/2)-1:0]           DATA_VALID_OSERDES,
+        input wire  [(NUM_DLY/2)-1:0]           FAB_CLK_IN,
+        input wire  [(NUM_DLY/2)-1:0]           OE_IN,
+        input wire  [(NUM_DLY/2)-1:0]           EN,
+        input wire  [(NUM_DLY/2)-1:0]           BITSLIP_ADJ,
+        output wire [(NUM_DLY/2)-1:0]           CLK_OUT,
+        output wire [(NUM_DLY/2)-1:0]           DPA_LOCK,
+        output wire [(NUM_DLY/2)-1:0]           DPA_ERROR,
+        output wire [(NUM_DLY/2)-1:0]           DATA_VALID_ISERDES,
+        output wire [((NUM_DLY/2)*WIDTH)-1:0]   PDATA_OUT_ISERDES,
+        output wire  [(DATA_WIDTH/2)-1:0]       SDATA_OUT_ODLY,
+
+    `elsif I_DELAY_I_DDR_O_DELAY_O_DDR
+        input  wire [(DATA_WIDTH/2)-1:0]        SD_IN_IDDR,
+        input  wire [(2*(NUM_DLY/2))-1:0]       DD_IN_ODDR,
+        input  wire [(NUM_DLY/2)-1:0]           EN_IDDR,
+        input  wire [(NUM_DLY/2)-1:0]           EN_ODDR,
+        output wire [(2*(NUM_DLY/2))-1:0]       DD_OUT_IDDR,
+        output wire [(DATA_WIDTH/2)-1:0]        SD_OUT_ODDR,
+
+    `elsif I_DELAY_O_DELAY_O_SERDES
+        input  wire [(DATA_WIDTH/2)-1:0]        DIN_IDLY,
+        input  wire [((NUM_DLY/2)*WIDTH)-1:0]   PDATA_IN_OSERDES,
+        input  wire [(NUM_DLY/2)-1:0]           DATA_VALID_OSERDES,
+        input  wire [(NUM_DLY/2)-1:0]           FAB_CLK_IN,
+        input  wire [(NUM_DLY/2)-1:0]           OE_IN,
+        output wire [(NUM_DLY/2)-1:0]           DOUT_IDLY,
+        output wire  [(DATA_WIDTH/2)-1:0]       SDATA_OUT_ODLY,
+    
+    `elsif I_DELAY_O_DELAY_O_DDR
+        input  wire [(DATA_WIDTH/2)-1:0]        DIN_IDLY,
+        output wire [(NUM_DLY/2)-1:0]           DOUT_IDLY,
+        input wire  [(2*(NUM_DLY/2))-1:0]       DD_IN_ODDR,
+        input wire  [(NUM_DLY/2)-1:0]           EN_ODDR,
+        output wire [(DATA_WIDTH/2)-1:0]        SD_OUT_ODDR,
+
+    `elsif I_DELAY_I_SERDES_O_DELAY
+        input wire  [(DATA_WIDTH/2)-1:0]        SDATA_IN_IDLY,
+        input wire  [(NUM_DLY/2)-1:0]           EN_ISERDES,
+        input wire  [(NUM_DLY/2)-1:0]           BITSLIP_ADJ,
+        output wire [(NUM_DLY/2)-1:0]           DATA_VALID_ISERDES,
+        output wire [(NUM_DLY/2)-1:0]           DPA_LOCK,
+        output wire [(NUM_DLY/2)-1:0]           DPA_ERROR,
+        output wire [(NUM_DLY/2)-1:0]           CLK_OUT,
+        output wire [((NUM_DLY/2)*WIDTH)-1:0]   PDATA_OUT_ISERDES,
+        input  wire [(NUM_DLY/2)-1:0]           DIN_ODLY,
+        output wire [(DATA_WIDTH/2)-1:0]        DOUT_ODLY,
+    
+    `elsif I_DELAY_I_SERDES_O_DELAY_O_DDR
+        input wire  [(DATA_WIDTH/2)-1:0]        SDATA_IN_IDLY,
+        input wire  [(NUM_DLY/2)-1:0]           EN_ISERDES,
+        input wire  [(NUM_DLY/2)-1:0]           BITSLIP_ADJ,
+        output wire [(NUM_DLY/2)-1:0]           DATA_VALID_ISERDES,
+        output wire [(NUM_DLY/2)-1:0]           DPA_LOCK,
+        output wire [(NUM_DLY/2)-1:0]           DPA_ERROR,
+        output wire [(NUM_DLY/2)-1:0]           CLK_OUT,
+        output wire [((NUM_DLY/2)*WIDTH)-1:0]   PDATA_OUT_ISERDES,
+        input wire  [(2*(NUM_DLY/2))-1:0]       DD_IN_ODDR,
+        input wire  [(NUM_DLY/2)-1:0]           EN_ODDR,
+        output wire [(DATA_WIDTH/2)-1:0]        SD_OUT_ODDR,
+        
+    `elsif I_DELAY_I_DDR_O_DELAY
+        input  wire [(DATA_WIDTH/2)-1:0]        SD_IN_IDDR,
+        input  wire [(NUM_DLY/2)-1:0]           EN_IDDR,
+        output wire [(2*(NUM_DLY/2))-1:0]       DD_OUT_IDDR,
+        input  wire [(NUM_DLY/2)-1:0]           DIN_ODLY,
+        output wire [(DATA_WIDTH/2)-1:0]        DOUT_ODLY,
+
+    `elsif I_DELAY_I_DDR_O_DELAY_O_SERDES
+        input  wire [(DATA_WIDTH/2)-1:0]        SD_IN_IDDR,
+        input  wire [(NUM_DLY/2)-1:0]           EN_IDDR,
+        output wire [(2*(NUM_DLY/2))-1:0]       DD_OUT_IDDR,
+        input  wire [((NUM_DLY/2)*WIDTH)-1:0]   PDATA_IN_OSERDES,
+        input  wire [(NUM_DLY/2)-1:0]           DATA_VALID_OSERDES,
+        input  wire [(NUM_DLY/2)-1:0]           FAB_CLK_IN,
+        input  wire [(NUM_DLY/2)-1:0]           OE_IN,
+        output wire  [(DATA_WIDTH/2)-1:0]       SDATA_OUT_ODLY,
     `endif
 
     input  wire                                 RESET,
@@ -88,12 +172,11 @@ localparam NUM_CNTRL            = ((DLY_LOC[39:20] > 0) && (DLY_LOC[19:0] > 0)) 
 localparam NUM_DLY_CNTRL        = (NUM_CNTRL == 2) ? 20 : NUM_DLY;
 localparam [39:0] DLY_LOC_INT   = (DLY_LOC[19:0] == 0) ? {20'd0, DLY_LOC[39:20]} : DLY_LOC;
 
-wire  [NUM_DLY-1:0] i_buf_dout;
 reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_ld;
 reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_adj;
 reg   [(NUM_GB_SITES*NUM_CNTRL)-1:0] usr_dly_incdec;
 wire  [(DLY_TAP_WIDTH*NUM_GB_SITES*NUM_CNTRL)-1:0] usr_delay_tap_value;
-wire  [(DLY_TAP_WIDTH*NUM_GB_SITES*NUM_CNTRL)-1:0] dly_tap_value;
+reg  [(DLY_TAP_WIDTH*NUM_GB_SITES*NUM_CNTRL)-1:0] dly_tap_value;
 
 wire clk_in;
 wire lock;
@@ -143,11 +226,8 @@ wire lock;
     `endif
 
 PLL #(
-    .DIVIDE_CLK_IN_BY_2("FALSE"),
     .PLL_MULT(PLL_MULT),
-    .PLL_DIV(PLL_DIV),
-    .PLL_MULT_FRAC(0),
-    .PLL_POST_DIV(2)
+    .PLL_DIV(PLL_DIV)
 )
 PLL_inst (
     .PLL_EN(1'd1),
@@ -177,11 +257,11 @@ always @(*) begin
     end
 end
 
-// wire [DLY_TAP_WIDTH-1:0] dly_tap_val_reg [NUM_DLY-1:0];
-// always @(*) begin
-//     dly_tap_value = 'h0;
-//     dly_tap_value[(dly_site_addr[SEL_DLY] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH] = dly_tap_val_reg[SEL_DLY];
-// end
+wire [DLY_TAP_WIDTH-1:0] dly_tap_val_reg [NUM_DLY-1:0];
+always @(*) begin
+    // dly_tap_value = 'h0;
+    dly_tap_value[(dly_site_addr[SEL_DLY] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH] = dly_tap_val_reg[SEL_DLY];
+end
 
 wire [(NUM_CNTRL*ADDR_WIDTH)-1:0] f2g_dly_addr;
 wire [NUM_CNTRL-1:0] cntrl_dly_ld;
@@ -318,6 +398,835 @@ always @(*) begin
         ACT_IDLY_CNT    = act_dly_cnt(NUM_GB_SITES*NUM_CNTRL);
 end
 
+`ifdef bidirectional
+wire  [(NUM_DLY/2)-1:0] i_buf_out;
+
+generate
+    for(genvar i = 0; i < NUM_DLY/2; i = i + 1) begin
+        `ifdef I_DELAY_O_DELAY
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(DIN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF # (
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUF_inst (
+                    .I(odly_out[i]),
+                    .O(DOUT_ODLY[i])
+                );
+            
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(DIN_IDLY[i+(NUM_DLY/2)]),
+                    .I_P(DIN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUF_DS (
+                    .I(odly_out[i]),
+                    .O_P(DOUT_ODLY[i]),
+                    .O_N(DOUT_ODLY[i+(NUM_DLY/2)])
+                );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(DOUT_IDLY[i])
+            );
+
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(DIN_ODLY[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+
+        `elsif I_DELAY_I_SERDES_O_DELAY_O_SERDES
+            wire [(NUM_DLY/2)-1:0] idly_out;
+            wire [(NUM_DLY/2)-1:0] serdes_clk_out;
+            wire [(NUM_DLY/2)-1:0] serdes_out;
+            wire [(NUM_DLY/2)-1:0] odly_out;
+            wire [(NUM_DLY/2)-1:0] oe_out;
+
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(SDATA_IN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUFT # (
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUFT_inst (
+                    .I(odly_out[i]),
+                    .T(oe_out[i]),
+                    .O(SDATA_OUT_ODLY[i])
+                );
+
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(SDATA_IN_IDLY[i+(NUM_DLY/2)]),
+                    .I_P(SDATA_IN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUFT_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUFT_DS (
+                    .I(odly_out[i]),
+                    .T(oe_out[i]),
+                    .O_P(SDATA_OUT_ODLY[i]),
+                    .O_N(SDATA_OUT_ODLY[i+(NUM_DLY/2)])
+                );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(idly_out[i])
+            );
+
+            I_SERDES # (
+                .DATA_RATE(DATA_RATE),
+                .WIDTH(WIDTH),
+                .DPA_MODE(DPA_MODE)
+            )
+            I_SERDES_inst (
+                .D(idly_out[i]),
+                .RST(~RESET),
+                .BITSLIP_ADJ(BITSLIP_ADJ[i]),
+                .EN(EN[i]),
+                .CLK_IN(serdes_clk_out[i]),
+                .CLK_OUT(serdes_clk_out[i]),
+                .Q(PDATA_OUT_ISERDES[(i*WIDTH) +:WIDTH]),
+                .DATA_VALID(DATA_VALID_ISERDES[i]),
+                .DPA_LOCK(DPA_LOCK[i]),
+                .DPA_ERROR(DPA_ERROR[i]),
+                .PLL_LOCK(lock),
+                .PLL_CLK(clk_in)
+            );
+            assign CLK_OUT[i] = serdes_clk_out[i];
+
+            O_SERDES #(
+                .DATA_RATE(DATA_RATE),
+                .WIDTH(WIDTH)
+            )
+            O_SERDES_inst (
+                .D(PDATA_IN_OSERDES[(i*WIDTH) +:WIDTH]),
+                .RST(~RESET),
+                .DATA_VALID(DATA_VALID_OSERDES[i]),
+                .CLK_IN(FAB_CLK_IN),
+                .OE_IN(OE_IN[i]),
+                .OE_OUT(oe_out[i]),
+                .Q(serdes_out[i]),
+                .CHANNEL_BOND_SYNC_IN(),
+                .CHANNEL_BOND_SYNC_OUT(),
+                .PLL_LOCK(lock),
+                .PLL_CLK(clk_in)
+            );
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(serdes_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+
+        `elsif I_DELAY_I_DDR_O_DELAY_O_DDR
+            wire [(NUM_DLY/2)-1:0] idly_out;
+            wire [(NUM_DLY/2)-1:0] oddr_out;
+            wire [(NUM_DLY/2)-1:0] odly_out;
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(SD_IN_IDDR[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF # (
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUF_inst (
+                    .I(odly_out[i]),
+                    .O(SD_OUT_ODDR[i])
+                );
+            
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(SD_IN_IDDR[i+(NUM_DLY/2)]),
+                    .I_P(SD_IN_IDDR[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUF_DS (
+                    .I(odly_out[i]),
+                    .O_P(SD_OUT_ODDR[i]),
+                    .O_N(SD_OUT_ODDR[i+(NUM_DLY/2)])
+                );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(idly_out[i])
+            );
+            I_DDR I_DDR_inst (
+                .D(idly_out[i]),
+                .R(RESET),
+                .E(EN_IDDR[i]),
+                .C(clk_in),
+                .Q(DD_OUT_IDDR[(i*2) +:2])
+            );
+        
+            O_DDR O_DDR_inst (
+                .D(DD_IN_ODDR[(i*2) +:2]),
+                .R(RESET),
+                .E(EN_ODDR[i]),
+                .C(clk_in),
+                .Q(oddr_out[i])
+            );
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(oddr_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+
+        `elsif I_DELAY_O_DELAY_O_SERDES
+            wire [(NUM_DLY/2)-1:0] serdes_out;
+            wire [(NUM_DLY/2)-1:0] odly_out;
+            wire [(NUM_DLY/2)-1:0] oe_out;
+            
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(DIN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+                O_BUFT # (
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUFT_inst (
+                    .I(odly_out[i]),
+                    .T(oe_out[i]),
+                    .O(SDATA_OUT_ODLY[i])
+                );
+                
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(DIN_IDLY[i+(NUM_DLY/2)]),
+                    .I_P(DIN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+                O_BUFT_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUFT_DS (
+                    .I(odly_out[i]),
+                    .T(oe_out[i]),
+                    .O_P(SDATA_OUT_ODLY[i]),
+                    .O_N(SDATA_OUT_ODLY[i+(NUM_DLY/2)])
+                );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(DOUT_IDLY[i])
+            );
+
+            O_SERDES #(
+                .DATA_RATE(DATA_RATE),
+                .WIDTH(WIDTH)
+            )
+            O_SERDES_inst (
+                .D(PDATA_IN_OSERDES[(i*WIDTH) +:WIDTH]),
+                .RST(~RESET),
+                .DATA_VALID(DATA_VALID_OSERDES[i]),
+                .CLK_IN(FAB_CLK_IN),
+                .OE_IN(OE_IN[i]),
+                .OE_OUT(oe_out[i]),
+                .Q(serdes_out[i]),
+                .CHANNEL_BOND_SYNC_IN(),
+                .CHANNEL_BOND_SYNC_OUT(),
+                .PLL_LOCK(lock),
+                .PLL_CLK(clk_in)
+            );
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(serdes_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+
+        `elsif I_DELAY_O_DELAY_O_DDR
+            wire [(NUM_DLY/2)-1:0] oddr_out;
+            wire [(NUM_DLY/2)-1:0] odly_out;
+
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(DIN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF # (
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUF_inst (
+                    .I(odly_out[i]),
+                    .O(SD_OUT_ODDR[i])
+                );
+
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(DIN_IDLY[i+(NUM_DLY/2)]),
+                    .I_P(DIN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUF_DS (
+                    .I(odly_out[i]),
+                    .O_P(SD_OUT_ODDR[i]),
+                    .O_N(SD_OUT_ODDR[i+(NUM_DLY/2)])
+                );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(DOUT_IDLY[i])
+            );
+
+            O_DDR O_DDR_inst (
+                .D(DD_IN_ODDR[(i*2) +:2]),
+                .R(RESET),
+                .E(EN_ODDR[i]),
+                .C(clk_in),
+                .Q(oddr_out[i])
+            );
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(oddr_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+
+        `elsif I_DELAY_I_SERDES_O_DELAY
+            wire [(NUM_DLY/2)-1:0] odly_out;
+            wire [(NUM_DLY/2)-1:0] idly_out;
+            wire [(NUM_DLY/2)-1:0] serdes_clk_out;
+
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(SDATA_IN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF # (
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUF_inst (
+                    .I(odly_out[i]),
+                    .O(DOUT_ODLY[i])
+                );
+
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(SDATA_IN_IDLY[i+(NUM_DLY/2)]),
+                    .I_P(SDATA_IN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUF_DS (
+                    .I(odly_out[i]),
+                    .O_P(DOUT_ODLY[i]),
+                    .O_N(DOUT_ODLY[i+(NUM_DLY/2)])
+                );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(idly_out[i])
+            );
+
+            I_SERDES # (
+                .DATA_RATE(DATA_RATE),
+                .WIDTH(WIDTH),
+                .DPA_MODE(DPA_MODE)
+            )
+            I_SERDES_inst (
+                .D(idly_out[i]),
+                .RST(~RESET),
+                .BITSLIP_ADJ(BITSLIP_ADJ[i]),
+                .EN(EN_ISERDES[i]),
+                .CLK_IN(serdes_clk_out[i]),
+                .CLK_OUT(serdes_clk_out[i]),
+                .Q(PDATA_OUT_ISERDES[(i*WIDTH) +:WIDTH]),
+                .DATA_VALID(DATA_VALID_ISERDES[i]),
+                .DPA_LOCK(DPA_LOCK[i]),
+                .DPA_ERROR(DPA_ERROR[i]),
+                .PLL_LOCK(lock),
+                .PLL_CLK(clk_in)
+            );
+            assign CLK_OUT[i] = serdes_clk_out[i];
+
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(DIN_ODLY[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+        
+        `elsif I_DELAY_I_SERDES_O_DELAY_O_DDR
+            wire [(NUM_DLY/2)-1:0] serdes_clk_out;
+            wire [(NUM_DLY/2)-1:0] odly_out;
+            wire [(NUM_DLY/2)-1:0] oddr_out;
+            wire [(NUM_DLY/2)-1:0] idly_out;
+
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(SDATA_IN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF # (
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUF_inst (
+                    .I(odly_out[i]),
+                    .O(SD_OUT_ODDR[i])
+                );
+            
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(SDATA_IN_IDLY[i+(NUM_DLY/2)]),
+                    .I_P(SDATA_IN_IDLY[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUF_DS (
+                    .I(odly_out[i]),
+                    .O_P(SD_OUT_ODDR[i]),
+                    .O_N(SD_OUT_ODDR[i+(NUM_DLY/2)])
+                );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(idly_out[i])
+            );
+
+            I_SERDES # (
+                .DATA_RATE(DATA_RATE),
+                .WIDTH(WIDTH),
+                .DPA_MODE(DPA_MODE)
+            )
+            I_SERDES_inst (
+                .D(idly_out[i]),
+                .RST(~RESET),
+                .BITSLIP_ADJ(BITSLIP_ADJ[i]),
+                .EN(EN_ISERDES[i]),
+                .CLK_IN(serdes_clk_out[i]),
+                .CLK_OUT(serdes_clk_out[i]),
+                .Q(PDATA_OUT_ISERDES[(i*WIDTH) +:WIDTH]),
+                .DATA_VALID(DATA_VALID_ISERDES[i]),
+                .DPA_LOCK(DPA_LOCK[i]),
+                .DPA_ERROR(DPA_ERROR[i]),
+                .PLL_LOCK(lock),
+                .PLL_CLK(clk_in)
+            );
+            assign CLK_OUT[i] = serdes_clk_out[i];
+
+            O_DDR O_DDR_inst (
+                .D(DD_IN_ODDR[(i*2) +:2]),
+                .R(RESET),
+                .E(EN_ODDR[i]),
+                .C(clk_in),
+                .Q(oddr_out[i])
+            );
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(oddr_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+        
+        `elsif I_DELAY_I_DDR_O_DELAY
+            wire  [(NUM_DLY/2)-1:0] idly_out;
+            wire  [(NUM_DLY/2)-1:0] odly_out;
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(SD_IN_IDDR[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF # (
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUF_inst (
+                    .I(odly_out[i]),
+                    .O(DOUT_ODLY[i])
+                );
+            
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(SD_IN_IDDR[i+(NUM_DLY/2)]),
+                    .I_P(SD_IN_IDDR[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUF_DS (
+                    .I(odly_out[i]),
+                    .O_P(DOUT_ODLY[i]),
+                    .O_N(DOUT_ODLY[i+(NUM_DLY/2)])
+                );
+            `endif
+
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(idly_out[i])
+            );
+            I_DDR I_DDR_inst (
+                .D(idly_out[i]),
+                .R(RESET),
+                .E(EN_IDDR[i]),
+                .C(clk_in),
+                .Q(DD_OUT_IDDR[(i*2) +:2])
+            );
+
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(DIN_ODLY[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+
+        `elsif I_DELAY_I_DDR_O_DELAY_O_SERDES
+            wire  [(NUM_DLY/2)-1:0] idly_out;
+            wire  [(NUM_DLY/2)-1:0] odly_out;
+            wire  [(NUM_DLY/2)-1:0] serdes_out;
+            wire  [(NUM_DLY/2)-1:0] oe_out;
+
+            `ifdef SINGLE_ENDED
+                I_BUF #(
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD)
+                ) I_BUF_data (
+                    .EN(1'd1),
+                    .I(SD_IN_IDDR[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUFT # (
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .IOSTANDARD(IOSTANDARD),
+                    .DRIVE_STRENGTH(DRIVE_STRENGTH),
+                    .SLEW_RATE(SLEW_RATE)
+                )
+                O_BUFT_inst (
+                    .I(odly_out[i]),
+                    .T(oe_out[i]),
+                    .O(SDATA_OUT_ODLY[i])
+                );
+
+            `elsif DIFFERENTIAL
+                I_BUF_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) I_BUF_DS (
+                    .EN(1'd1),
+                    .I_N(SD_IN_IDDR[i+(NUM_DLY/2)]),
+                    .I_P(SD_IN_IDDR[i]),
+                    .O(i_buf_out[i])
+                );
+
+                O_BUFT_DS #(
+                    .IOSTANDARD(IOSTANDARD),
+                    .WEAK_KEEPER(WEAK_KEEPER),
+                    .DIFFERENTIAL_TERMINATION(DIFFERENTIAL_TERMINATION)
+                ) O_BUFT_DS (
+                    .I(odly_out[i]),
+                    .T(oe_out[i]),
+                    .O_P(SDATA_OUT_ODLY[i]),
+                    .O_N(SDATA_OUT_ODLY[i+(NUM_DLY/2)])
+                );
+            `endif
+            
+            I_DELAY #(
+                .DELAY(DELAY)
+            ) I_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(i_buf_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+0]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+0]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+0]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+0]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+0] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(idly_out[i])
+            );
+            I_DDR I_DDR_inst (
+                .D(idly_out[i]),
+                .R(RESET),
+                .E(EN_IDDR[i]),
+                .C(clk_in),
+                .Q(DD_OUT_IDDR[(i*2) +:2])
+            );
+
+            O_SERDES #(
+                .DATA_RATE(DATA_RATE),
+                .WIDTH(WIDTH)
+            )
+            O_SERDES_inst (
+                .D(PDATA_IN_OSERDES[(i*WIDTH) +:WIDTH]),
+                .RST(~RESET),
+                .DATA_VALID(DATA_VALID_OSERDES[i]),
+                .CLK_IN(FAB_CLK_IN),
+                .OE_IN(OE_IN[i]),
+                .OE_OUT(oe_out[i]),
+                .Q(serdes_out[i]),
+                .CHANNEL_BOND_SYNC_IN(),
+                .CHANNEL_BOND_SYNC_OUT(),
+                .PLL_LOCK(lock),
+                .PLL_CLK(clk_in)
+            );
+            O_DELAY #(
+                .DELAY(DELAY)
+            ) O_DELAY_inst (
+                .CLK_IN(clk_in),
+                .I(serdes_out[i]),
+                .DLY_LOAD(delay_ld_dec_out[dly_site_addr[(i*2)+1]]),
+                .DLY_ADJ(delay_adj[dly_site_addr[(i*2)+1]]),
+                .DLY_INCDEC(delay_incdec[dly_site_addr[(i*2)+1]]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[(i*2)+1]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[(i*2)+1] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .O(odly_out[i])
+            );
+
+        `endif
+    end
+endgenerate
+
+`elsif unidirectional
+wire  [NUM_DLY-1:0] i_buf_dout;
 generate
     for(genvar i = 0; i < NUM_DLY; i = i + 1) begin
         // --------------------------------------------------------- //
@@ -352,7 +1261,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-               .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(DATA_OUT[i])
             );
 
@@ -390,7 +1300,8 @@ generate
                 .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                 .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                 .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                 .O(dly_out[i])
             );
             I_SERDES # (
@@ -400,7 +1311,7 @@ generate
             )
             I_SERDES_inst (
                 .D(dly_out[i]),
-                .RST(RESET),
+                .RST(~RESET),
                 .BITSLIP_ADJ(BITSLIP_ADJ[i]),
                 .EN(EN[i]),
                 .CLK_IN(serdes_clk_out[i]),
@@ -448,7 +1359,8 @@ generate
                     .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                     .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                     .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                    .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                    .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                    // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(dly_out[i])
                 );
                 I_DDR I_DDR_inst (
@@ -470,7 +1382,8 @@ generate
                     .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                     .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                     .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                    .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                    .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                    // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(dly_out[i])
                 );
 
@@ -507,7 +1420,7 @@ generate
                 )
                 O_SERDES_inst (
                     .D(PDATA_IN[(i*WIDTH) +:WIDTH]),
-                    .RST(RESET),
+                    .RST(~RESET),
                     .DATA_VALID(DATA_VALID[i]),
                     .CLK_IN(FAB_CLK_IN),
                     .OE_IN(OE_IN[i]),
@@ -526,7 +1439,8 @@ generate
                     .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                     .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                     .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                    .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                    .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                    // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(odly_out[i])
                 );
                 `ifdef SINGLE_ENDED
@@ -573,7 +1487,8 @@ generate
                     .DLY_LOAD(delay_ld_dec_out[dly_site_addr[i]]),
                     .DLY_ADJ(delay_adj[dly_site_addr[i]]),
                     .DLY_INCDEC(delay_incdec[dly_site_addr[i]]),
-                    .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
+                    .DLY_TAP_VALUE(dly_tap_val_reg[i]),
+                    // .DLY_TAP_VALUE(dly_tap_value[(dly_site_addr[i] * DLY_TAP_WIDTH) +: DLY_TAP_WIDTH]),
                     .O(odly_out[i])
                 );
                 `ifdef SINGLE_ENDED
@@ -597,8 +1512,8 @@ generate
                     );
                 `endif
         `endif
-
     end
 endgenerate
+`endif
 
 endmodule
