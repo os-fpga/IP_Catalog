@@ -58,17 +58,19 @@ module ddr_sdram_ctrl #(
     output reg                  [           ROW_BITS-1:0] ddr_a,
     output wire                 [((1<<DQ_LEVEL)+1)/2-1:0] ddr_dm,
     inout                       [((1<<DQ_LEVEL)+1)/2-1:0] ddr_dqs,
-    inout                       [      (4<<DQ_LEVEL)-1:0] ddr_dq    
-);
+    inout                       [      (4<<DQ_LEVEL)-1:0] ddr_dq);
 
 
 localparam DQS_BITS = ((1<<DQ_LEVEL)+1)/2;
 
 reg        clk2 = 1'b0;
+reg         [      (4<<DQ_LEVEL)-1:0] ddr_dq_3, ddr_dq_2;
 reg        init_done = 1'b0;
 reg  [2:0] ref_idle = 3'd1, ref_real = 3'd0;
 reg  [9:0] ref_cnt = 10'd0;
 reg  [7:0] cnt = 8'd0;
+//wire  [7:0] ddr_dq_2;
+wire  [15:0] rdata_2;
 
 localparam [3:0] RESET     = 4'd0,
                  IDLE      = 4'd1,
@@ -99,8 +101,8 @@ wire read_accessible, read_respdone;
 reg  output_enable=1'b0, output_enable_d1=1'b0, output_enable_d2=1'b0;
 
 reg                      o_v_a = 1'b0;
-reg  [(4<<DQ_LEVEL)-1:0] o_dh_a = 0;
-reg  [(4<<DQ_LEVEL)-1:0] o_dl_a = 0;
+reg  [(4<<DQ_LEVEL)-1:0] o_dh_a = 0, o_dh_a_2 = 0;
+reg  [(4<<DQ_LEVEL)-1:0] o_dl_a = 0, o_dl_a_2=0;
 reg                      o_v_b = 1'b0;
 reg  [(4<<DQ_LEVEL)-1:0] o_dh_b = 0;
 reg                      o_dqs_c = 1'b0;
@@ -114,7 +116,7 @@ reg                      i_l_b = 1'b0;
 reg                      i_v_c = 1'b0;
 reg                      i_l_c = 1'b0;
 reg                      i_dqs_c = 1'b0;
-reg  [(4<<DQ_LEVEL)-1:0] i_d_c = 0;
+reg  [(4<<DQ_LEVEL)-1:0] i_d_c = 0, i_d_c_2 = 0 , i_d_c_3 = 0, i_d_c_4 = 0 , i_d_c_5 = 0, i_d_c_6 = 0;
 reg                      i_v_d = 1'b0;
 reg                      i_l_d = 1'b0;
 reg  [(8<<DQ_LEVEL)-1:0] i_d_d = 0;
@@ -211,7 +213,8 @@ assign ddr_cke = ~ddr_cs_n;
 // -------------------------------------------------------------------------------------
 assign ddr_dm  = output_enable ? {DQS_BITS{1'b0}}    : {DQS_BITS{1'bz}};
 assign ddr_dqs = output_enable ? {DQS_BITS{o_dqs_c}} : {DQS_BITS{1'bz}};
-assign ddr_dq  = output_enable ?               o_d_d : {(4<<DQ_LEVEL){1'bz}};
+assign ddr_dq_2 = output_enable ?               o_d_d : {(4<<DQ_LEVEL){1'bz}};
+assign ddr_dq   = ddr_we_n ? {(4<<DQ_LEVEL){1'bz}} : ddr_dq_3;
 
 // -------------------------------------------------------------------------------------
 //  assignment for user interface (AXI4)
@@ -423,7 +426,9 @@ always @ (posedge clk or negedge rstn)
     end else begin
         o_v_b <= o_v_a;
         o_dh_b <= o_dh_a;
-    end
+        o_dl_a_2 <= o_dl_a;
+        o_dh_a_2 <= o_dh_a;
+        end
 
 // -------------------------------------------------------------------------------------
 //   dq and dqs generate for output (write)
@@ -487,7 +492,68 @@ always @ (posedge clk or negedge rstn)
         i_d_e <= i_d_d;
     end
 
-// -------------------------------------------------------------------------------------
+
+O_DDR read0 (
+        .D({wdata[8],wdata[0]}), // Data input
+        .R(rstn_async), // Active-low asynchrnous reset
+        .E(output_enable), // Active-high enable
+        .C(ddr_ck_p), // Clock
+        .Q(ddr_dq_3[0]) );
+
+
+O_DDR read1 (
+        .D({wdata[9],wdata[1]} ), // Data input
+        .R(rstn_async), // Active-low asynchrnous reset
+        .E(output_enable), // Active-high enable
+        .C(ddr_ck_p), // Clock
+        .Q(ddr_dq_3[1]) );
+
+O_DDR read2 (
+        .D({wdata[10],wdata[2]}), // Data input
+        .R(rstn_async), // Active-low asynchrnous reset
+        .E(output_enable), // Active-high enable
+        .C(ddr_ck_p), // Clock
+        .Q(ddr_dq_3[2]) );
+
+O_DDR read3 (
+        .D({wdata[11],wdata[3]}), // Data input
+        .R(rstn_async), // Active-low asynchrnous reset
+        .E(output_enable), // Active-high enable
+        .C(ddr_ck_p), // Clock
+        .Q(ddr_dq_3[3]) );
+
+
+O_DDR read4 (
+        .D({wdata[12],wdata[4]}), // Data input
+        .R(rstn_async), // Active-low asynchrnous reset
+        .E(output_enable), // Active-high enable
+        .C(ddr_ck_p), // Clock
+        .Q(ddr_dq_3[4]) );
+
+O_DDR read5 (
+        .D({wdata[13],wdata[5]}), // Data input
+        .R(rstn_async), // Active-low asynchrnous reset
+        .E(output_enable), // Active-high enable
+        .C(ddr_ck_p), // Clock
+        .Q(ddr_dq_3[5]) );
+    
+
+O_DDR read6 (
+        .D({wdata[14],wdata[6]}), // Data input
+        .R(rstn_async), // Active-low asynchrnous reset
+        .E(output_enable), // Active-high enable
+        .C(ddr_ck_p), // Clock
+        .Q(ddr_dq_3[6]) );
+
+O_DDR read7 (
+        .D({wdata[15],wdata[7]}), // Data input
+        .R(rstn_async), // Active-low asynchrnous reset
+        .E(output_enable), // Active-high enable
+        .C(ddr_ck_p), // Clock
+        .Q(ddr_dq_3[7]) );
+
+
+            // -------------------------------------------------------------------------------------
 //   data buffer for read
 // -------------------------------------------------------------------------------------
 generate if(READ_BUFFER) begin
@@ -509,7 +575,70 @@ generate if(READ_BUFFER) begin
     wire   itready = rpt != (wpt + AW_ONE);
     assign rvalid  = valid | dvalid;
     assign rreq    = emptyn & ( rready | ~rvalid );
-    assign {rlast, rdata} = dvalid ? fifo_rdata : datareg;
+    assign {rlast, rdata_2} = dvalid ? fifo_rdata : datareg;
+
+
+    I_DDR write0 (
+            .D(i_d_c_6[0] ), // Data input
+            .R(rstn_async), // Active-low asynchrnous reset
+            .E(dvalid), // Active-high enable
+            .C(ddr_ck_p), // Clock
+            .Q({rdata[0], rdata[8]}));
+    
+    
+    I_DDR write1 (
+            .D(i_d_c_6[1] ), // Data input
+            .R(rstn_async), // Active-low asynchrnous reset
+            .E(dvalid), // Active-high enable
+            .C(ddr_ck_p), // Clock
+            .Q({rdata[1], rdata[9]}));
+    
+    I_DDR write2 (
+            .D(i_d_c_6[2] ), // Data input
+            .R(rstn_async), // Active-low asynchrnous reset
+            .E(dvalid), // Active-high enable
+            .C(ddr_ck_p), // Clock
+            .Q({rdata[2], rdata[10]}) );
+    
+    I_DDR write3 (
+            .D(i_d_c_6[3] ), // Data input
+            .R(rstn_async), // Active-low asynchrnous reset
+            .E(dvalid), // Active-high enable
+            .C(ddr_ck_p), // Clock
+            .Q({rdata[3], rdata[11]}) );
+    
+    
+    I_DDR write4 (
+            .D( i_d_c_6[4]), // Data input
+            .R(rstn_async), // Active-low asynchrnous reset
+            .E(dvalid), // Active-high enable
+            .C(ddr_ck_p), // Clock
+            .Q({rdata[4], rdata[12]}) );
+    
+    I_DDR write5 (
+            .D(i_d_c_6[5] ), // Data input
+            .R(rstn_async), // Active-low asynchrnous reset
+            .E(dvalid), // Active-high enable
+            .C(ddr_ck_p), // Clock
+            .Q({rdata[5], rdata[13]}) );
+        
+    
+    I_DDR write6 (
+            .D(i_d_c_6[6] ), // Data input
+            .R(rstn_async), // Active-low asynchrnous reset
+            .E(dvalid), // Active-high enable
+            .C(ddr_ck_p), // Clock
+            .Q({rdata[6], rdata[14]}) );
+    
+    I_DDR write7 (
+            .D(i_d_c_6[7]), // Data input
+            .R(rstn_async), // Active-low asynchrnous reset
+            .E(dvalid), // Active-high enable
+            .C(ddr_ck_p), // Clock
+            .Q({rdata[7], rdata[15]}) );
+    
+
+
 
     always @ (posedge clk or negedge rstn)
         if(~rstn)
@@ -540,6 +669,13 @@ generate if(READ_BUFFER) begin
 
     reg [DWIDTH-1:0] mem [((1<<AWIDTH)-1) : 0];
 
+    always @ (posedge clk2) begin
+        i_d_c_2 <= i_d_c;
+        i_d_c_3 <= i_d_c_2;
+        i_d_c_4 <= i_d_c_3;
+        i_d_c_5 <= i_d_c_4;
+        i_d_c_6 <= i_d_c_5;
+    end
     always @ (posedge clk)
         if(i_v_e)
             mem[wpt] <= {i_l_e, i_d_e};

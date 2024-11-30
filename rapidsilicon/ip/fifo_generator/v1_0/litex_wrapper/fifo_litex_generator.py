@@ -3368,13 +3368,16 @@ class FIFO(Module):
                 # Checking if the FIFO is empty
                 if (data_width_write >= data_width_read):
                     self.comb += [
-                        If(self.counter == 0,
-                           self.empty.eq(1)
-                           ).Elif(self.pessimistic_empty == 2,
-                           self.empty.eq(0)
-                           ).Else(
+                        If (ResetSignal("sys"),
+                            self.empty.eq(1)
+                            ).Elif(self.counter == 0,
+                            self.empty.eq(1)
+                            ).Elif(self.pessimistic_empty == 2,
+                            self.empty.eq(0)
+                            ).Else(
                                self.empty.eq(1)
                            )
+                        
                     ]
                     # Checking for Programmable Empty
                     if (empty_threshold):
@@ -3385,7 +3388,9 @@ class FIFO(Module):
                         ]
                 else:
                     self.comb += [
-                        If(self.counter <= clocks_for_output,
+                        If (ResetSignal("sys"),
+                            self.empty.eq(1)
+                            ).Elif(self.counter <= clocks_for_output,
                            self.empty.eq(1)
                            ).Elif(self.pessimistic_empty == 2,
                            self.empty.eq(0)
@@ -3517,7 +3522,9 @@ class FIFO(Module):
                 # Checking if the FIFO is empty
                 if (data_width_write > data_width_read):
                     self.comb += [
-                        If(self.rd_ptr == self.sync_rdclk_wrtptr_binary_multiple,
+                        If (ResetSignal("rd"),
+                            self.empty.eq(1)
+                            ).Elif(self.rd_ptr == self.sync_rdclk_wrtptr_binary_multiple,
                            self.empty.eq(1)
                            ).Elif(self.pessimistic_empty == 2,
                            self.empty.eq(0)
@@ -3560,7 +3567,9 @@ class FIFO(Module):
                         ]
                 elif (data_width_write == data_width_read):
                     self.comb += [
-                        If(self.rd_ptr == self.sync_rdclk_wrtptr_binary,
+                        If (ResetSignal("rd"),
+                            self.empty.eq(1)
+                            ).Elif(self.rd_ptr == self.sync_rdclk_wrtptr_binary,
                            self.empty.eq(1)
                            ).Elif(self.pessimistic_empty == 2,
                            self.empty.eq(0)
@@ -3603,7 +3612,9 @@ class FIFO(Module):
                         ]
                 else:
                     self.comb += [
-                        If(self.rd_pointer_multiple == self.sync_rdclk_wrtptr_binary,
+                        If (ResetSignal("rd"),
+                            self.empty.eq(1)
+                            ).Elif(self.rd_pointer_multiple == self.sync_rdclk_wrtptr_binary,
                            self.empty.eq(1)
                            ).Elif(self.pessimistic_empty == 2,
                            self.empty.eq(0)

@@ -23,6 +23,7 @@ IP Catalog is an IP library for Raptor toolchain.
 			ip/
 			├── ahb2axi_bridge
 			├── ahb_sram
+			├── axi2ahb_bridge
 			├── axi2axilite_bridge
 			├── axi_async_fifo
 			├── axi_cdma

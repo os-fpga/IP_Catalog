@@ -103,6 +103,8 @@ integer strb_index = 0;
 integer probe_index;
 integer t_index;
 
+integer i,j;
+
 /**********************************************************************************
 *                                                                                 *
 *   AXI-Slave instantiation                                                       *
@@ -246,10 +248,19 @@ begin
         2'h2    :   AXI_DAT_IN <= ip_version; 
         2'h3    :   AXI_DAT_IN <= ip_id; 
         default :  begin
-          if (CONTROL_REG[0] == 1)
-            AXI_DAT_IN <= output_probe_reg[((S_AXI_ARADDR - 32'h00000010) >> ADDR_LSB)];    
-         else
+          if (CONTROL_REG[0] == 1) begin
+            if (S_AXI_ARADDR > NO_OF_OUT_PROBE_REGS-1)
+              AXI_DAT_IN <= 0;
+            else
+              AXI_DAT_IN <= output_probe_reg[((S_AXI_ARADDR - 32'h00000010) >> ADDR_LSB)];   
+            end
+
+         else begin
+          if (S_AXI_ARADDR > NO_OF_OUT_PROBE_REGS-1)
+            AXI_DAT_IN <= 0;
+            else
             AXI_DAT_IN <= input_probe_reg_o[((S_AXI_ARADDR - 32'h00000010) >> ADDR_LSB)];    
+        end
         end
     endcase
 end
@@ -266,6 +277,12 @@ begin
   if (!S_AXI_ARESETN)
     begin
       CONTROL_REG <= 0;
+      for(j = 0 ; j <= NO_OF_IN_PROBE_REGS; j = j+1) begin
+        input_probe_reg_o[j] = 0;
+        input_probe_reg_i[j] =0;
+        end
+      for(i = 0 ; i <= NO_OF_OUT_PROBE_REGS; i = i+1)
+        output_probe_reg[i] = 0;
     end 
   else begin
     if (AXI_WREN)
