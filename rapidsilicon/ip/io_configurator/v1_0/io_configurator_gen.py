@@ -254,7 +254,7 @@ def freq_calc(self, out_clk_freq, ref_clk_freq, clocking_source):
     for c in range(c_range):
         for d in range(d_range):
             # Calculate 2 * (a / b)
-            product_candidate = 2 * (a / b)
+            product_candidate = (a / b)
             # Check if the candidate product matches the formula with c and d
             if product_candidate == ((c+1) / (d+1)):
                 # If a match is found, assign c, d, and the product to the respective signals
@@ -775,7 +775,7 @@ def I_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -815,7 +815,7 @@ def I_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1057,7 +1057,7 @@ def I_SERDES(self, platform, data_rate, width, op_mode, io_type, io_mode, clocki
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1107,7 +1107,7 @@ def I_SERDES(self, platform, data_rate, width, op_mode, io_type, io_mode, clocki
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1377,7 +1377,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1563,7 +1563,7 @@ def O_SERDES(self, platform, data_rate, width, clocking, clock_forwarding, clock
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1787,7 +1787,7 @@ def O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -1826,7 +1826,7 @@ def O_DDR(self, platform, io_mode, clocking, clocking_source, out_clk_freq, ref_
                 p_DIVIDE_CLK_IN_BY_2    = "FALSE",
                 p_PLL_MULT              = pll_mult,
                 p_PLL_DIV               = pll_div,
-                p_PLL_POST_DIV          = 2,
+                p_PLL_POST_DIV          = 17,
                 # Ports
                 #------
                 i_PLL_EN            = 1,
@@ -3002,7 +3002,6 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             i_DLY_INCDEC                    = platform.request("FABRIC_DLY_INCDEC"),
             o_DELAY_TAP_VALUE               = Cat([platform.request(f"FABRIC_DLY_TAP_VALUE_{i}") for i in range(num_dly)])
             )
-            
 
 # IO Configurator Wrapper ----------------------------------------------------------------------------------
 class IO_CONFIG_Wrapper(Module):
