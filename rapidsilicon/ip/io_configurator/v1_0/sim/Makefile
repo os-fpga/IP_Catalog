@@ -2,8 +2,6 @@
 #
 # SPDX-License-Identifier: MIT
 
-MODULE_NAME ?= on_chip_memory
-
 OUT_DIR ?= $(PWD)
 
 all:
