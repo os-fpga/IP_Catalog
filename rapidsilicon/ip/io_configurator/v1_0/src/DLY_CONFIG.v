@@ -399,7 +399,7 @@ always @(*) begin
         ACT_IDLY_CNT    = act_dly_cnt(NUM_GB_SITES*NUM_CNTRL);
 end
 
-`ifdef bidirectional
+`ifdef BIDIRECTIONAL
 wire  [(NUM_DLY/2)-1:0] i_buf_out;
 wire  [(NUM_DLY/2)-1:0] odly_out;
 
@@ -1227,7 +1227,7 @@ generate
     end
 endgenerate
 
-`elsif unidirectional
+`elsif UNIDIRECTIONAL
 wire  [NUM_DLY-1:0] i_buf_dout;
 generate
     for(genvar i = 0; i < NUM_DLY; i = i + 1) begin
