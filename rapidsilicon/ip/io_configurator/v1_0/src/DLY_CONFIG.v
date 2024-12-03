@@ -4,6 +4,7 @@
 `include "header.vh"
 
 module DLY_CONFIG #(
+    parameter IO_MODEL                  = "I_DELAY",
     // IO_BUF
     parameter WEAK_KEEPER               = "NONE",
     parameter IOSTANDARD                = "DEFAULT",

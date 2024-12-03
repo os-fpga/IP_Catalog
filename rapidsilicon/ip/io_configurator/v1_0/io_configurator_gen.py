@@ -484,6 +484,7 @@ def I_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
                 # Parameters.
                 # -----------
+                p_IO_MODEL                  = combination,
                 p_DELAY                     = delay,
                 p_WEAK_KEEPER               = io_mode,
                 p_IOSTANDARD                = voltage_standard,
@@ -517,6 +518,7 @@ def I_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                  = combination,
             p_DELAY                     = delay,
             p_WEAK_KEEPER               = io_mode,
             p_IOSTANDARD                = voltage_standard,
@@ -562,6 +564,7 @@ def I_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
                 # Parameters.
                 # -----------
+                p_IO_MODEL                  = combination,
                 p_DELAY                     = delay,
                 p_WEAK_KEEPER               = io_mode,
                 p_IOSTANDARD                = voltage_standard,
@@ -604,6 +607,7 @@ def I_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                  = combination,
             p_DELAY                     = delay,
             p_WEAK_KEEPER               = io_mode,
             p_IOSTANDARD                = voltage_standard,
@@ -657,6 +661,7 @@ def I_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
                 # Parameters.
                 # -----------
+                p_IO_MODEL                  = combination,
                 p_DELAY                     = delay,
                 p_WEAK_KEEPER               = io_mode,
                 p_IOSTANDARD                = voltage_standard,
@@ -690,6 +695,7 @@ def I_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             # ----------------
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
+            p_IO_MODEL                  = combination,
             # -----------
             p_DELAY                     = delay,
             p_WEAK_KEEPER               = io_mode,
@@ -1892,6 +1898,7 @@ def O_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
                 # Parameters.
                 # -----------
+                p_IO_MODEL                  = combination,
                 p_DELAY                     = delay,
                 p_WEAK_KEEPER               = io_mode,
                 p_IOSTANDARD                = voltage_standard,
@@ -1925,6 +1932,7 @@ def O_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                  = combination,
             p_DELAY                     = delay,
             p_WEAK_KEEPER               = io_mode,
             p_IOSTANDARD                = voltage_standard,
@@ -1970,6 +1978,7 @@ def O_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
                 # Parameters.
                 # -----------
+                p_IO_MODEL                  = combination,
                 p_DELAY                     = delay,
                 p_WEAK_KEEPER               = io_mode,
                 p_IOSTANDARD                = voltage_standard,
@@ -2010,6 +2019,7 @@ def O_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                  = combination,
             p_DELAY                     = delay,
             p_WEAK_KEEPER               = io_mode,
             p_IOSTANDARD                = voltage_standard,
@@ -2062,6 +2072,7 @@ def O_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
                 # Parameters.
                 # -----------
+                p_IO_MODEL                  = combination,
                 p_DELAY                     = delay,
                 p_WEAK_KEEPER               = io_mode,
                 p_IOSTANDARD                = voltage_standard,
@@ -2098,6 +2109,7 @@ def O_DELAY(self, platform, sel_dly, io_model, combination, io_mode, voltage_sta
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                  = combination,
             p_DELAY                     = delay,
             p_WEAK_KEEPER               = io_mode,
             p_IOSTANDARD                = voltage_standard,
@@ -2163,6 +2175,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2200,6 +2213,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2249,6 +2263,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2291,6 +2306,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2344,6 +2360,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2382,6 +2399,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2432,6 +2450,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2475,6 +2494,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2530,6 +2550,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2578,6 +2599,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2639,6 +2661,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2687,6 +2710,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2746,6 +2770,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2784,6 +2809,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2834,6 +2860,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2878,6 +2905,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2933,6 +2961,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -2973,6 +3002,7 @@ def Bidirectional_Delays(self, platform, sel_dly, combination, num_dly, io_type,
             self.specials += Instance("DLY_CONFIG",
             # Parameters.
             # -----------
+            p_IO_MODEL                      = combination,
             p_DELAY                         = delay,
             p_DLY_LOC                       = Instance.PreformattedParam("40'b{}".format(dly_loc)),
             p_NUM_DLY                       = num_dly,
@@ -3215,7 +3245,9 @@ def main():
                                             "I_DELAY_I_SERDES+O_DELAY", "I_DELAY_I_SERDES+O_SERDES_O_DELAY", "I_DELAY_I_SERDES+O_DDR_O_DELAY",
                                             "I_DELAY_I_DDR+O_DELAY", "I_DELAY_I_DDR+O_SERDES_O_DELAY", "I_DELAY_I_DDR+O_DDR_O_DELAY"]
             
-            if (args.combination not in ["O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR"]):
+            if (args.combination not in ["O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR", "I_DELAY+O_DELAY", "I_DELAY+O_SERDES_O_DELAY", "I_DELAY+O_DDR_O_DELAY", 
+                                        "I_DELAY_I_SERDES+O_DELAY", "I_DELAY_I_SERDES+O_SERDES_O_DELAY", "I_DELAY_I_SERDES+O_DDR_O_DELAY",
+                                        "I_DELAY_I_DDR+O_DELAY", "I_DELAY_I_DDR+O_SERDES_O_DELAY", "I_DELAY_I_DDR+O_DDR_O_DELAY"]):
                 option_strings_to_remove = ["--drive_strength", "--slew_rate"]
                 parser._actions = [action for action in parser._actions if action.option_strings and action.option_strings[0] not in option_strings_to_remove]
 
