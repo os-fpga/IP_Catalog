@@ -3338,8 +3338,20 @@ def main():
         elif (args.io_mode == "PULLDOWN"):
             summary["IO_MODE"] = "Logic low in the absence of an external connection"
     
-    if (args.io_model in ["I_SERDES", "O_SERDES", "I_DDR", "O_DDR", "I_DELAY", "O_DELAY"]):
-    # CLOCK
+    if (args.io_model in ["I_SERDES", "O_SERDES", "I_DDR", "O_DDR", "IO_DELAY"]):
+        if (args.io_model == "IO_DELAY"):
+            if (args.io_type == "SINGLE_ENDED"):
+                summary["IO_TYPE"] = "Unidirectional data flow"
+            elif (args.io_type == "DIFFERENTIAL"):
+                summary["IO_TYPE"] = "Noise-resistant data transfer"
+            
+            if (args.io_mode == "NONE"):
+                summary["IO_MODE"] = "No internal pull-up or pull-down resistor enabled"
+            elif (args.io_mode == "PULLUP"):
+                summary["IO_MODE"] = "Logic high in the absence of an external connection"
+            elif (args.io_mode == "PULLDOWN"):
+                summary["IO_MODE"] = "Logic low in the absence of an external connection"
+        # CLOCK
         if (args.clocking == "RX_CLOCK"):
             summary["CLOCK"] = "IOPAD provides the clock signal"
         elif (args.clocking == "PLL"):
@@ -3384,8 +3396,15 @@ def main():
         if (args.io_model == "O_SERDES"):
             summary["CLOCK_FORWARDING"] = args.clock_forwarding
         
-    elif (args.io_model in ["I_DELAY", "I_DELAY_I_SERDES", "I_DELAY_I_DDR", "O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR"]):
+    elif (args.io_model in ["IO_DELAY"]):
         summary["TAP_DELAY_VALUE"] = args.delay
+        if (args.direction == "UNIDIRECTIONAL"):
+            if (args.combination in ["I_DELAY", "I_DELAY_I_SERDES", "I_DELAY_I_DDR"]):
+                summary["UTILIZATION"] = str(args.num_idly) + " " + args.combination
+            elif (args.combination in ["O_DELAY", "O_DELAY_O_SERDES", "O_DELAY_O_DDR"]):
+                summary["UTILIZATION"] = str(args.num_odly) + " " + args.combination
+        elif (args.direction == "BIDIRECTIONAL"):
+            summary["UTILIZATION"] = str(args.num_dly) + " " + args.combination
     
     # Export JSON Template (Optional) --------------------------------------------------------------
     if args.json_template:
