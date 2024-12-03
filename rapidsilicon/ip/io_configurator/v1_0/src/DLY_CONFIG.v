@@ -400,6 +400,7 @@ end
 
 `ifdef bidirectional
 wire  [(NUM_DLY/2)-1:0] i_buf_out;
+wire  [(NUM_DLY/2)-1:0] odly_out;
 
 generate
     for(genvar i = 0; i < NUM_DLY/2; i = i + 1) begin
