@@ -4,6 +4,7 @@
 `include "header.vh"
 
 module DLY_CONFIG #(
+    parameter IO_MODEL                  = "I_DELAY",
     // IO_BUF
     parameter WEAK_KEEPER               = "NONE",
     parameter IOSTANDARD                = "DEFAULT",
@@ -400,6 +401,7 @@ end
 
 `ifdef bidirectional
 wire  [(NUM_DLY/2)-1:0] i_buf_out;
+wire  [(NUM_DLY/2)-1:0] odly_out;
 
 generate
     for(genvar i = 0; i < NUM_DLY/2; i = i + 1) begin
