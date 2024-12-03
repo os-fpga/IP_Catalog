@@ -69,10 +69,8 @@ BOOT_CLOCK BOOT_CLOCK(
 );
 
 PLL #(
-	.DIVIDE_CLK_IN_BY_2("FALSE"),
 	.PLL_DIV(1'd1),
 	.PLL_MULT(7'd80),
-	.PLL_POST_DIV(2'd2)
 ) PLL (
 	.CLK_IN(lo_clk),
 	.PLL_EN(1'd1),
