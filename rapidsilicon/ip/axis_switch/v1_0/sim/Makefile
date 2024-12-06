@@ -19,7 +19,7 @@
 # THE SOFTWARE.
 
 TOPLEVEL_LANG = verilog
-
+ 
 SIM ?= icarus
 WAVES ?= 1
 
@@ -44,12 +44,11 @@ Raptor_PATH := $(shell dirname $(shell which raptor ))
 FOLDER_PATH = ./../../../../../../../../../ # /path/to/project
 
 # Dynamically fetch the name of the folder (first one in this case)
-FOLDER_NAME = $(shell find $(FOLDER_PATH) -maxdepth 1 -type d -name "project*" | xargs -n 1 basename | head -n 1)
-
+FOLDER_NAME = $(shell find $(FOLDER_PATH) -maxdepth 1 -type f -name "*.ospr" | xargs -n 1 basename | sed 's/\.ospr$$//' | head -n 1)
 #@echo "The folder name is: $(FOLDER_NAME)"
 
 ifeq ($(POST_SYNTH_SIM), 0)
-	VERILOG_SOURCES += ./../src*.v
+	VERILOG_SOURCES += ./../src/*.v
 else ifeq ($(POST_SYNTH_SIM), 1)
 	VERILOG_SOURCES += $(Raptor_PATH)/../share/yosys/rapidsilicon/genesis3/FPGA_PRIMITIVES_MODELS/sim_models/verilog/*.v
 	VERILOG_SOURCES += ./../../../../../../../synth_1_1/synthesis/$(FOLDER_NAME)_post_synth.v

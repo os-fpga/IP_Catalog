@@ -43,8 +43,7 @@ Raptor_PATH := $(shell dirname $(shell which raptor ))
 FOLDER_PATH = ./../../../../../../../../../ # /path/to/project
 
 # Dynamically fetch the name of the folder (first one in this case)
-FOLDER_NAME = $(shell find $(FOLDER_PATH) -maxdepth 1 -type d -name "project*" | xargs -n 1 basename | head -n 1)
-
+FOLDER_NAME = $(shell find $(FOLDER_PATH) -maxdepth 1 -type f -name "*.ospr" | xargs -n 1 basename | sed 's/\.ospr$$//' | head -n 1)
 #@echo "The folder name is: $(FOLDER_NAME)"
 
 ifeq ($(POST_SYNTH_SIM), 0)
