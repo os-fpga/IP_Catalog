@@ -38,6 +38,8 @@ TOPLEVEL = $(MODULE_NAME)
 MODULE   = test_$(DUT)
 
 
+Raptor_PATH := $(shell dirname $(shell which raptor ))
+
 FOLDER_PATH = ./../../../../../../../../../ # /path/to/project
 
 # Dynamically fetch the name of the folder (first one in this case)
@@ -48,7 +50,7 @@ FOLDER_NAME = $(shell find $(FOLDER_PATH) -maxdepth 1 -type d -name "project*" |
 ifeq ($(POST_SYNTH_SIM), 0)
 	VERILOG_SOURCES += ./../src*.v
 else ifeq ($(POST_SYNTH_SIM), 1)
-	VERILOG_SOURCES += /home/users/bilal.ahmed/interconnect/post_synth_support/FPGA_PRIMITIVES_MODELS/sim_models/verilog/*.v
+	VERILOG_SOURCES += $(Raptor_PATH)/../share/yosys/rapidsilicon/genesis3/FPGA_PRIMITIVES_MODELS/sim_models/verilog/*.v
 	VERILOG_SOURCES += ./../../../../../../../synth_1_1/synthesis/$(FOLDER_NAME)_post_synth.v
 endif
 
